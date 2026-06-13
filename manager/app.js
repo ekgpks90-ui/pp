@@ -3123,12 +3123,11 @@ function renderAssignSteps() {
     const maxShow = 3;
     const shown = assignees.slice(0, maxShow);
     const extra = assignees.length - maxShow;
-    const avatarHtml = shown.map((n, i) =>
-      `<span class="assign-step-avatar" style="background:${memberBg(n)};${i > 0 ? 'margin-left:-6px' : ''}">${n[0]}</span>`
-    ).join('');
-    const extraHtml = extra > 0 ? `<span class="assign-step-extra">+${extra}</span>` : '';
+    const avatarsInner = shown.map(n =>
+      `<span class="assign-step-avatar" style="background:${memberBg(n)}">${n[0]}</span>`
+    ).join('') + (extra > 0 ? `<span class="assign-step-extra">+${extra}</span>` : '');
     const btnContent = assignees.length > 0
-      ? `${avatarHtml}${extraHtml}<span class="assign-step-name">${assignees.length}명</span>`
+      ? `<span class="assign-step-avatars">${avatarsInner}</span><span class="assign-step-name">${assignees.length}명</span>`
       : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`;
     return `
       <div class="assign-step-row" data-step-id="${step.id}">
