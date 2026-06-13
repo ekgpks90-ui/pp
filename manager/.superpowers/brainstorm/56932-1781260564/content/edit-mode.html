@@ -1,0 +1,91 @@
+<h2>패널에서 업무 수정 — 어떤 방식이 좋을까요?</h2>
+<p class="subtitle">상세 패널을 열었을 때 내용을 수정하려면?</p>
+
+<div class="split" style="gap:24px;margin-top:20px">
+
+  <!-- Option A: Read-only (view only) -->
+  <div class="mockup" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer;border:2px solid transparent;border-radius:12px;transition:border-color 0.2s">
+    <div class="mockup-header">A. 보기 전용 (수정 없음)</div>
+    <div class="mockup-body" style="padding:12px">
+      <div style="background:white;border-radius:8px;padding:14px;border:1px solid #e5e7eb;font-size:11px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span style="font-weight:700;font-size:12px">업무 상세</span>
+          <span style="color:#9ca3af;font-size:10px">✕ 닫기</span>
+        </div>
+        <div style="background:#f3f4f6;border-radius:6px;padding:8px;margin-bottom:8px">
+          <div style="font-weight:700;font-size:12px;margin-bottom:3px">QA 긴급 배포 준비</div>
+          <div style="color:#ef4444;font-size:10px">🔴 긴급</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="font-size:10px"><span style="color:#9ca3af">마감</span><br><strong>2026-06-12</strong></div>
+          <div style="font-size:10px"><span style="color:#9ca3af">상태</span><br><strong>진행중</strong></div>
+        </div>
+        <div style="font-size:10px;color:#6b7280;margin-bottom:10px;line-height:1.5">QA 완료 후 스테이징 및 프로덕션 배포를 준비합니다.</div>
+        <div style="font-size:10px;font-weight:600;margin-bottom:6px">작업 세션 (3개)</div>
+        <div style="font-size:10px;color:#6b7280;padding:5px 0;border-bottom:1px solid #f3f4f6">배포 환경 설정 확인 · 09:00~10:30</div>
+        <div style="font-size:10px;color:#6b7280;padding:5px 0;border-bottom:1px solid #f3f4f6">QA 체크리스트 작성 · 11:00~12:00</div>
+        <div style="font-size:10px;color:#6b7280;padding:5px 0">빌드 오류 수정 · 14:00~15:30</div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#f0f9ff;border-radius:6px;font-size:10px;color:#0c4a6e;line-height:1.4">
+        <strong>특징</strong><br>
+        • 상세 패널은 조회 전용<br>
+        • 수정하려면 별도 편집 화면 이동<br>
+        • MVP에서 가장 단순한 구현
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Inline editing -->
+  <div class="mockup" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer;border:2px solid transparent;border-radius:12px;transition:border-color 0.2s">
+    <div class="mockup-header">B. 인라인 수정</div>
+    <div class="mockup-body" style="padding:12px">
+      <div style="background:white;border-radius:8px;padding:14px;border:1px solid #e5e7eb;font-size:11px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span style="font-weight:700;font-size:12px">업무 상세</span>
+          <span style="color:#9ca3af;font-size:10px">✕ 닫기</span>
+        </div>
+        <div style="background:#f3f4f6;border-radius:6px;padding:8px;margin-bottom:8px">
+          <!-- Editable title -->
+          <div style="border:1.5px solid #6366f1;border-radius:4px;padding:4px 6px;background:white;font-weight:700;font-size:12px;margin-bottom:4px;color:#111827">QA 긴급 배포 준비<span style="color:#6366f1;font-size:10px;margin-left:4px">|</span></div>
+          <!-- Editable type dropdown -->
+          <select style="font-size:10px;border:1px solid #d1d5db;border-radius:4px;padding:2px 4px;color:#ef4444">
+            <option>🔴 긴급</option>
+            <option>⚪ 일반</option>
+            <option>📌 고정</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="font-size:10px">
+            <span style="color:#9ca3af">마감</span><br>
+            <input type="date" value="2026-06-12" style="font-size:10px;border:1px solid #d1d5db;border-radius:4px;padding:2px 4px;width:100%">
+          </div>
+          <div style="font-size:10px"><span style="color:#9ca3af">상태</span><br><strong>진행중</strong></div>
+        </div>
+        <textarea style="width:100%;font-size:10px;border:1px solid #d1d5db;border-radius:4px;padding:4px;color:#6b7280;resize:none;height:44px;line-height:1.4">QA 완료 후 스테이징 및 프로덕션 배포를 준비합니다.</textarea>
+        <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px;margin-bottom:6px">
+          <button style="font-size:10px;padding:4px 10px;border:1px solid #d1d5db;border-radius:5px;background:white;color:#374151">취소</button>
+          <button style="font-size:10px;padding:4px 10px;border:none;border-radius:5px;background:#6366f1;color:white">저장</button>
+        </div>
+        <div style="font-size:10px;font-weight:600;margin-bottom:4px">작업 세션 (3개)</div>
+        <div style="font-size:10px;color:#6b7280;padding:4px 0;border-bottom:1px solid #f3f4f6">배포 환경 설정 확인 · 09:00~10:30</div>
+        <div style="font-size:10px;color:#6b7280;padding:4px 0">QA 체크리스트 작성 · 11:00~12:00</div>
+      </div>
+      <div style="margin-top:10px;padding:8px;background:#fef9c3;border-radius:6px;font-size:10px;color:#854d0e;line-height:1.4">
+        <strong>특징</strong><br>
+        • 패널 안에서 바로 필드 수정<br>
+        • 업무명·유형·마감일·설명 수정 가능<br>
+        • 저장/취소 버튼으로 확정
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;text-align:center">클릭해서 선호하는 방식을 선택해 주세요</p>
+
+<style>
+  .mockup[data-choice].selected {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px #eef2ff;
+  }
+</style>
