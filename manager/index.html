@@ -145,13 +145,19 @@
           </div>
         </section>
 
-        <!-- ── Calendar (Monthly Grid) Page ── -->
+        <!-- ── Calendar Page (Project Timeline) ── -->
         <section class="cal-grid-page hidden" id="calPage">
-          <div class="cal-card">
-            <!-- Card header -->
-            <div class="card-header">
-              <h2>Calendar</h2>
-              <div class="cal-header-controls">
+          <div class="cal-split">
+
+            <!-- Left: Project navigation sidebar -->
+            <nav class="cal-proj-sidebar" id="calProjSidebar">
+              <div class="cal-proj-sidebar-label">진행 중 프로젝트</div>
+            </nav>
+
+            <!-- Right: Timeline area -->
+            <div class="cal-proj-main">
+              <div class="cal-proj-topbar">
+                <span class="cal-proj-selected-name" id="calProjSelectedName">← 프로젝트 선택</span>
                 <div class="cal-month-nav">
                   <button class="icon-btn" id="calPrevMonth">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
@@ -161,26 +167,13 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
                   </button>
                 </div>
-                <div class="cal-status-tabs" id="calStatusTabs"></div>
               </div>
+              <div class="cal-proj-timeline" id="calProjTimeline"></div>
             </div>
 
-            <!-- Day of week header row -->
-            <div class="cal-dow-row" id="calDowRow">
-              <div class="cal-dow sun">일</div>
-              <div class="cal-dow">월</div>
-              <div class="cal-dow">화</div>
-              <div class="cal-dow">수</div>
-              <div class="cal-dow">목</div>
-              <div class="cal-dow">금</div>
-              <div class="cal-dow sat">토</div>
-            </div>
-
-            <!-- Grid body (week rows) -->
-            <div class="cal-grid-body" id="calGridBody"></div>
           </div>
 
-          <!-- Detail panel (right slide-in, fixed overlay) -->
+          <!-- Detail panel -->
           <div class="cal-event-detail hidden" id="calEventDetail">
             <div class="cal-event-detail-header">
               <span class="cal-detail-label">업무 상세</span>
@@ -253,6 +246,7 @@
           <section class="col-card">
             <div class="card-header">
               <h2>오늘 할 일</h2>
+              <input type="date" id="dailyTodoDatePicker" class="daily-date-picker" />
             </div>
             <div class="session-list" id="sessionList"></div>
             <div class="progress-wrap" id="progressWrap" style="display:none"></div>
@@ -485,24 +479,22 @@
           <h2>업무항목 추가</h2>
           <button class="icon-btn" id="closeAcceptModal" type="button">✕</button>
         </div>
-        <div id="acceptRequestInfo" style="background:#f8f9fb;border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:#6b7280;line-height:1.5"></div>
         <form class="form-stack" id="acceptForm">
-          <label>
-            <span>업무항목명</span>
-            <input id="acceptTitle" required placeholder="업무항목 이름" readonly tabindex="-1" />
-          </label>
-          <label>
-            <span>업무유형</span>
-            <select id="acceptType" disabled>
-              <option value="일반">⚪ 일반</option>
-              <option value="긴급">🔴 긴급</option>
-              <option value="고정">📌 고정</option>
-            </select>
-          </label>
-          <div class="form-row">
-            <label><span>시작일</span><input type="date" id="acceptStart" /></label>
-            <label><span>마감일</span><input type="date" id="acceptEnd" /></label>
+          <div class="accept-item-row">
+            <span class="accept-item-label">업무항목명</span>
+            <div class="accept-item-info">
+              <span class="accept-item-title" id="acceptTitleDisplay"></span>
+              <span class="accept-item-period" id="acceptPeriodDisplay"></span>
+            </div>
           </div>
+          <div class="accept-item-row">
+            <span class="accept-item-label">프로세스</span>
+            <span class="accept-process-name" id="acceptProcessDisplay">—</span>
+          </div>
+          <label>
+            <span>작업 날짜 <span style="font-weight:400;color:var(--muted)">(이 날짜 오늘 할 일에 자동 추가)</span></span>
+            <input type="date" id="acceptTodoDate" required />
+          </label>
           <div class="btn-row">
             <button class="secondary-btn" type="button" id="cancelAcceptModal">취소</button>
             <button class="dark-btn" type="submit">확인</button>
