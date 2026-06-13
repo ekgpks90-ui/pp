@@ -3080,7 +3080,14 @@ function renderAssignSteps() {
   if (!req) return;
   const proc = state.processes.find(p => p.id === req.processId);
   const list = document.getElementById('assignStepsList');
+  const panel = document.getElementById('assignStepPanel');
   if (!list) return;
+
+  // innerHTML 교체 전에 패널을 목록 밖으로 빼놓아야 사라지지 않음
+  if (panel && list.contains(panel)) {
+    list.after(panel);
+  }
+
   if (!proc || !proc.steps.length) {
     list.innerHTML = '<div class="assign-steps-empty">연결된 프로세스가 없습니다.</div>';
     return;
