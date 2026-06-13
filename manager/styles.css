@@ -2682,6 +2682,21 @@ h1, h2, h3, p { margin: 0; }
 }
 .cal-tl-row:last-child { border-bottom: none; }
 
+/* 동일 단계 2번째+ 담당자 행 — 구분선 없이 이어붙임 */
+.cal-tl-row.cal-tl-row-sub {
+  border-bottom: none;
+  min-height: 36px;
+}
+.cal-tl-row.cal-tl-row-sub .cal-tl-info {
+  border-top: 1px dashed var(--line);
+}
+.cal-tl-row.cal-tl-row-sub .cal-tl-track {
+  border-top: 1px dashed var(--line);
+}
+.cal-tl-step-cont {
+  display: none; /* 첫 행에만 단계명 표시 */
+}
+
 .cal-tl-info {
   width: 220px;
   min-width: 220px;

@@ -237,10 +237,12 @@ const state = {
     { id: 'wr-a4', title: '신규 서비스 UX 리서치 — 리서치 (사용자/경쟁사)', detail: '[UI/UX 디자인] 신규 서비스 UX 리서치\n담당 단계: 리서치 (사용자/경쟁사)', requester: '정민지', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-10', end: '2026-06-17', priority: '일반', processId: 'pc-1', status: '수락' },
     { id: 'wr-a5', title: '고객사 A 브랜딩 작업 — 콘셉트 기획', detail: '[브랜드 & 인쇄물] 고객사 A 브랜딩 작업\n담당 단계: 콘셉트 기획', requester: '이준호', requestTeam: '영업팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-09', end: '2026-06-21', priority: '일반', processId: 'pc-2', status: '수락' },
     { id: 'wr-a6', title: '모바일 앱 UI 개선 — 정보구조도(IA) 설계', detail: '[UI/UX 디자인] 모바일 앱 UI 개선\n담당 단계: 정보구조도(IA) 설계', requester: '정민지', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-13', end: '2026-06-20', priority: '일반', processId: 'pc-1', status: '수락' },
+    // ar-9 추가 담당자 (최유진 — 정보구조도 IA 설계 공동 담당)
+    { id: 'wr-b1', title: '모바일 앱 아이콘 세트 리뉴얼 — 정보구조도(IA) 설계', detail: '[UI/UX 디자인] 모바일 앱 아이콘 세트 리뉴얼\n담당 단계: 정보구조도(IA) 설계', requester: '이지혜', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '최유진', start: '2026-06-15', end: '2026-06-22', priority: '일반', processId: 'pc-1', status: '수락 대기' },
   ],
 
   assignmentRequests: [
-    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '수락대기중', assignees: ['이지혜', '정하은'], processId: 'pc-3', stepAssignees: { 'ps-3-02': '이지혜', 'ps-3-04': '정하은', 'ps-3-06': '정하은', 'ps-3-07': '이지혜' } },
+    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '수락대기중', assignees: ['이지혜', '정하은'], processId: 'pc-3', stepAssignees: { 'ps-3-02': ['이지혜'], 'ps-3-04': ['정하은'], 'ps-3-06': ['정하은'], 'ps-3-07': ['이지혜'] } },
     { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-2', stepAssignees: {} },
     { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
     { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
@@ -248,7 +250,7 @@ const state = {
     { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
     { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
     { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', '이지혜'], processId: 'pc-1', stepAssignees: { 'ps-1-03': '이지혜', 'ps-1-07': '이지혜', 'ps-1-01': '정하은', 'ps-1-12': '정하은' } },
+    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', '이지혜', '최유진'], processId: 'pc-1', stepAssignees: { 'ps-1-01': ['정하은'], 'ps-1-03': ['이지혜', '최유진'], 'ps-1-07': ['이지혜'], 'ps-1-12': ['정하은'] } },
   ],
 
   notifications: [
@@ -2421,14 +2423,15 @@ function renderCalTimeline() {
   const monthStart = `${monthPfx}-01`;
   const monthEnd = `${monthPfx}-${String(daysInMonth).padStart(2, '0')}`;
 
-  // Match per-step requests to this project by title prefix
-  const stepReqByName = {};
-  state.requests
-    .filter(r => r.title.startsWith(project.title + ' — '))
-    .forEach(r => {
-      const stepName = r.title.slice(project.title.length + 3);
-      stepReqByName[stepName] = r;
-    });
+  // Match per-step requests by project title prefix + assignee name
+  const projectPrefix = project.title + ' — ';
+  const projRequests = state.requests.filter(r => r.title.startsWith(projectPrefix));
+
+  function getStepReq(stepTitle, assigneeName) {
+    return projRequests.find(r =>
+      r.title.slice(projectPrefix.length) === stepTitle && r.assignee === assigneeName
+    ) || null;
+  }
 
   // Only show steps that have assignees
   const assignedStepIds = new Set(Object.keys(project.stepAssignees || {}));
@@ -2459,40 +2462,45 @@ function renderCalTimeline() {
     return `<div class="cal-tl-cell${isWeekend ? ' tl-weekend-cell' : ''}${isToday ? ' tl-today-cell' : ''}"></div>`;
   }).join('');
 
-  // Step rows
-  const rowsHtml = steps.map(step => {
-    const assigneeName = project.stepAssignees[step.id] || '';
-    const req = stepReqByName[step.title];
-
-    let barHtml = '';
-    if (req && req.start && req.end && req.start <= monthEnd && req.end >= monthStart) {
-      const startDay = parseInt((req.start < monthStart ? monthStart : req.start).slice(8));
-      const endDay = parseInt((req.end > monthEnd ? monthEnd : req.end).slice(8));
-      const leftPct = ((startDay - 1) / daysInMonth * 100).toFixed(3);
-      const widthPct = ((endDay - startDay + 1) / daysInMonth * 100).toFixed(3);
-      const color = memberColor(assigneeName);
-      barHtml = `<div class="cal-tl-bar" style="left:${leftPct}%;width:${widthPct}%;background:${color}22;border-left:3px solid ${color}">
-        <span class="cal-tl-bar-label" style="color:${color}">${escapeHtml(step.title)}</span>
-      </div>`;
-    }
-
-    const whoHtml = assigneeName
-      ? `<span class="cal-tl-who">
-          <span class="cal-avatar" style="background:${memberColor(assigneeName)};width:18px;height:18px;font-size:9px;line-height:18px">${escapeHtml(assigneeName[0])}</span>
-          ${escapeHtml(assigneeName)}
-        </span>`
-      : '<span class="cal-tl-who cal-tl-unassigned">미배정</span>';
-
-    return `<div class="cal-tl-row">
-      <div class="cal-tl-info">
-        <span class="cal-tl-step">${escapeHtml(step.title)}</span>
-        ${whoHtml}
-      </div>
-      <div class="cal-tl-track">
-        <div class="cal-tl-grid">${gridCellsHtml}</div>
-        ${barHtml}
-      </div>
+  function makeBarHtml(req, assigneeName) {
+    if (!req || !req.start || !req.end) return '';
+    if (req.start > monthEnd || req.end < monthStart) return '';
+    const startDay = parseInt((req.start < monthStart ? monthStart : req.start).slice(8));
+    const endDay   = parseInt((req.end   > monthEnd   ? monthEnd   : req.end).slice(8));
+    const leftPct  = ((startDay - 1) / daysInMonth * 100).toFixed(3);
+    const widthPct = ((endDay - startDay + 1) / daysInMonth * 100).toFixed(3);
+    const color = memberColor(assigneeName);
+    return `<div class="cal-tl-bar" style="left:${leftPct}%;width:${widthPct}%;background:${color}22;border-left:3px solid ${color}">
+      <span class="cal-tl-bar-label" style="color:${color}">${escapeHtml(assigneeName)}</span>
     </div>`;
+  }
+
+  // Step rows — one row per assignee per step (A안)
+  const rowsHtml = steps.map(step => {
+    const rawAssignees = project.stepAssignees[step.id] || [];
+    const assigneeList = Array.isArray(rawAssignees) ? rawAssignees : [rawAssignees];
+
+    return assigneeList.map((assigneeName, idx) => {
+      const isFirst = idx === 0;
+      const req = getStepReq(step.title, assigneeName);
+      const barHtml = makeBarHtml(req, assigneeName);
+
+      const whoHtml = `<span class="cal-tl-who">
+        <span class="cal-avatar" style="background:${memberColor(assigneeName)};width:18px;height:18px;font-size:9px;line-height:18px">${escapeHtml(assigneeName[0])}</span>
+        ${escapeHtml(assigneeName)}
+      </span>`;
+
+      return `<div class="cal-tl-row${isFirst ? '' : ' cal-tl-row-sub'}">
+        <div class="cal-tl-info">
+          ${isFirst ? `<span class="cal-tl-step">${escapeHtml(step.title)}</span>` : `<span class="cal-tl-step cal-tl-step-cont"></span>`}
+          ${whoHtml}
+        </div>
+        <div class="cal-tl-track">
+          <div class="cal-tl-grid">${gridCellsHtml}</div>
+          ${barHtml}
+        </div>
+      </div>`;
+    }).join('');
   }).join('');
 
   el.innerHTML = `
