@@ -3119,18 +3119,25 @@ function renderAssignSteps() {
     return;
   }
   list.innerHTML = proc.steps.map((step, idx) => {
-    const assignee = _assignStepAssignees[step.id] || null;
-    const bg = assignee ? memberBg(assignee) : null;
+    const assignees = _assignStepAssignees[step.id] || [];
+    const maxShow = 3;
+    const shown = assignees.slice(0, maxShow);
+    const extra = assignees.length - maxShow;
+    const avatarHtml = shown.map((n, i) =>
+      `<span class="assign-step-avatar" style="background:${memberBg(n)};${i > 0 ? 'margin-left:-6px' : ''}">${n[0]}</span>`
+    ).join('');
+    const extraHtml = extra > 0 ? `<span class="assign-step-extra">+${extra}</span>` : '';
+    const btnContent = assignees.length > 0
+      ? `${avatarHtml}${extraHtml}<span class="assign-step-name">${assignees.length}명</span>`
+      : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`;
     return `
       <div class="assign-step-row" data-step-id="${step.id}">
         <span class="assign-step-num">${idx + 1}</span>
         <span class="assign-step-title">${escapeHtml(step.title)}</span>
-        <button class="assign-step-btn${assignee ? ' has-assignee' : ''}" type="button"
+        <button class="assign-step-btn${assignees.length > 0 ? ' has-assignee' : ''}" type="button"
           data-open-step-panel="${escapeHtml(step.id)}"
-          title="${assignee ? escapeHtml(assignee) : '담당자 지정'}">
-          ${assignee
-            ? `<span class="assign-step-avatar" style="background:${bg}">${assignee[0]}</span><span class="assign-step-name">${escapeHtml(assignee)}</span>`
-            : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`}
+          title="${assignees.length > 0 ? assignees.join(', ') : '담당자 지정'}">
+          ${btnContent}
         </button>
       </div>`;
   }).join('');
@@ -3140,27 +3147,20 @@ function renderAssignStepPanel(stepId) {
   const list = document.getElementById('assignStepMemberList');
   if (!list) return;
   const members = state.teamMembers.filter(m => !m.onLeave);
-  const current = _assignStepAssignees[stepId] || null;
-  list.innerHTML = [
-    `<div class="assign-step-panel-opt${current === null ? ' is-selected' : ''}" data-pick-step-member="" data-for-step="${stepId}">
-      <span class="assign-step-panel-none">—</span>
-      <span class="assign-member-name" style="color:var(--muted)">미지정</span>
-      <div class="ap-check${current === null ? ' checked' : ''}">✓</div>
-    </div>`,
-    ...members.map(m => {
-      const bg = memberBg(m.name);
-      const checked = current === m.name;
-      return `
-        <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-step-member="${escapeHtml(m.name)}" data-for-step="${escapeHtml(stepId)}">
-          <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
-          <div>
-            <div class="assign-member-name">${escapeHtml(m.name)}</div>
-            <div class="assign-member-role">${escapeHtml(m.role)}</div>
-          </div>
-          <div class="ap-check${checked ? ' checked' : ''}">✓</div>
-        </div>`;
-    }),
-  ].join('');
+  const current = _assignStepAssignees[stepId] || [];
+  list.innerHTML = members.map(m => {
+    const bg = memberBg(m.name);
+    const checked = current.includes(m.name);
+    return `
+      <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-step-member="${escapeHtml(m.name)}" data-for-step="${escapeHtml(stepId)}">
+        <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
+        <div>
+          <div class="assign-member-name">${escapeHtml(m.name)}</div>
+          <div class="assign-member-role">${escapeHtml(m.role)}</div>
+        </div>
+        <div class="ap-check${checked ? ' checked' : ''}">✓</div>
+      </div>`;
+  }).join('');
 }
 
 function submitAssign() {
@@ -3169,7 +3169,7 @@ function submitAssign() {
   if (!req) return;
   req.stepAssignees = { ..._assignStepAssignees };
   // assignees: 중복 없는 담당자 목록 (하위 단계에서 지정된 모든 사람)
-  req.assignees = [...new Set(Object.values(_assignStepAssignees).filter(Boolean))];
+  req.assignees = [...new Set(Object.values(_assignStepAssignees).flat())];
   req.status = '수락대기중';
   closeAssignModal();
   renderTeamStatusPage();
@@ -3705,15 +3705,23 @@ function bindEvents() {
       return;
     }
 
-    // Assign modal: pick member for step
+    // Assign modal: pick member for step (multi-select toggle)
     const pickStepMember = e.target.closest('[data-pick-step-member]');
     if (pickStepMember && pickStepMember.hasAttribute('data-for-step')) {
       const stepId = pickStepMember.dataset.forStep;
-      const name   = pickStepMember.dataset.pickStepMember || null;
-      _assignStepAssignees[stepId] = name || null;
-      document.getElementById('assignStepPanel')?.classList.add('hidden');
-      _assignActiveStepId = null;
+      const name   = pickStepMember.dataset.pickStepMember;
+      if (!name) return;
+      if (!_assignStepAssignees[stepId]) _assignStepAssignees[stepId] = [];
+      const arr = _assignStepAssignees[stepId];
+      const i = arr.indexOf(name);
+      if (i >= 0) arr.splice(i, 1); else arr.push(name);
+      // 패널은 열린 채로 유지 — 체크만 갱신 후 스텝 목록 아바타 업데이트
+      renderAssignStepPanel(stepId);
       renderAssignSteps();
+      // 패널 다시 해당 행에 부착
+      const panel = document.getElementById('assignStepPanel');
+      const row   = document.querySelector(`.assign-step-row[data-step-id="${stepId}"]`);
+      if (panel && row) { row.appendChild(panel); panel.classList.remove('hidden'); }
       return;
     }
 

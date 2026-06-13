@@ -4573,8 +4573,9 @@ h1, h2, h3, p { margin: 0; }
   flex-shrink: 0;
 }
 .assign-step-plus  { font-size: 16px; line-height: 1; color: var(--muted); }
-.assign-step-name  { font-size: 12px; }
+.assign-step-name  { font-size: 12px; margin-left: 4px; }
 .assign-step-name.muted { color: var(--muted); }
+.assign-step-extra { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-left: 3px; }
 
 .ap-step-panel {
   position: absolute;
