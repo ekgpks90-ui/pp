@@ -2200,11 +2200,8 @@ h1, h2, h3, p { margin: 0; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.ts-req-hours {
-  color: var(--muted);
-  font-size: 12px;
-  text-align: right;
+.ts-req-team-center {
+  text-align: center;
 }
 
 .ts-req-deadline {
@@ -2221,7 +2218,6 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .ts-pri-urgent { background: var(--red-soft); color: var(--red); }
-.ts-pri-high { background: var(--orange-soft); color: var(--orange); }
 .ts-pri-normal { background: var(--surface-muted); color: var(--muted); }
 
 .ts-req-assignee {
