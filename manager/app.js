@@ -3729,12 +3729,22 @@ function bindEvents() {
       return;
     }
 
-    // Close step panel on outside click
+    // Close assign step panel on outside click
     const stepPanel = document.getElementById('assignStepPanel');
-    const stepsList = document.getElementById('assignStepsList');
-    if (stepPanel && stepsList && !stepPanel.contains(e.target) && !stepsList.contains(e.target)) {
+    if (stepPanel && !stepPanel.classList.contains('hidden')
+        && !stepPanel.contains(e.target)
+        && !e.target.closest('[data-open-step-panel]')) {
       stepPanel.classList.add('hidden');
       _assignActiveStepId = null;
+    }
+
+    // Close wr step panel on outside click
+    const wrPanel = document.getElementById('wrStepPanel');
+    if (wrPanel && !wrPanel.classList.contains('hidden')
+        && !wrPanel.contains(e.target)
+        && !e.target.closest('[data-open-wr-step-panel]')) {
+      wrPanel.classList.add('hidden');
+      _wrActiveStepId = null;
     }
 
     // Close popover on outside click
