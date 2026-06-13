@@ -421,9 +421,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .notif-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  display: block;
   padding: 10px;
   border-radius: 8px;
   background: var(--surface-muted);
@@ -898,6 +896,15 @@ h1, h2, h3, p { margin: 0; }
   color: var(--soft);
 }
 
+.session-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.session-add-btn,
 .session-del-btn {
   flex: 0 0 auto;
   opacity: 0;
@@ -906,15 +913,20 @@ h1, h2, h3, p { margin: 0; }
   border-radius: 6px;
   background: white;
   color: var(--muted);
-  font-size: 11px;
-  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
   height: 24px;
   transition: opacity 0.12s, color 0.12s, border-color 0.12s;
-  white-space: nowrap;
-  margin-top: 2px;
+  cursor: pointer;
 }
+
+.session-add-btn:hover { color: var(--blue); border-color: var(--blue); }
 .session-del-btn:hover { color: var(--red); border-color: var(--red-mid); }
 
+.session-row:hover .session-add-btn,
+.session-row:focus-within .session-add-btn,
 .session-row:hover .session-del-btn,
 .session-row:focus-within .session-del-btn {
   opacity: 1;
@@ -1423,6 +1435,25 @@ h1, h2, h3, p { margin: 0; }
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 .form-stack input::placeholder, .form-stack textarea::placeholder { color: var(--soft); }
+.form-stack input[readonly],
+.form-stack select[disabled] {
+  background: var(--surface-muted);
+  color: var(--text-sub);
+  cursor: default;
+  pointer-events: none;
+  opacity: 1;
+}
+.form-stack select[disabled] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+.form-stack input[readonly]:focus,
+.form-stack select[disabled]:focus {
+  border-color: var(--line);
+  background: var(--surface-muted);
+  box-shadow: none;
+  outline: none;
+}
 .form-stack textarea { height: auto; padding: 10px 12px; }
 .form-stack input:focus, .form-stack select:focus, .form-stack textarea:focus {
   outline: none;
@@ -2128,11 +2159,11 @@ h1, h2, h3, p { margin: 0; }
 
 .ts-req-row {
   display: grid;
-  grid-template-columns: 88px minmax(120px, 1fr) 72px 40px 88px 52px 96px;
+  grid-template-columns: 88px minmax(120px, 1fr) 72px 88px 52px 96px;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  min-width: 600px;
+  min-width: 560px;
   font-size: 13px;
   color: var(--text);
 }

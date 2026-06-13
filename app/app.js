@@ -26,6 +26,7 @@ const state = {
   drawerActiveDay: 0,
   drawerDayTasks: null,
   inlineAddItemId: null,
+  inlineAddPreset: null,
   today: _todayISO,
   currentPage: 'home',
   calYear: _now.getFullYear(),
@@ -165,24 +166,24 @@ const state = {
 
   assignmentRequests: [
     // 신규요청 (2)
-    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignee: null },
-    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignee: null },
+    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', deadline: '2026-06-18', type: '긴급', status: '신규요청',   assignee: null },
+    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     deadline: '2026-06-20', type: '일반', status: '신규요청',   assignee: null },
     // 수락대기중 (2)
-    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '수락대기중', assignee: null },
-    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '높음', status: '수락대기중', assignee: null },
+    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   deadline: '2026-06-23', type: '일반', status: '수락대기중', assignee: null },
+    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   deadline: '2026-06-21', type: '고정', status: '수락대기중', assignee: null },
     // 미배정 (4)
-    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '미배정',     assignee: null },
-    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '미배정',     assignee: null },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '높음', status: '미배정',     assignee: null },
-    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '미배정',     assignee: null },
+    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   deadline: '2026-06-19', type: '일반', status: '미배정',     assignee: null },
+    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     deadline: '2026-06-25', type: '일반', status: '미배정',     assignee: null },
+    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', deadline: '2026-06-27', type: '고정', status: '미배정',     assignee: null },
+    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   deadline: '2026-06-28', type: '일반', status: '미배정',     assignee: null },
     // 배정완료
-    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignee: '정하은' },
+    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   deadline: '2026-06-24', type: '일반', status: '배정완료',   assignee: '정하은' },
   ],
 
   notifications: [
-    { id: 'n-1', level: '긴급', title: '긴급 업무요청 도착', body: '마케팅팀에서 신제품 론칭 SNS 배너 제작을 긴급 요청했습니다.', unread: true },
-    { id: 'n-2', level: '중요', title: '디자인 리뷰 피드백', body: '장준혁 님이 홈 화면 시안에 코멘트를 남겼습니다.', unread: true },
-    { id: 'n-3', level: '일반', title: '회의 일정 변경', body: '오늘 디자인 리뷰 미팅이 오후 3시로 변경되었습니다.', unread: false },
+    { id: 'n-1', title: '업무요청 도착', body: '마케팅팀에서 업무를 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
+    { id: 'n-2', title: '디자인 리뷰 피드백', body: '장준혁 님이 홈 화면 시안에 코멘트를 남겼습니다.', unread: true },
+    { id: 'n-3', title: '회의 일정 변경', body: '오늘 디자인 리뷰 미팅이 오후 3시로 변경되었습니다.', unread: false },
   ],
 
   meetings: [
@@ -732,33 +733,34 @@ function renderDailyTodo() {
   let inlineTopHtml = '';
   if (state.inlineAddItemId) {
     const inlineItem = state.workItems.find(w => w.id === state.inlineAddItemId);
+    const preset = state.inlineAddPreset || {};
+    const presetCat = preset.category || '';
+    const presetTitle = preset.title || '';
     inlineTopHtml = `
       <div class="task-inline-add task-inline-top" data-inline-wrap="${state.inlineAddItemId}">
         <span class="task-inline-label">${escapeHtml(inlineItem?.title || '')}</span>
         <div class="task-inline-fields">
           <select class="task-inline-cat" data-inline-cat="${state.inlineAddItemId}">
             <option value="">카테고리</option>
-            ${Object.keys(CAT_COLORS).map(c => `<option value="${c}">${c}</option>`).join('')}
+            ${Object.keys(CAT_COLORS).map(c => `<option value="${c}"${c === presetCat ? ' selected' : ''}>${c}</option>`).join('')}
           </select>
           <input class="task-inline-input" type="text"
             placeholder="세부 업무항목 입력 후 Enter"
+            value="${escapeHtml(presetTitle)}"
             data-inline-item="${state.inlineAddItemId}" autocomplete="off" />
         </div>
       </div>`;
   }
 
-  // 오늘 세션 전체 수집 후 시작시간 오름차순 정렬 (시간 없는 것은 맨 아래)
-  let allSessions = [];
-  todayItems.forEach(item => {
-    const sessions = sessionsByItem(item.id).filter(s => s.date === today);
-    allSessions.push(...sessions);
-  });
+  // state.sessions 삽입순서 그대로 필터 → 새 세션은 항상 맨 아래
+  const todayItemIds = new Set(todayItems.map(i => i.id));
+  let allSessions = state.sessions.filter(s => s.date === today && todayItemIds.has(s.workItemId));
   allSessions.sort((a, b) => {
     const hasA = !!a.startTime, hasB = !!b.startTime;
-    if (!hasA && !hasB) return 0;
-    if (!hasA) return 1;
-    if (!hasB) return -1;
-    return a.startTime.localeCompare(b.startTime);
+    if (hasA && hasB) return a.startTime.localeCompare(b.startTime);
+    if (hasA) return -1;
+    if (hasB) return 1;
+    return 0; // 시간 없는 것끼리: 삽입순서 유지 (stable sort) → 새 세션 맨 아래
   });
 
   const html = allSessions.map(s => renderSessionRow(s)).join('');
@@ -806,7 +808,14 @@ function renderSessionRow(s) {
         ${titleHtml}
         ${timeMarkup}
       </div>
-      <button class="session-del-btn" type="button" data-delete-session="${s.id}">삭제</button>
+      <div class="session-actions">
+        <button class="session-add-btn" type="button" data-add-session-for="${s.workItemId}" data-add-session-cat="${escapeHtml(s.category || '')}" data-add-session-title="${escapeHtml(s.title || '')}" title="세션 추가">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="session-del-btn" type="button" data-delete-session="${s.id}">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M5 4V2.5A.5.5 0 015.5 2h5a.5.5 0 01.5.5V4M6 7v5M10 7v5M3 4l1 9.5A.5.5 0 004.5 14h7a.5.5 0 00.497-.5L13 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </div>
   `;
 }
@@ -896,9 +905,11 @@ function renderNotifications() {
 
   $('#notificationList').innerHTML = state.notifications.map(n => `
     <div class="notif-item ${n.unread ? 'unread' : ''}" data-notif-id="${n.id}" style="cursor:pointer">
-      <span class="notif-level ${n.level}">${n.level}</span>
       <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:2px">${escapeHtml(n.title)}</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span>${escapeHtml(n.title)}</span>
+          ${n.requestTitle ? `<span style="font-size:11px;font-weight:600;color:#4a66ff;background:#eef1ff;border-radius:4px;padding:2px 7px;flex-shrink:0">${escapeHtml(n.requestTitle)}</span>` : ''}
+        </div>
         <div style="font-size:12px;color:#6b7280">${escapeHtml(n.body)}</div>
       </div>
     </div>
@@ -946,7 +957,7 @@ function renderTeamStatusPage() {
     { status: '미배정',     label: '미배정',       cls: 'ts-req-unassigned' },
     { status: '배정완료',   label: '배정 완료',    cls: 'ts-req-done' },
   ];
-  const PRI_CLS = { '긴급': 'ts-pri-urgent', '높음': 'ts-pri-high', '일반': 'ts-pri-normal' };
+  const TYPE_CLS = { '긴급': 'ts-pri-urgent', '고정': 'ts-pri-fixed', '일반': 'ts-pri-normal' };
 
   const reqHtml = REQ_GROUPS.map(group => {
     const items = reqs.filter(r => r.status === group.status);
@@ -955,10 +966,9 @@ function renderTeamStatusPage() {
       <div class="ts-req-row">
         <span class="ts-req-status-badge ${group.cls}-badge">${escapeHtml(group.label)}</span>
         <span class="ts-req-title">${escapeHtml(r.title)}</span>
-        <span class="ts-req-team">${escapeHtml(r.team)}</span>
-        <span class="ts-req-hours">${r.hours}h</span>
+        <span class="ts-req-team ts-req-team-center">${escapeHtml(r.team)}</span>
         <span class="ts-req-deadline">${escapeHtml(r.deadline)}</span>
-        <span class="ts-req-pri ${PRI_CLS[r.priority] || 'ts-pri-normal'}">${escapeHtml(r.priority)}</span>
+        <span class="ts-req-pri ${TYPE_CLS[r.type] || 'ts-pri-normal'}">${escapeHtml(r.type)}</span>
         <span class="ts-req-assignee">
           ${r.assignee
             ? `<span class="ts-req-assigned-name">${escapeHtml(r.assignee)}</span>`
@@ -2612,7 +2622,7 @@ function submitAcceptForm(e) {
   const diffDays = Math.floor((toDate(start) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
   state.weekOffset = Math.floor(diffDays / 7);
 
-  addNotification('중요', '업무항목 추가', `"${title}" 업무항목이 이번 주 업무에 추가되었습니다.`);
+  addNotification('중요', '업무요청 수락', '업무항목이 이번 주 업무에 추가되었습니다.', title);
   closeAcceptModal();
   closeRequestModal();
   renderAll();
@@ -2639,7 +2649,7 @@ function rejectRequest(reason, detail) {
   r.rejectReason = reason;
   r.rejectDetail = detail;
   r.rejectedAt = state.today;
-  addNotification('중요', '업무요청 거절', `${r.title} 요청을 거절했습니다.`);
+  addNotification('중요', '업무요청 거절', '요청을 거절했습니다.', r.title);
   closeRejectModal();
   closeRequestModal();
   renderAll();
@@ -2714,8 +2724,8 @@ function saveTimeEdit(id) {
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 
-function addNotification(level, title, body) {
-  state.notifications.unshift({ id: `n-${Date.now()}`, level, title, body, unread: true });
+function addNotification(level, title, body, requestTitle = null) {
+  state.notifications.unshift({ id: `n-${Date.now()}`, title, body, ...(requestTitle && { requestTitle }), unread: true });
 }
 
 // ─── Drawer Helpers (stubs kept for event binding) ───────────────────────────
@@ -2897,6 +2907,7 @@ function bindEvents() {
         !e.target.closest('#sessionList') &&
         !e.target.closest('#progressWrap')) {
       state.inlineAddItemId = null;
+      state.inlineAddPreset = null;
       renderAll();
     }
 
@@ -2927,6 +2938,24 @@ function bindEvents() {
 
     const toggle = e.target.closest('[data-toggle-session]');
     if (toggle) { toggleSession(toggle.dataset.toggleSession); return; }
+
+    // Add session for same work item
+    const addSessionBtn = e.target.closest('[data-add-session-for]');
+    if (addSessionBtn) {
+      const wiId = addSessionBtn.dataset.addSessionFor;
+      if (state.inlineAddItemId === wiId) {
+        state.inlineAddItemId = null;
+        state.inlineAddPreset = null;
+      } else {
+        state.inlineAddItemId = wiId;
+        state.inlineAddPreset = {
+          category: addSessionBtn.dataset.addSessionCat || '',
+          title: addSessionBtn.dataset.addSessionTitle || ''
+        };
+      }
+      renderDailyTodo();
+      return;
+    }
 
     // Delete session
     const del = e.target.closest('[data-delete-session]');
@@ -3073,6 +3102,7 @@ function bindEvents() {
     if (e.key === 'Escape') {
       e.preventDefault();
       state.inlineAddItemId = null;
+      state.inlineAddPreset = null;
       renderAll();
       return;
     }
@@ -3097,6 +3127,7 @@ function bindEvents() {
       });
       state.selectedTaskId = itemId;
       state.inlineAddItemId = null;
+      state.inlineAddPreset = null;
       renderAll();
     }
   });
@@ -3166,11 +3197,10 @@ function bindEvents() {
     return min <= now.getHours() * 60 + now.getMinutes();
   }
 
-  // 겹치는 시간 체크: 다른 세션과 시작~종료 범위가 겹치면 false
+  // 겹치는 시간 체크: 다른 세션과 시작~종료 범위가 겹치면 true
   function hasOverlap(session, newStart, newEnd) {
     const s0 = toMin(newStart), e0 = toMin(newEnd);
-    if (s0 < 0 || e0 < 0) return false;
-    if (s0 >= e0) return true; // 시작 >= 종료는 자체 오류
+    if (s0 < 0 || e0 < 0 || s0 >= e0) return false;
     return state.sessions.some(other => {
       if (other.id === session.id || other.date !== session.date) return false;
       const s1 = toMin(other.startTime), e1 = toMin(other.endTime);
@@ -3234,7 +3264,13 @@ function bindEvents() {
     }
     // 겹침 체크
     if (isStart) {
-      // 시작시간 입력 시: 기존 세션 범위 안에 들어오면 즉시 오류
+      // 종료시간보다 늦거나 같으면 자체 오류
+      if (s.endTime && toMin(val) >= toMin(s.endTime)) {
+        showTimeErrorTooltip(inp, '종료시간보다 이전 시간을 입력해주세요');
+        inp.value = s.startTime || '';
+        return;
+      }
+      // 기존 세션 범위 안에 시작시간이 들어오면 오류
       if (isStartInExistingSession(s, val)) {
         showTimeErrorTooltip(inp, '다른 세션과 시간이 겹칩니다');
         inp.value = s.startTime || '';
@@ -3247,7 +3283,13 @@ function bindEvents() {
         return;
       }
     } else {
-      // 종료시간 입력 시: 시작시간 있으면 전체 범위 체크
+      // 시작시간보다 빠르거나 같으면 자체 오류
+      if (s.startTime && toMin(val) <= toMin(s.startTime)) {
+        showTimeErrorTooltip(inp, '시작시간보다 이후 시간을 입력해주세요');
+        inp.value = s.endTime || '';
+        return;
+      }
+      // 시작시간 있으면 전체 범위 겹침 체크
       if (s.startTime && hasOverlap(s, s.startTime, val)) {
         showTimeErrorTooltip(inp, '다른 세션과 시간이 겹칩니다');
         inp.value = s.endTime || '';
