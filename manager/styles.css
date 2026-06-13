@@ -4419,53 +4419,52 @@ h1, h2, h3, p { margin: 0; }
 }
 .proc-card.is-open { box-shadow: var(--shadow-lg); }
 
-/* Header row */
+/* Header — full row clickable for toggle */
 .proc-card-header {
   display: flex;
   align-items: center;
-  padding: 0 12px 0 0;
-}
-
-/* Toggle button (left area — clickable to expand/collapse) */
-.proc-toggle-btn {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border: none;
-  background: transparent;
+  gap: 8px;
+  padding: 13px 14px;
   cursor: pointer;
-  text-align: left;
-  min-width: 0;
+  user-select: none;
+  transition: background 0.13s;
 }
-.proc-toggle-btn:hover { background: var(--surface-muted); }
+.proc-card-header:hover { background: var(--surface-muted); }
 
-.proc-chevron {
+.proc-cat-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
   flex: 0 0 auto;
-  color: var(--muted);
-  transition: transform 0.22s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
-.proc-card.is-open .proc-chevron { transform: rotate(180deg); }
-
-.proc-cat-title { font-size: 15px; font-weight: 700; color: var(--text); flex: 1 1 auto; }
 .proc-step-count {
   flex: 0 0 auto;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
-  background: var(--surface-muted);
-  border-radius: 20px;
-  padding: 2px 9px;
   font-family: 'DM Mono', monospace;
 }
 
-.proc-card-actions { display: flex; gap: 4px; flex: 0 0 auto; }
+/* Pushes actions + chevron to the right */
+.proc-header-spacer { flex: 1 1 auto; }
+
+/* Edit/delete — hidden until card hover */
+.proc-card-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.13s;
+}
+.proc-card:hover .proc-card-actions { opacity: 1; }
 
 .proc-icon-btn {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
@@ -4476,76 +4475,82 @@ h1, h2, h3, p { margin: 0; }
 .proc-icon-btn:hover { background: var(--surface-muted); color: var(--text); }
 .proc-icon-btn--danger:hover { background: var(--red-soft); color: var(--red); }
 
-/* Collapsible body */
+/* Chevron — always far right */
+.proc-chevron {
+  flex: 0 0 auto;
+  color: var(--muted);
+  transition: transform 0.22s ease;
+  margin-left: 2px;
+}
+.proc-card.is-open .proc-chevron { transform: rotate(180deg); }
+
+/* Collapsible body — fixed height when open */
 .proc-body {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.25s ease;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.25s ease;
   border-top: 0px solid var(--line-soft);
 }
 .proc-card.is-open .proc-body {
-  grid-template-rows: 1fr;
-  border-top-width: 1px;
-}
-.proc-body > * { overflow: hidden; }
-
-/* Scrollable step list */
-.proc-step-list {
-  padding: 8px 18px 4px;
-  max-height: 320px;
+  height: 280px;
   overflow-y: auto;
+  border-top-width: 1px;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
+  display: flex;
+  flex-direction: column;
 }
-.proc-step-list::-webkit-scrollbar { width: 4px; }
-.proc-step-list::-webkit-scrollbar-track { background: transparent; }
-.proc-step-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.proc-card.is-open .proc-body::-webkit-scrollbar { width: 4px; }
+.proc-card.is-open .proc-body::-webkit-scrollbar-track { background: transparent; }
+.proc-card.is-open .proc-body::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+/* Step list — only dividers, no other decoration */
+.proc-step-list { padding: 0; }
 
 .proc-step-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 0;
+  padding: 9px 14px;
   border-bottom: 1px solid var(--line-soft);
 }
-.proc-step-row:last-child { border-bottom: none; }
 
 .proc-step-num {
   flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--blue-soft);
-  color: var(--blue);
   font-size: 11px;
   font-family: 'DM Mono', monospace;
-  font-weight: 700;
-  display: grid;
-  place-items: center;
+  color: var(--muted);
+  width: 18px;
+  text-align: right;
 }
-.proc-step-title { flex: 1 1 auto; font-size: 13.5px; color: var(--text); }
+.proc-step-title { flex: 1 1 auto; font-size: 13px; color: var(--text); }
+
+/* Step edit/delete — hidden until row hover */
 .proc-step-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.13s; }
 .proc-step-row:hover .proc-step-actions { opacity: 1; }
 
 .proc-no-steps {
-  padding: 12px 0;
+  padding: 24px 14px;
   font-size: 13px;
   color: var(--muted);
   text-align: center;
 }
 
+/* Add step — pinned at bottom inside scrollable body */
 .proc-add-step-btn {
   display: flex;
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 10px 18px;
+  padding: 9px 14px;
   border: none;
   border-top: 1px dashed var(--line);
   background: transparent;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
+  flex-shrink: 0;
+  margin-top: auto;
   transition: color 0.13s, background 0.13s;
 }
 .proc-add-step-btn:hover { color: var(--blue); background: var(--blue-soft); }

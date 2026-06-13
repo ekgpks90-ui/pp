@@ -3161,16 +3161,15 @@ function renderProcessPage() {
 
     return `
       <div class="proc-card${isOpen ? ' is-open' : ''}" data-cat="${cat.id}">
-        <div class="proc-card-header">
-          <button class="proc-toggle-btn" type="button" data-toggle-cat="${cat.id}">
-            ${CHEV_SVG}
-            <span class="proc-cat-title">${cat.category}</span>
-            <span class="proc-step-count">${cat.steps.length}단계</span>
-          </button>
+        <div class="proc-card-header" data-toggle-cat="${cat.id}">
+          <span class="proc-cat-title">${cat.category}</span>
+          <span class="proc-step-count">${cat.steps.length}단계</span>
+          <span class="proc-header-spacer"></span>
           <div class="proc-card-actions">
             <button class="proc-icon-btn" type="button" data-edit-cat="${cat.id}" title="카테고리 수정">${EDIT_SVG}</button>
             <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${cat.id}" title="카테고리 삭제">${DEL_SVG}</button>
           </div>
+          ${CHEV_SVG}
         </div>
         <div class="proc-body">
           <div class="proc-step-list">${steps || '<div class="proc-no-steps">등록된 프로세스가 없습니다.</div>'}</div>
