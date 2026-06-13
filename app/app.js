@@ -938,16 +938,14 @@ function renderTeamStatusPage() {
   const kpiUnassigned = reqs.filter(r => r.status === '미배정').length;
   const kpiNew        = reqs.filter(r => r.status === '신규요청').length;
   const kpiPending    = reqs.filter(r => r.status === '수락대기중').length;
-  const weekStart     = addDays(BASE_WEEK_START, state.weekOffset * 7);
-  const weekEnd       = addDays(weekStart, 6);
-  const kpiDeadline   = reqs.filter(r => r.deadline >= weekStart && r.deadline <= weekEnd).length;
+  const kpiDeadline   = reqs.filter(r => r.deadline >= state.today && r.deadline <= addDays(state.today, 7)).length;
 
   const kpiHtml = `
     <div class="ts-kpi-row">
       <div class="ts-kpi-card"><div class="ts-kpi-val">${kpiUnassigned}</div><div class="ts-kpi-lbl">미배정 업무</div></div>
       <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-blue">${kpiNew}</div><div class="ts-kpi-lbl">신규 요청</div></div>
-      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-orange">${kpiPending}</div><div class="ts-kpi-lbl">배정 대기</div></div>
-      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-purple">${kpiDeadline}</div><div class="ts-kpi-lbl">이번 주 마감</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-orange">${kpiPending}</div><div class="ts-kpi-lbl">수락 대기</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-purple">${kpiDeadline}</div><div class="ts-kpi-lbl">7일 내 마감</div></div>
     </div>`;
 
   // ── Assignment request sections ───────────────────────────────────────────
