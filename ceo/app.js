@@ -235,11 +235,11 @@ const state = {
     { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignee: null },
     // 수락대기중 (2)
     { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '수락대기중', assignee: null },
-    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '높음', status: '수락대기중', assignee: null },
+    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '수락대기중', assignee: null },
     // 미배정 (4)
     { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '미배정',     assignee: null },
     { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '미배정',     assignee: null },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '높음', status: '미배정',     assignee: null },
+    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '미배정',     assignee: null },
     { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '미배정',     assignee: null },
     // 배정완료
     { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignee: '정하은' },
@@ -1011,7 +1011,7 @@ function renderTeamStatusPage() {
     { status: '미배정',     label: '미배정',       cls: 'ts-req-unassigned' },
     { status: '배정완료',   label: '배정 완료',    cls: 'ts-req-done' },
   ];
-  const PRI_CLS = { '긴급': 'ts-pri-urgent', '높음': 'ts-pri-high', '일반': 'ts-pri-normal' };
+  const PRI_CLS = { '긴급': 'ts-pri-urgent', '일반': 'ts-pri-normal' };
 
   const reqHtml = REQ_GROUPS.map(group => {
     const items = reqs.filter(r => r.status === group.status);
@@ -2660,7 +2660,7 @@ function openAcceptModal(requestId) {
 
   // Pre-fill form with request data
   $('#acceptTitle').value = r.title;
-  const typeMap = { '긴급': '긴급', '높음': '긴급', '일반': '일반', '고정': '고정' };
+  const typeMap = { '긴급': '긴급', '일반': '일반', '고정': '고정' };
   $('#acceptType').value = typeMap[r.priority] || '일반';
   $('#acceptStart').value = r.start;
   $('#acceptEnd').value = r.end;

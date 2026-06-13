@@ -3055,7 +3055,7 @@ function openAssignModal(arId) {
   _assignActiveStepId = null;
   _assignSelectedCatId = null;
 
-  const PRI_COLOR = { '긴급': 'var(--red)', '높음': 'var(--orange)', '일반': 'var(--muted)' };
+  const PRI_COLOR = { '긴급': 'var(--red)', '일반': 'var(--muted)' };
   document.getElementById('assignRequestInfo').innerHTML = `
     <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">${escapeHtml(req.title)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)">
@@ -3179,6 +3179,7 @@ function submitAssign() {
 
 function openWorkRequestModal() {
   document.getElementById('workRequestForm').reset();
+  document.getElementById('wrTeam').value    = state.currentUser.team;
   document.getElementById('wrDeadline').value = state.today;
   document.getElementById('workRequestModal').classList.remove('hidden');
 }
@@ -3189,14 +3190,14 @@ function closeWorkRequestModal() {
 
 function submitWorkRequest(e) {
   e.preventDefault();
-  const title    = document.getElementById('wrTitle').value.trim();
-  const team     = document.getElementById('wrTeam').value;
-  const deadline = document.getElementById('wrDeadline').value;
-  const priority = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
-  if (!title || !team || !deadline) return;
-  const newId = `ar-${Date.now()}`;
+  const title     = document.getElementById('wrTitle').value.trim();
+  const team      = state.currentUser.team;
+  const deadline  = document.getElementById('wrDeadline').value;
+  const priority  = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
+  const processId = document.getElementById('wrProcess').value || 'pc-1';
+  if (!title || !deadline) return;
   state.assignmentRequests.push({
-    id: newId,
+    id: `ar-${Date.now()}`,
     title,
     team,
     hours: 0,
@@ -3204,7 +3205,7 @@ function submitWorkRequest(e) {
     priority,
     status: '신규요청',
     assignees: [],
-    processId: 'pc-1',
+    processId,
     stepAssignees: {},
   });
   closeWorkRequestModal();

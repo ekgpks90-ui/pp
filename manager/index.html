@@ -566,15 +566,7 @@
           </div>
           <div class="form-field">
             <label class="form-field-label" for="wrTeam">요청팀</label>
-            <select id="wrTeam" required>
-              <option value="" disabled selected>요청팀 선택</option>
-              <option value="마케팅팀">마케팅팀</option>
-              <option value="HR팀">HR팀</option>
-              <option value="영업팀">영업팀</option>
-              <option value="기획팀">기획팀</option>
-              <option value="경영팀">경영팀</option>
-              <option value="개발팀">개발팀</option>
-            </select>
+            <input type="text" id="wrTeam" readonly style="background:var(--bg-sub,#f5f5f7);cursor:default;" />
           </div>
           <div class="form-row">
             <div class="form-field">
@@ -585,10 +577,18 @@
               <label class="form-field-label">우선순위</label>
               <div class="wr-priority-group">
                 <label class="wr-priority-opt"><input type="radio" name="wrPriority" value="긴급" /><span>긴급</span></label>
-                <label class="wr-priority-opt"><input type="radio" name="wrPriority" value="높음" /><span>높음</span></label>
                 <label class="wr-priority-opt"><input type="radio" name="wrPriority" value="일반" checked /><span>일반</span></label>
               </div>
             </div>
+          </div>
+          <div class="form-field">
+            <label class="form-field-label" for="wrProcess">프로세스</label>
+            <select id="wrProcess" required>
+              <option value="pc-1">UI/UX 디자인</option>
+              <option value="pc-2">브랜드 &amp; 인쇄물</option>
+              <option value="pc-3">디지털 콘텐츠</option>
+              <option value="pc-4">영상 &amp; 모션</option>
+            </select>
           </div>
           <div class="btn-row" style="margin-top:8px">
             <button class="secondary-btn" type="button" id="cancelWorkRequestModal">취소</button>
