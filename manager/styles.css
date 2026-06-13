@@ -2678,14 +2678,14 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   align-items: stretch;
   border-bottom: 1px solid var(--line);
-  min-height: 44px;
+  height: 44px;
 }
 .cal-tl-row:last-child { border-bottom: none; }
 
-/* 동일 단계 2번째+ 담당자 행 — 구분선 없이 이어붙임 */
+/* 동일 단계 2번째+ 담당자 행 — 첫 행과 동일 높이 유지 */
 .cal-tl-row.cal-tl-row-sub {
   border-bottom: none;
-  min-height: 36px;
+  height: 44px;
 }
 .cal-tl-row.cal-tl-row-sub .cal-tl-info {
   border-top: 1px dashed var(--line);
@@ -2753,8 +2753,9 @@ h1, h2, h3, p { margin: 0; }
 
 .cal-tl-bar {
   position: absolute;
-  top: 7px;
-  bottom: 7px;
+  height: 24px;
+  top: 50%;
+  transform: translateY(-50%);
   border-radius: 5px;
   display: flex;
   align-items: center;
