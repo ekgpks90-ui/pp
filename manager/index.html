@@ -465,11 +465,11 @@
         <form class="form-stack" id="acceptForm">
           <label>
             <span>업무항목명</span>
-            <input id="acceptTitle" required placeholder="업무항목 이름" />
+            <input id="acceptTitle" required placeholder="업무항목 이름" readonly tabindex="-1" />
           </label>
           <label>
             <span>업무유형</span>
-            <select id="acceptType">
+            <select id="acceptType" disabled>
               <option value="일반">⚪ 일반</option>
               <option value="긴급">🔴 긴급</option>
               <option value="고정">📌 고정</option>
