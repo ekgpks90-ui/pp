@@ -195,8 +195,13 @@
         <!-- ── Team Status Page ── -->
         <section class="ts-page hidden" id="teamStatusPage">
           <div class="ts-header">
-            <h2 class="ts-page-title">팀원 업무 현황</h2>
-            <p class="ts-page-sub" id="tsSubtitle"></p>
+            <div class="ts-header-row">
+              <div>
+                <h2 class="ts-page-title">팀원 업무 현황</h2>
+                <p class="ts-page-sub" id="tsSubtitle"></p>
+              </div>
+              <button class="dark-btn" type="button" id="openWorkRequestModal">+ 업무요청</button>
+            </div>
           </div>
           <div class="ts-body" id="teamStatusBody"></div>
         </section>
@@ -542,6 +547,52 @@
           <div class="btn-row" style="margin-top:20px">
             <button class="secondary-btn" type="button" id="cancelAssignModal">취소</button>
             <button class="dark-btn" type="submit" id="submitAssignBtn" disabled>배정 완료</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── Work Request Modal ── -->
+    <div class="modal hidden" id="workRequestModal" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>업무요청</h2>
+          <button class="icon-btn" id="closeWorkRequestModal" type="button">✕</button>
+        </div>
+        <form class="form-stack" id="workRequestForm">
+          <div class="form-field">
+            <label class="form-field-label" for="wrTitle">업무명</label>
+            <input type="text" id="wrTitle" placeholder="업무명을 입력하세요" required />
+          </div>
+          <div class="form-field">
+            <label class="form-field-label" for="wrTeam">요청팀</label>
+            <select id="wrTeam" required>
+              <option value="" disabled selected>요청팀 선택</option>
+              <option value="마케팅팀">마케팅팀</option>
+              <option value="HR팀">HR팀</option>
+              <option value="영업팀">영업팀</option>
+              <option value="기획팀">기획팀</option>
+              <option value="경영팀">경영팀</option>
+              <option value="개발팀">개발팀</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-field-label" for="wrDeadline">마감일</label>
+              <input type="date" id="wrDeadline" required />
+            </div>
+            <div class="form-field">
+              <label class="form-field-label">우선순위</label>
+              <div class="wr-priority-group">
+                <label class="wr-priority-opt"><input type="radio" name="wrPriority" value="긴급" /><span>긴급</span></label>
+                <label class="wr-priority-opt"><input type="radio" name="wrPriority" value="높음" /><span>높음</span></label>
+                <label class="wr-priority-opt"><input type="radio" name="wrPriority" value="일반" checked /><span>일반</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="secondary-btn" type="button" id="cancelWorkRequestModal">취소</button>
+            <button class="dark-btn" type="submit">요청 등록</button>
           </div>
         </form>
       </div>

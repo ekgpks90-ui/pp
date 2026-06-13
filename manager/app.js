@@ -3175,6 +3175,42 @@ function submitAssign() {
   renderTeamStatusPage();
 }
 
+// ─── Work Request Modal ───────────────────────────────────────────────────────
+
+function openWorkRequestModal() {
+  document.getElementById('workRequestForm').reset();
+  document.getElementById('wrDeadline').value = state.today;
+  document.getElementById('workRequestModal').classList.remove('hidden');
+}
+
+function closeWorkRequestModal() {
+  document.getElementById('workRequestModal').classList.add('hidden');
+}
+
+function submitWorkRequest(e) {
+  e.preventDefault();
+  const title    = document.getElementById('wrTitle').value.trim();
+  const team     = document.getElementById('wrTeam').value;
+  const deadline = document.getElementById('wrDeadline').value;
+  const priority = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
+  if (!title || !team || !deadline) return;
+  const newId = `ar-${Date.now()}`;
+  state.assignmentRequests.push({
+    id: newId,
+    title,
+    team,
+    hours: 0,
+    deadline,
+    priority,
+    status: '신규요청',
+    assignees: [],
+    processId: 'pc-1',
+    stepAssignees: {},
+  });
+  closeWorkRequestModal();
+  renderTeamStatusPage();
+}
+
 // ─── Process Management Page ─────────────────────────────────────────────────
 
 let _procOpenCats = new Set(['pc-1', 'pc-2', 'pc-3', 'pc-4']);
@@ -4011,6 +4047,12 @@ function bindEvents() {
   document.getElementById('closeAssignModal')?.addEventListener('click', closeAssignModal);
   document.getElementById('cancelAssignModal')?.addEventListener('click', closeAssignModal);
   document.getElementById('assignForm')?.addEventListener('submit', e => { e.preventDefault(); submitAssign(); });
+
+  // Work Request Modal
+  document.getElementById('openWorkRequestModal')?.addEventListener('click', openWorkRequestModal);
+  document.getElementById('closeWorkRequestModal')?.addEventListener('click', closeWorkRequestModal);
+  document.getElementById('cancelWorkRequestModal')?.addEventListener('click', closeWorkRequestModal);
+  document.getElementById('workRequestForm')?.addEventListener('submit', submitWorkRequest);
 
   // Leave Management
   document.getElementById('openLeaveModal')?.addEventListener('click', openLeaveModal);

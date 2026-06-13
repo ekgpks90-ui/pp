@@ -2065,6 +2065,11 @@ h1, h2, h3, p { margin: 0; }
   border-bottom: 1px solid var(--line);
   background: white;
 }
+.ts-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
 .ts-page-title {
   font-size: 16px;
@@ -3451,6 +3456,34 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .form-field textarea { resize: vertical; min-height: 80px; padding: 10px 12px; }
+
+/* ─── Work Request Priority Radio ─── */
+.wr-priority-group {
+  display: flex;
+  gap: 6px;
+}
+.wr-priority-opt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  background: #f9fafb;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  user-select: none;
+}
+.wr-priority-opt input[type="radio"] { display: none; }
+.wr-priority-opt:has(input:checked) {
+  border-color: #111827;
+  background: #111827;
+  color: white;
+}
 
 /* ─── Leave Type Radio Options ─── */
 .leave-type-options {
