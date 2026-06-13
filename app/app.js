@@ -1103,10 +1103,11 @@ function renderTeamStatusPage() {
       </div>`;
   }).join('');
 
-  const sendBtnHtml = `
+  const canSendRequest = state.currentUser.role === 'Manager' || state.currentUser.role === 'Owner';
+  const sendBtnHtml = canSendRequest ? `
     <div class="ts-req-header">
       <button class="dark-btn ts-send-req-btn" type="button" id="openSendRequestBtn">+ 업무요청 전송</button>
-    </div>`;
+    </div>` : '';
 
   body.innerHTML = kpiHtml +
     sendBtnHtml +
@@ -1126,7 +1127,6 @@ function renderMyPage() {
     <div class="mp-header">
       <h2 class="mp-title">My Page</h2>
     </div>
-    <div class="mp-kpi-row">${_mpKpiCards()}</div>
     <div class="mp-grid">
       <div class="mp-col-left">${_mpProfile(u)}</div>
       <div class="mp-col-center">
