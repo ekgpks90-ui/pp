@@ -4386,7 +4386,12 @@ h1, h2, h3, p { margin: 0; }
 }
 
 /* ── Process Management Page ── */
-.proc-page { padding: 32px 32px 80px; }
+.proc-page {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+  padding: 32px 32px 60px;
+}
 
 .proc-header {
   display: flex;
@@ -4396,12 +4401,12 @@ h1, h2, h3, p { margin: 0; }
 }
 .proc-page-title { font-size: 22px; font-weight: 700; color: var(--text); }
 
-/* Accordion list */
+/* 3-column accordion grid */
 .proc-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 760px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  align-items: start;
 }
 
 .proc-card {
