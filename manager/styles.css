@@ -54,8 +54,63 @@ h1, h2, h3, p { margin: 0; }
 .app-shell {
   height: 100vh;
   display: grid;
-  grid-template-columns: 224px minmax(0, 1fr);
+  grid-template-columns: 60px 224px minmax(0, 1fr);
   overflow: hidden;
+}
+
+/* ─── App Rail ─── */
+.app-rail {
+  background: #07070f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 0;
+  gap: 4px;
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+
+.app-rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 6px;
+  width: 48px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,0.36);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.app-rail-item:hover {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.72);
+}
+
+.app-rail-active {
+  background: rgba(74,102,255,0.2);
+  color: #7c9dff;
+}
+
+.app-rail-active:hover {
+  background: rgba(74,102,255,0.28);
+  color: #7c9dff;
+}
+
+.app-rail-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.app-rail-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* ─── Sidebar ─── */

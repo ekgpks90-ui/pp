@@ -12,6 +12,26 @@
   <body>
     <div class="app-shell">
 
+      <!-- ── App Rail ── -->
+      <nav class="app-rail">
+        <button class="app-rail-item" type="button" data-rail="process" title="프로세스">
+          <svg class="app-rail-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="1" y="2" width="5" height="4" rx="1"/>
+            <rect x="1" y="10" width="5" height="4" rx="1"/>
+            <rect x="14" y="6" width="5" height="4" rx="1"/>
+            <path d="M6 4h3.5a1 1 0 011 1v2a1 1 0 001 1H14"/>
+            <path d="M6 12h3.5a1 1 0 001-1v-2"/>
+          </svg>
+          <span class="app-rail-label">프로세스</span>
+        </button>
+        <button class="app-rail-item app-rail-active" type="button" data-rail="manager" title="매니저">
+          <svg class="app-rail-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 14.094A5.973 5.973 0 004 17v1H1v-1a3 3 0 013.75-2.906z"/>
+          </svg>
+          <span class="app-rail-label">매니저</span>
+        </button>
+      </nav>
+
       <!-- ── Sidebar ── -->
       <aside class="sidebar">
         <div class="brand">

@@ -2664,7 +2664,7 @@ function openAcceptModal(requestId) {
 
   // Pre-fill form with request data
   $('#acceptTitle').value = r.title;
-  const typeMap = { '긴급': '긴급', '높음': '긴급', '일반': '일반', '고정': '고정' };
+  const typeMap = { '긴급': '긴급', '일반': '일반', '고정': '고정' };
   $('#acceptType').value = typeMap[r.priority] || '일반';
   $('#acceptStart').value = r.start;
   $('#acceptEnd').value = r.end;
