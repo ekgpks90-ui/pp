@@ -126,6 +126,12 @@ const state = {
     // 반복 일반·긴급 예시 (세부항목 아이콘 테스트용)
     { id: 'wi-14', title: '주간 업무 보고서 작성',    description: '매주 금요일 팀 주간 업무 현황을 정리하여 보고서를 작성합니다.', start: '2026-06-01', end: null, type: '일반', recurringDays: [5], participants: ['Jihye'] },
     { id: 'wi-15', title: 'QA 긴급 버그 처리',       description: '출시 전 QA 기간 중 발생하는 긴급 버그를 신속히 처리합니다.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진'] },
+    // 5월 업무
+    { id: 'wi-m1', title: '디자인 시스템 v2 구축',        description: '버튼·폼·카드·모달 등 핵심 컴포넌트 전면 개편. Figma 토큰 일원화 및 다크모드 대응 포함.', start: '2026-05-01', end: '2026-05-23', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
+    { id: 'wi-m2', title: 'Q2 사용자 리서치',             description: '2분기 신규 서비스 출시 전 사용자 인터뷰 12건 진행 및 페르소나 재정립.', start: '2026-05-06', end: '2026-05-16', type: '일반', participants: ['Jihye', '김도현'] },
+    { id: 'wi-m3', title: '모바일 앱 리뉴얼 1차 시안',    description: '기존 모바일 앱 전면 리뉴얼. 네비게이션 구조 개선 및 신규 비주얼 아이덴티티 적용 1차 시안 제작.', start: '2026-05-12', end: '2026-05-30', type: '일반', participants: ['Jihye', '최유진'] },
+    { id: 'wi-m4', title: '5월 브랜드 캠페인 소재 제작',  description: '5월 가정의 달 캠페인용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'] },
+    { id: 'wi-m5', title: '신규 온보딩 플로우 설계',      description: '신규 가입자 온보딩 UX 개선. 단계 축소 및 인터랙션 개선안 설계.', start: '2026-05-26', end: '2026-06-06', type: '일반', participants: ['Jihye', '최유진'] },
   ],
 
   sessions: [
@@ -185,8 +191,8 @@ const state = {
 
   notifications: [
     { id: 'n-1', title: '업무요청 도착', body: '마케팅팀에서 업무를 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
-    { id: 'n-2', title: '디자인 리뷰 피드백', body: '장준혁 님이 홈 화면 시안에 코멘트를 남겼습니다.', unread: true },
-    { id: 'n-3', title: '회의 일정 변경', body: '오늘 디자인 리뷰 미팅이 오후 3시로 변경되었습니다.', unread: false },
+    { id: 'n-2', title: '연차 승인', body: 'Jihye님의 종일 연차 신청이 승인되었습니다. (2026-05-30)', requestTitle: '종일 연차', unread: true },
+    { id: 'n-3', title: '업무요청 수락', body: '업무항목이 이번 주 업무에 추가되었습니다.', requestTitle: '스프린트 회고 자료 정리', unread: false },
   ],
 
   meetings: [
