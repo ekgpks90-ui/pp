@@ -230,15 +230,15 @@ const state = {
   ],
 
   assignmentRequests: [
-    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [] },
-    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [] },
-    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [] },
-    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [] },
-    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '신규요청',   assignees: [] },
-    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [] },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'] },
-    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'] },
-    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'] },
+    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-2', stepAssignees: {} },
+    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
+    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
+    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: {} },
   ],
 
   notifications: [
@@ -3038,17 +3038,22 @@ function submitLeave(e) {
 // ── Assign Modal ─────────────────────────────────────────────────────────────
 const ASSIGN_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
 let _assignTargetId = null;
-let _assignSelectedMembers = [];
-let _assignDraft = [];
+let _assignStepAssignees = {};  // { stepId: memberName | null }
+let _assignActiveStepId = null; // 현재 멤버 패널이 열린 stepId
+
+function memberBg(name) {
+  const idx = state.teamMembers.findIndex(m => m.name === name);
+  return ASSIGN_AVATAR_BG[(idx >= 0 ? idx : 0) % ASSIGN_AVATAR_BG.length];
+}
 
 function openAssignModal(arId) {
   const req = state.assignmentRequests.find(r => r.id === arId);
   if (!req) return;
   _assignTargetId = arId;
-  _assignSelectedMembers = [...(req.assignees || [])];
-  _assignDraft = [];
+  _assignStepAssignees = { ...(req.stepAssignees || {}) };
+  _assignActiveStepId = null;
 
-  const PRI_COLOR = { '긴급': 'var(--red)', '일반': 'var(--muted)' };
+  const PRI_COLOR = { '긴급': 'var(--red)', '높음': 'var(--orange)', '일반': 'var(--muted)' };
   document.getElementById('assignRequestInfo').innerHTML = `
     <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">${escapeHtml(req.title)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)">
@@ -3058,73 +3063,81 @@ function openAssignModal(arId) {
       <span>우선순위 · <strong style="color:${PRI_COLOR[req.priority] || 'var(--muted)'}">${escapeHtml(req.priority)}</strong></span>
     </div>`;
 
-  document.getElementById('submitAssignBtn').disabled = _assignSelectedMembers.length === 0;
-  document.getElementById('assignMemberPanel')?.classList.add('hidden');
-  renderAssignAvatars();
+  document.getElementById('assignStepPanel')?.classList.add('hidden');
+  renderAssignSteps();
   document.getElementById('assignModal').classList.remove('hidden');
 }
 
 function closeAssignModal() {
   document.getElementById('assignModal').classList.add('hidden');
   _assignTargetId = null;
-  _assignSelectedMembers = [];
-  _assignDraft = [];
+  _assignStepAssignees = {};
+  _assignActiveStepId = null;
 }
 
-function renderAssignAvatars() {
-  const el = document.getElementById('assignAvatars');
-  if (!el) return;
-  el.innerHTML = _assignSelectedMembers.map(name => {
-    const idx = state.teamMembers.findIndex(m => m.name === name);
-    const bg  = ASSIGN_AVATAR_BG[(idx >= 0 ? idx : 0) % ASSIGN_AVATAR_BG.length];
-    return `
-      <div class="ap-avatar-wrap" title="${escapeHtml(name)}">
-        <div class="ap-avatar" style="background:${bg}">${name[0]}</div>
-        <button class="ap-remove" type="button" data-remove-assign="${escapeHtml(name)}" aria-label="${escapeHtml(name)} 제거">✕</button>
-      </div>`;
-  }).join('');
-  const countEl = document.getElementById('assignCount');
-  if (countEl) {
-    if (_assignSelectedMembers.length) {
-      countEl.textContent = `${_assignSelectedMembers.length}명 선택`;
-      countEl.classList.remove('hidden');
-    } else {
-      countEl.classList.add('hidden');
-    }
-  }
-  document.getElementById('submitAssignBtn').disabled = _assignSelectedMembers.length === 0;
-}
-
-function renderAssignMemberPanel() {
-  const list = document.getElementById('assignMemberList');
+function renderAssignSteps() {
+  const req = state.assignmentRequests.find(r => r.id === _assignTargetId);
+  if (!req) return;
+  const proc = state.processes.find(p => p.id === req.processId);
+  const list = document.getElementById('assignStepsList');
   if (!list) return;
-  const members = state.teamMembers.filter(m => !m.onLeave);
-  if (!members.length) {
-    list.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted)">팀원이 없습니다</div>';
+  if (!proc || !proc.steps.length) {
+    list.innerHTML = '<div class="assign-steps-empty">연결된 프로세스가 없습니다.</div>';
     return;
   }
-  list.innerHTML = members.map(m => {
-    const idx     = state.teamMembers.indexOf(m);
-    const bg      = ASSIGN_AVATAR_BG[idx % ASSIGN_AVATAR_BG.length];
-    const checked = _assignDraft.includes(m.name);
+  list.innerHTML = proc.steps.map((step, idx) => {
+    const assignee = _assignStepAssignees[step.id] || null;
+    const bg = assignee ? memberBg(assignee) : null;
     return `
-      <div class="assign-member-option${checked ? ' is-selected' : ''}" data-pick-assign-member="${escapeHtml(m.name)}">
-        <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
-        <div>
-          <div class="assign-member-name">${escapeHtml(m.name)}</div>
-          <div class="assign-member-role">${escapeHtml(m.role)}</div>
-        </div>
-        <div class="ap-check${checked ? ' checked' : ''}">✓</div>
+      <div class="assign-step-row" data-step-id="${step.id}">
+        <span class="assign-step-num">${idx + 1}</span>
+        <span class="assign-step-title">${escapeHtml(step.title)}</span>
+        <button class="assign-step-btn${assignee ? ' has-assignee' : ''}" type="button"
+          data-open-step-panel="${escapeHtml(step.id)}"
+          title="${assignee ? escapeHtml(assignee) : '담당자 지정'}">
+          ${assignee
+            ? `<span class="assign-step-avatar" style="background:${bg}">${assignee[0]}</span><span class="assign-step-name">${escapeHtml(assignee)}</span>`
+            : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`}
+        </button>
       </div>`;
   }).join('');
+}
+
+function renderAssignStepPanel(stepId) {
+  const list = document.getElementById('assignStepMemberList');
+  if (!list) return;
+  const members = state.teamMembers.filter(m => !m.onLeave);
+  const current = _assignStepAssignees[stepId] || null;
+  list.innerHTML = [
+    `<div class="assign-step-panel-opt${current === null ? ' is-selected' : ''}" data-pick-step-member="" data-for-step="${stepId}">
+      <span class="assign-step-panel-none">—</span>
+      <span class="assign-member-name" style="color:var(--muted)">미지정</span>
+      <div class="ap-check${current === null ? ' checked' : ''}">✓</div>
+    </div>`,
+    ...members.map(m => {
+      const bg = memberBg(m.name);
+      const checked = current === m.name;
+      return `
+        <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-step-member="${escapeHtml(m.name)}" data-for-step="${escapeHtml(stepId)}">
+          <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
+          <div>
+            <div class="assign-member-name">${escapeHtml(m.name)}</div>
+            <div class="assign-member-role">${escapeHtml(m.role)}</div>
+          </div>
+          <div class="ap-check${checked ? ' checked' : ''}">✓</div>
+        </div>`;
+    }),
+  ].join('');
 }
 
 function submitAssign() {
-  if (!_assignTargetId || !_assignSelectedMembers.length) return;
+  if (!_assignTargetId) return;
   const req = state.assignmentRequests.find(r => r.id === _assignTargetId);
   if (!req) return;
-  req.assignees = [..._assignSelectedMembers];
-  req.status    = '수락대기중';
+  req.stepAssignees = { ..._assignStepAssignees };
+  // assignees: 중복 없는 담당자 목록 (하위 단계에서 지정된 모든 사람)
+  req.assignees = [...new Set(Object.values(_assignStepAssignees).filter(Boolean))];
+  req.status = '수락대기중';
   closeAssignModal();
   renderTeamStatusPage();
 }
@@ -3442,58 +3455,46 @@ function bindEvents() {
     const openAssignBtn = e.target.closest('[data-open-assign]');
     if (openAssignBtn) { openAssignModal(openAssignBtn.dataset.openAssign); return; }
 
-    // Assign modal: + button (toggle member panel)
-    if (e.target.closest('#assignAddBtn')) {
-      const panel = document.getElementById('assignMemberPanel');
+    // Assign modal: open step member panel
+    const openStepPanel = e.target.closest('[data-open-step-panel]');
+    if (openStepPanel) {
+      const stepId = openStepPanel.dataset.openStepPanel;
+      const panel  = document.getElementById('assignStepPanel');
       if (!panel) return;
-      if (panel.classList.contains('hidden')) {
-        _assignDraft = [..._assignSelectedMembers];
-        renderAssignMemberPanel();
-        panel.classList.remove('hidden');
-      } else {
+      if (_assignActiveStepId === stepId && !panel.classList.contains('hidden')) {
         panel.classList.add('hidden');
-      }
-      return;
-    }
-
-    // Assign modal: member list toggle in draft
-    const assignMemberOpt = e.target.closest('[data-pick-assign-member]');
-    if (assignMemberOpt) {
-      const name = assignMemberOpt.dataset.pickAssignMember;
-      if (_assignDraft.includes(name)) {
-        _assignDraft = _assignDraft.filter(n => n !== name);
+        _assignActiveStepId = null;
       } else {
-        _assignDraft.push(name);
+        _assignActiveStepId = stepId;
+        renderAssignStepPanel(stepId);
+        // 패널을 해당 행 아래에 위치
+        const row = openStepPanel.closest('.assign-step-row');
+        if (row) {
+          row.appendChild(panel);
+        }
+        panel.classList.remove('hidden');
       }
-      renderAssignMemberPanel();
       return;
     }
 
-    // Assign modal: confirm selection
-    if (e.target.closest('#assignConfirmBtn')) {
-      _assignSelectedMembers = [..._assignDraft];
-      document.getElementById('assignMemberPanel')?.classList.add('hidden');
-      renderAssignAvatars();
+    // Assign modal: pick member for step
+    const pickStepMember = e.target.closest('[data-pick-step-member]');
+    if (pickStepMember && pickStepMember.hasAttribute('data-for-step')) {
+      const stepId = pickStepMember.dataset.forStep;
+      const name   = pickStepMember.dataset.pickStepMember || null;
+      _assignStepAssignees[stepId] = name || null;
+      document.getElementById('assignStepPanel')?.classList.add('hidden');
+      _assignActiveStepId = null;
+      renderAssignSteps();
       return;
     }
 
-    // Assign modal: remove avatar
-    const removeAssign = e.target.closest('[data-remove-assign]');
-    if (removeAssign) {
-      const name = removeAssign.dataset.removeAssign;
-      _assignSelectedMembers = _assignSelectedMembers.filter(n => n !== name);
-      _assignDraft = _assignDraft.filter(n => n !== name);
-      renderAssignAvatars();
-      const panel = document.getElementById('assignMemberPanel');
-      if (panel && !panel.classList.contains('hidden')) renderAssignMemberPanel();
-      return;
-    }
-
-    // Close assign member panel on outside click
-    const assignPicker = document.getElementById('assignPicker');
-    const assignPanel  = document.getElementById('assignMemberPanel');
-    if (assignPicker && assignPanel && !assignPicker.contains(e.target)) {
-      assignPanel.classList.add('hidden');
+    // Close step panel on outside click
+    const stepPanel = document.getElementById('assignStepPanel');
+    const stepsList = document.getElementById('assignStepsList');
+    if (stepPanel && stepsList && !stepPanel.contains(e.target) && !stepsList.contains(e.target)) {
+      stepPanel.classList.add('hidden');
+      _assignActiveStepId = null;
     }
 
     // Close popover on outside click

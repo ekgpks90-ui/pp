@@ -508,32 +508,25 @@
 
     <!-- ── Assign Modal ── -->
     <div class="modal hidden" id="assignModal" role="dialog" aria-modal="true">
-      <div class="modal-card">
+      <div class="modal-card modal-assign-wide">
         <div class="modal-header">
           <h2>업무 배정</h2>
           <button class="icon-btn" id="closeAssignModal" type="button">✕</button>
         </div>
-        <div id="assignRequestInfo" style="background:var(--surface-muted);border:1px solid var(--line-soft);border-radius:10px;padding:14px;margin-bottom:20px"></div>
+        <div id="assignRequestInfo" style="background:var(--surface-muted);border:1px solid var(--line-soft);border-radius:10px;padding:14px;margin-bottom:16px"></div>
         <form class="form-stack" id="assignForm">
-          <div class="ap-header">
-            <span style="font-size:12px;font-weight:500;color:var(--muted)">담당자 배정 <span style="font-weight:400;color:var(--soft)">(복수 선택 가능)</span></span>
-            <span class="ap-count hidden" id="assignCount"></span>
+          <div class="assign-steps-header">
+            <span class="assign-steps-label">프로세스별 담당자 지정</span>
+            <span class="assign-steps-hint">각 단계에 담당자를 지정하세요</span>
           </div>
-          <div class="ap-picker" id="assignPicker">
-            <div class="ap-row">
-              <button class="ap-add-btn" type="button" id="assignAddBtn" aria-label="담당자 추가">+</button>
-              <div class="ap-avatars" id="assignAvatars"></div>
-            </div>
-            <div class="ap-member-panel hidden" id="assignMemberPanel">
-              <div id="assignMemberList"></div>
-              <div class="ap-panel-footer">
-                <button class="ap-confirm-btn" type="button" id="assignConfirmBtn">선택 완료</button>
-              </div>
-            </div>
+          <div class="assign-steps-list" id="assignStepsList"></div>
+          <!-- 팝업 멤버 패널 (공유) -->
+          <div class="ap-step-panel hidden" id="assignStepPanel">
+            <div id="assignStepMemberList"></div>
           </div>
-          <div class="btn-row">
+          <div class="btn-row" style="margin-top:20px">
             <button class="secondary-btn" type="button" id="cancelAssignModal">취소</button>
-            <button class="dark-btn" type="submit" id="submitAssignBtn" disabled>배정 완료</button>
+            <button class="dark-btn" type="submit" id="submitAssignBtn">배정 완료</button>
           </div>
         </form>
       </div>

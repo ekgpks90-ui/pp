@@ -4385,6 +4385,146 @@ h1, h2, h3, p { margin: 0; }
   color: white;
 }
 
+
+/* ── Assign Modal: step-level assignee picker ── */
+.modal-assign-wide { width: min(600px, 96vw); }
+
+.assign-steps-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.assign-steps-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.assign-steps-hint  { font-size: 11px; color: var(--muted); }
+
+.assign-steps-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 380px;
+  overflow-y: auto;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: var(--surface-muted);
+}
+.assign-steps-empty {
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.assign-step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  position: relative;
+  background: transparent;
+  transition: background 0.1s;
+}
+.assign-step-row:last-child { border-bottom: none; }
+.assign-step-row:hover { background: #f8fafc; }
+
+.assign-step-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.assign-step-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.assign-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 20px;
+  border: 1.5px dashed var(--line);
+  background: white;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.assign-step-btn:hover { border-color: var(--blue); background: #eff6ff; }
+.assign-step-btn.has-assignee {
+  border-style: solid;
+  border-color: var(--line);
+  background: white;
+  color: var(--text);
+}
+
+.assign-step-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.assign-step-plus  { font-size: 16px; line-height: 1; color: var(--muted); }
+.assign-step-name  { font-size: 12px; }
+.assign-step-name.muted { color: var(--muted); }
+
+.ap-step-panel {
+  position: absolute;
+  right: 14px;
+  top: calc(100% + 4px);
+  z-index: 200;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 220px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.assign-step-panel-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.assign-step-panel-opt:hover { background: var(--surface-muted); }
+.assign-step-panel-opt.is-selected { background: var(--blue-soft); }
+
+.assign-step-panel-none {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
 /* ── Process Management Page ── */
 .proc-page {
   flex: 1;
