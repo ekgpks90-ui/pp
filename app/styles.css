@@ -1158,7 +1158,7 @@ h1, h2, h3, p { margin: 0; }
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 300;
   display: grid;
   place-items: center;
   padding: 18px;
@@ -2134,6 +2134,15 @@ h1, h2, h3, p { margin: 0; }
 }
 
 /* ── Request block ── */
+.ts-req-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.ts-send-req-btn {
+  font-size: 13px;
+  padding: 7px 14px;
+}
 .ts-req-block {
   display: flex;
   flex-direction: column;

@@ -509,6 +509,50 @@
       </div>
     </div>
 
+    <!-- ── Send Work Request Modal ── -->
+    <div class="modal hidden" id="sendRequestModal" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>업무요청 전송</h2>
+          <button class="icon-btn" id="closeSendRequestModal" type="button">✕</button>
+        </div>
+        <form class="form-stack" id="sendRequestForm">
+          <label>
+            <span>요청 제목</span>
+            <input id="sendReqTitle" required placeholder="업무 내용을 간략히 입력하세요" />
+          </label>
+          <label>
+            <span>전달 팀</span>
+            <select id="sendReqTeam">
+              <option value="마케팅팀">마케팅팀</option>
+              <option value="기획팀">기획팀</option>
+              <option value="HR팀">HR팀</option>
+              <option value="영업팀">영업팀</option>
+              <option value="경영팀">경영팀</option>
+              <option value="디자인팀">디자인팀</option>
+            </select>
+          </label>
+          <div class="form-row">
+            <label>
+              <span>마감일</span>
+              <input type="date" id="sendReqDeadline" required />
+            </label>
+            <label>
+              <span>업무유형</span>
+              <select id="sendReqType">
+                <option value="일반">⚪ 일반</option>
+                <option value="긴급">🔴 긴급</option>
+              </select>
+            </label>
+          </div>
+          <div class="btn-row">
+            <button class="secondary-btn" type="button" id="cancelSendRequest">취소</button>
+            <button class="dark-btn" type="submit">전송</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- ── Delete Confirm Modal ── -->
     <div class="modal hidden" id="deleteModal" role="dialog" aria-modal="true">
       <div class="modal-card modal-sm">
