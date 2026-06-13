@@ -3177,25 +3177,39 @@ function submitAssign() {
 
 // ─── Work Request Modal ───────────────────────────────────────────────────────
 
+let _wrSelectedCatId = null;
+
+function renderWrCatList() {
+  const list = document.getElementById('wrCatList');
+  if (!list) return;
+  list.innerHTML = state.processes.map(cat => `
+    <button class="assign-cat-card${_wrSelectedCatId === cat.id ? ' selected' : ''}" type="button" data-select-wr-cat="${cat.id}">
+      <span class="assign-cat-name">${escapeHtml(cat.category)}</span>
+      <span class="assign-cat-count">${cat.steps.length}단계</span>
+    </button>`).join('');
+}
+
 function openWorkRequestModal() {
   document.getElementById('workRequestForm').reset();
-  document.getElementById('wrTeam').value    = state.currentUser.team;
+  document.getElementById('wrTeamDisplay').textContent = state.currentUser.team;
   document.getElementById('wrDeadline').value = state.today;
+  _wrSelectedCatId = null;
+  renderWrCatList();
   document.getElementById('workRequestModal').classList.remove('hidden');
 }
 
 function closeWorkRequestModal() {
   document.getElementById('workRequestModal').classList.add('hidden');
+  _wrSelectedCatId = null;
 }
 
 function submitWorkRequest(e) {
   e.preventDefault();
-  const title     = document.getElementById('wrTitle').value.trim();
-  const team      = state.currentUser.team;
-  const deadline  = document.getElementById('wrDeadline').value;
-  const priority  = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
-  const processId = document.getElementById('wrProcess').value || 'pc-1';
-  if (!title || !deadline) return;
+  const title    = document.getElementById('wrTitle').value.trim();
+  const team     = state.currentUser.team;
+  const deadline = document.getElementById('wrDeadline').value;
+  const priority = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
+  if (!title || !deadline || !_wrSelectedCatId) return;
   state.assignmentRequests.push({
     id: `ar-${Date.now()}`,
     title,
@@ -3205,7 +3219,7 @@ function submitWorkRequest(e) {
     priority,
     status: '신규요청',
     assignees: [],
-    processId,
+    processId: _wrSelectedCatId,
     stepAssignees: {},
   });
   closeWorkRequestModal();
@@ -3528,6 +3542,14 @@ function bindEvents() {
     // Assign modal: Phase 1 — 카테고리 선택
     const selectCatBtn = e.target.closest('[data-select-proc-cat]');
     if (selectCatBtn) { switchToAssignStepPhase(selectCatBtn.dataset.selectProcCat); return; }
+
+    // Work Request modal: 카테고리 선택
+    const wrCatBtn = e.target.closest('[data-select-wr-cat]');
+    if (wrCatBtn) {
+      _wrSelectedCatId = wrCatBtn.dataset.selectWrCat;
+      renderWrCatList();
+      return;
+    }
 
     // Assign modal: 카테고리 변경 (뒤로)
     if (e.target.closest('#assignBackBtn')) {
