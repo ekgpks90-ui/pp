@@ -700,8 +700,9 @@ h1, h2, h3, p { margin: 0; }
   margin-top: 2px;
 }
 
-.type-icon.red { border-radius: 50%; background: var(--red); }
-.type-icon.gray { border-radius: 50%; background: #c8c8d8; }
+.type-icon.red    { border-radius: 50%; background: var(--red); }
+.type-icon.gray   { border-radius: 50%; background: #c8c8d8; }
+.type-icon.yellow { border-radius: 50%; background: #f59e0b; }
 
 .task-body {
   flex: 1 1 auto;
@@ -1465,6 +1466,42 @@ h1, h2, h3, p { margin: 0; }
 
 .btn-row { display: flex; justify-content: flex-end; gap: 8px; }
 
+/* Schedule meeting attendee search */
+.sched-attendee-wrap { display: grid; gap: 8px; }
+.form-label-text { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: -0.01em; }
+.sched-attendee-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
+.sched-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #eef1ff; color: #4a66ff;
+  font-size: 12px; font-weight: 500;
+  padding: 3px 8px; border-radius: 20px;
+}
+.sched-chip-remove {
+  background: none; border: none; cursor: pointer;
+  font-size: 10px; color: #4a66ff; padding: 0; line-height: 1;
+}
+.sched-search-wrap { position: relative; }
+.sched-search-wrap input {
+  width: 100%; padding: 8px 12px;
+  border: 1px solid var(--line); border-radius: 8px;
+  font: inherit; font-size: 13px; color: var(--text);
+  box-sizing: border-box;
+}
+.sched-search-wrap input:focus { outline: none; border-color: var(--blue); }
+.sched-search-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: white; border: 1px solid var(--line);
+  border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  z-index: 400; overflow: hidden;
+}
+.sched-dropdown-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; cursor: pointer; gap: 8px;
+}
+.sched-dropdown-item:hover { background: #f5f7ff; }
+.sched-dropdown-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.sched-dropdown-role { font-size: 11px; color: var(--muted); }
+
 .radio-list { display: grid; gap: 8px; }
 .radio-list label {
   display: flex;
@@ -1602,6 +1639,16 @@ h1, h2, h3, p { margin: 0; }
   flex-wrap: wrap;
 }
 
+.cal-filter-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.meeting-register-btn {
+  font-size: 13px;
+  padding: 7px 14px;
+  white-space: nowrap;
+}
 .cal-team-tabs {
   display: flex;
   align-items: center;
@@ -3686,18 +3733,40 @@ h1, h2, h3, p { margin: 0; }
 .mp-meetings-count { font-size: 11px; color: var(--blue); font-weight: 600; }
 .mp-meetings-list { display: flex; flex-direction: column; gap: 6px; }
 .mp-meetings-empty { font-size: 12px; color: var(--text-sub); text-align: center; padding: 12px 0; }
-.mp-meeting-row {
-  display: grid; grid-template-columns: 40px 1fr 72px 52px 34px;
-  align-items: center; gap: 8px;
-  padding: 7px 10px; background: var(--surface-muted); border-radius: 8px; font-size: 12px;
+.mp-meeting-card {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 10px 12px; background: var(--surface-muted); border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.mp-meeting-card:hover { background: var(--line-soft); }
+.mp-meeting-card-top { display: flex; align-items: center; gap: 7px; }
+.mp-meeting-card-title {
+  flex: 1; font-size: 13px; font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mp-meeting-card-summary {
+  font-size: 11px; color: var(--muted); line-height: 1.4;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mp-meeting-card-bottom { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.mp-meeting-avatars { display: flex; align-items: center; gap: 2px; flex: 1; }
+.mp-meeting-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--line); color: var(--muted);
+  font-size: 10px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.mp-meeting-avatar.me { background: var(--blue-mid); color: var(--blue); }
+.mp-meeting-avatar-more { font-size: 10px; color: var(--muted); margin-left: 2px; }
+.mp-meeting-action-badge {
+  font-size: 10px; font-weight: 600; color: var(--orange);
+  background: var(--orange-soft); border-radius: 4px; padding: 2px 6px; flex-shrink: 0;
 }
 .mp-meeting-badge {
   font-size: 10px; font-weight: 700; color: #fff;
-  padding: 2px 0; border-radius: 4px;
-  min-width: 44px; text-align: center; flex-shrink: 0;
+  padding: 2px 7px; border-radius: 4px; flex-shrink: 0; white-space: nowrap;
 }
-.mp-meeting-title { color: var(--text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mp-meeting-meta  { color: var(--text-sub); font-size: 11px; text-align: right; white-space: nowrap; }
+.mp-meeting-meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
 
 /* ─── Recorder Button Styles ─────────────────────────────────────────────── */
 .recorder-btn {

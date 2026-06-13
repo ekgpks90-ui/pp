@@ -22,6 +22,7 @@ const state = {
   selectedActionMeetingId: null,
   pendingDeleteSessionId: null,
   pendingDeleteWorkItemId: null,
+  scheduleAttendees: [],
   editingSessionId: null,
   editingSessionOriginalTitle: null,
   editingSessionTimeId: null,
@@ -562,7 +563,7 @@ function renderWeeklyTasks() {
     }
     const iconHtml = item.type === '고정'
       ? pinSvg
-      : `<span class="type-icon ${item.type === '긴급' ? 'red' : 'gray'}"></span>`;
+      : `<span class="type-icon ${item.type === '긴급' ? 'red' : item.type === '회의' ? 'yellow' : 'gray'}"></span>`;
     return `
       <div class="task-item${isLastFixed ? ' is-last-fixed' : ''}" data-task-id="${item.id}" role="button" tabindex="0">
         ${iconHtml}
@@ -1361,19 +1362,40 @@ function _mpAI() {
 }
 
 function _mpMeetings() {
-  const myTeam = state.currentUser.team;
-  const meetings = (state.meetings || []).filter(m => m.team === myTeam);
-  const typeBadgeColor = { '회고': 'var(--purple)', '기획': 'var(--blue)', '디자인': 'var(--orange)', '전략': 'var(--red)' };
+  const myName = state.currentUser.name;
+  const meetings = (state.meetings || []).filter(m =>
+    Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName)
+  );
+  const TYPE_COLOR = {
+    '회고': '#7c4dff', '기획': '#4a66ff', '디자인': '#f5a623',
+    '전략': '#f04444', '클라이언트 미팅': '#0ea874', '워크샵': '#06b6d4',
+    '업무 보고': '#6b7280', '주간 공유': '#ec4899',
+  };
   const inner = meetings.length
     ? meetings.map(m => {
-        const color = typeBadgeColor[m.type] || 'var(--text-sub)';
+        const color = TYPE_COLOR[m.type] || '#6b7280';
+        const myActions = (m.actionItems || []).filter(a => a.assignee === myName);
+        const actionBadge = myActions.length
+          ? `<span class="mp-meeting-action-badge">${myActions.length} 액션</span>`
+          : '';
+        const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
+          `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
+        ).join('');
+        const more = m.attendeeNames.length > 4
+          ? `<span class="mp-meeting-avatar-more">+${m.attendeeNames.length - 4}</span>` : '';
         return `
-          <div class="mp-meeting-row">
-            <span class="mp-meeting-badge" style="background:${color}">${m.type}</span>
-            <span class="mp-meeting-title">${m.title}</span>
-            <span class="mp-meeting-meta">${m.date}</span>
-            <span class="mp-meeting-meta">${m.duration}</span>
-            <span class="mp-meeting-meta">${m.attendees}명</span>
+          <div class="mp-meeting-card" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
+            <div class="mp-meeting-card-top">
+              <span class="mp-meeting-badge" style="background:${color}">${m.type}</span>
+              <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
+              ${actionBadge}
+            </div>
+            <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
+            <div class="mp-meeting-card-bottom">
+              <div class="mp-meeting-avatars">${avatars}${more}</div>
+              <span class="mp-meeting-meta">${m.date}</span>
+              <span class="mp-meeting-meta">${m.duration}</span>
+            </div>
           </div>`;
       }).join('')
     : `<div class="mp-meetings-empty">참여한 회의가 없습니다.</div>`;
@@ -2957,6 +2979,62 @@ function renderLeavePage() {
   renderLeaveList();
 }
 
+// ─── Schedule Meeting ─────────────────────────────────────────────────────────
+
+function renderSchedAttendeeChips() {
+  const container = $('#schedAttendeeChips');
+  if (!container) return;
+  container.innerHTML = state.scheduleAttendees.map(name => `
+    <span class="sched-chip">
+      ${escapeHtml(name)}
+      <button type="button" class="sched-chip-remove" data-remove-attendee="${escapeHtml(name)}">✕</button>
+    </span>
+  `).join('');
+}
+
+function openScheduleMeetingModal() {
+  state.scheduleAttendees = [state.currentUser.name];
+  $('#scheduleMeetingForm').reset();
+  $('#schedMeetDate').value = state.today;
+  renderSchedAttendeeChips();
+  $('#schedSearchDropdown').classList.add('hidden');
+  $('#scheduleMeetingModal').classList.remove('hidden');
+}
+
+function closeScheduleMeetingModal() {
+  $('#scheduleMeetingModal').classList.add('hidden');
+}
+
+function submitScheduleMeeting(e) {
+  e.preventDefault();
+  const title    = $('#schedMeetTitle').value.trim();
+  const date     = $('#schedMeetDate').value;
+  const room     = $('#schedMeetRoom').value;
+  const attendees = [...state.scheduleAttendees];
+  if (!title || !date || !attendees.length) return;
+
+  const newItem = {
+    id: 'wi-' + Date.now(),
+    title: `[회의] ${title}`,
+    description: `${room} · 참석자: ${attendees.join(', ')}`,
+    start: date,
+    end: date,
+    type: '회의',
+    participants: attendees,
+  };
+  state.workItems.push(newItem);
+
+  // 나 제외 참석자에게 알림
+  attendees
+    .filter(name => name !== state.currentUser.name)
+    .forEach(name => {
+      addNotification('일반', '회의 등록', `${state.currentUser.name}님이 회의를 등록했습니다. (${room})`, title);
+    });
+
+  closeScheduleMeetingModal();
+  renderWeeklyTasks();
+}
+
 function openSendRequestModal() {
   $('#sendRequestForm').reset();
   $('#sendReqDeadline').value = addDays(state.today, 7);
@@ -3758,10 +3836,50 @@ function bindEvents() {
 
   document.addEventListener('click', e => {
     if (e.target.id === 'openSendRequestBtn') openSendRequestModal();
+    if (e.target.id === 'openScheduleMeetingBtn') openScheduleMeetingModal();
+    const removeChip = e.target.closest('[data-remove-attendee]');
+    if (removeChip) {
+      const name = removeChip.dataset.removeAttendee;
+      state.scheduleAttendees = state.scheduleAttendees.filter(n => n !== name);
+      renderSchedAttendeeChips();
+    }
   });
   document.getElementById('closeSendRequestModal')?.addEventListener('click', closeSendRequestModal);
   document.getElementById('cancelSendRequest')?.addEventListener('click', closeSendRequestModal);
   document.getElementById('sendRequestForm')?.addEventListener('submit', submitSendRequest);
+
+  document.getElementById('closeScheduleMeetingModal')?.addEventListener('click', closeScheduleMeetingModal);
+  document.getElementById('cancelScheduleMeeting')?.addEventListener('click', closeScheduleMeetingModal);
+  document.getElementById('scheduleMeetingForm')?.addEventListener('submit', submitScheduleMeeting);
+
+  document.getElementById('schedAttendeeSearch')?.addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    const dropdown = $('#schedSearchDropdown');
+    if (!q) { dropdown.classList.add('hidden'); return; }
+    const matches = state.teamMembers.filter(m =>
+      m.name.toLowerCase().includes(q) && !state.scheduleAttendees.includes(m.name)
+    ).slice(0, 6);
+    if (!matches.length) { dropdown.classList.add('hidden'); return; }
+    dropdown.innerHTML = matches.map(m => `
+      <div class="sched-dropdown-item" data-add-attendee="${escapeHtml(m.name)}">
+        <span class="sched-dropdown-name">${escapeHtml(m.name)}</span>
+        <span class="sched-dropdown-role">${escapeHtml(m.role)}</span>
+      </div>
+    `).join('');
+    dropdown.classList.remove('hidden');
+  });
+
+  document.getElementById('schedSearchDropdown')?.addEventListener('click', e => {
+    const item = e.target.closest('[data-add-attendee]');
+    if (!item) return;
+    const name = item.dataset.addAttendee;
+    if (!state.scheduleAttendees.includes(name)) {
+      state.scheduleAttendees.push(name);
+      renderSchedAttendeeChips();
+    }
+    $('#schedAttendeeSearch').value = '';
+    $('#schedSearchDropdown').classList.add('hidden');
+  });
   document.getElementById('leaveTabBar')?.addEventListener('click', e => {
     const btn = e.target.closest('[data-leave-tab]');
     if (btn) { state.leaveTab = btn.dataset.leaveTab; renderLeavePage(); }
