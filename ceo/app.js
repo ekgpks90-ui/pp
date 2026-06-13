@@ -19,6 +19,7 @@ const state = {
   selectedRequestId: null,
   pendingDeleteSessionId: null,
   pendingDeleteWorkItemId: null,
+  pendingLeaveCancelId: null,
   editingSessionId: null,
   editingSessionOriginalTitle: null,
   editingSessionTimeId: null,
@@ -303,7 +304,7 @@ const state = {
       { id: 'act-mr3-3', text: '주간 싱크업 캘린더 초대 발송', dueDate: '2026-06-03', assignee: '최유진', done: true, addedToWeekly: false },
     ],
     date: '2026-06-02', author: '이수진', duration: '35:42', attendees: 6, attendeeNames: ['이수진', 'Jihye', '김도현', '박서연', '최유진', '정하은'] },
-    { id: 'mr-4', team: '디자인팀 02', type: '스프린트 기획', title: '2분기 스프린트 계획 수립',
+    { id: 'mr-4', team: '개발팀', type: '스프린트 기획', title: '2분기 스프린트 계획 수립',
     summary: '2분기 주요 마일스톤 설정 및 업무 분배. 우선순위 조정 및 리소스 할당에 대한 논의가 완료되었습니다.',
     aiPoints: ['2분기 핵심 목표: 신규 서비스 UI 3종 완성', '스프린트 1(6월): 와이어프레임·IA 확정', '스프린트 2(7월): 시각 디자인 + 프로토타입', '스프린트 3(8월): 개발 핸드오프 + QA 지원', '리소스 부족으로 외부 프리랜서 1명 추가 검토'],
     discussions: ['6월 집중 업무 과부하 우려 — 우선순위 상위 3개 업무 집중, 나머지 7월로 이월', '디자인 시스템 업데이트 병행 진행 여부 논의 → 스프린트 2 이후로 연기 결정', '주간 진척 리포트 양식 통일 필요'],
@@ -320,7 +321,7 @@ const state = {
       { id: 'act-mr4-3', text: '주간 진척 리포트 양식 초안 작성', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
     date: '2026-06-01', author: '박민준', duration: '58:20', attendees: 5, attendeeNames: ['박민준', '이수진', '김도현', '최유진', 'Jihye'] },
-    { id: 'mr-5', team: '디자인팀 02', type: '주간 회의', title: '주간 진행상황 공유 #24',
+    { id: 'mr-5', team: '개발팀', type: '주간 회의', title: '주간 진행상황 공유 #24',
     summary: '이번 주 완료된 작업 현황 공유 및 다음 주 계획 확인. 블로커 이슈 3건이 확인되었으며 관련 담당자 지정이 완료되었습니다.',
     aiPoints: ['이번 주 완료 업무 7건, 진행 중 4건, 미착수 2건', '블로커 3건: 에셋 미수령 / 리뷰 지연 / 외부 API 미확정', '다음 주 우선순위: 랜딩 페이지 디자인 완료 + 내부 리뷰'],
     discussions: ['에셋 미수령 건은 마케팅팀에 재요청 예정 (정하은 담당)', '외부 API 확정 지연으로 관련 화면 목업으로 대체 진행 결정', '이번 주 완료율 63% — 목표 80% 대비 저조, 다음 주 만회 계획 필요'],
@@ -337,7 +338,7 @@ const state = {
       { id: 'act-mr5-3', text: '다음 주 완료율 80% 달성 계획 공유', dueDate: '2026-06-01', assignee: '박민준', done: false, addedToWeekly: false },
     ],
     date: '2026-05-29', author: '박민준', duration: '25:10', attendees: 4, attendeeNames: ['박민준', '이나경', '정하은', 'Jihye'] },
-    { id: 'mr-6', team: '디자인팀 03', type: '워크샵', title: 'UX 리서치 워크샵',
+    { id: 'mr-6', team: 'PM팀', type: '워크샵', title: 'UX 리서치 워크샵',
     summary: '사용자 인터뷰 결과 공유 및 페르소나 재정립. 주요 사용자 니즈 기반 개선 방향성 설정 합의가 이루어졌습니다.',
     aiPoints: ['사용자 인터뷰 18건 분석 완료 — 주요 페인포인트 5가지 도출', '기존 페르소나 3종 → 4종으로 재정립 (신규: 중간관리자형 추가)', '개선 우선순위: 온보딩 플로우 간소화 > 알림 설정 > 검색 기능', '다음 분기 리서치 주제: 모바일 사용 패턴 분석'],
     discussions: ['인터뷰 참여자 중 70%가 온보딩 복잡성을 가장 큰 불편으로 꼽음', '페르소나 4번째 유형(중간관리자) 추가는 전원 합의', 'B2B 고객과 개인 사용자 간 니즈 차이 명확히 구분 필요'],
@@ -354,7 +355,7 @@ const state = {
       { id: 'act-mr6-3', text: '다음 분기 리서치 계획서 작성', dueDate: '2026-06-13', assignee: '최지영', done: false, addedToWeekly: false },
     ],
     startDate: '2026-05-30', endDate: '2026-05-30', author: '최지영', duration: '1:24:15', attendees: 8, attendeeNames: ['최지영', '김도현', '박서연', '이수진', 'Jihye', '최유진', '정하은', '이나경'] },
-    { id: 'mr-7', team: '디자인팀 04', type: '업무 보고', title: '월간 성과 보고 — 5월',
+    { id: 'mr-7', team: '마케팅팀', type: '업무 보고', title: '월간 성과 보고 — 5월',
     summary: '5월 주요 달성 지표 및 미달성 항목 리뷰. 6월 집중 개선 과제 3가지 합의 및 담당자 배정이 완료되었습니다.',
     aiPoints: ['5월 완료율 78% (목표 85% 대비 -7%)', '미달성 원인: 외부 의존성 지연 2건, 요구사항 변경 1건', '6월 개선 과제 3가지: 리뷰 사이클 단축 / 스펙 동결 기준 수립 / 일정 버퍼 확보', '팀 전반 번아웃 징후 감지 — 업무량 조정 검토 필요'],
     discussions: ['목표 대비 7% 부족한 원인이 외부 요인인지 내부 프로세스 문제인지 분석 필요', '리뷰 사이클이 길어지는 구간(개발 핸드오프 이후)에 병목 집중', '6월에는 스펙 동결 기준을 착수 3일 전으로 명확히 설정하기로 합의'],
@@ -371,7 +372,7 @@ const state = {
       { id: 'act-mr7-3', text: '6월 업무량 조정 계획 제출', dueDate: '2026-06-05', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
     date: '2026-05-28', author: '강지훈', duration: '47:33', attendees: 7, attendeeNames: ['강지훈', 'Jihye', '이수진', '박서연', '김도현', '최유진', '이나경'] },
-    { id: 'mr-8', team: '디자인팀 05', type: '기술 공유', title: 'Figma 컴포넌트 최적화 세션',
+    { id: 'mr-8', team: '디자인팀', type: '기술 공유', title: 'Figma 컴포넌트 최적화 세션',
     summary: '팀 내 Figma 라이브러리 구조 개선 방안 공유. 재사용 가능한 컴포넌트 설계 패턴 정립 및 스타일 토큰 일원화 논의가 진행되었습니다.',
     aiPoints: ['현재 Figma 라이브러리 컴포넌트 수 214개 → 중복·미사용 47개 정리 예정', '스타일 토큰 체계 Color/Spacing/Typography 3계층으로 일원화', 'Auto Layout 미적용 컴포넌트 32개 일괄 전환 계획', 'Figma Variables 활용한 다크모드 지원 방안 논의'],
     discussions: ['컴포넌트 네이밍 컨벤션 불일치로 검색 효율 저하 — 네이밍 가이드 수립 필요', '스타일 토큰 일원화 후 기존 화면에 일괄 적용하는 방법론 합의 필요', '다크모드 지원은 현 시점 우선순위에서 제외, 토큰 구조만 준비'],
@@ -421,11 +422,10 @@ const CAT_CLASS = {
 };
 
 const TEAM_COLORS = {
-  '디자인팀':    '#2563eb',
-  '디자인팀 02': '#10b981',
-  '디자인팀 03': '#f59e0b',
-  '디자인팀 04': '#8b5cf6',
-  '디자인팀 05': '#ef4444',
+  '디자인팀':  '#2563eb',
+  '개발팀':    '#10b981',
+  'PM팀':      '#f59e0b',
+  '마케팅팀':  '#8b5cf6',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -1279,6 +1279,7 @@ function _mpCalPanel() {
 }
 
 function _sessionMins(s) {
+  if (!s.startTime || !s.endTime) return 0;
   const [sh,sm]=s.startTime.split(':').map(Number);
   const [eh,em]=s.endTime.split(':').map(Number);
   return (eh*60+em)-(sh*60+sm);
@@ -1304,26 +1305,28 @@ function _mpAI() {
   const fmtDate=d=>d?`${d.slice(5,7)}/${d.slice(8,10)}`:'-';
 
   const hourMins={};
-  ms.forEach(s=>{const h=s.startTime.split(':')[0];hourMins[h]=(hourMins[h]||0)+_sessionMins(s);});
+  ms.filter(s=>s.startTime).forEach(s=>{const h=s.startTime.split(':')[0];hourMins[h]=(hourMins[h]||0)+_sessionMins(s);});
   const peakHour=Object.entries(hourMins).sort((a,b)=>b[1]-a[1])[0];
 
   const titleCount={};
   ms.forEach(s=>{titleCount[s.title]=(titleCount[s.title]||0)+1;});
   const repeated=Object.entries(titleCount).filter(([,c])=>c>=2).map(([t])=>t);
 
-  const totalMins=ms.reduce((a,s)=>a+_sessionMins(s),0);
+  const timedMs=ms.filter(s=>s.startTime&&s.endTime);
+  const totalMins=timedMs.reduce((a,s)=>a+_sessionMins(s),0);
   const fmtH=m=>{const h=Math.floor(m/60),mn=m%60;return h>0?`${h}h ${mn}m`:`${mn}m`;};
   const MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const now=new Date(state.today+'T00:00:00');
 
-  const insights=[
-    {icon:'📋',label:'가장 많이 수행한 업무',     value:topCat?`${topCat[0]} (${topCat[1]}건)`:'데이터 없음'},
-    {icon:'⏱️',label:'가장 많은 시간이 투입된 업무',value:topWi?`${topWi[0]} (${fmtH(topWi[1])})`:'데이터 없음'},
-    {icon:'🔁',label:'반복 업무 패턴',            value:repeated.length?repeated.slice(0,2).join(', '):'반복 업무 없음'},
-    {icon:'🌟',label:'생산성이 높은 요일',         value:bestDay?`${fmtDate(bestDay[0])} (${fmtH(bestDay[1])})`:'데이터 없음'},
-    {icon:'📉',label:'생산성이 낮은 요일',         value:worstDay?`${fmtDate(worstDay[0])} (${fmtH(worstDay[1])})`:'데이터 없음'},
-    {icon:'⚡',label:'업무 집중 시간대',           value:peakHour?`${peakHour[0]}:00 ~ ${parseInt(peakHour[0])+1}:00`:'데이터 없음'},
+  const allInsights=[
+    {icon:'📋',label:'가장 많이 수행한 업무',     value:topCat?`${topCat[0]} (${topCat[1]}건)`:null},
+    {icon:'⏱️',label:'가장 많은 시간이 투입된 업무',value:topWi?`${topWi[0]} (${fmtH(topWi[1])})`:null},
+    {icon:'🔁',label:'반복 업무 패턴',            value:repeated.length?repeated.slice(0,2).join(', '):null},
+    {icon:'🌟',label:'생산성이 높은 요일',         value:bestDay?`${fmtDate(bestDay[0])} (${fmtH(bestDay[1])})`:null},
+    {icon:'📉',label:'생산성이 낮은 요일',         value:worstDay&&worstDay!==bestDay?`${fmtDate(worstDay[0])} (${fmtH(worstDay[1])})`:null},
+    {icon:'⚡',label:'업무 집중 시간대',           value:peakHour?`${peakHour[0]}:00 ~ ${parseInt(peakHour[0])+1}:00`:null},
   ];
+  const insights=allInsights.filter(i=>i.value!==null);
 
   return `
     <div class="mp-ai-card">
@@ -3640,7 +3643,22 @@ function bindEvents() {
 
   document.getElementById('leaveList')?.addEventListener('click', e => {
     const cancelBtn = e.target.closest('[data-leave-cancel]');
-    if (cancelBtn) cancelLeaveRequest(cancelBtn.dataset.leaveCancel);
+    if (cancelBtn) {
+      state.pendingLeaveCancelId = cancelBtn.dataset.leaveCancel;
+      $('#leaveCancelModal').classList.remove('hidden');
+      return;
+    }
+  });
+
+  $('#cancelLeaveConfirmNo')?.addEventListener('click', () => {
+    state.pendingLeaveCancelId = null;
+    $('#leaveCancelModal').classList.add('hidden');
+  });
+  $('#cancelLeaveConfirmYes')?.addEventListener('click', () => {
+    if (!state.pendingLeaveCancelId) return;
+    cancelLeaveRequest(state.pendingLeaveCancelId);
+    state.pendingLeaveCancelId = null;
+    $('#leaveCancelModal').classList.add('hidden');
   });
 
   // Calendar: prev/next (month or week)

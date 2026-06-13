@@ -19,5 +19,8 @@ app/*.png
 ceo/*.png
 manager/*.png
 
+# Claude Code 내부 파일
+**/.superpowers/
+
 # OS
 .DS_Store
