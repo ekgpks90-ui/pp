@@ -28,7 +28,6 @@ const state = {
   drawerDayTasks: null,
   inlineAddItemId: null,
   today: _todayISO,
-  dailyTodoDate: _todayISO,
   currentPage: 'home',
   calYear: _now.getFullYear(),
   calMonth: _now.getMonth(),
@@ -41,20 +40,19 @@ const state = {
   workItemResources: {},
   calTeamFilter: '전체',
   calSearchQuery: '',
-  calSelectedProject: null,
   recorder: { status: 'idle', seconds: 0 }, // 'idle' | 'recording'
   meetingDetailId: null,
   meetingDetailTab: 'ai', // 'ai' | 'script' | 'actions'
   detailPanelItemId: null,
   detailDraft: null, // { title, type, end, description } — tracks unsaved edits
-  currentUser: { id: 'u-1', name: '이지혜', role: 'Manager', team: '디자인팀', onLeave: false, joinDate: '2022-03-07' },
+  currentUser: { id: 'u-1', name: 'Jihye', role: 'Member', team: '디자인팀', onLeave: false, joinDate: '2023-04-03' },
   myPageTab: 'history',
   myPageCalYear: _now.getFullYear(),
   myPageCalMonth: _now.getMonth(),
   myPageSelectedDate: null,
 
   teamMembers: [
-    { id: 'u-1', name: '이지혜',   role: 'UI/UX Designer',   team: '디자인팀', onLeave: false, leaveType: null,
+    { id: 'u-1', name: 'Jihye',   role: 'UI/UX Designer',   team: '디자인팀', onLeave: false, leaveType: null,
       weekWorkItems: [
         { title: '앱 온보딩 화면 긴급 수정',     type: '긴급', done: true  },
         { title: '이벤트 배너 긴급 제작',        type: '긴급', done: true  },
@@ -107,142 +105,132 @@ const state = {
 
   workItems: [
     // 고정업무 — recurringDays: 1=월,2=화,3=수,4=목,5=금, end:null=무기한
-    { id: 'wi-1',  title: '주간 디자인 싱크 미팅',  description: '매주 월요일 팀 전체 디자인 방향 및 이번 주 업무 우선순위를 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1],         participants: ['이지혜', '장준혁'] },
-    { id: 'wi-2',  title: '일일 작업 기록',          description: '매일 작업 진행 상황을 Figma 및 노션에 기록하고 팀과 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1,2,3,4,5], participants: ['이지혜'] },
-    { id: 'wi-3',  title: '디자인 리뷰 미팅',        description: '화요일·목요일 팀 내 디자인 산출물 리뷰 및 피드백 세션.', start: '2026-06-01', end: null, type: '고정', recurringDays: [2,4],       participants: ['이지혜', '장준혁', '최유진'] },
-    { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['이지혜', '윤소이'] },
+    { id: 'wi-1',  title: '주간 디자인 싱크 미팅',  description: '매주 월요일 팀 전체 디자인 방향 및 이번 주 업무 우선순위를 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1],         participants: ['Jihye', '장준혁'] },
+    { id: 'wi-2',  title: '일일 작업 기록',          description: '매일 작업 진행 상황을 Figma 및 노션에 기록하고 팀과 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1,2,3,4,5], participants: ['Jihye'] },
+    { id: 'wi-3',  title: '디자인 리뷰 미팅',        description: '화요일·목요일 팀 내 디자인 산출물 리뷰 및 피드백 세션.', start: '2026-06-01', end: null, type: '고정', recurringDays: [2,4],       participants: ['Jihye', '장준혁', '최유진'] },
+    { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['Jihye', '윤소이'] },
     // 긴급업무
-    { id: 'wi-5',  title: '앱 온보딩 화면 긴급 수정',  description: '출시 전 QA에서 발견된 온보딩 UX 문제를 긴급 수정합니다. 인터랙션 흐름 및 카피 오류 포함.', start: '2026-06-11', end: '2026-06-14', type: '긴급', participants: ['이지혜', '최유진', '박서연'], sourceRequestId: 'wr-a1' },
-    { id: 'wi-6',  title: '이벤트 배너 긴급 제작',     description: '마케팅팀 요청으로 주말 프로모션 배너 3종을 긴급 제작합니다.', start: '2026-06-12', end: '2026-06-13', type: '긴급', participants: ['이지혜', '정하은'], sourceRequestId: 'wr-a2' },
+    { id: 'wi-5',  title: '앱 온보딩 화면 긴급 수정',  description: '출시 전 QA에서 발견된 온보딩 UX 문제를 긴급 수정합니다. 인터랙션 흐름 및 카피 오류 포함.', start: '2026-06-11', end: '2026-06-14', type: '긴급', participants: ['Jihye', '최유진', '박서연'] },
+    { id: 'wi-6',  title: '이벤트 배너 긴급 제작',     description: '마케팅팀 요청으로 주말 프로모션 배너 3종을 긴급 제작합니다.', start: '2026-06-12', end: '2026-06-13', type: '긴급', participants: ['Jihye', '정하은'] },
     // 일반업무
-    { id: 'wi-7',  title: '메인 홈 화면 리디자인',    description: '앱 메인 홈 화면 전면 리디자인. 정보 구조 개선 및 신규 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['이지혜', '최유진'], sourceRequestId: 'wr-a3' },
-    { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['이지혜', '윤소이', '이나경'] },
-    { id: 'wi-9',  title: '신규 서비스 UX 리서치',    description: '신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출, 개선 방향 정리.', start: '2026-06-10', end: '2026-06-17', type: '일반', participants: ['이지혜', '김도현'], sourceRequestId: 'wr-a4' },
-    { id: 'wi-10', title: '고객사 A 브랜딩 작업',     description: '고객사 A의 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-21', type: '일반', participants: ['이지혜', '이나경'], sourceRequestId: 'wr-a5' },
-    { id: 'wi-11', title: '모바일 앱 UI 개선',        description: '기존 모바일 앱의 주요 화면 UI를 개선하여 사용성 및 일관성을 높입니다.', start: '2026-06-13', end: '2026-06-20', type: '일반', participants: ['이지혜'], sourceRequestId: 'wr-a6' },
-    { id: 'wi-12', title: '마케팅 랜딩 페이지 시안',  description: '신규 마케팅 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['이지혜', '정하은'] },
-    { id: 'wi-13', title: '제품 아이콘 리뉴얼',       description: '앱 내 아이콘 세트 전면 리뉴얼. 일관된 스타일 가이드 기반으로 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['이지혜', '윤소이'] },
+    { id: 'wi-7',  title: '메인 홈 화면 리디자인',    description: '앱 메인 홈 화면 전면 리디자인. 정보 구조 개선 및 신규 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진'] },
+    { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
+    { id: 'wi-9',  title: '신규 서비스 UX 리서치',    description: '신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출, 개선 방향 정리.', start: '2026-06-10', end: '2026-06-17', type: '일반', participants: ['Jihye', '김도현'] },
+    { id: 'wi-10', title: '고객사 A 브랜딩 작업',     description: '고객사 A의 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-21', type: '일반', participants: ['Jihye', '이나경'] },
+    { id: 'wi-11', title: '모바일 앱 UI 개선',        description: '기존 모바일 앱의 주요 화면 UI를 개선하여 사용성 및 일관성을 높입니다.', start: '2026-06-13', end: '2026-06-20', type: '일반', participants: ['Jihye'] },
+    { id: 'wi-12', title: '마케팅 랜딩 페이지 시안',  description: '신규 마케팅 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'] },
+    { id: 'wi-13', title: '제품 아이콘 리뉴얼',       description: '앱 내 아이콘 세트 전면 리뉴얼. 일관된 스타일 가이드 기반으로 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이'] },
     // 반복 일반·긴급 예시 (세부항목 아이콘 테스트용)
-    { id: 'wi-14', title: '주간 업무 보고서 작성',    description: '매주 금요일 팀 주간 업무 현황을 정리하여 보고서를 작성합니다.', start: '2026-06-01', end: null, type: '일반', recurringDays: [5], participants: ['이지혜'] },
-    { id: 'wi-15', title: 'QA 긴급 버그 처리',       description: '출시 전 QA 기간 중 발생하는 긴급 버그를 신속히 처리합니다.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['이지혜', '최유진'] },
+    { id: 'wi-14', title: '주간 업무 보고서 작성',    description: '매주 금요일 팀 주간 업무 현황을 정리하여 보고서를 작성합니다.', start: '2026-06-01', end: null, type: '일반', recurringDays: [5], participants: ['Jihye'] },
+    { id: 'wi-15', title: 'QA 긴급 버그 처리',       description: '출시 전 QA 기간 중 발생하는 긴급 버그를 신속히 처리합니다.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진'] },
     // 5월 업무
-    { id: 'wi-m1', title: '디자인 시스템 v2 구축',        description: '버튼·폼·카드·모달 등 핵심 컴포넌트 전면 개편. Figma 토큰 일원화 및 다크모드 대응 포함.', start: '2026-05-01', end: '2026-05-23', type: '일반', participants: ['이지혜', '윤소이', '이나경'] },
-    { id: 'wi-m2', title: 'Q2 사용자 리서치',             description: '2분기 신규 서비스 출시 전 사용자 인터뷰 12건 진행 및 페르소나 재정립.', start: '2026-05-06', end: '2026-05-16', type: '일반', participants: ['이지혜', '김도현'] },
-    { id: 'wi-m3', title: '모바일 앱 리뉴얼 1차 시안',    description: '기존 모바일 앱 전면 리뉴얼. 네비게이션 구조 개선 및 신규 비주얼 아이덴티티 적용 1차 시안 제작.', start: '2026-05-12', end: '2026-05-30', type: '일반', participants: ['이지혜', '최유진'] },
-    { id: 'wi-m4', title: '5월 브랜드 캠페인 소재 제작',  description: '5월 가정의 달 캠페인용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['이지혜', '정하은'] },
-    { id: 'wi-m5', title: '신규 온보딩 플로우 설계',      description: '신규 가입자 온보딩 UX 개선. 단계 축소 및 인터랙션 개선안 설계.', start: '2026-05-26', end: '2026-06-06', type: '일반', participants: ['이지혜', '최유진'] },
+    { id: 'wi-m1', title: '디자인 시스템 v2 구축',        description: '버튼·폼·카드·모달 등 핵심 컴포넌트 전면 개편. Figma 토큰 일원화 및 다크모드 대응 포함.', start: '2026-05-01', end: '2026-05-23', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
+    { id: 'wi-m2', title: 'Q2 사용자 리서치',             description: '2분기 신규 서비스 출시 전 사용자 인터뷰 12건 진행 및 페르소나 재정립.', start: '2026-05-06', end: '2026-05-16', type: '일반', participants: ['Jihye', '김도현'] },
+    { id: 'wi-m3', title: '모바일 앱 리뉴얼 1차 시안',    description: '기존 모바일 앱 전면 리뉴얼. 네비게이션 구조 개선 및 신규 비주얼 아이덴티티 적용 1차 시안 제작.', start: '2026-05-12', end: '2026-05-30', type: '일반', participants: ['Jihye', '최유진'] },
+    { id: 'wi-m4', title: '5월 브랜드 캠페인 소재 제작',  description: '5월 가정의 달 캠페인용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'] },
+    { id: 'wi-m5', title: '신규 온보딩 플로우 설계',      description: '신규 가입자 온보딩 UX 개선. 단계 축소 및 인터랙션 개선안 설계.', start: '2026-05-26', end: '2026-06-06', type: '일반', participants: ['Jihye', '최유진'] },
   ],
 
   sessions: [
     // 오늘(2026-06-13 토) 세션
-    { id: 'ws-1', workItemId: 'wi-5',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-13', category: '디자인', title: '인터랙션 흐름 수정',         startTime: '', endTime: '', done: false },
-    { id: 'ws-2', workItemId: 'wi-5',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-13', category: '리서치', title: '사용성 테스트 시나리오 정리', startTime: '', endTime: '', done: false },
-    { id: 'ws-3', workItemId: 'wi-6',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-13', category: '디자인', title: '배너 최종 시안 완성',         startTime: '', endTime: '', done: false },
-    { id: 'ws-4', workItemId: 'wi-6',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-13', category: '디자인', title: '클라이언트 피드백 반영',      startTime: '', endTime: '', done: false },
-    { id: 'ws-5', workItemId: 'wi-11', authorId: 'u-1', authorName: '이지혜', date: '2026-06-13', category: '기획',   title: '초기 와이어프레임 스케치',    startTime: '', endTime: '', done: false },
+    { id: 'ws-1', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '인터랙션 흐름 수정',         startTime: '', endTime: '', done: false },
+    { id: 'ws-2', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '리서치', title: '사용성 테스트 시나리오 정리', startTime: '', endTime: '', done: false },
+    { id: 'ws-3', workItemId: 'wi-6',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '배너 최종 시안 완성',         startTime: '', endTime: '', done: false },
+    { id: 'ws-4', workItemId: 'wi-6',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '클라이언트 피드백 반영',      startTime: '', endTime: '', done: false },
+    { id: 'ws-5', workItemId: 'wi-11', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '초기 와이어프레임 스케치',    startTime: '', endTime: '', done: false },
     // 과거 세션 — 히스토리 캘린더용
-    { id: 'ws-h1',  workItemId: 'wi-1',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-02', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h2',  workItemId: 'wi-8',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-02', category: '디자인', title: '버튼 컴포넌트 정리',        startTime: '10:30', endTime: '12:30', done: true },
-    { id: 'ws-h3',  workItemId: 'wi-2',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-02', category: '기획',   title: '일일 작업 기록',            startTime: '18:00', endTime: '18:30', done: true },
-    { id: 'ws-h4',  workItemId: 'wi-3',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-03', category: '디자인', title: '홈 화면 시안 리뷰',         startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h5',  workItemId: 'wi-8',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-03', category: '디자인', title: '폼 컴포넌트 스타일 정리',   startTime: '10:00', endTime: '12:00', done: true },
-    { id: 'ws-h6',  workItemId: 'wi-2',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-04', category: '기획',   title: '일일 작업 기록',            startTime: '17:30', endTime: '18:00', done: true },
+    { id: 'ws-h1',  workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-02', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
+    { id: 'ws-h2',  workItemId: 'wi-8',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-02', category: '디자인', title: '버튼 컴포넌트 정리',        startTime: '10:30', endTime: '12:30', done: true },
+    { id: 'ws-h3',  workItemId: 'wi-2',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-02', category: '기획',   title: '일일 작업 기록',            startTime: '18:00', endTime: '18:30', done: true },
+    { id: 'ws-h4',  workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-03', category: '디자인', title: '홈 화면 시안 리뷰',         startTime: '14:00', endTime: '15:30', done: true },
+    { id: 'ws-h5',  workItemId: 'wi-8',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-03', category: '디자인', title: '폼 컴포넌트 스타일 정리',   startTime: '10:00', endTime: '12:00', done: true },
+    { id: 'ws-h6',  workItemId: 'wi-2',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-04', category: '기획',   title: '일일 작업 기록',            startTime: '17:30', endTime: '18:00', done: true },
     // 2026-06-05 연차 (세션 없음)
-    { id: 'ws-h7',  workItemId: 'wi-4',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-06', category: '디자인', title: 'Figma 라이브러리 정리',     startTime: '14:00', endTime: '16:00', done: true },
-    { id: 'ws-h8',  workItemId: 'wi-2',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-06', category: '기획',   title: '일일 작업 기록',            startTime: '17:00', endTime: '17:30', done: true },
-    { id: 'ws-h9',  workItemId: 'wi-1',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-09', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h10', workItemId: 'wi-7',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-09', category: '디자인', title: '홈 화면 IA 검토',           startTime: '10:30', endTime: '12:30', done: true },
-    { id: 'ws-h11', workItemId: 'wi-10', authorId: 'u-1', authorName: '이지혜', date: '2026-06-09', category: '디자인', title: '로고 1차 시안 작업',        startTime: '14:00', endTime: '17:00', done: true },
-    { id: 'ws-h12', workItemId: 'wi-3',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-10', category: '디자인', title: '카드 컴포넌트 리뷰',        startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h13', workItemId: 'wi-9',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-10', category: '리서치', title: '사용자 인터뷰 녹취 분석',   startTime: '09:00', endTime: '11:30', done: true },
-    { id: 'ws-h14', workItemId: 'wi-7',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-10', category: '디자인', title: '홈 화면 2차 시안 작업',     startTime: '13:00', endTime: '16:00', done: true },
-    { id: 'ws-h15', workItemId: 'wi-5',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-11', category: '디자인', title: '온보딩 1단계 화면 수정',    startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-h16', workItemId: 'wi-5',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-11', category: '기획',   title: '수정 범위 정리 및 공유',    startTime: '11:30', endTime: '13:00', done: true },
-    { id: 'ws-h17', workItemId: 'wi-10', authorId: 'u-1', authorName: '이지혜', date: '2026-06-11', category: '디자인', title: '컬러 시스템 시안 제작',     startTime: '14:00', endTime: '17:00', done: true },
-    { id: 'ws-h18', workItemId: 'wi-3',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-12', category: '디자인', title: '디자인 리뷰 — 홈·온보딩',   startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h19', workItemId: 'wi-6',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-12', category: '디자인', title: '배너 초안 3종 제작',        startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-h20', workItemId: 'wi-9',  authorId: 'u-1', authorName: '이지혜', date: '2026-06-12', category: '리서치', title: '페르소나 초안 작성',        startTime: '16:00', endTime: '17:30', done: true },
+    { id: 'ws-h7',  workItemId: 'wi-4',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-06', category: '디자인', title: 'Figma 라이브러리 정리',     startTime: '14:00', endTime: '16:00', done: true },
+    { id: 'ws-h8',  workItemId: 'wi-2',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-06', category: '기획',   title: '일일 작업 기록',            startTime: '17:00', endTime: '17:30', done: true },
+    { id: 'ws-h9',  workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
+    { id: 'ws-h10', workItemId: 'wi-7',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '디자인', title: '홈 화면 IA 검토',           startTime: '10:30', endTime: '12:30', done: true },
+    { id: 'ws-h11', workItemId: 'wi-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '디자인', title: '로고 1차 시안 작업',        startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-h12', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '디자인', title: '카드 컴포넌트 리뷰',        startTime: '14:00', endTime: '15:30', done: true },
+    { id: 'ws-h13', workItemId: 'wi-9',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '리서치', title: '사용자 인터뷰 녹취 분석',   startTime: '09:00', endTime: '11:30', done: true },
+    { id: 'ws-h14', workItemId: 'wi-7',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '디자인', title: '홈 화면 2차 시안 작업',     startTime: '13:00', endTime: '16:00', done: true },
+    { id: 'ws-h15', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '온보딩 1단계 화면 수정',    startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-h16', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '수정 범위 정리 및 공유',    startTime: '11:30', endTime: '13:00', done: true },
+    { id: 'ws-h17', workItemId: 'wi-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '컬러 시스템 시안 제작',     startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-h18', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '디자인 리뷰 — 홈·온보딩',   startTime: '14:00', endTime: '15:30', done: true },
+    { id: 'ws-h19', workItemId: 'wi-6',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '배너 초안 3종 제작',        startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-h20', workItemId: 'wi-9',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '리서치', title: '페르소나 초안 작성',        startTime: '16:00', endTime: '17:30', done: true },
     // 5월 세션
     // 05-01 (금)
-    { id: 'ws-m01', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-01', category: '디자인', title: '디자인 시스템 현황 분석 및 개선 방향 정리', startTime: '09:30', endTime: '12:00', done: true },
-    { id: 'ws-m02', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-01', category: '기획',   title: '컴포넌트 인벤토리 작성',                  startTime: '13:00', endTime: '15:30', done: true },
+    { id: 'ws-m01', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-01', category: '디자인', title: '디자인 시스템 현황 분석 및 개선 방향 정리', startTime: '09:30', endTime: '12:00', done: true },
+    { id: 'ws-m02', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-01', category: '기획',   title: '컴포넌트 인벤토리 작성',                  startTime: '13:00', endTime: '15:30', done: true },
     // 05-04 (월)
-    { id: 'ws-m03', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-04', category: '디자인', title: '버튼 컴포넌트 토큰 정의',                  startTime: '09:00', endTime: '11:30', done: true },
-    { id: 'ws-m04', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-04', category: '디자인', title: '폼 컴포넌트 스타일 가이드 작성',           startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-m03', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-04', category: '디자인', title: '버튼 컴포넌트 토큰 정의',                  startTime: '09:00', endTime: '11:30', done: true },
+    { id: 'ws-m04', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-04', category: '디자인', title: '폼 컴포넌트 스타일 가이드 작성',           startTime: '14:00', endTime: '17:00', done: true },
     // 05-06 (수) — 어린이날(05-05) 다음날
-    { id: 'ws-m05', workItemId: 'wi-m2', authorId: 'u-1', authorName: '이지혜', date: '2026-05-06', category: '리서치', title: '사용자 인터뷰 계획 수립',                  startTime: '09:00', endTime: '10:30', done: true },
-    { id: 'ws-m06', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-06', category: '디자인', title: '카드 컴포넌트 Figma 작업',                 startTime: '11:00', endTime: '13:00', done: true },
-    { id: 'ws-m07', workItemId: 'wi-m2', authorId: 'u-1', authorName: '이지혜', date: '2026-05-06', category: '리서치', title: '인터뷰 대상자 섭외 및 일정 조율',          startTime: '14:00', endTime: '16:00', done: true },
+    { id: 'ws-m05', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-06', category: '리서치', title: '사용자 인터뷰 계획 수립',                  startTime: '09:00', endTime: '10:30', done: true },
+    { id: 'ws-m06', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-06', category: '디자인', title: '카드 컴포넌트 Figma 작업',                 startTime: '11:00', endTime: '13:00', done: true },
+    { id: 'ws-m07', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-06', category: '리서치', title: '인터뷰 대상자 섭외 및 일정 조율',          startTime: '14:00', endTime: '16:00', done: true },
     // 05-07 (목)
-    { id: 'ws-m08', workItemId: 'wi-m2', authorId: 'u-1', authorName: '이지혜', date: '2026-05-07', category: '리서치', title: '사용자 인터뷰 1~3차 진행',                 startTime: '10:00', endTime: '13:00', done: true },
-    { id: 'ws-m09', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-07', category: '디자인', title: '모달 컴포넌트 다크모드 적용',              startTime: '14:30', endTime: '17:30', done: true },
+    { id: 'ws-m08', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-07', category: '리서치', title: '사용자 인터뷰 1~3차 진행',                 startTime: '10:00', endTime: '13:00', done: true },
+    { id: 'ws-m09', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-07', category: '디자인', title: '모달 컴포넌트 다크모드 적용',              startTime: '14:30', endTime: '17:30', done: true },
     // 05-08 (금)
-    { id: 'ws-m10', workItemId: 'wi-m2', authorId: 'u-1', authorName: '이지혜', date: '2026-05-08', category: '리서치', title: '인터뷰 결과 1차 정리',                     startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-m11', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-08', category: '디자인', title: '주간 디자인 시스템 진행 공유',             startTime: '15:00', endTime: '16:30', done: true },
+    { id: 'ws-m10', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-08', category: '리서치', title: '인터뷰 결과 1차 정리',                     startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-m11', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-08', category: '디자인', title: '주간 디자인 시스템 진행 공유',             startTime: '15:00', endTime: '16:30', done: true },
     // 05-12 (월)
-    { id: 'ws-m12', workItemId: 'wi-m2', authorId: 'u-1', authorName: '이지혜', date: '2026-05-12', category: '리서치', title: '사용자 인터뷰 4~7차 진행',                 startTime: '10:00', endTime: '14:00', done: true },
-    { id: 'ws-m13', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-12', category: '기획',   title: '모바일 앱 IA 초안 작성',                  startTime: '15:00', endTime: '17:30', done: true },
+    { id: 'ws-m12', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-12', category: '리서치', title: '사용자 인터뷰 4~7차 진행',                 startTime: '10:00', endTime: '14:00', done: true },
+    { id: 'ws-m13', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-12', category: '기획',   title: '모바일 앱 IA 초안 작성',                  startTime: '15:00', endTime: '17:30', done: true },
     // 05-13 (화)
-    { id: 'ws-m14', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-13', category: '디자인', title: '네비게이션 구조 개선 와이어프레임',        startTime: '09:30', endTime: '12:30', done: true },
-    { id: 'ws-m15', workItemId: 'wi-m2', authorId: 'u-1', authorName: '이지혜', date: '2026-05-13', category: '리서치', title: '인터뷰 결과 종합 분석',                    startTime: '14:00', endTime: '16:30', done: true },
+    { id: 'ws-m14', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-13', category: '디자인', title: '네비게이션 구조 개선 와이어프레임',        startTime: '09:30', endTime: '12:30', done: true },
+    { id: 'ws-m15', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-13', category: '리서치', title: '인터뷰 결과 종합 분석',                    startTime: '14:00', endTime: '16:30', done: true },
     // 05-14 (수)
-    { id: 'ws-m16', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-14', category: '디자인', title: '홈·탐색 화면 1차 시안 제작',              startTime: '09:00', endTime: '13:00', done: true },
-    { id: 'ws-m17', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-14', category: '디자인', title: '아이콘 세트 스타일 가이드 정리',           startTime: '14:00', endTime: '16:00', done: true },
+    { id: 'ws-m16', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-14', category: '디자인', title: '홈·탐색 화면 1차 시안 제작',              startTime: '09:00', endTime: '13:00', done: true },
+    { id: 'ws-m17', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-14', category: '디자인', title: '아이콘 세트 스타일 가이드 정리',           startTime: '14:00', endTime: '16:00', done: true },
     // 05-15 (목)
-    { id: 'ws-m18', workItemId: 'wi-m2', authorId: 'u-1', authorName: '이지혜', date: '2026-05-15', category: '리서치', title: '페르소나 3종 도출 및 공유',                startTime: '10:00', endTime: '12:30', done: true },
-    { id: 'ws-m19', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-15', category: '디자인', title: '마이페이지 화면 시안 제작',                startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-m18', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-15', category: '리서치', title: '페르소나 3종 도출 및 공유',                startTime: '10:00', endTime: '12:30', done: true },
+    { id: 'ws-m19', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-15', category: '디자인', title: '마이페이지 화면 시안 제작',                startTime: '14:00', endTime: '17:00', done: true },
     // 05-19 (월)
-    { id: 'ws-m20', workItemId: 'wi-m4', authorId: 'u-1', authorName: '이지혜', date: '2026-05-19', category: '기획',   title: '캠페인 소재 컨셉 기획',                    startTime: '09:00', endTime: '10:30', done: true },
-    { id: 'ws-m21', workItemId: 'wi-m4', authorId: 'u-1', authorName: '이지혜', date: '2026-05-19', category: '디자인', title: 'SNS 배너 1차 시안 3종 제작',               startTime: '11:00', endTime: '14:00', done: true },
-    { id: 'ws-m22', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-19', category: '디자인', title: '온보딩 화면 시안 수정',                    startTime: '15:00', endTime: '17:00', done: true },
+    { id: 'ws-m20', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '기획',   title: '캠페인 소재 컨셉 기획',                    startTime: '09:00', endTime: '10:30', done: true },
+    { id: 'ws-m21', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: 'SNS 배너 1차 시안 3종 제작',               startTime: '11:00', endTime: '14:00', done: true },
+    { id: 'ws-m22', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: '온보딩 화면 시안 수정',                    startTime: '15:00', endTime: '17:00', done: true },
     // 05-20 (화)
-    { id: 'ws-m23', workItemId: 'wi-m4', authorId: 'u-1', authorName: '이지혜', date: '2026-05-20', category: '디자인', title: '배너 피드백 반영 및 2차 수정',             startTime: '09:30', endTime: '12:00', done: true },
-    { id: 'ws-m24', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-20', category: '디자인', title: '디자인 시스템 QA 검토',                    startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-m23', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '디자인', title: '배너 피드백 반영 및 2차 수정',             startTime: '09:30', endTime: '12:00', done: true },
+    { id: 'ws-m24', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '디자인', title: '디자인 시스템 QA 검토',                    startTime: '14:00', endTime: '17:00', done: true },
     // 05-21 (수)
-    { id: 'ws-m25', workItemId: 'wi-m4', authorId: 'u-1', authorName: '이지혜', date: '2026-05-21', category: '디자인', title: '스토리·썸네일 소재 제작',                  startTime: '09:00', endTime: '12:30', done: true },
-    { id: 'ws-m26', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-21', category: '기획',   title: '앱 화면 흐름도 최종 정리',                startTime: '14:00', endTime: '16:00', done: true },
+    { id: 'ws-m25', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '디자인', title: '스토리·썸네일 소재 제작',                  startTime: '09:00', endTime: '12:30', done: true },
+    { id: 'ws-m26', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '기획',   title: '앱 화면 흐름도 최종 정리',                startTime: '14:00', endTime: '16:00', done: true },
     // 05-22 (목)
-    { id: 'ws-m27', workItemId: 'wi-m4', authorId: 'u-1', authorName: '이지혜', date: '2026-05-22', category: '디자인', title: '캠페인 소재 최종 납품',                    startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-m28', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-22', category: '디자인', title: '디자인 시스템 Figma 배포',                 startTime: '13:00', endTime: '16:00', done: true },
+    { id: 'ws-m27', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '캠페인 소재 최종 납품',                    startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-m28', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '디자인 시스템 Figma 배포',                 startTime: '13:00', endTime: '16:00', done: true },
     // 05-23 (금)
-    { id: 'ws-m29', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-23', category: '디자인', title: '모바일 앱 시안 내부 리뷰',                 startTime: '14:00', endTime: '16:00', done: true },
-    { id: 'ws-m30', workItemId: 'wi-m1', authorId: 'u-1', authorName: '이지혜', date: '2026-05-23', category: '기획',   title: '5월 주간 업무 보고서 작성',               startTime: '16:30', endTime: '17:30', done: true },
+    { id: 'ws-m29', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-23', category: '디자인', title: '모바일 앱 시안 내부 리뷰',                 startTime: '14:00', endTime: '16:00', done: true },
+    { id: 'ws-m30', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-23', category: '기획',   title: '5월 주간 업무 보고서 작성',               startTime: '16:30', endTime: '17:30', done: true },
     // 05-26 (월)
-    { id: 'ws-m31', workItemId: 'wi-m5', authorId: 'u-1', authorName: '이지혜', date: '2026-05-26', category: '기획',   title: '온보딩 플로우 현황 분석',                 startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-m32', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-26', category: '디자인', title: '앱 시안 클라이언트 피드백 반영',           startTime: '13:00', endTime: '16:30', done: true },
+    { id: 'ws-m31', workItemId: 'wi-m5', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-26', category: '기획',   title: '온보딩 플로우 현황 분석',                 startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-m32', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-26', category: '디자인', title: '앱 시안 클라이언트 피드백 반영',           startTime: '13:00', endTime: '16:30', done: true },
     // 05-27 (화)
-    { id: 'ws-m33', workItemId: 'wi-m5', authorId: 'u-1', authorName: '이지혜', date: '2026-05-27', category: '기획',   title: '온보딩 개선 방향 초안 작성',              startTime: '09:30', endTime: '12:00', done: true },
-    { id: 'ws-m34', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-27', category: '디자인', title: '설정·알림 화면 시안 제작',                startTime: '14:00', endTime: '17:30', done: true },
+    { id: 'ws-m33', workItemId: 'wi-m5', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-27', category: '기획',   title: '온보딩 개선 방향 초안 작성',              startTime: '09:30', endTime: '12:00', done: true },
+    { id: 'ws-m34', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-27', category: '디자인', title: '설정·알림 화면 시안 제작',                startTime: '14:00', endTime: '17:30', done: true },
     // 05-28 (수)
-    { id: 'ws-m35', workItemId: 'wi-m5', authorId: 'u-1', authorName: '이지혜', date: '2026-05-28', category: '디자인', title: '온보딩 1~3단계 와이어프레임 작성',        startTime: '10:00', endTime: '13:00', done: true },
-    { id: 'ws-m36', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-28', category: '디자인', title: '앱 시안 2차 수정 완료',                   startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-m35', workItemId: 'wi-m5', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-28', category: '디자인', title: '온보딩 1~3단계 와이어프레임 작성',        startTime: '10:00', endTime: '13:00', done: true },
+    { id: 'ws-m36', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-28', category: '디자인', title: '앱 시안 2차 수정 완료',                   startTime: '14:00', endTime: '17:00', done: true },
     // 05-29 (목)
-    { id: 'ws-m37', workItemId: 'wi-m5', authorId: 'u-1', authorName: '이지혜', date: '2026-05-29', category: '디자인', title: '온보딩 인터랙션 프로토타입 제작',         startTime: '09:00', endTime: '12:30', done: true },
-    { id: 'ws-m38', workItemId: 'wi-m3', authorId: 'u-1', authorName: '이지혜', date: '2026-05-29', category: '기획',   title: '리뉴얼 진행 현황 정리 및 공유',           startTime: '14:00', endTime: '15:30', done: true },
+    { id: 'ws-m37', workItemId: 'wi-m5', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-29', category: '디자인', title: '온보딩 인터랙션 프로토타입 제작',         startTime: '09:00', endTime: '12:30', done: true },
+    { id: 'ws-m38', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-29', category: '기획',   title: '리뉴얼 진행 현황 정리 및 공유',           startTime: '14:00', endTime: '15:30', done: true },
     // 05-30 (금) — 오전 반차
-    { id: 'ws-m39', workItemId: 'wi-m5', authorId: 'u-1', authorName: '이지혜', date: '2026-05-30', category: '디자인', title: '온보딩 플로우 팀 리뷰',                   startTime: '14:00', endTime: '16:00', done: true },
+    { id: 'ws-m39', workItemId: 'wi-m5', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-30', category: '디자인', title: '온보딩 플로우 팀 리뷰',                   startTime: '14:00', endTime: '16:00', done: true },
   ],
 
 
 
   requests: [
-    // 수락 대기 — ar-9에서 배정된 이번 주 신규 요청
-    { id: 'wr-1', title: '모바일 앱 아이콘 세트 리뉴얼 — 정보구조도(IA) 설계', detail: '[UI/UX 디자인] 모바일 앱 아이콘 세트 리뉴얼\n담당 단계: 정보구조도(IA) 설계', requester: '이지혜', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-13', end: '2026-06-24', priority: '일반', processId: 'pc-1', status: '수락 대기' },
-    { id: 'wr-2', title: '모바일 앱 아이콘 세트 리뉴얼 — 1차 UI 디자인', detail: '[UI/UX 디자인] 모바일 앱 아이콘 세트 리뉴얼\n담당 단계: 1차 UI 디자인', requester: '이지혜', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-13', end: '2026-06-24', priority: '일반', processId: 'pc-1', status: '수락 대기' },
-    { id: 'wr-3', title: '신제품 론칭 SNS 배너 — 콘셉트 기획', detail: '[디지털 콘텐츠] 신제품 론칭 SNS 배너\n담당 단계: 콘셉트 기획', requester: '이지혜', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-13', end: '2026-06-18', priority: '긴급', processId: 'pc-3', status: '수락 대기' },
-    // 수락됨 — 이번 주 이미 수락한 요청들 (Weekly Tasks의 sourceRequestId와 연결)
-    { id: 'wr-a1', title: '앱 온보딩 화면 긴급 수정 — 2차 피드백', detail: '[UI/UX 디자인] 앱 온보딩 화면 긴급 수정\n담당 단계: 2차 피드백', requester: '정민지', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-11', end: '2026-06-14', priority: '긴급', processId: 'pc-1', status: '수락' },
-    { id: 'wr-a2', title: '이벤트 배너 긴급 제작 — 시안 제작', detail: '[디지털 콘텐츠] 이벤트 배너 긴급 제작\n담당 단계: 시안 제작', requester: '김지수', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-12', end: '2026-06-13', priority: '긴급', processId: 'pc-3', status: '수락' },
-    { id: 'wr-a3', title: '메인 홈 화면 리디자인 — 와이어프레임 제작', detail: '[UI/UX 디자인] 메인 홈 화면 리디자인\n담당 단계: 와이어프레임 제작', requester: '정민지', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-09', end: '2026-06-20', priority: '일반', processId: 'pc-1', status: '수락' },
-    { id: 'wr-a4', title: '신규 서비스 UX 리서치 — 리서치 (사용자/경쟁사)', detail: '[UI/UX 디자인] 신규 서비스 UX 리서치\n담당 단계: 리서치 (사용자/경쟁사)', requester: '정민지', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-10', end: '2026-06-17', priority: '일반', processId: 'pc-1', status: '수락' },
-    { id: 'wr-a5', title: '고객사 A 브랜딩 작업 — 콘셉트 기획', detail: '[브랜드 & 인쇄물] 고객사 A 브랜딩 작업\n담당 단계: 콘셉트 기획', requester: '이준호', requestTeam: '영업팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-09', end: '2026-06-21', priority: '일반', processId: 'pc-2', status: '수락' },
-    { id: 'wr-a6', title: '모바일 앱 UI 개선 — 정보구조도(IA) 설계', detail: '[UI/UX 디자인] 모바일 앱 UI 개선\n담당 단계: 정보구조도(IA) 설계', requester: '정민지', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '이지혜', start: '2026-06-13', end: '2026-06-20', priority: '일반', processId: 'pc-1', status: '수락' },
-    // ar-9 추가 담당자 (최유진 — 정보구조도 IA 설계 공동 담당)
-    { id: 'wr-b1', title: '모바일 앱 아이콘 세트 리뉴얼 — 정보구조도(IA) 설계', detail: '[UI/UX 디자인] 모바일 앱 아이콘 세트 리뉴얼\n담당 단계: 정보구조도(IA) 설계', requester: '이지혜', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: '최유진', start: '2026-06-15', end: '2026-06-22', priority: '일반', processId: 'pc-1', status: '수락 대기' },
+    { id: 'wr-1', title: '신제품 론칭 SNS 배너', detail: '7월 신제품 론칭에 맞춰 인스타그램·페이스북용 배너 각 2종씩 제작 요청드립니다.', requester: '김지수', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-13', end: '2026-06-18', priority: '긴급', status: '수락 대기' },
+    { id: 'wr-2', title: '채용 공고 포스터 디자인', detail: 'UI 디자이너 채용 공고 포스터 제작 부탁드립니다. 사내 게시 및 SNS 게재용 2가지 사이즈 필요합니다.', requester: '박소현', requestTeam: 'HR팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-16', end: '2026-06-20', priority: '일반', status: '수락 대기' },
+    { id: 'wr-3', title: 'B2B 제안서 템플릿 제작', detail: '영업팀 PT용 B2B 제안서 PPT 템플릿 디자인이 필요합니다. 브랜드 가이드라인 기반으로 제작해 주세요.', requester: '이준호', requestTeam: '영업팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-17', end: '2026-06-23', priority: '일반', status: '수락 대기' },
   ],
 
   assignmentRequests: [
-    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '수락대기중', assignees: ['이지혜', '정하은'], processId: 'pc-3', stepAssignees: { 'ps-3-02': ['이지혜'], 'ps-3-04': ['정하은'], 'ps-3-06': ['정하은'], 'ps-3-07': ['이지혜'] } },
+    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
     { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-2', stepAssignees: {} },
     { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
     { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
@@ -250,7 +238,7 @@ const state = {
     { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
     { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
     { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', '이지혜', '최유진'], processId: 'pc-1', stepAssignees: { 'ps-1-01': ['정하은'], 'ps-1-03': ['이지혜', '최유진'], 'ps-1-07': ['이지혜'], 'ps-1-12': ['정하은'] } },
+    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: {} },
   ],
 
   notifications: [
@@ -277,24 +265,24 @@ const state = {
       { id: 'act-mr1-1', text: 'Figma Slack 알림 설정', dueDate: '2026-06-10', assignee: '이수진', done: false, addedToWeekly: false },
       { id: 'act-mr1-2', text: 'AI 디자인 검토 도구 조사 및 보고', dueDate: '2026-06-13', assignee: '박민준', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-03', author: '김민준', duration: '42:18', attendees: 4, attendeeNames: ['김민준', '이수진', '박민준', '이지혜'] },
+    date: '2026-06-03', author: '김민준', duration: '42:18', attendees: 4, attendeeNames: ['김민준', '이수진', '박민준', 'Jihye'] },
     { id: 'mr-2', team: '디자인팀', type: '클라이언트 미팅', title: '클라이언트 A사 중간 보고',
     summary: '클라이언트 요구사항 변경 사항 정리 및 일정 재조정. 추가 화면 설계 요청이 접수되었으며 다음 회의까지 시안 완성 일정을 확정하였습니다.',
     aiPoints: ['클라이언트 요구사항 3건 변경 확인 및 문서화 완료', '추가 화면 2종(마이페이지·알림센터) 설계 요청 접수', '다음 회의 전까지 시안 초안 완성 일정 6/10으로 확정', '일정 지연 리스크 대비 버퍼 1주 확보 합의'],
     discussions: ['클라이언트 측 내부 검토 프로세스 변경으로 피드백 사이클 지연 우려', '화면 추가로 인한 개발 일정 영향도 재산정 필요', '다음 미팅은 시안 리뷰 목적으로 6/12 예정'],
     script: [
       { time: '00:02', speaker: '김민준', text: '안녕하세요, 중간 보고 시작하겠습니다. 먼저 변경된 요구사항부터 공유드릴게요.' },
-      { time: '01:15', speaker: '이지혜', text: '마이페이지 디자인 방향을 대시보드 형태로 변경 요청이 들어왔습니다. 이나경님과 초안 작업 중입니다.' },
+      { time: '01:15', speaker: 'Jihye', text: '마이페이지 디자인 방향을 대시보드 형태로 변경 요청이 들어왔습니다. 이나경님과 초안 작업 중입니다.' },
       { time: '03:40', speaker: '이나경', text: '알림센터 화면도 추가 요청이 들어왔어요. 기존 일정에서 약 3일 추가 소요될 것 같습니다.' },
       { time: '06:20', speaker: '김민준', text: '일정 버퍼를 1주 확보하는 방향으로 클라이언트와 협의하겠습니다. 6/10까지 초안 준비 부탁드립니다.' },
-      { time: '08:50', speaker: '이지혜', text: '네, 6/10 마감으로 진행하겠습니다. 중간 점검은 6/7에 내부적으로 진행할게요.' },
+      { time: '08:50', speaker: 'Jihye', text: '네, 6/10 마감으로 진행하겠습니다. 중간 점검은 6/7에 내부적으로 진행할게요.' },
     ],
     actionItems: [
-      { id: 'act-mr2-1', text: '마이페이지 대시보드 시안 초안 작성', dueDate: '2026-06-10', assignee: '이지혜', done: false, addedToWeekly: false },
+      { id: 'act-mr2-1', text: '마이페이지 대시보드 시안 초안 작성', dueDate: '2026-06-10', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr2-2', text: '알림센터 화면 설계 및 시안 작성', dueDate: '2026-06-10', assignee: '이나경', done: false, addedToWeekly: false },
       { id: 'act-mr2-3', text: '변경된 요구사항 문서 업데이트 및 공유', dueDate: '2026-06-05', assignee: '김민준', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-03', author: '김민준', duration: '38:54', attendees: 3, attendeeNames: ['김민준', '이지혜', '이나경'] },
+    date: '2026-06-03', author: '김민준', duration: '38:54', attendees: 3, attendeeNames: ['김민준', 'Jihye', '이나경'] },
     { id: 'mr-3', team: '디자인팀', type: '타팀 협업회의', title: '타팀 협업 킥오프',
     summary: '디자인-개발팀 간 협업 프로세스 정립 회의. 주요 업무 연결 포인트 확인 및 공유 채널 설정에 대한 합의가 이루어졌습니다.',
     aiPoints: ['디자인-개발 협업 채널 Slack #design-dev 신설 합의', '스펙 변경 시 48시간 전 사전 공지 원칙 수립', 'Figma 링크 공유 → 개발 착수 프로세스 공식화', '주 1회 싱크업 미팅 정례화 (매주 화요일 오전 10시)'],
@@ -302,16 +290,16 @@ const state = {
     script: [
       { time: '00:03', speaker: '이수진', text: '킥오프 시작합니다. 이번 회의 목적은 협업 프로세스 명확화입니다.' },
       { time: '02:10', speaker: '김도현', text: '지난번에 디자인 변경사항이 늦게 공유돼서 재작업이 발생했어요. 사전 공지 프로세스가 필요합니다.' },
-      { time: '05:30', speaker: '이지혜', text: '스펙 변경 시 48시간 전 공지를 원칙으로 하고, Slack 채널을 만들어서 공유하는 게 좋을 것 같아요.' },
+      { time: '05:30', speaker: 'Jihye', text: '스펙 변경 시 48시간 전 공지를 원칙으로 하고, Slack 채널을 만들어서 공유하는 게 좋을 것 같아요.' },
       { time: '08:45', speaker: '박서연', text: '싱크업 미팅도 주 1회 정례화하면 실시간 이슈를 빠르게 처리할 수 있을 것 같습니다.' },
       { time: '11:20', speaker: '이수진', text: '화요일 오전 10시로 고정하겠습니다. 이수진이 퍼실리테이터 맡을게요.' },
     ],
     actionItems: [
       { id: 'act-mr3-1', text: 'Slack #design-dev 채널 생성 및 멤버 초대', dueDate: '2026-06-03', assignee: '이수진', done: true, addedToWeekly: false },
-      { id: 'act-mr3-2', text: '협업 프로세스 문서화 및 팀 공유', dueDate: '2026-06-06', assignee: '이지혜', done: false, addedToWeekly: false },
+      { id: 'act-mr3-2', text: '협업 프로세스 문서화 및 팀 공유', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr3-3', text: '주간 싱크업 캘린더 초대 발송', dueDate: '2026-06-03', assignee: '최유진', done: true, addedToWeekly: false },
     ],
-    date: '2026-06-02', author: '이수진', duration: '35:42', attendees: 6, attendeeNames: ['이수진', '이지혜', '김도현', '박서연', '최유진', '정하은'] },
+    date: '2026-06-02', author: '이수진', duration: '35:42', attendees: 6, attendeeNames: ['이수진', 'Jihye', '김도현', '박서연', '최유진', '정하은'] },
     { id: 'mr-4', team: '개발팀', type: '스프린트 기획', title: '2분기 스프린트 계획 수립',
     summary: '2분기 주요 마일스톤 설정 및 업무 분배. 우선순위 조정 및 리소스 할당에 대한 논의가 완료되었습니다.',
     aiPoints: ['2분기 핵심 목표: 신규 서비스 UI 3종 완성', '스프린트 1(6월): 와이어프레임·IA 확정', '스프린트 2(7월): 시각 디자인 + 프로토타입', '스프린트 3(8월): 개발 핸드오프 + QA 지원', '리소스 부족으로 외부 프리랜서 1명 추가 검토'],
@@ -326,9 +314,9 @@ const state = {
     actionItems: [
       { id: 'act-mr4-1', text: '2분기 스프린트 로드맵 문서 작성', dueDate: '2026-06-05', assignee: '박민준', done: false, addedToWeekly: false },
       { id: 'act-mr4-2', text: '프리랜서 채용 요건 정리 및 공고 준비', dueDate: '2026-06-08', assignee: '이수진', done: false, addedToWeekly: false },
-      { id: 'act-mr4-3', text: '주간 진척 리포트 양식 초안 작성', dueDate: '2026-06-06', assignee: '이지혜', done: false, addedToWeekly: false },
+      { id: 'act-mr4-3', text: '주간 진척 리포트 양식 초안 작성', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-01', author: '박민준', duration: '58:20', attendees: 5, attendeeNames: ['박민준', '이수진', '김도현', '최유진', '이지혜'] },
+    date: '2026-06-01', author: '박민준', duration: '58:20', attendees: 5, attendeeNames: ['박민준', '이수진', '김도현', '최유진', 'Jihye'] },
     { id: 'mr-5', team: '개발팀', type: '주간 회의', title: '주간 진행상황 공유 #24',
     summary: '이번 주 완료된 작업 현황 공유 및 다음 주 계획 확인. 블로커 이슈 3건이 확인되었으며 관련 담당자 지정이 완료되었습니다.',
     aiPoints: ['이번 주 완료 업무 7건, 진행 중 4건, 미착수 2건', '블로커 3건: 에셋 미수령 / 리뷰 지연 / 외부 API 미확정', '다음 주 우선순위: 랜딩 페이지 디자인 완료 + 내부 리뷰'],
@@ -337,15 +325,15 @@ const state = {
       { time: '00:02', speaker: '박민준', text: '주간 공유 시작합니다. 이번 주 완료 건부터 돌아가며 공유해 주세요.' },
       { time: '03:20', speaker: '이나경', text: '브랜드 가이드 업데이트 완료했습니다. 에셋 파일은 마케팅팀에서 아직 못 받았어요.' },
       { time: '07:10', speaker: '정하은', text: '제가 마케팅팀에 다시 연락해볼게요. 이번 주 안에 받을 수 있을 것 같습니다.' },
-      { time: '12:45', speaker: '이지혜', text: '외부 API가 아직 확정이 안 됐는데, 관련 화면은 목업으로 먼저 진행하는 게 좋을 것 같아요.' },
+      { time: '12:45', speaker: 'Jihye', text: '외부 API가 아직 확정이 안 됐는데, 관련 화면은 목업으로 먼저 진행하는 게 좋을 것 같아요.' },
       { time: '18:30', speaker: '박민준', text: '완료율이 63%라 다음 주에 좀 더 속도를 내야 할 것 같습니다. 각자 블로커 빠르게 해소 부탁드립니다.' },
     ],
     actionItems: [
       { id: 'act-mr5-1', text: '마케팅팀 에셋 재요청 및 수령', dueDate: '2026-05-31', assignee: '정하은', done: true, addedToWeekly: false },
-      { id: 'act-mr5-2', text: '외부 API 대체 목업 화면 작성', dueDate: '2026-06-02', assignee: '이지혜', done: false, addedToWeekly: false },
+      { id: 'act-mr5-2', text: '외부 API 대체 목업 화면 작성', dueDate: '2026-06-02', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr5-3', text: '다음 주 완료율 80% 달성 계획 공유', dueDate: '2026-06-01', assignee: '박민준', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-29', author: '박민준', duration: '25:10', attendees: 4, attendeeNames: ['박민준', '이나경', '정하은', '이지혜'] },
+    date: '2026-05-29', author: '박민준', duration: '25:10', attendees: 4, attendeeNames: ['박민준', '이나경', '정하은', 'Jihye'] },
     { id: 'mr-6', team: 'PM팀', type: '워크샵', title: 'UX 리서치 워크샵',
     summary: '사용자 인터뷰 결과 공유 및 페르소나 재정립. 주요 사용자 니즈 기반 개선 방향성 설정 합의가 이루어졌습니다.',
     aiPoints: ['사용자 인터뷰 18건 분석 완료 — 주요 페인포인트 5가지 도출', '기존 페르소나 3종 → 4종으로 재정립 (신규: 중간관리자형 추가)', '개선 우선순위: 온보딩 플로우 간소화 > 알림 설정 > 검색 기능', '다음 분기 리서치 주제: 모바일 사용 패턴 분석'],
@@ -354,15 +342,15 @@ const state = {
       { time: '00:05', speaker: '최지영', text: '워크샵 시작합니다. 먼저 김도현님이 인터뷰 결과 요약을 공유해 주세요.' },
       { time: '05:30', speaker: '김도현', text: '18건 인터뷰 분석 결과, 가장 많이 나온 페인포인트는 온보딩이었습니다. 전체 70%가 언급했어요.' },
       { time: '18:20', speaker: '박서연', text: '기존 페르소나 3종에서 중간관리자 유형이 빠져 있었는데, 이번에 추가하는 게 좋겠어요.' },
-      { time: '35:00', speaker: '이지혜', text: '개선 우선순위는 온보딩 간소화를 1순위로 하고, 알림 설정과 검색을 그다음으로 잡으면 어떨까요?' },
+      { time: '35:00', speaker: 'Jihye', text: '개선 우선순위는 온보딩 간소화를 1순위로 하고, 알림 설정과 검색을 그다음으로 잡으면 어떨까요?' },
       { time: '52:40', speaker: '이수진', text: '다음 분기 리서치는 모바일 사용 패턴으로 하면 제품 방향성 잡는 데 도움이 될 것 같습니다.' },
     ],
     actionItems: [
       { id: 'act-mr6-1', text: '페르소나 4종 문서 업데이트 및 팀 배포', dueDate: '2026-06-06', assignee: '김도현', done: false, addedToWeekly: false },
-      { id: 'act-mr6-2', text: '온보딩 플로우 개선안 초안 작성', dueDate: '2026-06-10', assignee: '이지혜', done: false, addedToWeekly: false },
+      { id: 'act-mr6-2', text: '온보딩 플로우 개선안 초안 작성', dueDate: '2026-06-10', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr6-3', text: '다음 분기 리서치 계획서 작성', dueDate: '2026-06-13', assignee: '최지영', done: false, addedToWeekly: false },
     ],
-    startDate: '2026-05-30', endDate: '2026-05-30', author: '최지영', duration: '1:24:15', attendees: 8, attendeeNames: ['최지영', '김도현', '박서연', '이수진', '이지혜', '최유진', '정하은', '이나경'] },
+    startDate: '2026-05-30', endDate: '2026-05-30', author: '최지영', duration: '1:24:15', attendees: 8, attendeeNames: ['최지영', '김도현', '박서연', '이수진', 'Jihye', '최유진', '정하은', '이나경'] },
     { id: 'mr-7', team: '마케팅팀', type: '업무 보고', title: '월간 성과 보고 — 5월',
     summary: '5월 주요 달성 지표 및 미달성 항목 리뷰. 6월 집중 개선 과제 3가지 합의 및 담당자 배정이 완료되었습니다.',
     aiPoints: ['5월 완료율 78% (목표 85% 대비 -7%)', '미달성 원인: 외부 의존성 지연 2건, 요구사항 변경 1건', '6월 개선 과제 3가지: 리뷰 사이클 단축 / 스펙 동결 기준 수립 / 일정 버퍼 확보', '팀 전반 번아웃 징후 감지 — 업무량 조정 검토 필요'],
@@ -370,23 +358,23 @@ const state = {
     script: [
       { time: '00:04', speaker: '강지훈', text: '5월 성과 보고 시작합니다. 완료율 78%로 목표에 7% 미달했습니다.' },
       { time: '08:15', speaker: '이수진', text: '외부 의존성 지연이 주된 원인이었어요. 특히 데이터 API 확정이 2주 지연됐습니다.' },
-      { time: '15:30', speaker: '이지혜', text: '리뷰 사이클을 줄이면 도움이 될 것 같아요. 핸드오프 이후 구간에서 병목이 심한 것 같습니다.' },
+      { time: '15:30', speaker: 'Jihye', text: '리뷰 사이클을 줄이면 도움이 될 것 같아요. 핸드오프 이후 구간에서 병목이 심한 것 같습니다.' },
       { time: '28:00', speaker: '강지훈', text: '6월은 스펙 동결 기준을 착수 3일 전으로 잡겠습니다. 변경 요청은 그 이전에만 수용합니다.' },
       { time: '38:45', speaker: '최유진', text: '팀원들이 좀 지쳐 있는 것 같아요. 6월에는 업무량 조정을 함께 고려해 주시면 좋겠습니다.' },
     ],
     actionItems: [
       { id: 'act-mr7-1', text: '리뷰 사이클 단축 방안 문서화', dueDate: '2026-06-03', assignee: '이수진', done: false, addedToWeekly: false },
       { id: 'act-mr7-2', text: '스펙 동결 기준 가이드라인 작성 및 공유', dueDate: '2026-06-03', assignee: '강지훈', done: false, addedToWeekly: false },
-      { id: 'act-mr7-3', text: '6월 업무량 조정 계획 제출', dueDate: '2026-06-05', assignee: '이지혜', done: false, addedToWeekly: false },
+      { id: 'act-mr7-3', text: '6월 업무량 조정 계획 제출', dueDate: '2026-06-05', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-28', author: '강지훈', duration: '47:33', attendees: 7, attendeeNames: ['강지훈', '이지혜', '이수진', '박서연', '김도현', '최유진', '이나경'] },
+    date: '2026-05-28', author: '강지훈', duration: '47:33', attendees: 7, attendeeNames: ['강지훈', 'Jihye', '이수진', '박서연', '김도현', '최유진', '이나경'] },
     { id: 'mr-8', team: '디자인팀', type: '기술 공유', title: 'Figma 컴포넌트 최적화 세션',
     summary: '팀 내 Figma 라이브러리 구조 개선 방안 공유. 재사용 가능한 컴포넌트 설계 패턴 정립 및 스타일 토큰 일원화 논의가 진행되었습니다.',
     aiPoints: ['현재 Figma 라이브러리 컴포넌트 수 214개 → 중복·미사용 47개 정리 예정', '스타일 토큰 체계 Color/Spacing/Typography 3계층으로 일원화', 'Auto Layout 미적용 컴포넌트 32개 일괄 전환 계획', 'Figma Variables 활용한 다크모드 지원 방안 논의'],
     discussions: ['컴포넌트 네이밍 컨벤션 불일치로 검색 효율 저하 — 네이밍 가이드 수립 필요', '스타일 토큰 일원화 후 기존 화면에 일괄 적용하는 방법론 합의 필요', '다크모드 지원은 현 시점 우선순위에서 제외, 토큰 구조만 준비'],
     script: [
       { time: '00:03', speaker: '윤소영', text: '오늘은 Figma 라이브러리 최적화 방법을 공유할게요. 현재 214개 컴포넌트 중 47개가 중복이에요.' },
-      { time: '10:20', speaker: '이지혜', text: '네이밍이 팀마다 달라서 검색이 너무 힘들어요. 컨벤션 가이드가 꼭 필요할 것 같습니다.' },
+      { time: '10:20', speaker: 'Jihye', text: '네이밍이 팀마다 달라서 검색이 너무 힘들어요. 컨벤션 가이드가 꼭 필요할 것 같습니다.' },
       { time: '22:00', speaker: '정하은', text: '스타일 토큰을 Color·Spacing·Typography로 나누면 관리가 훨씬 쉬워질 것 같아요.' },
       { time: '35:10', speaker: '박서연', text: 'Auto Layout 안 된 컴포넌트 32개는 제가 순차적으로 전환 작업할게요.' },
       { time: '44:30', speaker: '윤소영', text: '다크모드는 지금 당장은 우선순위에서 빼고, 토큰 구조만 미리 잡아두는 방향으로 합시다.' },
@@ -396,17 +384,17 @@ const state = {
       { id: 'act-mr8-2', text: 'Auto Layout 미적용 컴포넌트 전환', dueDate: '2026-06-10', assignee: '박서연', done: false, addedToWeekly: false },
       { id: 'act-mr8-3', text: '스타일 토큰 일원화 작업 착수', dueDate: '2026-06-07', assignee: '정하은', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-27', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', '이지혜', '정하은', '박서연', '최유진'] },
+    date: '2026-05-27', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', 'Jihye', '정하은', '박서연', '최유진'] },
   ],
 
   // 연차 데이터 — id, applicantId, applicantName, applicantRole, type, date, reason, status, approverId, approverName, rejectedReason, requestedAt
   leaves: [
-    { id: 'lv-1', applicantId: 'u-2', applicantName: '이나경', applicantRole: 'Member', type: '종일 연차', startDate: '2026-06-16', endDate: '2026-06-16', reason: '개인 사정으로 휴가 신청드립니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-10' },
-    { id: 'lv-2', applicantId: 'u-3', applicantName: '박서연', applicantRole: 'Member', type: '오전 반차', startDate: '2026-06-13', endDate: '2026-06-13', reason: '병원 예약이 있어 오전 반차 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-11' },
-    { id: 'lv-3', applicantId: 'u-1', applicantName: '이지혜',  applicantRole: 'Manager', type: '종일 연차', startDate: '2026-06-20', endDate: '2026-06-22', reason: '연차 소진 목적으로 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-09' },
-    { id: 'lv-4', applicantId: 'u-4', applicantName: '김도현', applicantRole: 'Member', type: '오후 반차', startDate: '2026-06-10', endDate: '2026-06-10', reason: '개인 일정이 있습니다.', status: '승인 완료', approverId: 'u-1', approverName: '이지혜', rejectedReason: null, requestedAt: '2026-06-07' },
-    { id: 'lv-5', applicantId: 'u-1', applicantName: '이지혜',  applicantRole: 'Manager', type: '오전 반차', startDate: '2026-05-30', endDate: '2026-05-30', reason: '개인 사정.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-05-28' },
-    { id: 'lv-6', applicantId: 'u-2', applicantName: '이나경', applicantRole: 'Member', type: '종일 연차', startDate: '2026-05-22', endDate: '2026-05-24', reason: '여행 계획이 있습니다.', status: '반려', approverId: 'u-1', approverName: '이지혜', rejectedReason: '해당 날짜 주요 납품 일정이 있어 반려합니다.', requestedAt: '2026-05-19' },
+    { id: 'lv-1', applicantId: 'u-2', applicantName: '김민준', applicantRole: 'Member', type: '종일 연차', startDate: '2026-06-16', endDate: '2026-06-16', reason: '개인 사정으로 휴가 신청드립니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-10' },
+    { id: 'lv-2', applicantId: 'u-3', applicantName: '이수진', applicantRole: 'Member', type: '오전 반차', startDate: '2026-06-13', endDate: '2026-06-13', reason: '병원 예약이 있어 오전 반차 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-11' },
+    { id: 'lv-3', applicantId: 'u-1', applicantName: 'Jihye',  applicantRole: 'Manager', type: '종일 연차', startDate: '2026-06-20', endDate: '2026-06-22', reason: '연차 소진 목적으로 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-09' },
+    { id: 'lv-4', applicantId: 'u-4', applicantName: '박민준', applicantRole: 'Member', type: '오후 반차', startDate: '2026-06-10', endDate: '2026-06-10', reason: '개인 일정이 있습니다.', status: '승인 완료', approverId: 'u-1', approverName: 'Jihye', rejectedReason: null, requestedAt: '2026-06-07' },
+    { id: 'lv-5', applicantId: 'u-1', applicantName: 'Jihye',  applicantRole: 'Manager', type: '오전 반차', startDate: '2026-05-30', endDate: '2026-05-30', reason: '개인 사정.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-05-28' },
+    { id: 'lv-6', applicantId: 'u-2', applicantName: '김민준', applicantRole: 'Member', type: '종일 연차', startDate: '2026-05-22', endDate: '2026-05-24', reason: '여행 계획이 있습니다.', status: '반려', approverId: 'u-1', approverName: 'Jihye', rejectedReason: '해당 날짜 주요 납품 일정이 있어 반려합니다.', requestedAt: '2026-05-19' },
   ],
 
   leaveTab: '내 연차',         // '내 연차' | '팀 연차' | '승인 대기' | '이력'
@@ -678,7 +666,7 @@ function renderWeeklyTasks() {
       <div class="day-card ${isToday ? 'is-today' : ''}">
         <div class="day-card-header">
           <span class="day-label">${day.label}</span>
-          <span class="day-date" onclick="gotoDate('${day.date}')" title="해당 날 할 일 보기">${day.date.slice(5).replace('-', '/')}</span>
+          <span class="day-date">${day.date.slice(5).replace('-', '/')}</span>
         </div>
         <div class="day-items">${innerHtml}</div>
       </div>
@@ -728,7 +716,6 @@ function renderDetailPanel() {
   const isFixed = draft.type === '고정';
   const rd = draft.recurringDays || [1];
   const DAY_LABELS = ['월', '화', '수', '목', '금'];
-  const isFromRequest = !!item.sourceRequestId; // 업무요청 수락으로 생성된 항목
 
   const isDirty = draft.title !== item.title
     || draft.type !== item.type
@@ -736,14 +723,13 @@ function renderDetailPanel() {
     || draft.description !== (item.description || '')
     || JSON.stringify(rd) !== JSON.stringify(item.recurringDays || []);
 
-  const disabledStyle = 'opacity:0.55;cursor:not-allowed;border-color:var(--line-soft)';
   const dateRowHtml = isFixed
     ? `<div class="dw-field-2col">
         <label class="dw-field"><span>시작일</span>
-          <input type="date" value="${item.start}" disabled style="${disabledStyle}" />
+          <input type="date" value="${item.start}" disabled style="opacity:0.5;cursor:default" />
         </label>
         <label class="dw-field"><span>종료일 <span class="dw-field-optional">미입력 시 무기한</span></span>
-          <input type="date" id="detailEndDate" value="${draft.end}" ${isFromRequest ? `disabled style="${disabledStyle}"` : ''} />
+          <input type="date" id="detailEndDate" value="${draft.end}" />
         </label>
       </div>
       <div class="dw-field">
@@ -757,10 +743,10 @@ function renderDetailPanel() {
       </div>`
     : `<div class="dw-field-2col">
         <label class="dw-field"><span>시작일</span>
-          <input type="date" value="${item.start}" disabled style="${disabledStyle}" />
+          <input type="date" value="${item.start}" disabled style="opacity:0.5;cursor:default" />
         </label>
         <label class="dw-field"><span>마감일</span>
-          <input type="date" id="detailEndDate" value="${draft.end}" ${isFromRequest ? `disabled style="${disabledStyle}"` : ''} />
+          <input type="date" id="detailEndDate" value="${draft.end}" />
         </label>
       </div>`;
 
@@ -783,12 +769,12 @@ function renderDetailPanel() {
 
       <label class="dw-field">
         <span>업무명</span>
-        <input id="detailTitle" value="${escapeHtml(draft.title)}" placeholder="업무명을 입력하세요" style="font-weight:600${isFromRequest ? `;${disabledStyle}` : ''}" ${isFromRequest ? 'readonly tabindex="-1"' : ''} />
+        <input id="detailTitle" value="${escapeHtml(draft.title)}" placeholder="업무명을 입력하세요" style="font-weight:600" />
       </label>
 
       <label class="dw-field">
         <span>업무유형</span>
-        <select id="detailType" ${isFromRequest ? 'disabled' : ''} ${isFromRequest ? `style="${disabledStyle}"` : ''}>
+        <select id="detailType">
           <option value="일반" ${draft.type === '일반' ? 'selected' : ''}>일반</option>
           <option value="긴급" ${draft.type === '긴급' ? 'selected' : ''}>긴급</option>
           <option value="고정" ${draft.type === '고정' ? 'selected' : ''}>고정</option>
@@ -842,54 +828,35 @@ function saveDetailDraft() {
   item.end   = draft.end || (draft.type === '고정' ? null : item.end);
   item.description = draft.description;
   if (draft.type === '고정') item.recurringDays = draft.recurringDays && draft.recurringDays.length ? [...draft.recurringDays] : item.recurringDays;
+  // Reset draft to match saved
   state.detailDraft = { ...draft, title: item.title, recurringDays: item.recurringDays ? [...item.recurringDays] : [1] };
   renderAll();
-  closeDetailPanel();
+  renderDetailPanel();
 }
 
 function renderDetailPanelIfOpen() {
   if (state.detailPanelItemId) renderDetailPanel();
 }
 
-function gotoDate(dateISO) {
-  state.dailyTodoDate = dateISO;
-  renderDailyTodo();
-}
-
 function renderDailyTodo() {
-  const viewDate = state.dailyTodoDate;
-  const viewWeekday = new Date(viewDate).getDay();
+  const today = state.today;
+  const todayWeekday = new Date(today).getDay(); // 1=월~5=금 (JS getDay matches our system for Mon-Fri)
 
-  // 날짜 피커 동기화
-  const picker = $('#dailyTodoDatePicker');
-  if (picker && picker.value !== viewDate) picker.value = viewDate;
-
-  // 헤더 제목: 오늘이면 "오늘 할 일", 다른 날이면 날짜 표시
-  const headerEl = document.querySelector('#sessionList')?.closest('section')?.querySelector('h2');
-  if (headerEl) {
-    const isToday = viewDate === state.today;
-    const d = new Date(viewDate);
-    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-    headerEl.textContent = isToday
-      ? '오늘 할 일'
-      : `${d.getMonth()+1}월 ${d.getDate()}일 (${dayNames[d.getDay()]}) 할 일`;
-  }
-
-  const dateItems = state.workItems.filter(item => {
+  const todayItems = state.workItems.filter(item => {
     if (item.type === '고정') {
       const rd = item.recurringDays || [1,2,3,4,5];
-      return rd.includes(viewWeekday) && item.start <= viewDate && (item.end === null || item.end >= viewDate);
+      return rd.includes(todayWeekday) && item.start <= today && (item.end === null || item.end >= today);
     }
-    return item.start <= viewDate && item.end >= viewDate;
+    return item.start <= today && item.end >= today;
   });
 
-  if (!dateItems.length) {
-    $('#sessionList').innerHTML = `<div class="empty-state">${viewDate === state.today ? '오늘' : '해당 날짜에'} 해당하는 업무가 없습니다.</div>`;
+  if (!todayItems.length) {
+    $('#sessionList').innerHTML = '<div class="empty-state">오늘 해당하는 업무가 없습니다.</div>';
     $('#progressWrap').style.display = 'none';
     return;
   }
 
-  // 인라인 입력창 — 최상단에 고정 (카테고리 필드 없음)
+  // 인라인 입력창 — 오늘 할 일 최상단에 고정
   let inlineTopHtml = '';
   if (state.inlineAddItemId) {
     const inlineItem = state.workItems.find(w => w.id === state.inlineAddItemId);
@@ -897,6 +864,10 @@ function renderDailyTodo() {
       <div class="task-inline-add task-inline-top" data-inline-wrap="${state.inlineAddItemId}">
         <span class="task-inline-label">${escapeHtml(inlineItem?.title || '')}</span>
         <div class="task-inline-fields">
+          <select class="task-inline-cat" data-inline-cat="${state.inlineAddItemId}">
+            <option value="">카테고리</option>
+            ${Object.keys(CAT_COLORS).map(c => `<option value="${c}">${c}</option>`).join('')}
+          </select>
           <input class="task-inline-input" type="text"
             placeholder="세부 업무항목 입력 후 Enter"
             data-inline-item="${state.inlineAddItemId}" autocomplete="off" />
@@ -904,10 +875,10 @@ function renderDailyTodo() {
       </div>`;
   }
 
-  // 선택 날짜 세션 수집 후 시작시간 오름차순 정렬
+  // 오늘 세션 전체 수집 후 시작시간 오름차순 정렬 (시간 없는 것은 맨 아래)
   let allSessions = [];
-  dateItems.forEach(item => {
-    const sessions = sessionsByItem(item.id).filter(s => s.date === viewDate);
+  todayItems.forEach(item => {
+    const sessions = sessionsByItem(item.id).filter(s => s.date === today);
     allSessions.push(...sessions);
   });
   allSessions.sort((a, b) => {
@@ -939,6 +910,7 @@ function renderDailyTodo() {
 }
 
 function renderSessionRow(s) {
+  const catClass = CAT_CLASS[s.category] || 'cat-default';
   const isEditing = state.editingSessionId === s.id;
   const timeMarkup = `
     <div class="session-time-inputs">
@@ -952,17 +924,13 @@ function renderSessionRow(s) {
     ? `<input class="session-title-edit" type="text" value="${escapeHtml(s.title)}" data-edit-session-title="${s.id}" />`
     : `<div class="session-title-text ${s.done ? 'done-text' : ''}" data-start-edit-session="${s.id}">${escapeHtml(s.title)}</div>`;
 
-  const processTag = s.processName
-    ? `<span class="session-process-tag">${escapeHtml(s.processName)}</span>`
-    : '';
-
   return `
     <div class="session-row" data-session-id="${s.id}">
       <button class="check-btn ${s.done ? 'done' : ''}" type="button" data-toggle-session="${s.id}">
         ${s.done ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
       </button>
       <div class="session-body">
-        ${processTag}
+        <span class="session-cat ${catClass}">${escapeHtml(s.category)}</span>
         ${titleHtml}
         ${timeMarkup}
       </div>
@@ -1031,23 +999,17 @@ function renderRequestList() {
         <button class="req-reject" type="button" data-reject-request="${r.id}">거절</button>
       </div>` : '';
 
-    const sepIdx     = r.title.indexOf(' — ');
-    const projectName = sepIdx !== -1 ? r.title.slice(0, sepIdx) : r.title;
-    const stepName    = sepIdx !== -1 ? r.title.slice(sepIdx + 3) : '';
-
     return `
       <div class="req-item ${isRejected ? 'is-rejected' : ''}">
         <div class="req-item-header">
-          <div class="req-item-titles">
-            <span class="req-item-title">${escapeHtml(projectName)}</span>
-            ${stepName ? `<span class="req-item-step">${escapeHtml(stepName)}</span>` : ''}
-          </div>
+          <span class="req-item-title">${escapeHtml(r.title)}</span>
           <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
             ${statusBadge}
             <span class="req-source">${escapeHtml(r.requestTeam)}</span>
           </div>
         </div>
-        <div class="req-meta">${r.start.slice(5).replace('-', '/')} ~ ${r.end.slice(5).replace('-', '/')}</div>
+        <div class="req-desc">${escapeHtml(r.detail)}</div>
+        <div class="req-meta">${escapeHtml(r.requester)} · 마감 ${r.end.slice(5).replace('-', '/')}</div>
         ${actions}
       </div>
     `;
@@ -2162,7 +2124,17 @@ function renderCalWeekView() {
   $('#calGridBody').innerHTML = html;
 }
 
-// renderCalControls replaced by renderCalProjSidebar + renderCalTimeline
+function renderCalControls() {
+  $('#calStatusTabs').innerHTML = `
+    <div class="cal-member-tabs">
+      <button class="cal-member-tab${state.calMemberFilter === '전체' ? ' active' : ''}" type="button" data-cal-member="전체">전체</button>
+      <button class="cal-member-tab${state.calMemberFilter === '나' ? ' active' : ''}" type="button" data-cal-member="나">나</button>
+    </div>
+    <div class="cal-view-toggle">
+      <button class="cal-view-btn${state.calViewMode === 'monthly' ? ' active' : ''}" type="button" data-cal-view="monthly">월간</button>
+      <button class="cal-view-btn${state.calViewMode === 'weekly' ? ' active' : ''}" type="button" data-cal-view="weekly">주간</button>
+    </div>`;
+}
 
 function buildCalCells(year, month) {
   const firstDow = new Date(year, month, 1).getDay();
@@ -2372,143 +2344,22 @@ function renderCalMonthGrid() {
   }
 }
 
-// ─── Calendar Page (Project Timeline) ────────────────────────────────────────
+// renders just the grid body (not controls)
+function renderCalGrid() {
+  if (state.calViewMode === 'weekly') {
+    $('#calDowRow')?.classList.add('hidden');
+    $('#calGridBody')?.classList.add('cal-grid-body-weekly');
+    renderCalWeekView();
+  } else {
+    $('#calDowRow')?.classList.remove('hidden');
+    $('#calGridBody')?.classList.remove('cal-grid-body-weekly');
+    renderCalMonthGrid();
+  }
+}
 
 function renderCalPage() {
-  const { calYear: year, calMonth: month } = state;
-  $('#calMonthTitle').textContent = `${year}년 ${month + 1}월`;
-  renderCalProjSidebar();
-  renderCalTimeline();
-}
-
-function renderCalProjSidebar() {
-  const sidebar = $('#calProjSidebar');
-  if (!sidebar) return;
-  const projects = state.assignmentRequests;
-  sidebar.innerHTML =
-    '<div class="cal-proj-sidebar-label">진행 중 프로젝트</div>' +
-    (projects.length === 0
-      ? '<div class="cal-proj-empty">프로젝트 없음</div>'
-      : projects.map(p => {
-          const badgeCls = p.status === '배정완료' ? 'badge-done' : p.status === '수락대기중' ? 'badge-pending' : 'badge-new';
-          return `<button class="cal-proj-item${state.calSelectedProject === p.id ? ' active' : ''}" type="button" data-proj-id="${p.id}">
-            <span class="cal-proj-item-name">${escapeHtml(p.title)}</span>
-            <span class="cal-proj-item-badge ${badgeCls}">${escapeHtml(p.status)}</span>
-          </button>`;
-        }).join('')
-    );
-}
-
-function renderCalTimeline() {
-  const el = $('#calProjTimeline');
-  if (!el) return;
-
-  if (!state.calSelectedProject) {
-    el.innerHTML = '<div class="cal-proj-placeholder">← 좌측에서 프로젝트를 선택하세요</div>';
-    return;
-  }
-
-  const project = state.assignmentRequests.find(p => p.id === state.calSelectedProject);
-  if (!project) { el.innerHTML = ''; return; }
-
-  const process = state.processes.find(p => p.id === project.processId);
-  if (!process) {
-    el.innerHTML = '<div class="cal-proj-placeholder">등록된 프로세스가 없습니다</div>';
-    return;
-  }
-
-  const { calYear: year, calMonth: month } = state;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const monthPfx = `${year}-${String(month + 1).padStart(2, '0')}`;
-  const monthStart = `${monthPfx}-01`;
-  const monthEnd = `${monthPfx}-${String(daysInMonth).padStart(2, '0')}`;
-
-  // Match per-step requests by project title prefix + assignee name
-  const projectPrefix = project.title + ' — ';
-  const projRequests = state.requests.filter(r => r.title.startsWith(projectPrefix));
-
-  function getStepReq(stepTitle, assigneeName) {
-    return projRequests.find(r =>
-      r.title.slice(projectPrefix.length) === stepTitle && r.assignee === assigneeName
-    ) || null;
-  }
-
-  // Only show steps that have assignees
-  const assignedStepIds = new Set(Object.keys(project.stepAssignees || {}));
-  const steps = process.steps.filter(s => assignedStepIds.has(s.id));
-
-  if (steps.length === 0) {
-    el.innerHTML = '<div class="cal-proj-placeholder">배정된 단계가 없습니다</div>';
-    return;
-  }
-
-  // Day column headers
-  const dayHeadersHtml = Array.from({ length: daysInMonth }, (_, i) => {
-    const d = i + 1;
-    const dateStr = `${monthPfx}-${String(d).padStart(2, '0')}`;
-    const dow = new Date(dateStr + 'T00:00:00').getDay();
-    const isToday = dateStr === state.today;
-    const isWeekend = dow === 0 || dow === 6;
-    const cls = ['cal-tl-day', isToday ? 'tl-today' : '', isWeekend ? 'tl-weekend' : ''].filter(Boolean).join(' ');
-    return `<div class="${cls}">${d}</div>`;
-  }).join('');
-
-  // Grid background cells (reused per row)
-  const gridCellsHtml = Array.from({ length: daysInMonth }, (_, i) => {
-    const dateStr = `${monthPfx}-${String(i + 1).padStart(2, '0')}`;
-    const dow = new Date(dateStr + 'T00:00:00').getDay();
-    const isWeekend = dow === 0 || dow === 6;
-    const isToday = dateStr === state.today;
-    return `<div class="cal-tl-cell${isWeekend ? ' tl-weekend-cell' : ''}${isToday ? ' tl-today-cell' : ''}"></div>`;
-  }).join('');
-
-  function makeBarHtml(req, assigneeName) {
-    if (!req || !req.start || !req.end) return '';
-    if (req.start > monthEnd || req.end < monthStart) return '';
-    const startDay = parseInt((req.start < monthStart ? monthStart : req.start).slice(8));
-    const endDay   = parseInt((req.end   > monthEnd   ? monthEnd   : req.end).slice(8));
-    const leftPct  = ((startDay - 1) / daysInMonth * 100).toFixed(3);
-    const widthPct = ((endDay - startDay + 1) / daysInMonth * 100).toFixed(3);
-    const color = memberColor(assigneeName);
-    return `<div class="cal-tl-bar" style="left:${leftPct}%;width:${widthPct}%;background:${color}22;border-left:3px solid ${color}">
-      <span class="cal-tl-bar-label" style="color:${color}">${escapeHtml(assigneeName)}</span>
-    </div>`;
-  }
-
-  // Step rows — one row per assignee per step (A안)
-  const rowsHtml = steps.map(step => {
-    const rawAssignees = project.stepAssignees[step.id] || [];
-    const assigneeList = Array.isArray(rawAssignees) ? rawAssignees : [rawAssignees];
-
-    return assigneeList.map((assigneeName, idx) => {
-      const isFirst = idx === 0;
-      const req = getStepReq(step.title, assigneeName);
-      const barHtml = makeBarHtml(req, assigneeName);
-
-      const whoHtml = `<span class="cal-tl-who">
-        <span class="cal-avatar" style="background:${memberColor(assigneeName)};width:18px;height:18px;font-size:9px;line-height:18px">${escapeHtml(assigneeName[0])}</span>
-        ${escapeHtml(assigneeName)}
-      </span>`;
-
-      return `<div class="cal-tl-row${isFirst ? '' : ' cal-tl-row-sub'}">
-        <div class="cal-tl-info">
-          ${isFirst ? `<span class="cal-tl-step">${escapeHtml(step.title)}</span>` : `<span class="cal-tl-step cal-tl-step-cont"></span>`}
-          ${whoHtml}
-        </div>
-        <div class="cal-tl-track">
-          <div class="cal-tl-grid">${gridCellsHtml}</div>
-          ${barHtml}
-        </div>
-      </div>`;
-    }).join('');
-  }).join('');
-
-  el.innerHTML = `
-    <div class="cal-tl-head">
-      <div class="cal-tl-info-header">단계 / 담당자</div>
-      <div class="cal-tl-days">${dayHeadersHtml}</div>
-    </div>
-    <div class="cal-tl-body">${rowsHtml}</div>`;
+  renderCalControls();
+  renderCalGrid();
 }
 
 function renderCalDetailBody(workItemId) {
@@ -2770,7 +2621,7 @@ function saveDrawerTasks() {
       newItems.push(item);
     });
   });
-  if (!newItems.length) { closeDrawer(); return; }
+  if (!newItems.length) return;
   state.workItems.push(...newItems);
   state.selectedTaskId = newItems[0].id;
   closeDrawer();
@@ -2873,23 +2724,22 @@ function openAcceptModal(requestId) {
   if (!r) return;
   state.selectedRequestId = requestId;
 
-  // 업무항목명: '프로젝트 — 단계명' 형식이면 프로젝트명만 표시
-  const sepIdx = r.title.indexOf(' — ');
-  const projectName = sepIdx !== -1 ? r.title.slice(0, sepIdx) : r.title;
-  const stepName    = sepIdx !== -1 ? r.title.slice(sepIdx + 3) : '';
+  // 요청 정보 표시
+  $('#acceptRequestInfo').innerHTML = `
+    <div style="font-weight:600;color:#111827;margin-bottom:4px">${escapeHtml(r.title)}</div>
+    <div>${escapeHtml(r.detail)}</div>
+    <div style="margin-top:4px">${escapeHtml(r.requester)} · ${escapeHtml(r.requestTeam)}</div>
+  `;
 
-  $('#acceptTitleDisplay').textContent = projectName;
-  const fmtDate = d => d ? d.replace(/-/g, '.').slice(2) : '';
-  $('#acceptPeriodDisplay').textContent = `${fmtDate(r.start)} ~ ${fmtDate(r.end)}`;
-
-  // 프로세스: 단계명 표시
-  $('#acceptProcessDisplay').textContent = stepName || '—';
-
-  // 작업 날짜 기본값: 오늘
-  $('#acceptTodoDate').value = state.today;
+  // Pre-fill form with request data
+  $('#acceptTitle').value = r.title;
+  const typeMap = { '긴급': '긴급', '일반': '일반', '고정': '고정' };
+  $('#acceptType').value = typeMap[r.priority] || '일반';
+  $('#acceptStart').value = r.start;
+  $('#acceptEnd').value = r.end;
 
   $('#acceptModal').classList.remove('hidden');
-  setTimeout(() => $('#acceptTodoDate').focus(), 50);
+  setTimeout(() => $('#acceptTitle').focus(), 50);
 }
 
 function closeAcceptModal() {
@@ -2901,17 +2751,12 @@ function submitAcceptForm(e) {
   const r = state.requests.find(x => x.id === state.selectedRequestId);
   if (!r) return;
 
-  const sepIdx   = r.title.indexOf(' — ');
-  const title    = sepIdx !== -1 ? r.title.slice(0, sepIdx) : r.title;
-  const stepName = sepIdx !== -1 ? r.title.slice(sepIdx + 3) : '';
-  const typeMap  = { '긴급': '긴급', '일반': '일반', '고정': '고정' };
-  const type     = typeMap[r.priority] || '일반';
-  const start    = r.start;
-  const end      = r.end;
-  const todoDate = $('#acceptTodoDate').value;
-  if (!todoDate) return;
+  const title = $('#acceptTitle').value.trim();
+  const type  = $('#acceptType').value;
+  const start = $('#acceptStart').value;
+  const end   = $('#acceptEnd').value;
+  if (!title || !start || !end) return;
 
-  // Weekly Tasks에 업무항목 추가 (프로젝트명만)
   const newItem = {
     id: `wi-${Date.now()}`,
     title,
@@ -2921,35 +2766,16 @@ function submitAcceptForm(e) {
     participants: [state.currentUser.name],
     sourceRequestId: r.id,
   };
+
   state.workItems.push(newItem);
   state.selectedTaskId = newItem.id;
   r.status = '수락';
-  r.acceptedAt = state.today;
 
-  // Daily Todo에 세션 자동 생성 (단계명을 세부업무명으로, 태그 없음)
-  const newSession = {
-    id: `ws-${Date.now()}`,
-    workItemId: newItem.id,
-    authorId: state.currentUser.id,
-    authorName: state.currentUser.name,
-    date: todoDate,
-    category: '',
-    processName: '',
-    title: stepName || title,
-    startTime: '',
-    endTime: '',
-    done: false,
-  };
-  state.sessions.push(newSession);
-
-  // 선택한 날짜로 Daily Todo 뷰 이동
-  state.dailyTodoDate = todoDate;
-
-  // 시작일이 포함된 주로 Weekly Tasks 뷰 이동
+  // 시작일이 포함된 주로 뷰 이동
   const diffDays = Math.floor((toDate(start) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
   state.weekOffset = Math.floor(diffDays / 7);
 
-  addNotification('중요', '업무항목 추가', `"${title}" 업무항목이 추가되었습니다.`, title);
+  addNotification('중요', '업무항목 추가', `"${title}" 업무항목이 이번 주 업무에 추가되었습니다.`, title);
   closeAcceptModal();
   closeRequestModal();
   renderAll();
@@ -3388,18 +3214,24 @@ function renderWrSteps() {
     return;
   }
   list.innerHTML = proc.steps.map((step, idx) => {
-    const assignee = _wrStepAssignees[step.id] || null;
-    const bg = assignee ? memberBg(assignee) : null;
+    const assignees = _wrStepAssignees[step.id] || [];
+    const maxShow = 3;
+    const shown = assignees.slice(0, maxShow);
+    const extra = assignees.length - maxShow;
+    const avatarsInner = shown.map(n =>
+      `<span class="assign-step-avatar" style="background:${memberBg(n)}">${n[0]}</span>`
+    ).join('') + (extra > 0 ? `<span class="assign-step-extra">+${extra}</span>` : '');
+    const btnContent = assignees.length > 0
+      ? `<span class="assign-step-avatars">${avatarsInner}</span><span class="assign-step-name">${assignees.length}명</span>`
+      : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`;
     return `
       <div class="assign-step-row" data-step-id="${step.id}">
         <span class="assign-step-num">${idx + 1}</span>
         <span class="assign-step-title">${escapeHtml(step.title)}</span>
-        <button class="assign-step-btn${assignee ? ' has-assignee' : ''}" type="button"
+        <button class="assign-step-btn${assignees.length > 0 ? ' has-assignee' : ''}" type="button"
           data-open-wr-step-panel="${escapeHtml(step.id)}"
-          title="${assignee ? escapeHtml(assignee) : '담당자 지정'}">
-          ${assignee
-            ? `<span class="assign-step-avatar" style="background:${bg}">${assignee[0]}</span><span class="assign-step-name">${escapeHtml(assignee)}</span>`
-            : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`}
+          title="${assignees.length > 0 ? assignees.join(', ') : '담당자 지정'}">
+          ${btnContent}
         </button>
       </div>`;
   }).join('');
@@ -3409,27 +3241,20 @@ function renderWrStepPanel(stepId) {
   const list = document.getElementById('wrStepMemberList');
   if (!list) return;
   const members = state.teamMembers.filter(m => !m.onLeave);
-  const current = _wrStepAssignees[stepId] || null;
-  list.innerHTML = [
-    `<div class="assign-step-panel-opt${current === null ? ' is-selected' : ''}" data-pick-wr-member="" data-for-wr-step="${stepId}">
-      <span class="assign-step-panel-none">—</span>
-      <span class="assign-member-name" style="color:var(--muted)">미지정</span>
-      <div class="ap-check${current === null ? ' checked' : ''}">✓</div>
-    </div>`,
-    ...members.map(m => {
-      const bg      = memberBg(m.name);
-      const checked = current === m.name;
-      return `
-        <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-wr-member="${escapeHtml(m.name)}" data-for-wr-step="${escapeHtml(stepId)}">
-          <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
-          <div>
-            <div class="assign-member-name">${escapeHtml(m.name)}</div>
-            <div class="assign-member-role">${escapeHtml(m.role)}</div>
-          </div>
-          <div class="ap-check${checked ? ' checked' : ''}">✓</div>
-        </div>`;
-    }),
-  ].join('');
+  const current = _wrStepAssignees[stepId] || [];
+  list.innerHTML = members.map(m => {
+    const bg      = memberBg(m.name);
+    const checked = current.includes(m.name);
+    return `
+      <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-wr-member="${escapeHtml(m.name)}" data-for-wr-step="${escapeHtml(stepId)}">
+        <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
+        <div>
+          <div class="assign-member-name">${escapeHtml(m.name)}</div>
+          <div class="assign-member-role">${escapeHtml(m.role)}</div>
+        </div>
+        <div class="ap-check${checked ? ' checked' : ''}">✓</div>
+      </div>`;
+  }).join('');
 }
 
 function openWorkRequestModal() {
@@ -3471,48 +3296,12 @@ function submitWorkRequest(e) {
     deadline,
     priority,
     status:        '신규요청',
-    assignees:     [...new Set(Object.values(_wrStepAssignees).filter(Boolean))],
+    assignees:     [...new Set(Object.values(_wrStepAssignees).flat())],
     processId:     _wrSelectedCatId || null,
     customProcess: _wrSelectedCatId ? null : customProcess,
     stepAssignees: { ..._wrStepAssignees },
   });
   closeWorkRequestModal();
-  renderTeamStatusPage();
-}
-
-function submitAssign() {
-  if (!_assignTargetId) return;
-  const req = state.assignmentRequests.find(r => r.id === _assignTargetId);
-  if (!req) return;
-  req.stepAssignees = { ..._assignStepAssignees };
-  req.assignees = [...new Set(Object.values(_assignStepAssignees).filter(Boolean))];
-  req.status = '수락대기중';
-
-  // 단계별 독립 WorkRequest 생성 → 직원 홈 업무 요청 위젯에 표시
-  const proc = state.processes.find(p => p.id === req.processId);
-  if (proc) {
-    proc.steps.forEach((step, idx) => {
-      const assignee = _assignStepAssignees[step.id];
-      if (!assignee) return;
-      state.requests.push({
-        id: `wr-${Date.now()}-${idx}`,
-        title: `${req.title} — ${step.title}`,
-        detail: `[${proc.category}] ${req.title}\n담당 단계: ${step.title}`,
-        requester: state.currentUser.name,
-        requestTeam: req.team,
-        deliveryTeam: state.currentUser.team,
-        assignee,
-        start: _todayISO,
-        end: req.deadline,
-        priority: req.priority,
-        processId: req.processId,
-        status: '수락 대기',
-      });
-    });
-  }
-
-  addNotification('일반', '업무 배정 완료', `"${req.title}" 단계별 업무요청이 전송되었습니다.`, req.title);
-  closeAssignModal();
   renderTeamStatusPage();
 }
 
@@ -3697,18 +3486,27 @@ function bindEvents() {
       dropdown.classList.add('hidden');
     }
 
-    // Calendar: project selection
-    const projBtn = e.target.closest('[data-proj-id]');
-    if (projBtn) {
-      state.calSelectedProject = projBtn.dataset.projId;
-      const proj = state.assignmentRequests.find(p => p.id === state.calSelectedProject);
-      if (proj) $('#calProjSelectedName').textContent = proj.title;
-      renderCalProjSidebar();
-      renderCalTimeline();
+    // Calendar: member filter tabs (전체/나)
+    const calMemberTab = e.target.closest('[data-cal-member]');
+    if (calMemberTab) {
+      state.calMemberFilter = calMemberTab.dataset.calMember;
+      renderCalPage();
       return;
     }
 
-    // Calendar: close detail panel
+    // Calendar: view toggle (월간/주간)
+    const calViewBtn = e.target.closest('[data-cal-view]');
+    if (calViewBtn) {
+      state.calViewMode = calViewBtn.dataset.calView;
+      renderCalPage();
+      return;
+    }
+
+    // Monthly calendar: event pill click → detail
+    const calEventPill = e.target.closest('[data-cal-event]');
+    if (calEventPill) { openCalEventDetail(calEventPill.dataset.calEvent); return; }
+
+    // Monthly calendar: close detail panel
     if (e.target.closest('#calDetailClose')) { closeCalEventDetail(); return; }
 
     // Resource: add link
@@ -3859,15 +3657,21 @@ function bindEvents() {
       return;
     }
 
-    // Work Request modal: pick member for step
+    // Work Request modal: pick member for step (multi-select toggle)
     const pickWrMember = e.target.closest('[data-pick-wr-member]');
     if (pickWrMember && pickWrMember.hasAttribute('data-for-wr-step')) {
       const stepId = pickWrMember.dataset.forWrStep;
-      const name   = pickWrMember.dataset.pickWrMember || null;
-      _wrStepAssignees[stepId] = name || null;
-      document.getElementById('wrStepPanel')?.classList.add('hidden');
-      _wrActiveStepId = null;
+      const name   = pickWrMember.dataset.pickWrMember;
+      if (!name) return;
+      if (!_wrStepAssignees[stepId]) _wrStepAssignees[stepId] = [];
+      const arr = _wrStepAssignees[stepId];
+      const i = arr.indexOf(name);
+      if (i >= 0) arr.splice(i, 1); else arr.push(name);
+      renderWrStepPanel(stepId);
       renderWrSteps();
+      const panel = document.getElementById('wrStepPanel');
+      const row   = document.querySelector(`.assign-step-row[data-step-id="${stepId}"]`);
+      if (panel && row) { row.appendChild(panel); panel.classList.remove('hidden'); }
       return;
     }
 
@@ -3957,14 +3761,16 @@ function bindEvents() {
       const itemId = inp.dataset.inlineItem;
       const title = inp.value.trim();
       if (!title) return;
+      const catSel = document.querySelector(`[data-inline-cat="${itemId}"]`);
+      const category = catSel ? catSel.value : '';
       state.sessions.push({
         id: `ws-${Date.now()}`,
         workItemId: itemId,
         authorId: state.currentUser.id,
         authorName: state.currentUser.name,
-        category: '',
+        category,
         title,
-        date: state.dailyTodoDate,
+        date: state.today,
         startTime: '',
         endTime: '',
         done: false
@@ -4307,12 +4113,6 @@ function bindEvents() {
 
   $('#searchInput')?.addEventListener('input', renderWeeklyTasks);
 
-  // Daily Todo 날짜 피커
-  $('#dailyTodoDatePicker')?.addEventListener('change', e => {
-    state.dailyTodoDate = e.target.value;
-    renderDailyTodo();
-  });
-
   // Week navigation
   $('#prevWeek').addEventListener('click', () => { state.weekOffset -= 1; renderAll(); });
   $('#nextWeek').addEventListener('click', () => { state.weekOffset += 1; renderAll(); });
@@ -4469,16 +4269,24 @@ function bindEvents() {
     $('#leaveCancelModal').classList.add('hidden');
   });
 
-  // Calendar: prev/next month
+  // Calendar: prev/next (month or week)
   $('#calPrevMonth').addEventListener('click', () => {
-    if (state.calMonth === 0) { state.calYear -= 1; state.calMonth = 11; }
-    else state.calMonth -= 1;
-    renderCalPage();
+    if (state.calViewMode === 'weekly') {
+      state.calWeekOffset -= 1;
+    } else {
+      if (state.calMonth === 0) { state.calYear -= 1; state.calMonth = 11; }
+      else state.calMonth -= 1;
+    }
+    renderCalGrid();
   });
   $('#calNextMonth').addEventListener('click', () => {
-    if (state.calMonth === 11) { state.calYear += 1; state.calMonth = 0; }
-    else state.calMonth += 1;
-    renderCalPage();
+    if (state.calViewMode === 'weekly') {
+      state.calWeekOffset += 1;
+    } else {
+      if (state.calMonth === 11) { state.calYear += 1; state.calMonth = 0; }
+      else state.calMonth += 1;
+    }
+    renderCalGrid();
   });
   // My Page
   document.addEventListener('click', e => {
@@ -4514,12 +4322,11 @@ function bindEvents() {
 
 // 거절 후 7일 지난 항목 자동 제거
 function purgeOldRejections() {
-  // 수락·거절 확정된 요청은 이번 주 월요일 이전 처리된 것만 제거 (주간 자동 리셋)
-  const monday = toDate(_mondayISO);
+  const today = toDate(state.today);
   state.requests = state.requests.filter(r => {
-    if (r.status === '수락') return r.acceptedAt ? toDate(r.acceptedAt) >= monday : true;
-    if (r.status === '거절') return r.rejectedAt ? toDate(r.rejectedAt) >= monday : true;
-    return true;
+    if (r.status !== '거절' || !r.rejectedAt) return true;
+    const diff = (today - toDate(r.rejectedAt)) / (1000 * 60 * 60 * 24);
+    return diff < 7;
   });
 }
 
