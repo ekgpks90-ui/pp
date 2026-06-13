@@ -3177,16 +3177,86 @@ function submitAssign() {
 
 // ─── Work Request Modal ───────────────────────────────────────────────────────
 
-let _wrSelectedCatId = null;
+let _wrSelectedCatId  = null;
+let _wrStepAssignees  = {};
+let _wrActiveStepId   = null;
 
 function renderWrCatList() {
   const list = document.getElementById('wrCatList');
   if (!list) return;
   list.innerHTML = state.processes.map(cat => `
-    <button class="assign-cat-card${_wrSelectedCatId === cat.id ? ' selected' : ''}" type="button" data-select-wr-cat="${cat.id}">
+    <button class="assign-cat-card" type="button" data-select-wr-cat="${cat.id}">
       <span class="assign-cat-name">${escapeHtml(cat.category)}</span>
       <span class="assign-cat-count">${cat.steps.length}단계</span>
     </button>`).join('');
+}
+
+function switchToWrStepPhase(catId) {
+  _wrSelectedCatId  = catId;
+  _wrStepAssignees  = {};
+  _wrActiveStepId   = null;
+  const cat = state.processes.find(p => p.id === catId);
+  document.getElementById('wrCatPhase').classList.add('hidden');
+  document.getElementById('wrStepPhase').classList.remove('hidden');
+  document.getElementById('wrSelectedCatLabel').textContent = cat?.category || '';
+  document.getElementById('wrStepPanel')?.classList.add('hidden');
+  document.getElementById('wrSubmitBtn').disabled = false;
+  renderWrSteps();
+}
+
+function renderWrSteps() {
+  const proc  = state.processes.find(p => p.id === _wrSelectedCatId);
+  const list  = document.getElementById('wrStepsList');
+  const panel = document.getElementById('wrStepPanel');
+  if (!list) return;
+  if (panel && list.contains(panel)) list.after(panel);
+  if (!proc || !proc.steps.length) {
+    list.innerHTML = '<div class="assign-steps-empty">연결된 프로세스가 없습니다.</div>';
+    return;
+  }
+  list.innerHTML = proc.steps.map((step, idx) => {
+    const assignee = _wrStepAssignees[step.id] || null;
+    const bg = assignee ? memberBg(assignee) : null;
+    return `
+      <div class="assign-step-row" data-step-id="${step.id}">
+        <span class="assign-step-num">${idx + 1}</span>
+        <span class="assign-step-title">${escapeHtml(step.title)}</span>
+        <button class="assign-step-btn${assignee ? ' has-assignee' : ''}" type="button"
+          data-open-wr-step-panel="${escapeHtml(step.id)}"
+          title="${assignee ? escapeHtml(assignee) : '담당자 지정'}">
+          ${assignee
+            ? `<span class="assign-step-avatar" style="background:${bg}">${assignee[0]}</span><span class="assign-step-name">${escapeHtml(assignee)}</span>`
+            : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`}
+        </button>
+      </div>`;
+  }).join('');
+}
+
+function renderWrStepPanel(stepId) {
+  const list = document.getElementById('wrStepMemberList');
+  if (!list) return;
+  const members = state.teamMembers.filter(m => !m.onLeave);
+  const current = _wrStepAssignees[stepId] || null;
+  list.innerHTML = [
+    `<div class="assign-step-panel-opt${current === null ? ' is-selected' : ''}" data-pick-wr-member="" data-for-wr-step="${stepId}">
+      <span class="assign-step-panel-none">—</span>
+      <span class="assign-member-name" style="color:var(--muted)">미지정</span>
+      <div class="ap-check${current === null ? ' checked' : ''}">✓</div>
+    </div>`,
+    ...members.map(m => {
+      const bg      = memberBg(m.name);
+      const checked = current === m.name;
+      return `
+        <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-wr-member="${escapeHtml(m.name)}" data-for-wr-step="${escapeHtml(stepId)}">
+          <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
+          <div>
+            <div class="assign-member-name">${escapeHtml(m.name)}</div>
+            <div class="assign-member-role">${escapeHtml(m.role)}</div>
+          </div>
+          <div class="ap-check${checked ? ' checked' : ''}">✓</div>
+        </div>`;
+    }),
+  ].join('');
 }
 
 function openWorkRequestModal() {
@@ -3194,6 +3264,12 @@ function openWorkRequestModal() {
   document.getElementById('wrTeamDisplay').textContent = state.currentUser.team;
   document.getElementById('wrDeadline').value = state.today;
   _wrSelectedCatId = null;
+  _wrStepAssignees = {};
+  _wrActiveStepId  = null;
+  document.getElementById('wrCatPhase').classList.remove('hidden');
+  document.getElementById('wrStepPhase').classList.add('hidden');
+  document.getElementById('wrStepPanel')?.classList.add('hidden');
+  document.getElementById('wrSubmitBtn').disabled = true;
   renderWrCatList();
   document.getElementById('workRequestModal').classList.remove('hidden');
 }
@@ -3201,15 +3277,19 @@ function openWorkRequestModal() {
 function closeWorkRequestModal() {
   document.getElementById('workRequestModal').classList.add('hidden');
   _wrSelectedCatId = null;
+  _wrStepAssignees = {};
+  _wrActiveStepId  = null;
 }
 
 function submitWorkRequest(e) {
   e.preventDefault();
-  const title    = document.getElementById('wrTitle').value.trim();
-  const team     = state.currentUser.team;
-  const deadline = document.getElementById('wrDeadline').value;
-  const priority = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
-  if (!title || !deadline || !_wrSelectedCatId) return;
+  const title         = document.getElementById('wrTitle').value.trim();
+  const team          = state.currentUser.team;
+  const deadline      = document.getElementById('wrDeadline').value;
+  const priority      = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
+  const customProcess = document.getElementById('wrCustomProcess')?.value.trim() || '';
+  if (!title || !deadline) return;
+  if (!_wrSelectedCatId && !customProcess) return;
   state.assignmentRequests.push({
     id: `ar-${Date.now()}`,
     title,
@@ -3217,10 +3297,11 @@ function submitWorkRequest(e) {
     hours: 0,
     deadline,
     priority,
-    status: '신규요청',
-    assignees: [],
-    processId: _wrSelectedCatId,
-    stepAssignees: {},
+    status:        '신규요청',
+    assignees:     [...new Set(Object.values(_wrStepAssignees).filter(Boolean))],
+    processId:     _wrSelectedCatId || null,
+    customProcess: _wrSelectedCatId ? null : customProcess,
+    stepAssignees: { ..._wrStepAssignees },
   });
   closeWorkRequestModal();
   renderTeamStatusPage();
@@ -3543,11 +3624,50 @@ function bindEvents() {
     const selectCatBtn = e.target.closest('[data-select-proc-cat]');
     if (selectCatBtn) { switchToAssignStepPhase(selectCatBtn.dataset.selectProcCat); return; }
 
-    // Work Request modal: 카테고리 선택
+    // Work Request modal: 카테고리 선택 → Phase 2
     const wrCatBtn = e.target.closest('[data-select-wr-cat]');
-    if (wrCatBtn) {
-      _wrSelectedCatId = wrCatBtn.dataset.selectWrCat;
-      renderWrCatList();
+    if (wrCatBtn) { switchToWrStepPhase(wrCatBtn.dataset.selectWrCat); return; }
+
+    // Work Request modal: 카테고리 변경 (뒤로)
+    if (e.target.closest('#wrBackBtn')) {
+      _wrSelectedCatId = null;
+      _wrStepAssignees = {};
+      _wrActiveStepId  = null;
+      document.getElementById('wrStepPanel')?.classList.add('hidden');
+      document.getElementById('wrStepPhase').classList.add('hidden');
+      document.getElementById('wrCatPhase').classList.remove('hidden');
+      document.getElementById('wrSubmitBtn').disabled = !document.getElementById('wrCustomProcess')?.value.trim();
+      return;
+    }
+
+    // Work Request modal: open step member panel
+    const openWrStepPanel = e.target.closest('[data-open-wr-step-panel]');
+    if (openWrStepPanel) {
+      const stepId = openWrStepPanel.dataset.openWrStepPanel;
+      const panel  = document.getElementById('wrStepPanel');
+      if (!panel) return;
+      if (_wrActiveStepId === stepId && !panel.classList.contains('hidden')) {
+        panel.classList.add('hidden');
+        _wrActiveStepId = null;
+      } else {
+        _wrActiveStepId = stepId;
+        renderWrStepPanel(stepId);
+        const row = openWrStepPanel.closest('.assign-step-row');
+        if (row) row.appendChild(panel);
+        panel.classList.remove('hidden');
+      }
+      return;
+    }
+
+    // Work Request modal: pick member for step
+    const pickWrMember = e.target.closest('[data-pick-wr-member]');
+    if (pickWrMember && pickWrMember.hasAttribute('data-for-wr-step')) {
+      const stepId = pickWrMember.dataset.forWrStep;
+      const name   = pickWrMember.dataset.pickWrMember || null;
+      _wrStepAssignees[stepId] = name || null;
+      document.getElementById('wrStepPanel')?.classList.add('hidden');
+      _wrActiveStepId = null;
+      renderWrSteps();
       return;
     }
 
@@ -4076,6 +4196,11 @@ function bindEvents() {
   document.getElementById('closeWorkRequestModal')?.addEventListener('click', closeWorkRequestModal);
   document.getElementById('cancelWorkRequestModal')?.addEventListener('click', closeWorkRequestModal);
   document.getElementById('workRequestForm')?.addEventListener('submit', submitWorkRequest);
+  document.getElementById('wrCustomProcess')?.addEventListener('input', () => {
+    if (!_wrSelectedCatId) {
+      document.getElementById('wrSubmitBtn').disabled = !document.getElementById('wrCustomProcess').value.trim();
+    }
+  });
 
   // Leave Management
   document.getElementById('openLeaveModal')?.addEventListener('click', openLeaveModal);

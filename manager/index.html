@@ -581,14 +581,35 @@
               </div>
             </div>
           </div>
-          <div>
+          <!-- Phase 1: 카테고리 선택 -->
+          <div id="wrCatPhase">
             <div class="assign-phase-title">프로세스 카테고리 선택</div>
             <div class="assign-phase-hint">업무 흐름과 가장 비슷한 카테고리를 선택하세요</div>
             <div class="assign-cat-list" id="wrCatList"></div>
+            <div class="form-field" style="margin-top:12px">
+              <label class="form-field-label" for="wrCustomProcess">직접입력</label>
+              <input type="text" id="wrCustomProcess" placeholder="해당하는 카테고리가 없을 경우 직접 입력" />
+            </div>
           </div>
+
+          <!-- Phase 2: 단계별 담당자 지정 -->
+          <div id="wrStepPhase" class="hidden">
+            <div class="assign-steps-header">
+              <button class="assign-back-btn" type="button" id="wrBackBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                카테고리 변경
+              </button>
+              <span class="assign-selected-cat" id="wrSelectedCatLabel"></span>
+            </div>
+            <div class="assign-steps-list" id="wrStepsList"></div>
+            <div class="ap-step-panel hidden" id="wrStepPanel">
+              <div id="wrStepMemberList"></div>
+            </div>
+          </div>
+
           <div class="btn-row" style="margin-top:8px">
             <button class="secondary-btn" type="button" id="cancelWorkRequestModal">취소</button>
-            <button class="dark-btn" type="submit">요청 등록</button>
+            <button class="dark-btn" type="submit" id="wrSubmitBtn" disabled>요청 등록</button>
           </div>
         </form>
       </div>
