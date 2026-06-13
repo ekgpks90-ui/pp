@@ -232,10 +232,10 @@ const state = {
     { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [] },
     { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [] },
     { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [] },
-    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '높음', status: '재배정',     assignees: [] },
+    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [] },
     { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '신규요청',   assignees: [] },
     { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [] },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '높음', status: '수락대기중', assignees: ['이나경'] },
+    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'] },
     { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'] },
     { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'] },
   ],
@@ -1006,7 +1006,7 @@ function renderTeamStatusPage() {
     { statuses: ['수락대기중'], label: '수락 대기 중', cls: 'ts-req-pending',  showBtn: false },
     { statuses: ['배정완료'], label: '배정 완료',    cls: 'ts-req-done',     showBtn: false },
   ];
-  const PRI_CLS = { '긴급': 'ts-pri-urgent', '높음': 'ts-pri-high', '일반': 'ts-pri-normal' };
+  const PRI_CLS = { '긴급': 'ts-pri-urgent', '일반': 'ts-pri-normal' };
 
   function assigneeCellHtml(r, group) {
     if (group.showBtn) {
@@ -2976,7 +2976,7 @@ function openAssignModal(arId) {
   _assignSelectedMembers = [...(req.assignees || [])];
   _assignDraft = [];
 
-  const PRI_COLOR = { '긴급': 'var(--red)', '높음': 'var(--orange)', '일반': 'var(--muted)' };
+  const PRI_COLOR = { '긴급': 'var(--red)', '일반': 'var(--muted)' };
   document.getElementById('assignRequestInfo').innerHTML = `
     <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">${escapeHtml(req.title)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)">

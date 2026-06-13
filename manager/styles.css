@@ -2206,8 +2206,7 @@ h1, h2, h3, p { margin: 0; }
   text-align: center;
 }
 
-.ts-pri-urgent { background: var(--red-soft);    color: var(--red); }
-.ts-pri-high   { background: var(--orange-soft); color: var(--orange); }
+.ts-pri-urgent { background: var(--red-soft);      color: var(--red); }
 .ts-pri-normal { background: var(--surface-muted); color: var(--muted); }
 
 .ts-req-assignee {
