@@ -421,9 +421,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .notif-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  display: block;
   padding: 10px;
   border-radius: 8px;
   background: var(--surface-muted);
@@ -1429,6 +1427,25 @@ h1, h2, h3, p { margin: 0; }
   border-color: var(--blue);
   background: white;
   box-shadow: 0 0 0 3px rgba(74,102,255,0.08);
+}
+.form-stack input[readonly],
+.form-stack select[disabled] {
+  background: var(--surface-muted);
+  color: var(--text-sub);
+  cursor: default;
+  pointer-events: none;
+  opacity: 1;
+}
+.form-stack select[disabled] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+.form-stack input[readonly]:focus,
+.form-stack select[disabled]:focus {
+  border-color: var(--line);
+  background: var(--surface-muted);
+  box-shadow: none;
+  outline: none;
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -3475,11 +3492,12 @@ h1, h2, h3, p { margin: 0; }
 
 .mp-page {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 0;
 }
 .mp-header { margin-bottom: 0; }
 .mp-title  { font-size: 18px; font-weight: 700; color: var(--text-primary); }
@@ -3515,11 +3533,13 @@ h1, h2, h3, p { margin: 0; }
 /* 3-column grid */
 .mp-grid {
   display: grid;
-  grid-template-columns: 180px 1fr 380px;
+  grid-template-columns: 220px 1fr 380px;
   gap: 12px;
   align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
-.mp-col-left { display: flex; flex-direction: column; }
+.mp-col-left { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
 
 /* Left: profile */
 .mp-profile-card {
@@ -3527,7 +3547,7 @@ h1, h2, h3, p { margin: 0; }
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 16px 14px;
-  flex: 1;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3558,13 +3578,16 @@ h1, h2, h3, p { margin: 0; }
 .mp-profile-key  { color: var(--text-sub); }
 .mp-profile-val  { color: var(--text-primary); font-weight: 500; }
 
-/* Center: charts */
-.mp-col-center { display: flex; flex-direction: column; gap: 10px; }
+/* Center: AI + meetings stacked */
+.mp-col-center { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
 .mp-chart-card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .mp-chart-title {
   font-size: 11px; font-weight: 600;
@@ -3629,7 +3652,7 @@ h1, h2, h3, p { margin: 0; }
 .mpc-sess-dur   { color: var(--blue); font-weight: 600; text-align: right; }
 
 /* AI section */
-.mp-ai-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+.mp-ai-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; flex: 1; }
 .mp-ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .mp-ai-badge {
   background: linear-gradient(135deg, var(--blue), var(--purple));
@@ -3644,24 +3667,47 @@ h1, h2, h3, p { margin: 0; }
 .mp-ai-value { font-size: 12px; font-weight: 600; color: var(--text-primary); }
 
 /* Meetings section */
-.mp-meetings-section { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
-.mp-meetings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.mp-meetings-section { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.mp-meetings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-shrink: 0; }
 .mp-section-label { font-size: 11px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; }
 .mp-meetings-count { font-size: 11px; color: var(--blue); font-weight: 600; }
-.mp-meetings-list { display: flex; flex-direction: column; gap: 6px; }
+.mp-meetings-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; min-height: 0; }
 .mp-meetings-empty { font-size: 12px; color: var(--text-sub); text-align: center; padding: 12px 0; }
-.mp-meeting-row {
-  display: grid; grid-template-columns: 40px 1fr 72px 52px 34px;
-  align-items: center; gap: 8px;
-  padding: 7px 10px; background: var(--surface-muted); border-radius: 8px; font-size: 12px;
-}
 .mp-meeting-badge {
   font-size: 10px; font-weight: 700; color: #fff;
   padding: 2px 0; border-radius: 4px;
   min-width: 44px; text-align: center; flex-shrink: 0;
 }
-.mp-meeting-title { color: var(--text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mp-meeting-meta  { color: var(--text-sub); font-size: 11px; text-align: right; white-space: nowrap; }
+.mp-meeting-card {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 10px 12px; background: var(--surface-muted); border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.mp-meeting-card:hover { background: var(--line-soft); }
+.mp-meeting-card-top { display: flex; align-items: center; gap: 7px; }
+.mp-meeting-card-title {
+  flex: 1; font-size: 13px; font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mp-meeting-card-summary {
+  font-size: 11px; color: var(--muted); line-height: 1.4;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mp-meeting-card-bottom { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.mp-meeting-avatars { display: flex; align-items: center; gap: 2px; flex: 1; }
+.mp-meeting-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--line); color: var(--muted);
+  font-size: 10px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.mp-meeting-avatar.me { background: var(--blue-mid); color: var(--blue); }
+.mp-meeting-avatar-more { font-size: 10px; color: var(--muted); margin-left: 2px; }
+.mp-meeting-action-badge {
+  font-size: 10px; font-weight: 600; color: var(--orange);
+  background: var(--orange-soft); border-radius: 4px; padding: 2px 6px; flex-shrink: 0;
+}
 
 /* ─── Recorder Button Styles ─────────────────────────────────────────────── */
 .recorder-btn {
