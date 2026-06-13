@@ -515,18 +515,33 @@
         </div>
         <div id="assignRequestInfo" style="background:var(--surface-muted);border:1px solid var(--line-soft);border-radius:10px;padding:14px;margin-bottom:16px"></div>
         <form class="form-stack" id="assignForm">
-          <div class="assign-steps-header">
-            <span class="assign-steps-label">프로세스별 담당자 지정</span>
-            <span class="assign-steps-hint">각 단계에 담당자를 지정하세요</span>
+
+          <!-- Phase 1: 카테고리 선택 -->
+          <div id="assignCatPhase">
+            <div class="assign-phase-title">프로세스 카테고리 선택</div>
+            <div class="assign-phase-hint">업무 흐름과 가장 비슷한 카테고리를 선택하세요</div>
+            <div class="assign-cat-list" id="assignCatList"></div>
           </div>
-          <div class="assign-steps-list" id="assignStepsList"></div>
-          <!-- 팝업 멤버 패널 (공유) -->
-          <div class="ap-step-panel hidden" id="assignStepPanel">
-            <div id="assignStepMemberList"></div>
+
+          <!-- Phase 2: 단계별 담당자 지정 -->
+          <div id="assignStepPhase" class="hidden">
+            <div class="assign-steps-header">
+              <button class="assign-back-btn" type="button" id="assignBackBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                카테고리 변경
+              </button>
+              <span class="assign-selected-cat" id="assignSelectedCatLabel"></span>
+            </div>
+            <div class="assign-steps-list" id="assignStepsList"></div>
+            <!-- 팝업 멤버 패널 (공유) -->
+            <div class="ap-step-panel hidden" id="assignStepPanel">
+              <div id="assignStepMemberList"></div>
+            </div>
           </div>
+
           <div class="btn-row" style="margin-top:20px">
             <button class="secondary-btn" type="button" id="cancelAssignModal">취소</button>
-            <button class="dark-btn" type="submit" id="submitAssignBtn">배정 완료</button>
+            <button class="dark-btn" type="submit" id="submitAssignBtn" disabled>배정 완료</button>
           </div>
         </form>
       </div>

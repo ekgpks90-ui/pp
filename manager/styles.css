@@ -4389,12 +4389,59 @@ h1, h2, h3, p { margin: 0; }
 /* ── Assign Modal: step-level assignee picker ── */
 .modal-assign-wide { width: min(600px, 96vw); }
 
+/* Phase 1: 카테고리 선택 */
+.assign-phase-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.assign-phase-hint  { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+
+.assign-cat-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.assign-cat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.13s, background 0.13s, box-shadow 0.13s;
+}
+.assign-cat-card:hover {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 12%, transparent);
+}
+.assign-cat-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.assign-cat-count { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+/* Phase 2: 단계별 담당자 지정 */
 .assign-steps-header {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
+.assign-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.assign-back-btn:hover { border-color: var(--blue); color: var(--blue); }
+.assign-selected-cat { font-size: 13px; font-weight: 600; color: var(--text); }
+
 .assign-steps-label { font-size: 13px; font-weight: 600; color: var(--text); }
 .assign-steps-hint  { font-size: 11px; color: var(--muted); }
 

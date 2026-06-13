@@ -3038,8 +3038,9 @@ function submitLeave(e) {
 // ── Assign Modal ─────────────────────────────────────────────────────────────
 const ASSIGN_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
 let _assignTargetId = null;
-let _assignStepAssignees = {};  // { stepId: memberName | null }
-let _assignActiveStepId = null; // 현재 멤버 패널이 열린 stepId
+let _assignStepAssignees = {};
+let _assignActiveStepId = null;
+let _assignSelectedCatId = null; // Phase 1에서 선택한 카테고리 id
 
 function memberBg(name) {
   const idx = state.teamMembers.findIndex(m => m.name === name);
@@ -3050,21 +3051,24 @@ function openAssignModal(arId) {
   const req = state.assignmentRequests.find(r => r.id === arId);
   if (!req) return;
   _assignTargetId = arId;
-  _assignStepAssignees = { ...(req.stepAssignees || {}) };
+  _assignStepAssignees = {};
   _assignActiveStepId = null;
+  _assignSelectedCatId = null;
 
   const PRI_COLOR = { '긴급': 'var(--red)', '높음': 'var(--orange)', '일반': 'var(--muted)' };
   document.getElementById('assignRequestInfo').innerHTML = `
     <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">${escapeHtml(req.title)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)">
       <span>요청팀 · <strong style="color:var(--text)">${escapeHtml(req.team)}</strong></span>
-      <span>예상시간 · <strong style="color:var(--text)">${req.hours}h</strong></span>
       <span>마감일 · <strong style="color:var(--text)">${escapeHtml(req.deadline)}</strong></span>
       <span>우선순위 · <strong style="color:${PRI_COLOR[req.priority] || 'var(--muted)'}">${escapeHtml(req.priority)}</strong></span>
     </div>`;
 
+  document.getElementById('assignCatPhase').classList.remove('hidden');
+  document.getElementById('assignStepPhase').classList.add('hidden');
   document.getElementById('assignStepPanel')?.classList.add('hidden');
-  renderAssignSteps();
+  document.getElementById('submitAssignBtn').disabled = true;
+  renderAssignCatPhase();
   document.getElementById('assignModal').classList.remove('hidden');
 }
 
@@ -3073,12 +3077,34 @@ function closeAssignModal() {
   _assignTargetId = null;
   _assignStepAssignees = {};
   _assignActiveStepId = null;
+  _assignSelectedCatId = null;
+}
+
+function renderAssignCatPhase() {
+  const list = document.getElementById('assignCatList');
+  if (!list) return;
+  list.innerHTML = state.processes.map(cat => `
+    <button class="assign-cat-card" type="button" data-select-proc-cat="${cat.id}">
+      <span class="assign-cat-name">${escapeHtml(cat.category)}</span>
+      <span class="assign-cat-count">${cat.steps.length}단계</span>
+    </button>`).join('');
+}
+
+function switchToAssignStepPhase(catId) {
+  _assignSelectedCatId = catId;
+  _assignStepAssignees = {};
+  _assignActiveStepId = null;
+  const cat = state.processes.find(p => p.id === catId);
+  document.getElementById('assignCatPhase').classList.add('hidden');
+  document.getElementById('assignStepPhase').classList.remove('hidden');
+  document.getElementById('assignSelectedCatLabel').textContent = cat?.category || '';
+  document.getElementById('submitAssignBtn').disabled = false;
+  document.getElementById('assignStepPanel')?.classList.add('hidden');
+  renderAssignSteps();
 }
 
 function renderAssignSteps() {
-  const req = state.assignmentRequests.find(r => r.id === _assignTargetId);
-  if (!req) return;
-  const proc = state.processes.find(p => p.id === req.processId);
+  const proc = state.processes.find(p => p.id === _assignSelectedCatId);
   const list = document.getElementById('assignStepsList');
   const panel = document.getElementById('assignStepPanel');
   if (!list) return;
@@ -3461,6 +3487,22 @@ function bindEvents() {
     // Open assign modal
     const openAssignBtn = e.target.closest('[data-open-assign]');
     if (openAssignBtn) { openAssignModal(openAssignBtn.dataset.openAssign); return; }
+
+    // Assign modal: Phase 1 — 카테고리 선택
+    const selectCatBtn = e.target.closest('[data-select-proc-cat]');
+    if (selectCatBtn) { switchToAssignStepPhase(selectCatBtn.dataset.selectProcCat); return; }
+
+    // Assign modal: 카테고리 변경 (뒤로)
+    if (e.target.closest('#assignBackBtn')) {
+      _assignSelectedCatId = null;
+      _assignStepAssignees = {};
+      _assignActiveStepId = null;
+      document.getElementById('assignStepPanel')?.classList.add('hidden');
+      document.getElementById('assignStepPhase').classList.add('hidden');
+      document.getElementById('assignCatPhase').classList.remove('hidden');
+      document.getElementById('submitAssignBtn').disabled = true;
+      return;
+    }
 
     // Assign modal: open step member panel
     const openStepPanel = e.target.closest('[data-open-step-panel]');
