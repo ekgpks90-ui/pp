@@ -540,13 +540,14 @@
               </select>
             </label>
           </div>
-          <div class="sched-attendee-wrap">
+          <div>
             <span class="form-label-text">참석자</span>
-            <div class="sched-attendee-chips" id="schedAttendeeChips"></div>
-            <div class="sched-search-wrap">
-              <input type="text" id="schedAttendeeSearch" placeholder="이름으로 검색" autocomplete="off" />
-              <div class="sched-search-dropdown hidden" id="schedSearchDropdown"></div>
+            <div class="attendee-picker" id="schedAttendeePicker" style="margin-top:5px">
+              <input class="attendee-search" id="schedAttendeeSearch" type="text" placeholder="이름으로 검색..." autocomplete="off" />
+              <svg class="attendee-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <div class="attendee-dropdown hidden" id="schedAttendeeDropdown"></div>
             </div>
+            <div class="attendee-chips" id="schedAttendeeChips"></div>
           </div>
           <div class="btn-row">
             <button class="secondary-btn" type="button" id="cancelScheduleMeeting">취소</button>

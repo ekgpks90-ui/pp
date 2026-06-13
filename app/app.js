@@ -2984,12 +2984,29 @@ function renderLeavePage() {
 function renderSchedAttendeeChips() {
   const container = $('#schedAttendeeChips');
   if (!container) return;
-  container.innerHTML = state.scheduleAttendees.map(name => `
-    <span class="sched-chip">
-      ${escapeHtml(name)}
-      <button type="button" class="sched-chip-remove" data-remove-attendee="${escapeHtml(name)}">✕</button>
-    </span>
-  `).join('');
+  container.innerHTML = state.scheduleAttendees.map(name =>
+    `<span class="attendee-chip">${escapeHtml(name)}<button type="button" class="attendee-chip-remove" data-remove-sched-attendee="${escapeHtml(name)}">✕</button></span>`
+  ).join('');
+}
+
+function renderSchedAttendeeDropdown(query) {
+  const dropdown = $('#schedAttendeeDropdown');
+  if (!dropdown) return;
+  const q = query.toLowerCase();
+  const matches = state.teamMembers.filter(m =>
+    !state.scheduleAttendees.includes(m.name) && (q === '' || m.name.toLowerCase().includes(q))
+  );
+  if (!matches.length) { dropdown.classList.add('hidden'); return; }
+  dropdown.innerHTML = matches.map(m =>
+    `<div class="attendee-option" data-add-sched-attendee="${escapeHtml(m.name)}">
+      <span class="attendee-option-avatar" style="background:${memberColor(m.name)}">${escapeHtml(m.name[0])}</span>
+      <div class="attendee-option-info">
+        <span class="attendee-option-name">${escapeHtml(m.name)}</span>
+        <span class="attendee-option-role">${escapeHtml(m.role)}</span>
+      </div>
+    </div>`
+  ).join('');
+  dropdown.classList.remove('hidden');
 }
 
 function openScheduleMeetingModal() {
@@ -2997,7 +3014,8 @@ function openScheduleMeetingModal() {
   $('#scheduleMeetingForm').reset();
   $('#schedMeetDate').value = state.today;
   renderSchedAttendeeChips();
-  $('#schedSearchDropdown').classList.add('hidden');
+  $('#schedAttendeeDropdown').classList.add('hidden');
+  $('#schedAttendeeSearch').value = '';
   $('#scheduleMeetingModal').classList.remove('hidden');
 }
 
@@ -3837,9 +3855,9 @@ function bindEvents() {
   document.addEventListener('click', e => {
     if (e.target.id === 'openSendRequestBtn') openSendRequestModal();
     if (e.target.id === 'openScheduleMeetingBtn') openScheduleMeetingModal();
-    const removeChip = e.target.closest('[data-remove-attendee]');
+    const removeChip = e.target.closest('[data-remove-sched-attendee]');
     if (removeChip) {
-      const name = removeChip.dataset.removeAttendee;
+      const name = removeChip.dataset.removeSchedAttendee;
       state.scheduleAttendees = state.scheduleAttendees.filter(n => n !== name);
       renderSchedAttendeeChips();
     }
@@ -3853,32 +3871,22 @@ function bindEvents() {
   document.getElementById('scheduleMeetingForm')?.addEventListener('submit', submitScheduleMeeting);
 
   document.getElementById('schedAttendeeSearch')?.addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase();
-    const dropdown = $('#schedSearchDropdown');
-    if (!q) { dropdown.classList.add('hidden'); return; }
-    const matches = state.teamMembers.filter(m =>
-      m.name.toLowerCase().includes(q) && !state.scheduleAttendees.includes(m.name)
-    ).slice(0, 6);
-    if (!matches.length) { dropdown.classList.add('hidden'); return; }
-    dropdown.innerHTML = matches.map(m => `
-      <div class="sched-dropdown-item" data-add-attendee="${escapeHtml(m.name)}">
-        <span class="sched-dropdown-name">${escapeHtml(m.name)}</span>
-        <span class="sched-dropdown-role">${escapeHtml(m.role)}</span>
-      </div>
-    `).join('');
-    dropdown.classList.remove('hidden');
+    renderSchedAttendeeDropdown(e.target.value);
+  });
+  document.getElementById('schedAttendeeSearch')?.addEventListener('focus', e => {
+    renderSchedAttendeeDropdown(e.target.value);
   });
 
-  document.getElementById('schedSearchDropdown')?.addEventListener('click', e => {
-    const item = e.target.closest('[data-add-attendee]');
+  document.getElementById('schedAttendeeDropdown')?.addEventListener('click', e => {
+    const item = e.target.closest('[data-add-sched-attendee]');
     if (!item) return;
-    const name = item.dataset.addAttendee;
+    const name = item.dataset.addSchedAttendee;
     if (!state.scheduleAttendees.includes(name)) {
       state.scheduleAttendees.push(name);
       renderSchedAttendeeChips();
     }
     $('#schedAttendeeSearch').value = '';
-    $('#schedSearchDropdown').classList.add('hidden');
+    $('#schedAttendeeDropdown').classList.add('hidden');
   });
   document.getElementById('leaveTabBar')?.addEventListener('click', e => {
     const btn = e.target.closest('[data-leave-tab]');
