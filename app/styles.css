@@ -3566,13 +3566,13 @@ h1, h2, h3, p { margin: 0; }
 /* 3-column grid */
 .mp-grid {
   display: grid;
-  grid-template-columns: 180px 1fr 380px;
+  grid-template-columns: 220px 1fr 380px;
   gap: 12px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
 }
-.mp-col-left { display: flex; flex-direction: column; }
+.mp-col-left { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; }
 
 /* Left: profile */
 .mp-profile-card {
@@ -3580,12 +3580,12 @@ h1, h2, h3, p { margin: 0; }
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 16px 14px;
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 .mp-profile-avatar {
   width: 46px; height: 46px;
@@ -3611,7 +3611,7 @@ h1, h2, h3, p { margin: 0; }
 .mp-profile-key  { color: var(--text-sub); }
 .mp-profile-val  { color: var(--text-primary); font-weight: 500; }
 
-/* Center: charts */
+/* Center: AI + meetings stacked */
 .mp-col-center { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
 .mp-chart-card {
   background: var(--surface);
@@ -3682,7 +3682,7 @@ h1, h2, h3, p { margin: 0; }
 .mpc-sess-dur   { color: var(--blue); font-weight: 600; text-align: right; }
 
 /* AI section */
-.mp-ai-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+.mp-ai-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; flex: 1; }
 .mp-ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .mp-ai-badge {
   background: linear-gradient(135deg, var(--blue), var(--purple));
