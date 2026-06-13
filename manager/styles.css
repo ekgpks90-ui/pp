@@ -4384,3 +4384,113 @@ h1, h2, h3, p { margin: 0; }
   border-color: var(--blue);
   color: white;
 }
+
+/* ── Process Management Page ── */
+.proc-page { padding: 32px 32px 80px; }
+
+.proc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.proc-page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+
+.proc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.proc-card {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.proc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.proc-cat-title { font-size: 15px; font-weight: 700; color: var(--text); flex: 1 1 auto; }
+.proc-step-count {
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface-muted);
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-family: 'DM Mono', monospace;
+}
+.proc-card-actions { display: flex; gap: 4px; margin-left: 4px; }
+
+.proc-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.13s, color 0.13s;
+}
+.proc-icon-btn:hover { background: var(--surface-muted); color: var(--text); }
+.proc-icon-btn--danger:hover { background: var(--red-soft); color: var(--red); }
+
+.proc-step-list { padding: 10px 18px 4px; }
+
+.proc-step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.proc-step-row:last-child { border-bottom: none; }
+
+.proc-step-num {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.proc-step-title { flex: 1 1 auto; font-size: 13.5px; color: var(--text); }
+.proc-step-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.13s; }
+.proc-step-row:hover .proc-step-actions { opacity: 1; }
+
+.proc-add-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 18px;
+  border: none;
+  border-top: 1px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.13s, background 0.13s;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.proc-add-step-btn:hover { color: var(--blue); background: var(--blue-soft); }
+
+.proc-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 14px;
+}

@@ -399,6 +399,73 @@ const state = {
 
   leaveTab: '내 연차',         // '내 연차' | '팀 연차' | '승인 대기' | '이력'
   totalLeave: 15,              // 총 연차 (연간)
+
+  processes: [
+    {
+      id: 'pc-1', category: 'UI/UX 디자인',
+      steps: [
+        { id: 'ps-1-01', title: '브리핑 & 계약' },
+        { id: 'ps-1-02', title: '리서치 (사용자/경쟁사)' },
+        { id: 'ps-1-03', title: '정보구조도(IA) 설계' },
+        { id: 'ps-1-04', title: '와이어프레임 제작' },
+        { id: 'ps-1-05', title: '1차 피드백' },
+        { id: 'ps-1-06', title: '1차 수정' },
+        { id: 'ps-1-07', title: '1차 UI 디자인' },
+        { id: 'ps-1-08', title: '2차 피드백' },
+        { id: 'ps-1-09', title: '2차 수정' },
+        { id: 'ps-1-10', title: '프로토타입 제작' },
+        { id: 'ps-1-11', title: '사용성 테스트' },
+        { id: 'ps-1-12', title: '최종 디자인 확정' },
+        { id: 'ps-1-13', title: '개발 핸드오프' },
+        { id: 'ps-1-14', title: '디자인 QA' },
+      ],
+    },
+    {
+      id: 'pc-2', category: '브랜드 & 인쇄물',
+      steps: [
+        { id: 'ps-2-01', title: '브리핑 & 계약' },
+        { id: 'ps-2-02', title: '리서치 (시장/경쟁사)' },
+        { id: 'ps-2-03', title: '콘셉트 기획' },
+        { id: 'ps-2-04', title: '시안 제작' },
+        { id: 'ps-2-05', title: '1차 피드백' },
+        { id: 'ps-2-06', title: '1차 수정' },
+        { id: 'ps-2-07', title: '2차 시안 제작' },
+        { id: 'ps-2-08', title: '2차 피드백' },
+        { id: 'ps-2-09', title: '2차 수정' },
+        { id: 'ps-2-10', title: '최종 디자인 확정' },
+        { id: 'ps-2-11', title: '인쇄 사양 확인' },
+        { id: 'ps-2-12', title: '파일 납품' },
+      ],
+    },
+    {
+      id: 'pc-3', category: '디지털 콘텐츠',
+      steps: [
+        { id: 'ps-3-01', title: '브리핑 & 계약' },
+        { id: 'ps-3-02', title: '콘셉트 기획' },
+        { id: 'ps-3-03', title: '카피 & 구성안 작성' },
+        { id: 'ps-3-04', title: '시안 제작' },
+        { id: 'ps-3-05', title: '1차 피드백' },
+        { id: 'ps-3-06', title: '1차 수정' },
+        { id: 'ps-3-07', title: '최종 디자인 확정' },
+        { id: 'ps-3-08', title: '파일 납품' },
+      ],
+    },
+    {
+      id: 'pc-4', category: '영상 & 모션',
+      steps: [
+        { id: 'ps-4-01', title: '브리핑 & 계약' },
+        { id: 'ps-4-02', title: '스토리보드 작성' },
+        { id: 'ps-4-03', title: '1차 피드백' },
+        { id: 'ps-4-04', title: '1차 수정' },
+        { id: 'ps-4-05', title: '스크립트 & 보이스 녹음' },
+        { id: 'ps-4-06', title: '1차 편집' },
+        { id: 'ps-4-07', title: '2차 피드백' },
+        { id: 'ps-4-08', title: '2차 수정' },
+        { id: 'ps-4-09', title: '최종 디자인 확정' },
+        { id: 'ps-4-10', title: '파일 납품' },
+      ],
+    },
+  ],
 };
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -1435,7 +1502,9 @@ function switchPage(page) {
   $('#teamStatusPage')?.classList.toggle('hidden', page !== 'team-status');
   $('#leavePage')?.classList.toggle('hidden', page !== 'leave');
   $('#myPage')?.classList.toggle('hidden', page !== 'my-page');
-  renderAll();
+  $('#processPage')?.classList.toggle('hidden', page !== 'process');
+  if (page === 'process') renderProcessPage();
+  else renderAll();
 }
 
 
@@ -3060,6 +3129,73 @@ function submitAssign() {
   renderTeamStatusPage();
 }
 
+// ─── Process Management Page ─────────────────────────────────────────────────
+
+function renderProcessPage() {
+  const body = $('#processBody');
+  if (!body) return;
+
+  if (!state.processes || state.processes.length === 0) {
+    body.innerHTML = '<div class="proc-empty">등록된 카테고리가 없습니다.<br>+ 카테고리 추가 버튼을 눌러 시작하세요.</div>';
+    return;
+  }
+
+  body.innerHTML = `<div class="proc-grid">${state.processes.map(cat => {
+    const steps = cat.steps.map((step, idx) => `
+      <div class="proc-step-row">
+        <span class="proc-step-num">${idx + 1}</span>
+        <span class="proc-step-title">${step.title}</span>
+        <div class="proc-step-actions">
+          <button class="proc-icon-btn" type="button"
+            data-edit-step="${step.id}" data-cat-id="${cat.id}" title="수정">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button class="proc-icon-btn proc-icon-btn--danger" type="button"
+            data-delete-step="${step.id}" data-cat-id="${cat.id}" title="삭제">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>`).join('');
+
+    return `
+      <div class="proc-card">
+        <div class="proc-card-header">
+          <span class="proc-cat-title">${cat.category}</span>
+          <span class="proc-step-count">${cat.steps.length}단계</span>
+          <div class="proc-card-actions">
+            <button class="proc-icon-btn" type="button" data-edit-cat="${cat.id}" title="카테고리 수정">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${cat.id}" title="카테고리 삭제">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v6"/><path d="M14 11v6"/>
+                <path d="M9 6V4h6v2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="proc-step-list">${steps}</div>
+        <button class="proc-add-step-btn" type="button" data-add-step="${cat.id}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          프로세스 추가
+        </button>
+      </div>`;
+  }).join('')}</div>`;
+}
+
 function cancelLeaveRequest(id) {
   const lv = state.leaves.find(l => l.id === id);
   if (!lv || lv.status !== '승인 대기') return;
@@ -3777,6 +3913,14 @@ function bindEvents() {
 
   // Leave Management
   document.getElementById('openLeaveModal')?.addEventListener('click', openLeaveModal);
+
+  document.getElementById('addCategoryBtn')?.addEventListener('click', () => {
+    const name = prompt('새 카테고리 이름을 입력하세요');
+    if (!name || !name.trim()) return;
+    const newId = `pc-${Date.now()}`;
+    state.processes.push({ id: newId, category: name.trim(), steps: [] });
+    renderProcessPage();
+  });
 
   // Live days preview on date change
   function updateLeaveDaysPreview() {
