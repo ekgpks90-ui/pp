@@ -514,7 +514,7 @@ function weekItems() {
 }
 
 function sortByType(a, b) {
-  const order = { 고정: 0, 긴급: 1, 일반: 2 };
+  const order = { 회의: 0, 고정: 1, 긴급: 2, 일반: 3 };
   return (order[a.type] - order[b.type]) || a.title.localeCompare(b.title, 'ko');
 }
 
@@ -1129,11 +1129,15 @@ function renderMyPage() {
       <h2 class="mp-title">My Page</h2>
     </div>
     <div class="mp-grid">
-      <div class="mp-col-left">${_mpProfile(u)}</div>
-      <div class="mp-col-center">
-        ${_mpAI()}
+      <div class="mp-col-left">
+        ${_mpProfile(u)}
         ${_mpCharts()}
-        ${_mpMeetings()}
+      </div>
+      <div class="mp-col-center">
+        <div class="mp-center-row">
+          ${_mpAI()}
+          ${_mpMeetings()}
+        </div>
       </div>
       <div class="mp-col-right">${_mpCalPanel()}</div>
     </div>
