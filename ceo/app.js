@@ -2849,7 +2849,7 @@ function renderLeaveKpi() {
 }
 
 function renderLeaveTabBar() {
-  const tabs = ['내 연차', '이력'];
+  const tabs = ['내 연차', '팀 연차', '이력'];
   document.getElementById('leaveTabBar').innerHTML = tabs.map(t => `
     <button class="leave-tab-btn${state.leaveTab === t ? ' active' : ''}" data-leave-tab="${t}">${t}</button>
   `).join('');
@@ -2871,7 +2871,7 @@ function leaveActionBtns(lv) {
   return '';
 }
 
-function renderLeaveRows(leaves) {
+function renderLeaveRows(leaves, hideActions = false) {
   if (!leaves.length) return '<div class="leave-empty">연차 내역이 없습니다.</div>';
   return leaves.map(lv => `
     <div class="leave-row">
@@ -2889,7 +2889,7 @@ function renderLeaveRows(leaves) {
         ${lv.reason ? `<div class="leave-row-reason">${lv.reason}</div>` : ''}
         ${lv.rejectedReason ? `<div class="leave-row-rejected-reason">반려 사유: ${lv.rejectedReason}</div>` : ''}
       </div>
-      <div class="leave-row-actions">${leaveActionBtns(lv)}</div>
+      <div class="leave-row-actions">${hideActions ? '' : leaveActionBtns(lv)}</div>
     </div>
   `).join('');
 }
@@ -2899,6 +2899,12 @@ function renderLeaveList() {
   let leaves;
   if (tab === '내 연차') {
     leaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
+  } else if (tab === '팀 연차') {
+    leaves = state.leaves
+      .filter(l => l.applicantId !== state.currentUser.id)
+      .sort((a, b) => b.startDate.localeCompare(a.startDate));
+    document.getElementById('leaveList').innerHTML = renderLeaveRows(leaves, true);
+    return;
   } else { // 이력
     leaves = getMyLeaves()
       .filter(l => l.status === '승인 완료' || l.status === '반려')

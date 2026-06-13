@@ -2109,9 +2109,10 @@ h1, h2, h3, p { margin: 0; }
   margin-bottom: 6px;
 }
 
-.ts-kpi-val.ts-kpi-blue { color: var(--blue); }
-.ts-kpi-val.ts-kpi-orange { color: var(--orange); }
-.ts-kpi-val.ts-kpi-purple { color: var(--purple); }
+.ts-kpi-val.ts-kpi-blue   { color: var(--blue); }
+.ts-kpi-val.ts-kpi-red    { color: var(--red); }
+.ts-kpi-val.ts-kpi-yellow { color: var(--orange); }
+.ts-kpi-val.ts-kpi-green  { color: var(--green); }
 
 .ts-kpi-lbl {
   font-size: 12px;
@@ -2138,25 +2139,23 @@ h1, h2, h3, p { margin: 0; }
   border-top: 1px solid var(--line);
 }
 
-.ts-req-new { border-left-color: var(--red); }
-.ts-req-pending { border-left-color: var(--orange); }
-.ts-req-unassigned { border-left-color: #9ca3af; }
-.ts-req-done { border-left-color: var(--green); }
+.ts-req-new      { border-left-color: var(--blue); }
+.ts-req-reassign { border-left-color: var(--red); }
+.ts-req-pending  { border-left-color: var(--orange); }
+.ts-req-done     { border-left-color: var(--green); }
 
 .ts-req-row {
   display: grid;
-  grid-template-columns: 88px minmax(120px, 1fr) 72px 40px 88px 52px 96px;
+  grid-template-columns: 92px minmax(130px, 1fr) 72px 110px 52px 110px;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  min-width: 600px;
+  min-width: 580px;
   font-size: 13px;
   color: var(--text);
 }
 
-.ts-req-row + .ts-req-row {
-  border-top: 1px solid var(--line);
-}
+.ts-req-row + .ts-req-row { border-top: 1px solid var(--line); }
 
 .ts-req-status-badge {
   font-size: 11px;
@@ -2167,10 +2166,10 @@ h1, h2, h3, p { margin: 0; }
   text-align: center;
 }
 
-.ts-req-new-badge { background: var(--red-soft); color: var(--red); }
-.ts-req-pending-badge { background: var(--orange-soft); color: var(--orange); }
-.ts-req-unassigned-badge { background: #f3f4f6; color: #6b7280; }
-.ts-req-done-badge { background: var(--green-soft); color: var(--green); }
+.ts-req-new-badge      { background: var(--blue-soft);   color: var(--blue); }
+.ts-req-reassign-badge { background: var(--red-soft);    color: var(--red); }
+.ts-req-pending-badge  { background: var(--orange-soft); color: var(--orange); }
+.ts-req-done-badge     { background: var(--green-soft);  color: var(--green); }
 
 .ts-req-title {
   font-weight: 500;
@@ -2187,15 +2186,16 @@ h1, h2, h3, p { margin: 0; }
   text-overflow: ellipsis;
 }
 
-.ts-req-hours {
-  color: var(--muted);
+.ts-req-deadline {
   font-size: 12px;
-  text-align: right;
+  color: var(--text);
+  white-space: nowrap;
 }
 
-.ts-req-deadline {
+.ts-req-deadline-lbl {
+  font-size: 11px;
   color: var(--muted);
-  font-size: 12px;
+  margin-right: 2px;
 }
 
 .ts-req-pri {
@@ -2206,8 +2206,8 @@ h1, h2, h3, p { margin: 0; }
   text-align: center;
 }
 
-.ts-pri-urgent { background: var(--red-soft); color: var(--red); }
-.ts-pri-high { background: var(--orange-soft); color: var(--orange); }
+.ts-pri-urgent { background: var(--red-soft);    color: var(--red); }
+.ts-pri-high   { background: var(--orange-soft); color: var(--orange); }
 .ts-pri-normal { background: var(--surface-muted); color: var(--muted); }
 
 .ts-req-assignee {
@@ -2215,27 +2215,39 @@ h1, h2, h3, p { margin: 0; }
   align-items: center;
 }
 
-.ts-req-assigned-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-}
-
-.ts-req-unassign-btn {
+/* Assign button in rows */
+.ts-req-assign-btn {
   font-size: 11px;
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 4px;
-  border: 1px solid #d1d5db;
-  background: white;
-  color: #6b7280;
+  border: 1px solid var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
   cursor: pointer;
   white-space: nowrap;
+  transition: opacity 0.15s;
 }
+.ts-req-assign-btn:hover { opacity: 0.75; }
+.ts-req-reassign-btn { border-color: #fca5a5; background: var(--red-soft); color: var(--red); }
 
-.ts-req-unassign-btn:hover {
-  background: var(--surface-muted);
+/* Overlapping assignee avatars */
+.ts-assignee-avatars { display: flex; align-items: center; }
+.ts-assignee-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: white;
+  font-weight: 700;
+  font-size: 10px;
+  display: grid;
+  place-items: center;
+  border: 2px solid white;
+  margin-left: -7px;
+  flex: 0 0 auto;
 }
+.ts-assignee-avatars .ts-assignee-avatar:first-child { margin-left: 0; }
+.ts-assignee-extra { background: #e5e7eb; color: #374151; font-size: 9px; }
 
 /* ── Section divider ── */
 .ts-section-divider {
@@ -4203,3 +4215,173 @@ h1, h2, h3, p { margin: 0; }
 .attendee-option-info { display: flex; flex-direction: column; gap: 1px; }
 .attendee-option-name { font-size: 13px; font-weight: 600; color: var(--text); }
 .attendee-option-role { font-size: 11px; color: var(--muted); }
+
+/* ── Assign Modal Avatar Picker ─────────────────────────────────────────── */
+.ap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ap-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+.ap-picker { position: relative; }
+
+.ap-row {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 8px 12px;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.ap-avatars { display: flex; align-items: center; }
+
+.ap-avatar-wrap { position: relative; margin-left: -8px; }
+.ap-avatar-wrap:first-child { margin-left: 0; }
+
+.ap-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  border: 2px solid white;
+  cursor: default;
+}
+
+.ap-remove {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 1.5px solid white;
+  color: white;
+  font-size: 7px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s;
+  padding: 0;
+  line-height: 1;
+}
+
+.ap-avatar-wrap:hover .ap-remove { opacity: 1; }
+
+.ap-add-btn {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 50%;
+  border: 2px dashed var(--line);
+  background: white;
+  color: var(--muted);
+  font-size: 22px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  line-height: 1;
+  order: -1;
+}
+
+.ap-add-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.ap-member-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 300;
+}
+
+#assignMemberList { max-height: 210px; overflow-y: auto; }
+
+.ap-panel-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.ap-confirm-btn {
+  width: 100%;
+  height: 34px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.ap-confirm-btn:hover { opacity: 0.85; }
+
+/* Member option in panel */
+.assign-member-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.assign-member-option:hover { background: var(--surface-muted); }
+.assign-member-option.is-selected { background: var(--blue-soft); }
+.assign-member-option.is-selected:hover { background: #dbeafe; }
+
+.assign-member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.assign-member-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.assign-member-role { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.ap-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  color: transparent;
+  transition: background 0.12s, border-color 0.12s;
+}
+.ap-check.checked {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}

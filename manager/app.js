@@ -229,19 +229,15 @@ const state = {
   ],
 
   assignmentRequests: [
-    // 신규요청 (2)
-    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignee: null },
-    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignee: null },
-    // 수락대기중 (2)
-    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '수락대기중', assignee: null },
-    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '높음', status: '수락대기중', assignee: null },
-    // 미배정 (4)
-    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '미배정',     assignee: null },
-    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '미배정',     assignee: null },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '높음', status: '미배정',     assignee: null },
-    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '미배정',     assignee: null },
-    // 배정완료
-    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignee: '정하은' },
+    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [] },
+    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [] },
+    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [] },
+    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '높음', status: '재배정',     assignees: [] },
+    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '신규요청',   assignees: [] },
+    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [] },
+    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '높음', status: '수락대기중', assignees: ['이나경'] },
+    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'] },
+    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'] },
   ],
 
   notifications: [
@@ -989,51 +985,59 @@ function renderTeamStatusPage() {
   const reqs = state.assignmentRequests || [];
 
   // ── KPI row ──────────────────────────────────────────────────────────────
-  const kpiUnassigned = reqs.filter(r => r.status === '미배정').length;
-  const kpiNew        = reqs.filter(r => r.status === '신규요청').length;
-  const kpiPending    = reqs.filter(r => r.status === '수락대기중').length;
-  const weekStart     = addDays(BASE_WEEK_START, state.weekOffset * 7);
-  const weekEnd       = addDays(weekStart, 6);
-  const kpiDeadline   = reqs.filter(r => r.deadline >= weekStart && r.deadline <= weekEnd).length;
+  const kpiNew      = reqs.filter(r => r.status === '신규요청').length;
+  const kpiReassign = reqs.filter(r => r.status === '재배정').length;
+  const kpiPending  = reqs.filter(r => r.status === '수락대기중').length;
+  const kpiDone     = reqs.filter(r => r.status === '배정완료').length;
 
   const kpiHtml = `
     <div class="ts-kpi-row">
-      <div class="ts-kpi-card"><div class="ts-kpi-val">${kpiUnassigned}</div><div class="ts-kpi-lbl">미배정 업무</div></div>
       <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-blue">${kpiNew}</div><div class="ts-kpi-lbl">신규 요청</div></div>
-      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-orange">${kpiPending}</div><div class="ts-kpi-lbl">배정 대기</div></div>
-      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-purple">${kpiDeadline}</div><div class="ts-kpi-lbl">이번 주 마감</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-red">${kpiReassign}</div><div class="ts-kpi-lbl">재배정 필요</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-yellow">${kpiPending}</div><div class="ts-kpi-lbl">수락 대기</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-green">${kpiDone}</div><div class="ts-kpi-lbl">배정 완료</div></div>
     </div>`;
 
   // ── Assignment request sections ───────────────────────────────────────────
+  const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
   const REQ_GROUPS = [
-    { status: '신규요청',   label: '신규 요청',   cls: 'ts-req-new' },
-    { status: '수락대기중', label: '수락 대기 중', cls: 'ts-req-pending' },
-    { status: '미배정',     label: '미배정',       cls: 'ts-req-unassigned' },
-    { status: '배정완료',   label: '배정 완료',    cls: 'ts-req-done' },
+    { statuses: ['신규요청'], label: '신규 요청',   cls: 'ts-req-new',      showBtn: true,  btnCls: 'ts-req-assign-btn' },
+    { statuses: ['재배정'],   label: '재배정',       cls: 'ts-req-reassign', showBtn: true,  btnCls: 'ts-req-assign-btn ts-req-reassign-btn' },
+    { statuses: ['수락대기중'], label: '수락 대기 중', cls: 'ts-req-pending',  showBtn: false },
+    { statuses: ['배정완료'], label: '배정 완료',    cls: 'ts-req-done',     showBtn: false },
   ];
   const PRI_CLS = { '긴급': 'ts-pri-urgent', '높음': 'ts-pri-high', '일반': 'ts-pri-normal' };
 
+  function assigneeCellHtml(r, group) {
+    if (group.showBtn) {
+      return `<button class="${group.btnCls}" type="button" data-open-assign="${escapeHtml(r.id)}">담당자 배정</button>`;
+    }
+    const names = r.assignees || [];
+    if (!names.length) return '<span style="color:var(--soft);font-size:12px">—</span>';
+    const visible = names.slice(0, 3);
+    const extra   = names.length - visible.length;
+    const avatars = visible.map(name => {
+      const idx = state.teamMembers.findIndex(m => m.name === name);
+      const bg  = AVATAR_BG[(idx >= 0 ? idx : 0) % AVATAR_BG.length];
+      return `<div class="ts-assignee-avatar" style="background:${bg}" title="${escapeHtml(name)}">${name[0]}</div>`;
+    }).join('');
+    const extraEl = extra > 0 ? `<div class="ts-assignee-avatar ts-assignee-extra">+${extra}</div>` : '';
+    return `<div class="ts-assignee-avatars">${avatars}${extraEl}</div>`;
+  }
+
   const reqHtml = REQ_GROUPS.map(group => {
-    const items = reqs.filter(r => r.status === group.status);
+    const items = reqs.filter(r => group.statuses.includes(r.status));
     if (!items.length) return '';
     const rows = items.map(r => `
       <div class="ts-req-row">
         <span class="ts-req-status-badge ${group.cls}-badge">${escapeHtml(group.label)}</span>
         <span class="ts-req-title">${escapeHtml(r.title)}</span>
         <span class="ts-req-team">${escapeHtml(r.team)}</span>
-        <span class="ts-req-hours">${r.hours}h</span>
-        <span class="ts-req-deadline">${escapeHtml(r.deadline)}</span>
+        <span class="ts-req-deadline"><span class="ts-req-deadline-lbl">요청일</span> ${escapeHtml(r.deadline)}</span>
         <span class="ts-req-pri ${PRI_CLS[r.priority] || 'ts-pri-normal'}">${escapeHtml(r.priority)}</span>
-        <span class="ts-req-assignee">
-          ${r.assignee
-            ? `<span class="ts-req-assigned-name">${escapeHtml(r.assignee)}</span>`
-            : `<button class="ts-req-unassign-btn" type="button">미배정</button>`}
-        </span>
+        <span class="ts-req-assignee">${assigneeCellHtml(r, group)}</span>
       </div>`).join('');
-    return `
-      <div class="ts-req-section ${group.cls}">
-        ${rows}
-      </div>`;
+    return `<div class="ts-req-section ${group.cls}">${rows}</div>`;
   }).join('');
 
   // ── Section divider ───────────────────────────────────────────────────────
@@ -2849,7 +2853,7 @@ function renderLeaveKpi() {
 }
 
 function renderLeaveTabBar() {
-  const tabs = ['내 연차', '이력'];
+  const tabs = ['내 연차', '팀 연차', '이력'];
   document.getElementById('leaveTabBar').innerHTML = tabs.map(t => `
     <button class="leave-tab-btn${state.leaveTab === t ? ' active' : ''}" data-leave-tab="${t}">${t}</button>
   `).join('');
@@ -2871,7 +2875,7 @@ function leaveActionBtns(lv) {
   return '';
 }
 
-function renderLeaveRows(leaves) {
+function renderLeaveRows(leaves, hideActions = false) {
   if (!leaves.length) return '<div class="leave-empty">연차 내역이 없습니다.</div>';
   return leaves.map(lv => `
     <div class="leave-row">
@@ -2889,7 +2893,7 @@ function renderLeaveRows(leaves) {
         ${lv.reason ? `<div class="leave-row-reason">${lv.reason}</div>` : ''}
         ${lv.rejectedReason ? `<div class="leave-row-rejected-reason">반려 사유: ${lv.rejectedReason}</div>` : ''}
       </div>
-      <div class="leave-row-actions">${leaveActionBtns(lv)}</div>
+      <div class="leave-row-actions">${hideActions ? '' : leaveActionBtns(lv)}</div>
     </div>
   `).join('');
 }
@@ -2899,6 +2903,12 @@ function renderLeaveList() {
   let leaves;
   if (tab === '내 연차') {
     leaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
+  } else if (tab === '팀 연차') {
+    leaves = state.leaves
+      .filter(l => l.applicantId !== state.currentUser.id)
+      .sort((a, b) => b.startDate.localeCompare(a.startDate));
+    document.getElementById('leaveList').innerHTML = renderLeaveRows(leaves, true);
+    return;
   } else { // 이력
     leaves = getMyLeaves()
       .filter(l => l.status === '승인 완료' || l.status === '반려')
@@ -2952,6 +2962,100 @@ function submitLeave(e) {
 
 
 
+
+// ── Assign Modal ─────────────────────────────────────────────────────────────
+const ASSIGN_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+let _assignTargetId = null;
+let _assignSelectedMembers = [];
+let _assignDraft = [];
+
+function openAssignModal(arId) {
+  const req = state.assignmentRequests.find(r => r.id === arId);
+  if (!req) return;
+  _assignTargetId = arId;
+  _assignSelectedMembers = [...(req.assignees || [])];
+  _assignDraft = [];
+
+  const PRI_COLOR = { '긴급': 'var(--red)', '높음': 'var(--orange)', '일반': 'var(--muted)' };
+  document.getElementById('assignRequestInfo').innerHTML = `
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">${escapeHtml(req.title)}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)">
+      <span>요청팀 · <strong style="color:var(--text)">${escapeHtml(req.team)}</strong></span>
+      <span>예상시간 · <strong style="color:var(--text)">${req.hours}h</strong></span>
+      <span>마감일 · <strong style="color:var(--text)">${escapeHtml(req.deadline)}</strong></span>
+      <span>우선순위 · <strong style="color:${PRI_COLOR[req.priority] || 'var(--muted)'}">${escapeHtml(req.priority)}</strong></span>
+    </div>`;
+
+  document.getElementById('submitAssignBtn').disabled = _assignSelectedMembers.length === 0;
+  document.getElementById('assignMemberPanel')?.classList.add('hidden');
+  renderAssignAvatars();
+  document.getElementById('assignModal').classList.remove('hidden');
+}
+
+function closeAssignModal() {
+  document.getElementById('assignModal').classList.add('hidden');
+  _assignTargetId = null;
+  _assignSelectedMembers = [];
+  _assignDraft = [];
+}
+
+function renderAssignAvatars() {
+  const el = document.getElementById('assignAvatars');
+  if (!el) return;
+  el.innerHTML = _assignSelectedMembers.map(name => {
+    const idx = state.teamMembers.findIndex(m => m.name === name);
+    const bg  = ASSIGN_AVATAR_BG[(idx >= 0 ? idx : 0) % ASSIGN_AVATAR_BG.length];
+    return `
+      <div class="ap-avatar-wrap" title="${escapeHtml(name)}">
+        <div class="ap-avatar" style="background:${bg}">${name[0]}</div>
+        <button class="ap-remove" type="button" data-remove-assign="${escapeHtml(name)}" aria-label="${escapeHtml(name)} 제거">✕</button>
+      </div>`;
+  }).join('');
+  const countEl = document.getElementById('assignCount');
+  if (countEl) {
+    if (_assignSelectedMembers.length) {
+      countEl.textContent = `${_assignSelectedMembers.length}명 선택`;
+      countEl.classList.remove('hidden');
+    } else {
+      countEl.classList.add('hidden');
+    }
+  }
+  document.getElementById('submitAssignBtn').disabled = _assignSelectedMembers.length === 0;
+}
+
+function renderAssignMemberPanel() {
+  const list = document.getElementById('assignMemberList');
+  if (!list) return;
+  const members = state.teamMembers.filter(m => !m.onLeave);
+  if (!members.length) {
+    list.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted)">팀원이 없습니다</div>';
+    return;
+  }
+  list.innerHTML = members.map(m => {
+    const idx     = state.teamMembers.indexOf(m);
+    const bg      = ASSIGN_AVATAR_BG[idx % ASSIGN_AVATAR_BG.length];
+    const checked = _assignDraft.includes(m.name);
+    return `
+      <div class="assign-member-option${checked ? ' is-selected' : ''}" data-pick-assign-member="${escapeHtml(m.name)}">
+        <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
+        <div>
+          <div class="assign-member-name">${escapeHtml(m.name)}</div>
+          <div class="assign-member-role">${escapeHtml(m.role)}</div>
+        </div>
+        <div class="ap-check${checked ? ' checked' : ''}">✓</div>
+      </div>`;
+  }).join('');
+}
+
+function submitAssign() {
+  if (!_assignTargetId || !_assignSelectedMembers.length) return;
+  const req = state.assignmentRequests.find(r => r.id === _assignTargetId);
+  if (!req) return;
+  req.assignees = [..._assignSelectedMembers];
+  req.status    = '수락대기중';
+  closeAssignModal();
+  renderTeamStatusPage();
+}
 
 function cancelLeaveRequest(id) {
   const lv = state.leaves.find(l => l.id === id);
@@ -3142,6 +3246,64 @@ function bindEvents() {
       $('#deleteModalDesc').textContent = '삭제된 리소스는 복구할 수 없습니다.';
       $('#deleteModal').classList.remove('hidden');
       return;
+    }
+
+    // Open assign modal
+    const openAssignBtn = e.target.closest('[data-open-assign]');
+    if (openAssignBtn) { openAssignModal(openAssignBtn.dataset.openAssign); return; }
+
+    // Assign modal: + button (toggle member panel)
+    if (e.target.closest('#assignAddBtn')) {
+      const panel = document.getElementById('assignMemberPanel');
+      if (!panel) return;
+      if (panel.classList.contains('hidden')) {
+        _assignDraft = [..._assignSelectedMembers];
+        renderAssignMemberPanel();
+        panel.classList.remove('hidden');
+      } else {
+        panel.classList.add('hidden');
+      }
+      return;
+    }
+
+    // Assign modal: member list toggle in draft
+    const assignMemberOpt = e.target.closest('[data-pick-assign-member]');
+    if (assignMemberOpt) {
+      const name = assignMemberOpt.dataset.pickAssignMember;
+      if (_assignDraft.includes(name)) {
+        _assignDraft = _assignDraft.filter(n => n !== name);
+      } else {
+        _assignDraft.push(name);
+      }
+      renderAssignMemberPanel();
+      return;
+    }
+
+    // Assign modal: confirm selection
+    if (e.target.closest('#assignConfirmBtn')) {
+      _assignSelectedMembers = [..._assignDraft];
+      document.getElementById('assignMemberPanel')?.classList.add('hidden');
+      renderAssignAvatars();
+      return;
+    }
+
+    // Assign modal: remove avatar
+    const removeAssign = e.target.closest('[data-remove-assign]');
+    if (removeAssign) {
+      const name = removeAssign.dataset.removeAssign;
+      _assignSelectedMembers = _assignSelectedMembers.filter(n => n !== name);
+      _assignDraft = _assignDraft.filter(n => n !== name);
+      renderAssignAvatars();
+      const panel = document.getElementById('assignMemberPanel');
+      if (panel && !panel.classList.contains('hidden')) renderAssignMemberPanel();
+      return;
+    }
+
+    // Close assign member panel on outside click
+    const assignPicker = document.getElementById('assignPicker');
+    const assignPanel  = document.getElementById('assignMemberPanel');
+    if (assignPicker && assignPanel && !assignPicker.contains(e.target)) {
+      assignPanel.classList.add('hidden');
     }
 
     // Close popover on outside click
@@ -3604,6 +3766,11 @@ function bindEvents() {
   document.getElementById('attendeeSearch')?.addEventListener('focus', e => {
     renderAttendeeDropdown(e.target.value);
   });
+
+  // Assign modal
+  document.getElementById('closeAssignModal')?.addEventListener('click', closeAssignModal);
+  document.getElementById('cancelAssignModal')?.addEventListener('click', closeAssignModal);
+  document.getElementById('assignForm')?.addEventListener('submit', e => { e.preventDefault(); submitAssign(); });
 
   // Leave Management
   document.getElementById('openLeaveModal')?.addEventListener('click', openLeaveModal);
