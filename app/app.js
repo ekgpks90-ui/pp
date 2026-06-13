@@ -17,6 +17,9 @@ const _mondayISO  = _localISO(_mondayDate);
 const state = {
   selectedTaskId: 'wi-5',
   selectedRequestId: null,
+  acceptModalSource: null,
+  selectedActionItemId: null,
+  selectedActionMeetingId: null,
   pendingDeleteSessionId: null,
   pendingDeleteWorkItemId: null,
   editingSessionId: null,
@@ -1719,7 +1722,7 @@ function renderMeetingDetailPanel(m) {
       const addedBadge = a.addedToWeekly ? '<span class="action-added-badge">추가됨</span>' : '';
       const isMyTask = (a.assignee || '') === (state.currentUser?.name || '');
       const addBtn = !a.addedToWeekly && isMyTask
-        ? `<button class="action-add-btn" type="button" data-add-action="${a.id}" data-meeting-id="${m.id}">→ 추가</button>`
+        ? `<button class="action-add-btn" type="button" data-add-action="${a.id}" data-meeting-id="${m.id}">추가</button>`
         : '';
       return `<div class="action-item-row${doneClass}">
         <label class="action-check">
@@ -2568,20 +2571,44 @@ function openAcceptModal(requestId) {
   const r = state.requests.find(x => x.id === requestId);
   if (!r) return;
   state.selectedRequestId = requestId;
+  state.acceptModalSource = 'request';
 
-  // 요청 정보 표시
   $('#acceptRequestInfo').innerHTML = `
     <div style="font-weight:600;color:#111827;margin-bottom:4px">${escapeHtml(r.title)}</div>
     <div>${escapeHtml(r.detail)}</div>
     <div style="margin-top:4px">${escapeHtml(r.requester)} · ${escapeHtml(r.requestTeam)}</div>
   `;
 
-  // Pre-fill form with request data
   $('#acceptTitle').value = r.title;
   const typeMap = { '긴급': '긴급', '높음': '긴급', '일반': '일반', '고정': '고정' };
   $('#acceptType').value = typeMap[r.priority] || '일반';
   $('#acceptStart').value = r.start;
   $('#acceptEnd').value = r.end;
+
+  $('#acceptModal').classList.remove('hidden');
+  setTimeout(() => $('#acceptTitle').focus(), 50);
+}
+
+function openAcceptModalForAction(actId, meetingId) {
+  const m = state.meetings.find(x => x.id === meetingId);
+  if (!m) return;
+  const a = (m.actionItems || []).find(x => x.id === actId);
+  if (!a || a.addedToWeekly) return;
+
+  state.acceptModalSource = 'action';
+  state.selectedActionItemId = actId;
+  state.selectedActionMeetingId = meetingId;
+
+  $('#acceptRequestInfo').innerHTML = `
+    <div style="font-weight:600;color:#111827;margin-bottom:4px">${escapeHtml(a.text)}</div>
+    <div>${escapeHtml(m.title)}</div>
+    <div style="margin-top:4px">액션아이템 · 담당자: ${escapeHtml(a.assignee || '')}</div>
+  `;
+
+  $('#acceptTitle').value = a.text;
+  $('#acceptType').value = '일반';
+  $('#acceptStart').value = a.dueDate || state.today;
+  $('#acceptEnd').value = a.dueDate || state.today;
 
   $('#acceptModal').classList.remove('hidden');
   setTimeout(() => $('#acceptTitle').focus(), 50);
@@ -2593,8 +2620,6 @@ function closeAcceptModal() {
 
 function submitAcceptForm(e) {
   e.preventDefault();
-  const r = state.requests.find(x => x.id === state.selectedRequestId);
-  if (!r) return;
 
   const title = $('#acceptTitle').value.trim();
   const type  = $('#acceptType').value;
@@ -2604,26 +2629,46 @@ function submitAcceptForm(e) {
 
   const newItem = {
     id: `wi-${Date.now()}`,
-    title,
-    start,
-    end,
-    type,
+    title, start, end, type,
     participants: [state.currentUser.name],
-    sourceRequestId: r.id,
   };
 
-  state.workItems.push(newItem);
-  state.selectedTaskId = newItem.id;
-  r.status = '수락';
+  if (state.acceptModalSource === 'action') {
+    const m = state.meetings.find(x => x.id === state.selectedActionMeetingId);
+    const a = m && (m.actionItems || []).find(x => x.id === state.selectedActionItemId);
+    if (a) a.addedToWeekly = true;
+    state.workItems.push(newItem);
+    state.selectedTaskId = newItem.id;
 
-  // 시작일이 포함된 주로 뷰 이동
-  const diffDays = Math.floor((toDate(start) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
-  state.weekOffset = Math.floor(diffDays / 7);
+    addNotification('중요', '업무항목 추가', '액션아이템이 내 업무에 추가되었습니다.', title);
+    closeAcceptModal();
+    if (m) renderMeetingDetailPanel(m);
 
-  addNotification('중요', '업무요청 수락', '업무항목이 이번 주 업무에 추가되었습니다.', title);
-  closeAcceptModal();
-  closeRequestModal();
-  renderAll();
+    const body = document.getElementById('meetingDetailContent');
+    if (body) {
+      const banner = document.createElement('div');
+      banner.className = 'action-added-banner';
+      banner.textContent = '"이번 주 업무"에 추가되었습니다';
+      body.prepend(banner);
+      setTimeout(() => banner.remove(), 2500);
+    }
+    renderAll();
+  } else {
+    const r = state.requests.find(x => x.id === state.selectedRequestId);
+    if (!r) return;
+    newItem.sourceRequestId = r.id;
+    state.workItems.push(newItem);
+    state.selectedTaskId = newItem.id;
+    r.status = '수락';
+
+    const diffDays = Math.floor((toDate(start) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
+    state.weekOffset = Math.floor(diffDays / 7);
+
+    addNotification('중요', '업무요청 수락', '업무항목이 이번 주 업무에 추가되었습니다.', title);
+    closeAcceptModal();
+    closeRequestModal();
+    renderAll();
+  }
 }
 
 function openRejectModal(id) {
@@ -2786,8 +2831,15 @@ function leaveStatusBadge(status) {
 }
 
 function leaveActionBtns(lv) {
-  if (lv.applicantId === state.currentUser.id && lv.status === '승인 대기' && lv.startDate >= state.today) {
+  const me = state.currentUser;
+  if (lv.applicantId === me.id && lv.status === '승인 대기' && lv.startDate >= state.today) {
     return `<button class="leave-action-btn cancel" data-leave-cancel="${lv.id}">취소</button>`;
+  }
+  if (lv.applicantId !== me.id && lv.status === '승인 대기' && (me.role === 'Manager' || me.role === 'Owner')) {
+    return `
+      <button class="leave-action-btn approve" data-leave-approve="${lv.id}">승인</button>
+      <button class="leave-action-btn reject" data-leave-reject="${lv.id}">반려</button>
+    `;
   }
   return '';
 }
@@ -2866,6 +2918,7 @@ function submitLeave(e) {
     approverId: null, approverName: null, rejectedReason: null,
     requestedAt: state.today,
   });
+  addNotification('일반', '연차 신청 완료', `${type} 신청이 접수되었습니다. (${startDate}${endDate !== startDate ? ' ~ ' + endDate : ''})`, type);
   closeLeaveModal();
   renderLeavePage();
 }
@@ -2878,6 +2931,29 @@ function cancelLeaveRequest(id) {
   const lv = state.leaves.find(l => l.id === id);
   if (!lv || lv.status !== '승인 대기') return;
   state.leaves = state.leaves.filter(l => l.id !== id);
+  renderLeavePage();
+}
+
+function approveLeaveRequest(id) {
+  const lv = state.leaves.find(l => l.id === id);
+  if (!lv || lv.status !== '승인 대기') return;
+  const approver = state.currentUser;
+  lv.status = '승인 완료';
+  lv.approverId = approver.id;
+  lv.approverName = approver.name;
+  addNotification('중요', '연차 승인', `${lv.applicantName}님의 ${lv.type} 신청이 승인되었습니다. (${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''})`, lv.type);
+  renderLeavePage();
+}
+
+function rejectLeaveRequest(id, reason) {
+  const lv = state.leaves.find(l => l.id === id);
+  if (!lv || lv.status !== '승인 대기') return;
+  const approver = state.currentUser;
+  lv.status = '반려';
+  lv.approverId = approver.id;
+  lv.approverName = approver.name;
+  lv.rejectedReason = reason || '반려 처리되었습니다.';
+  addNotification('일반', '연차 반려', `${lv.applicantName}님의 ${lv.type} 신청이 반려되었습니다.`, lv.type);
   renderLeavePage();
 }
 
@@ -3504,7 +3580,7 @@ function bindEvents() {
     const toggleBtn = e.target.closest('[data-toggle-action]');
     if (toggleBtn) { toggleActionItemDone(toggleBtn.dataset.toggleAction, toggleBtn.dataset.meetingId); return; }
     const addBtn = e.target.closest('[data-add-action]');
-    if (addBtn) { addActionItemToWeekly(addBtn.dataset.addAction, addBtn.dataset.meetingId); return; }
+    if (addBtn) { openAcceptModalForAction(addBtn.dataset.addAction, addBtn.dataset.meetingId); return; }
   });
 
   // Recorder
@@ -3587,7 +3663,11 @@ function bindEvents() {
 
   document.getElementById('leaveList')?.addEventListener('click', e => {
     const cancelBtn = e.target.closest('[data-leave-cancel]');
-    if (cancelBtn) cancelLeaveRequest(cancelBtn.dataset.leaveCancel);
+    if (cancelBtn) { cancelLeaveRequest(cancelBtn.dataset.leaveCancel); return; }
+    const approveBtn = e.target.closest('[data-leave-approve]');
+    if (approveBtn) { approveLeaveRequest(approveBtn.dataset.leaveApprove); return; }
+    const rejectBtn = e.target.closest('[data-leave-reject]');
+    if (rejectBtn) { rejectLeaveRequest(rejectBtn.dataset.leaveReject, '반려 처리되었습니다.'); return; }
   });
 
   // Calendar: prev/next (month or week)
