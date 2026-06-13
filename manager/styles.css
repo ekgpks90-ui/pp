@@ -4542,7 +4542,8 @@ h1, h2, h3, p { margin: 0; }
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 9px 14px;
+  height: 40px;
+  padding: 0 14px;
   border: none;
   border-top: 1px dashed var(--line);
   background: transparent;
