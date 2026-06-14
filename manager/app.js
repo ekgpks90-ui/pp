@@ -45,7 +45,7 @@ const state = {
   meetingDetailTab: 'ai', // 'ai' | 'script' | 'actions'
   detailPanelItemId: null,
   detailDraft: null, // { title, type, end, description } — tracks unsaved edits
-  currentUser: { id: 'u-1', name: 'Jihye', role: 'Member', team: '디자인팀', onLeave: false, joinDate: '2023-04-03' },
+  currentUser: { id: 'u-1', name: 'Jihye', role: 'Manager', team: '디자인팀', onLeave: false, joinDate: '2023-04-03' },
   myPageTab: 'history',
   myPageCalYear: _now.getFullYear(),
   myPageCalMonth: _now.getMonth(),
@@ -224,9 +224,9 @@ const state = {
 
 
   requests: [
-    { id: 'wr-1', title: '신제품 론칭 SNS 배너', detail: '7월 신제품 론칭에 맞춰 인스타그램·페이스북용 배너 각 2종씩 제작 요청드립니다.', requester: '김지수', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-13', end: '2026-06-18', priority: '긴급', status: '수락 대기' },
-    { id: 'wr-2', title: '채용 공고 포스터 디자인', detail: 'UI 디자이너 채용 공고 포스터 제작 부탁드립니다. 사내 게시 및 SNS 게재용 2가지 사이즈 필요합니다.', requester: '박소현', requestTeam: 'HR팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-16', end: '2026-06-20', priority: '일반', status: '수락 대기' },
-    { id: 'wr-3', title: 'B2B 제안서 템플릿 제작', detail: '영업팀 PT용 B2B 제안서 PPT 템플릿 디자인이 필요합니다. 브랜드 가이드라인 기반으로 제작해 주세요.', requester: '이준호', requestTeam: '영업팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-17', end: '2026-06-23', priority: '일반', status: '수락 대기' },
+    { id: 'wr-1', title: '신제품 론칭 SNS 배너', processName: '배너관리 프로세스', detail: '7월 신제품 론칭에 맞춰 인스타그램·페이스북용 배너 각 2종씩 제작 요청드립니다.', requester: '김지수', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-13', end: '2026-06-18', priority: '긴급', status: '수락 대기' },
+    { id: 'wr-2', title: '채용 공고 포스터 디자인', processName: '콘텐츠 제작 프로세스', detail: 'UI 디자이너 채용 공고 포스터 제작 부탁드립니다. 사내 게시 및 SNS 게재용 2가지 사이즈 필요합니다.', requester: '박소현', requestTeam: 'HR팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-16', end: '2026-06-20', priority: '일반', status: '수락 대기' },
+    { id: 'wr-3', title: 'B2B 제안서 템플릿 제작', processName: null, detail: '영업팀 PT용 B2B 제안서 PPT 템플릿 디자인이 필요합니다. 브랜드 가이드라인 기반으로 제작해 주세요.', requester: '이준호', requestTeam: '영업팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-17', end: '2026-06-23', priority: '일반', status: '수락 대기' },
   ],
 
   assignmentRequests: [
@@ -948,11 +948,39 @@ function renderKpis() {
   const done     = today.filter(s => s.done).length;
   const remaining= today.filter(s => !s.done).length;
 
-  const total = today.length;
+  // Member KPI (4개)
   const cells = [
-    { val: fmtDuration(todayMin),      lbl: '오늘 작업시간', color: '#2563eb' },
-    { val: `${done}/${total}`,          lbl: '완료 세션',     color: '#10b981' },
+    { val: fmtDuration(todayMin), lbl: '오늘 작업시간',       color: '#2563eb' },
+    { val: `${done}`,             lbl: '완료 작업세션',       color: '#10b981' },
+    { val: `${remaining}`,        lbl: '남은 작업세션',       color: '#f59e0b' },
+    { val: fmtDuration(weekMin),  lbl: '이번주 누적 작업시간', color: '#6366f1' },
   ];
+
+  // Manager KPI (추가 4개)
+  const role = state.currentUser.role;
+  if (role === 'Manager' || role === 'Owner') {
+    const now = new Date();
+    const delayed = state.workItems.filter(w =>
+      w.type !== '고정' && w.end && new Date(w.end) < now &&
+      state.sessions.some(s => s.workItemId === w.id && !s.done)
+    ).length;
+    const urgent = state.workItems.filter(w => w.type === '긴급' && w.end && new Date(w.end) >= now).length;
+    const waiting = state.requests.filter(r => r.status === '수락 대기').length;
+    const overloaded = state.teamMembers.filter(m => {
+      const memberSessions = state.sessions.filter(s =>
+        s.date === _localISO(now) && !s.done &&
+        state.workItems.some(w => w.id === s.workItemId && w.participants?.includes(m.name))
+      );
+      return memberSessions.length >= 5;
+    }).length;
+
+    cells.push(
+      { val: `${delayed}`,    lbl: '지연중 업무',  color: '#ef4444' },
+      { val: `${urgent}`,     lbl: '긴급업무',     color: '#f97316' },
+      { val: `${waiting}`,    lbl: '응답 대기',    color: '#8b5cf6' },
+      { val: `${overloaded}`, lbl: '과부하 직원',  color: '#ec4899' },
+    );
+  }
 
   $('#kpiGrid').innerHTML = cells.map(c => `
     <div class="kpi-cell">
@@ -999,6 +1027,10 @@ function renderRequestList() {
         <button class="req-reject" type="button" data-reject-request="${r.id}">거절</button>
       </div>` : '';
 
+    const processTag = r.processName
+      ? `<span class="req-process-tag">${escapeHtml(r.processName)}</span>`
+      : '';
+
     return `
       <div class="req-item ${isRejected ? 'is-rejected' : ''}">
         <div class="req-item-header">
@@ -1008,6 +1040,7 @@ function renderRequestList() {
             <span class="req-source">${escapeHtml(r.requestTeam)}</span>
           </div>
         </div>
+        ${processTag}
         <div class="req-desc">${escapeHtml(r.detail)}</div>
         <div class="req-meta">${escapeHtml(r.requester)} · 마감 ${r.end.slice(5).replace('-', '/')}</div>
         ${actions}

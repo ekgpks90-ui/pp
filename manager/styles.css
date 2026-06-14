@@ -1164,6 +1164,17 @@ h1, h2, h3, p { margin: 0; }
   flex: 0 0 auto;
 }
 
+.req-process-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: #6366f1;
+  background: #eef2ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
 .req-desc {
   font-size: 12px;
   color: var(--muted);
