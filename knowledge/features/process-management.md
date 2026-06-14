@@ -4,7 +4,7 @@
 반복 사용되는 업무 프로세스 템플릿을 등록·관리하여 업무 요청 시 자동 매핑한다.
 
 ## 권한
-Manager / Admin
+Manager / Owner
 
 ## 위치
 Team Status 탭 내 별도 섹션 또는 독립 페이지

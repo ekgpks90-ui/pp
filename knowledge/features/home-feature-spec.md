@@ -10,25 +10,24 @@
 - Weekly Tasks
 - Daily Todo
 - 업무요청 위젯
-- 팀원 업무 현황 (Manager / Admin)
 
 ---
 
 ## 1. KPI 위젯
 
-### Employee
+### Member
 - 오늘 작업시간
 - 오늘 완료 작업세션
 - 오늘 남은 작업세션
 - 이번주 누적 작업시간
 
-### Manager (Employee KPI 포함)
+### Manager (Member KPI 포함)
 - 지연중 업무
 - 긴급업무
 - 응답 대기
 - 과부하 직원
 
-### Admin (Manager KPI 포함)
+### Owner (Manager KPI 포함)
 - 진행중 업무
 - 조직 현황
 
@@ -107,23 +106,3 @@
 ### 기능
 - 수락
 - 거절 (거절 시 사유 입력 필수)
-
----
-
-## 5. 팀원 업무 현황
-
-### 표시 대상
-Manager / Admin만 표시
-
-### 표시 항목
-- 이름
-- 오늘 작업시간
-- 완료 작업세션 수
-- 남은 작업세션 수
-- 지연중 여부
-- 긴급업무 여부
-- 연차 상태 (연차 사용 시 업무 정보 대신 표시)
-
-### 권한
-- Admin: 전체 조회
-- Manager: 팀 조회

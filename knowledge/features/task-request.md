@@ -5,7 +5,7 @@
 프로젝트명을 입력하면 등록된 프로세스 템플릿과 키워드 매칭이 실행되어 단계별 담당자를 배정할 수 있다.
 
 ## 생성 권한
-Manager / Admin
+Manager / Owner
 
 ---
 
@@ -56,7 +56,7 @@ Manager / Admin
 
 ## 수락 / 거절
 
-### 수락 (Employee 기준)
+### 수락 (Member 기준)
 - 수락 시 업무항목이 Weekly Tasks에 자동 추가됨
   - 프로젝트명·시작일·마감일 그대로 자동 추가 (팀장 설정값 그대로)
 - Daily Todo: 수락 시 직원이 날짜 선택 → 선택한 날짜에 세부업무항목 자동 생성
@@ -70,5 +70,5 @@ Manager / Admin
 
 ## 업무 재배정
 
-- 권한: Manager / Admin
-- Employee는 재배정 불가
+- 권한: Manager / Owner
+- Member는 재배정 불가
