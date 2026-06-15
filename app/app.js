@@ -1351,7 +1351,17 @@ function _mpFiles() {
   const ICON = { pdf:'📄', ppt:'📊', img:'🖼', xls:'📗', doc:'📝' };
   const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
   const list = state.mpFilesExpanded ? MP_FILES_DATA : MP_FILES_DATA.slice(0,5);
-  const items = list.map(f=>`
+
+  const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  let lastMonth = null;
+  const items = list.map(f => {
+    const [,m] = f.date.split('-');
+    const monthKey = f.date.slice(0,7);
+    const monthLabel = monthKey !== lastMonth
+      ? `<div class="mp-file-month-label">${MONTH_KO[parseInt(m,10)-1]}</div>`
+      : '';
+    lastMonth = monthKey;
+    return `${monthLabel}
     <div class="mp-file-item" data-mp-file-open="${f.id}" role="button" tabindex="0">
       <span class="mp-file-icon ${CLS[f.ext]||''}">${ICON[f.ext]||'📎'}</span>
       <div class="mp-file-info">
@@ -1364,7 +1374,9 @@ function _mpFiles() {
           <path d="M2 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
   const moreBtn = MP_FILES_DATA.length>5
     ? `<button class="mp-files-more-btn" data-mp-files-toggle>${state.mpFilesExpanded?'접기':'더보기'}</button>`
     : '';

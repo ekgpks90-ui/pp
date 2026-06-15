@@ -3827,6 +3827,14 @@ h1, h2, h3, p { margin: 0; }
   color: var(--muted);
 }
 .mp-files-list { display: flex; flex-direction: column; }
+.mp-file-month-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 8px 4px 4px;
+  letter-spacing: 0.2px;
+}
+.mp-file-month-label:first-child { padding-top: 0; }
 .mp-file-item {
   display: flex;
   align-items: center;
