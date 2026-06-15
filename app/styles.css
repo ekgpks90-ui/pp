@@ -3632,13 +3632,28 @@ h1, h2, h3, p { margin: 0; }
 
 /* 3-column grid */
 .mp-grid {
-  display: grid;
-  grid-template-columns: 220px 1fr 380px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-items: stretch;
   flex: 1;
   min-height: 0;
 }
+.mp-row-top {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+  align-items: stretch;
+}
+.mp-top-left { display: flex; flex-direction: column; min-height: 0; }
+.mp-top-right { display: flex; flex-direction: column; min-height: 0; }
+.mp-row-mid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.mp-mid-col { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
+.mp-row-bottom { width: 100%; }
 .mp-col-left { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
 
 /* Left: profile */

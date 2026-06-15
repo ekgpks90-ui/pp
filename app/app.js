@@ -1131,22 +1131,24 @@ function renderMyPage() {
   const u = state.currentUser;
   const el = document.getElementById('myPage');
   if (!el) return;
+  const calParts = _mpCalPanel();
 
   el.innerHTML = `
     <div class="mp-header">
       <h2 class="mp-title">My Page</h2>
     </div>
     <div class="mp-grid">
-      <div class="mp-col-left">
-        ${_mpProfile(u)}
+      <div class="mp-row-top">
+        <div class="mp-top-left">${_mpProfile(u)}</div>
+        <div class="mp-top-right">${_mpAI()}</div>
       </div>
-      <div class="mp-col-center">
-        ${_mpAI()}
+      <div class="mp-row-mid">
+        <div class="mp-mid-col">${calParts.cal}</div>
+        <div class="mp-mid-col">${_mpCharts()}</div>
+        <div class="mp-mid-col">${calParts.sess}</div>
+      </div>
+      <div class="mp-row-bottom">
         ${_mpMeetings()}
-      </div>
-      <div class="mp-col-right">
-        ${_mpCalPanel()}
-        ${_mpCharts()}
       </div>
     </div>
   `;
@@ -1283,7 +1285,7 @@ function _mpCalPanel() {
     }
   }
 
-  return `
+  return { cal: `
     <div class="mp-cal-mini-card">
       <div class="mp-cal-nav">
         <button class="mp-cal-btn" data-mp-cal="prev">&#8249;</button>
@@ -1299,12 +1301,12 @@ function _mpCalPanel() {
         <span><span class="mpc-dot session-dot"></span>작업세션</span>
         <span><span class="mpc-dot leave-dot"></span>연차</span>
       </div>
-    </div>
+    </div>`, sess: `
     <div class="mp-sess-card">
       <div class="mp-sess-date-label">${state.myPageSelectedDate||'날짜 미선택'} 작업세션</div>
       ${sessHtml}
     </div>
-  `;
+  ` };
 }
 
 function _sessionMins(s) {
