@@ -1352,12 +1352,18 @@ function _mpFiles() {
   const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
   const list = state.mpFilesExpanded ? MP_FILES_DATA : MP_FILES_DATA.slice(0,5);
   const items = list.map(f=>`
-    <div class="mp-file-item">
+    <div class="mp-file-item" data-mp-file-open="${f.id}" role="button" tabindex="0">
       <span class="mp-file-icon ${CLS[f.ext]||''}">${ICON[f.ext]||'📎'}</span>
       <div class="mp-file-info">
         <div class="mp-file-name">${escapeHtml(f.name)}</div>
         <div class="mp-file-meta">${escapeHtml(f.from)} · ${f.date}</div>
       </div>
+      <button class="mp-file-dl-btn" data-mp-file-dl="${f.id}" title="다운로드">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M7.5 1v9M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>`).join('');
   const moreBtn = MP_FILES_DATA.length>5
     ? `<button class="mp-files-more-btn" data-mp-files-toggle>${state.mpFilesExpanded?'접기':'더보기'}</button>`
@@ -1371,6 +1377,68 @@ function _mpFiles() {
       <div class="mp-files-list">${items}</div>
       ${moreBtn}
     </div>`;
+}
+
+function openFilePreview(id) {
+  const f = MP_FILES_DATA.find(x => x.id === id);
+  if (!f) return;
+  const ICON = { pdf:'📄', ppt:'📊', img:'🖼', xls:'📗', doc:'📝' };
+  const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
+  const PREVIEW_BG = { img:'mp-fpreview-img', pdf:'mp-fpreview-pdf', ppt:'mp-fpreview-ppt', xls:'mp-fpreview-xls', doc:'mp-fpreview-doc' };
+
+  const existing = document.getElementById('mpFileModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'mpFileModal';
+  modal.className = 'mp-fmodal-overlay';
+  modal.innerHTML = `
+    <div class="mp-fmodal">
+      <div class="mp-fmodal-header">
+        <div class="mp-fmodal-title-row">
+          <span class="mp-file-icon ${CLS[f.ext]||''}" style="width:36px;height:36px;font-size:20px">${ICON[f.ext]||'📎'}</span>
+          <div>
+            <div class="mp-fmodal-name">${escapeHtml(f.name)}</div>
+            <div class="mp-fmodal-meta">${escapeHtml(f.from)} · ${f.date}</div>
+          </div>
+        </div>
+        <button class="mp-fmodal-close" id="mpFileModalClose">✕</button>
+      </div>
+      <div class="mp-fmodal-preview ${PREVIEW_BG[f.ext]||''}">
+        <div class="mp-fpreview-placeholder">
+          <span style="font-size:48px">${ICON[f.ext]||'📎'}</span>
+          <p>${escapeHtml(f.name)}</p>
+          <span class="mp-fpreview-label">미리보기를 지원하지 않는 형식입니다</span>
+        </div>
+      </div>
+      <div class="mp-fmodal-footer">
+        <button class="dark-btn mp-fmodal-dl-btn" data-mp-file-dl="${f.id}">
+          <svg width="14" height="14" viewBox="0 0 15 15" fill="none" style="margin-right:6px">
+            <path d="M7.5 1v9M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          다운로드
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal || e.target.id === 'mpFileModalClose') modal.remove();
+    if (e.target.closest('[data-mp-file-dl]')) {
+      const fid = e.target.closest('[data-mp-file-dl]').dataset.mpFileDl;
+      triggerFileDl(fid);
+    }
+  });
+}
+
+function triggerFileDl(id) {
+  const f = MP_FILES_DATA.find(x => x.id === id);
+  if (!f) return;
+  const a = document.createElement('a');
+  a.href = '#';
+  a.download = f.name;
+  a.click();
 }
 
 function _mpAI() {
@@ -4101,6 +4169,17 @@ function bindEvents() {
     if (e.target.closest('[data-mp-files-toggle]')) {
       state.mpFilesExpanded = !state.mpFilesExpanded;
       renderMyPage();
+      return;
+    }
+    const dlBtn = e.target.closest('[data-mp-file-dl]');
+    if (dlBtn) {
+      e.stopPropagation();
+      triggerFileDl(dlBtn.dataset.mpFileDl);
+      return;
+    }
+    const fileItem = e.target.closest('[data-mp-file-open]');
+    if (fileItem) {
+      openFilePreview(fileItem.dataset.mpFileOpen);
       return;
     }
   });

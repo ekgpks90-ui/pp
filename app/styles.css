@@ -3831,10 +3831,28 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
+  padding: 8px 4px;
   border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.12s;
 }
+.mp-file-item:hover { background: var(--bg); }
 .mp-file-item:last-child { border-bottom: none; }
+.mp-file-dl-btn {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s;
+}
+.mp-file-item:hover .mp-file-dl-btn { opacity: 1; }
+.mp-file-dl-btn:hover { background: var(--surface); color: var(--blue); border-color: var(--blue); }
 .mp-file-icon {
   width: 32px;
   height: 32px;
@@ -3876,6 +3894,59 @@ h1, h2, h3, p { margin: 0; }
   cursor: pointer;
 }
 .mp-files-more-btn:hover { background: var(--bg); }
+
+/* ─── File Preview Modal ─────────────────────────────────────────────────── */
+.mp-fmodal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.mp-fmodal {
+  background: var(--surface);
+  border-radius: 14px;
+  width: 460px;
+  max-width: 90vw;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.mp-fmodal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.mp-fmodal-title-row { display: flex; align-items: center; gap: 12px; }
+.mp-fmodal-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.mp-fmodal-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.mp-fmodal-close {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: none; background: none; font-size: 14px;
+  color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.mp-fmodal-close:hover { background: var(--bg); color: var(--text); }
+.mp-fmodal-preview {
+  height: 260px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+}
+.mp-fpreview-pdf  { background: #fff5f5; }
+.mp-fpreview-ppt  { background: #fff8f0; }
+.mp-fpreview-img  { background: #f0fdf4; }
+.mp-fpreview-xls  { background: #f0fdf4; }
+.mp-fpreview-doc  { background: #eff6ff; }
+.mp-fpreview-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--muted);
+}
+.mp-fpreview-placeholder p { font-size: 13px; font-weight: 500; color: var(--text-sub); margin: 0; }
+.mp-fpreview-label { font-size: 11px; }
+.mp-fmodal-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: flex-end;
+}
+.mp-fmodal-dl-btn { display: flex; align-items: center; }
 
 /* ─── Recorder Button Styles ─────────────────────────────────────────────── */
 .recorder-btn {
