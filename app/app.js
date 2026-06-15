@@ -241,11 +241,11 @@ const state = {
     // 수락대기중 (2)
     { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   deadline: '2026-06-23', type: '일반', status: '수락대기중', assignee: null },
     { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   deadline: '2026-06-21', type: '일반', status: '수락대기중', assignee: null },
-    // 미배정 (4)
-    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   deadline: '2026-06-19', type: '일반', status: '미배정',     assignee: null },
-    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     deadline: '2026-06-25', type: '일반', status: '미배정',     assignee: null },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', deadline: '2026-06-27', type: '긴급', status: '미배정',     assignee: null },
-    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   deadline: '2026-06-28', type: '일반', status: '미배정',     assignee: null },
+    // 재배정 (4)
+    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   deadline: '2026-06-19', type: '일반', status: '재배정',     assignee: null },
+    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     deadline: '2026-06-25', type: '일반', status: '재배정',     assignee: null },
+    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', deadline: '2026-06-27', type: '긴급', status: '재배정',     assignee: null },
+    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   deadline: '2026-06-28', type: '일반', status: '재배정',     assignee: null },
     // 배정완료
     { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   deadline: '2026-06-24', type: '일반', status: '배정완료',   assignee: '정하은' },
   ],
@@ -1005,27 +1005,34 @@ function renderTeamStatusPage() {
   const reqs = state.assignmentRequests || [];
 
   // ── KPI row ──────────────────────────────────────────────────────────────
-  const kpiUnassigned = reqs.filter(r => r.status === '미배정').length;
-  const kpiNew        = reqs.filter(r => r.status === '신규요청').length;
-  const kpiPending    = reqs.filter(r => r.status === '수락대기중').length;
-  const kpiDeadline   = reqs.filter(r => r.deadline >= state.today && r.deadline <= addDays(state.today, 7)).length;
+  const kpiNew      = reqs.filter(r => r.status === '신규요청').length;
+  const kpiReassign = reqs.filter(r => r.status === '재배정').length;
+  const kpiPending  = reqs.filter(r => r.status === '수락대기중').length;
+  const kpiDone     = reqs.filter(r => r.status === '배정완료').length;
 
   const kpiHtml = `
     <div class="ts-kpi-row">
-      <div class="ts-kpi-card"><div class="ts-kpi-val">${kpiUnassigned}</div><div class="ts-kpi-lbl">미배정 업무</div></div>
       <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-blue">${kpiNew}</div><div class="ts-kpi-lbl">신규 요청</div></div>
-      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-orange">${kpiPending}</div><div class="ts-kpi-lbl">수락 대기</div></div>
-      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-purple">${kpiDeadline}</div><div class="ts-kpi-lbl">7일 내 마감</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-red">${kpiReassign}</div><div class="ts-kpi-lbl">재배정 필요</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-yellow">${kpiPending}</div><div class="ts-kpi-lbl">수락 대기</div></div>
+      <div class="ts-kpi-card"><div class="ts-kpi-val ts-kpi-green">${kpiDone}</div><div class="ts-kpi-lbl">배정 완료</div></div>
     </div>`;
 
   // ── Assignment request sections ───────────────────────────────────────────
   const REQ_GROUPS = [
-    { status: '신규요청',   label: '신규 요청',   cls: 'ts-req-new' },
-    { status: '수락대기중', label: '수락 대기 중', cls: 'ts-req-pending' },
-    { status: '미배정',     label: '미배정',       cls: 'ts-req-unassigned' },
+    { status: '신규요청',   label: '신규 요청',    cls: 'ts-req-new' },
+    { status: '재배정',     label: '재배정',        cls: 'ts-req-reassign' },
+    { status: '수락대기중', label: '수락 대기 중',  cls: 'ts-req-pending' },
     { status: '배정완료',   label: '배정 완료',    cls: 'ts-req-done' },
   ];
-  const TYPE_CLS = { '긴급': 'ts-pri-urgent', '일반': 'ts-pri-normal' };
+  const TYPE_CLS  = { '긴급': 'ts-pri-urgent', '일반': 'ts-pri-normal' };
+  const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+
+  function assigneeAvatarHtml(name) {
+    const idx = state.teamMembers.findIndex(m => m.name === name);
+    const bg  = AVATAR_BG[(idx >= 0 ? idx : 0) % AVATAR_BG.length];
+    return `<div class="ts-assignee-avatars"><div class="ts-assignee-avatar" style="background:${bg}" title="${escapeHtml(name)}">${name[0]}</div></div>`;
+  }
 
   const reqHtml = REQ_GROUPS.map(group => {
     const items = reqs.filter(r => r.status === group.status);
@@ -1035,11 +1042,11 @@ function renderTeamStatusPage() {
         <span class="ts-req-status-badge ${group.cls}-badge">${escapeHtml(group.label)}</span>
         <span class="ts-req-title">${escapeHtml(r.title)}</span>
         <span class="ts-req-team ts-req-team-center">${escapeHtml(r.team)}</span>
-        <span class="ts-req-deadline">${escapeHtml(r.deadline)}</span>
+        <span class="ts-req-deadline"><span class="ts-req-deadline-lbl">요청일</span> ${escapeHtml(r.deadline)}</span>
         <span class="ts-req-pri ${TYPE_CLS[r.type] || 'ts-pri-normal'}">${escapeHtml(r.type)}</span>
         <span class="ts-req-assignee">
           ${r.assignee
-            ? `<span class="ts-req-assigned-name">${escapeHtml(r.assignee)}</span>`
+            ? assigneeAvatarHtml(r.assignee)
             : `<button class="ts-req-unassign-btn" type="button">미배정</button>`}
         </span>
       </div>`).join('');
@@ -1372,18 +1379,8 @@ function _mpMeetings() {
   const meetings = (state.meetings || []).filter(m =>
     Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName)
   );
-  const TYPE_COLOR = {
-    '회고': '#7c4dff', '기획': '#4a66ff', '디자인': '#f5a623',
-    '전략': '#f04444', '클라이언트 미팅': '#0ea874', '워크샵': '#06b6d4',
-    '업무 보고': '#6b7280', '주간 공유': '#ec4899',
-  };
   const inner = meetings.length
     ? meetings.map(m => {
-        const color = TYPE_COLOR[m.type] || '#6b7280';
-        const myActions = (m.actionItems || []).filter(a => a.assignee === myName);
-        const actionBadge = myActions.length
-          ? `<span class="mp-meeting-action-badge">${myActions.length} 액션</span>`
-          : '';
         const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
           `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
         ).join('');
@@ -1392,9 +1389,7 @@ function _mpMeetings() {
         return `
           <div class="mp-meeting-card" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
             <div class="mp-meeting-card-top">
-              <span class="mp-meeting-badge" style="background:${color}">${m.type}</span>
               <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
-              ${actionBadge}
             </div>
             <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
             <div class="mp-meeting-card-bottom">
@@ -2914,7 +2909,7 @@ function renderLeaveKpi() {
 }
 
 function renderLeaveTabBar() {
-  const tabs = ['내 연차', '팀 연차', '이력'];
+  const tabs = ['내 연차', '이력'];
   document.getElementById('leaveTabBar').innerHTML = tabs.map(t => `
     <button class="leave-tab-btn${state.leaveTab === t ? ' active' : ''}" data-leave-tab="${t}">${t}</button>
   `).join('');
@@ -2972,10 +2967,60 @@ function renderLeaveList() {
   if (tab === '내 연차') {
     leaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
   } else if (tab === '팀 연차') {
-    leaves = state.leaves
-      .filter(l => l.applicantId !== state.currentUser.id)
-      .sort((a, b) => b.startDate.localeCompare(a.startDate));
-    document.getElementById('leaveList').innerHTML = renderLeaveRows(leaves, true);
+    const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+    const membersHtml = state.teamMembers
+      .filter(m => m.id !== state.currentUser.id)
+      .map((member, idx) => {
+        const memberLeaves = state.leaves.filter(l => l.applicantId === member.id);
+        const usedDays = memberLeaves
+          .filter(l => l.status === '승인 완료')
+          .reduce((sum, l) => sum + calcLeaveDays(l), 0);
+        const remaining = state.totalLeave - usedDays;
+        const color = AVATAR_BG[idx % AVATAR_BG.length];
+        const allMemberLeaves = memberLeaves.sort((a, b) => b.startDate.localeCompare(a.startDate));
+        const leavesHtml = allMemberLeaves.length
+          ? allMemberLeaves.map(lv => `
+            <div class="leave-row">
+              <div class="leave-row-main">
+                <div class="leave-row-top">
+                  <span class="leave-row-type">${lv.type}</span>
+                  ${leaveStatusBadge(lv.status)}
+                </div>
+                <div class="leave-row-meta">
+                  <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
+                  <span>신청일 ${lv.requestedAt}</span>
+                </div>
+              </div>
+            </div>`).join('')
+          : '<div class="leave-empty">연차 내역이 없습니다.</div>';
+        return `
+          <div class="member-leave-card">
+            <div class="member-leave-header">
+              <div class="member-leave-avatar" style="background:${color}">${escapeHtml(member.name[0])}</div>
+              <div class="member-leave-info">
+                <div class="member-leave-name">${escapeHtml(member.name)}</div>
+                <div class="member-leave-role">${escapeHtml(member.role)}</div>
+              </div>
+            </div>
+            <div class="member-leave-kpi-row">
+              <div class="leave-kpi-card">
+                <div class="leave-kpi-label">총 연차</div>
+                <div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div>
+              </div>
+              <div class="leave-kpi-card">
+                <div class="leave-kpi-label">사용 연차</div>
+                <div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div>
+              </div>
+              <div class="leave-kpi-card">
+                <div class="leave-kpi-label">잔여 연차</div>
+                <div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div>
+              </div>
+            </div>
+            <div class="member-leave-list">${leavesHtml}</div>
+          </div>`;
+      }).join('');
+    document.getElementById('leaveList').innerHTML =
+      membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>';
     return;
   } else { // 이력
     leaves = getMyLeaves()
