@@ -56,6 +56,7 @@ const state = {
   myPageCalMonth: _now.getMonth(),
   myPageSelectedDate: null,
   mpFilesExpanded: false,
+  mpMeetingsExpanded: false,
 
   teamMembers: [
     { id: 'u-1', name: 'Jihye',   role: 'UI/UX Designer',   team: '디자인팀', onLeave: false, leaveType: null,
@@ -1551,12 +1552,21 @@ function _mpMeetings() {
       </div>`;
   };
 
-  const inner = sorted.length
-    ? sorted.map(m => renderCard(m, sel && m.date === sel)).join('')
+  const SHOW = 3;
+  const visible = state.mpMeetingsExpanded ? sorted : sorted.slice(0, SHOW);
+
+  const inner = visible.length
+    ? visible.map(m => renderCard(m, sel && m.date === sel)).join('')
     : `<div class="mp-meetings-empty">이달 참여한 회의가 없습니다.</div>`;
 
   const subtitle = sel
     ? `<span class="mp-meetings-sub">${sel} · ${highlighted.length}건 하이라이트</span>`
+    : '';
+
+  const moreBtn = sorted.length > SHOW
+    ? `<button class="mp-meetings-more-btn" data-mp-meetings-toggle>
+        ${state.mpMeetingsExpanded ? '접기' : `더보기 +${sorted.length - SHOW}`}
+       </button>`
     : '';
 
   return `
@@ -1567,6 +1577,7 @@ function _mpMeetings() {
         <span class="mp-meetings-count">${sorted.length}건</span>
       </div>
       <div class="mp-meetings-list">${inner}</div>
+      ${moreBtn}
     </div>
   `;
 }
@@ -4180,6 +4191,11 @@ function bindEvents() {
     }
     if (e.target.closest('[data-mp-files-toggle]')) {
       state.mpFilesExpanded = !state.mpFilesExpanded;
+      renderMyPage();
+      return;
+    }
+    if (e.target.closest('[data-mp-meetings-toggle]')) {
+      state.mpMeetingsExpanded = !state.mpMeetingsExpanded;
       renderMyPage();
       return;
     }

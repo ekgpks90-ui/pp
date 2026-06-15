@@ -3781,6 +3781,18 @@ h1, h2, h3, p { margin: 0; }
 }
 .mp-meeting-card.mp-meeting-hl:hover { background: var(--blue-light, #dbeafe); }
 .mp-meetings-sub { font-size: 11px; color: var(--blue); font-weight: 500; padding: 2px 8px; background: var(--blue-mid); border-radius: 10px; }
+.mp-meetings-more-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 7px 0;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-sub);
+  cursor: pointer;
+}
+.mp-meetings-more-btn:hover { background: var(--bg); }
 .mp-meeting-card-top { display: flex; align-items: center; gap: 7px; }
 .mp-meeting-card-title {
   flex: 1; font-size: 13px; font-weight: 600; color: var(--text);
