@@ -1372,18 +1372,8 @@ function _mpMeetings() {
   const meetings = (state.meetings || []).filter(m =>
     Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName)
   );
-  const TYPE_COLOR = {
-    '회고': '#7c4dff', '기획': '#4a66ff', '디자인': '#f5a623',
-    '전략': '#f04444', '클라이언트 미팅': '#0ea874', '워크샵': '#06b6d4',
-    '업무 보고': '#6b7280', '주간 공유': '#ec4899',
-  };
   const inner = meetings.length
     ? meetings.map(m => {
-        const color = TYPE_COLOR[m.type] || '#6b7280';
-        const myActions = (m.actionItems || []).filter(a => a.assignee === myName);
-        const actionBadge = myActions.length
-          ? `<span class="mp-meeting-action-badge">${myActions.length} 액션</span>`
-          : '';
         const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
           `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
         ).join('');
@@ -1392,9 +1382,7 @@ function _mpMeetings() {
         return `
           <div class="mp-meeting-card" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
             <div class="mp-meeting-card-top">
-              <span class="mp-meeting-badge" style="background:${color}">${m.type}</span>
               <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
-              ${actionBadge}
             </div>
             <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
             <div class="mp-meeting-card-bottom">
