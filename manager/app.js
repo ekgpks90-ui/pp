@@ -3057,10 +3057,60 @@ function renderLeaveList() {
   if (tab === '내 연차') {
     leaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
   } else if (tab === '팀 연차') {
-    leaves = state.leaves
-      .filter(l => l.applicantId !== state.currentUser.id)
-      .sort((a, b) => b.startDate.localeCompare(a.startDate));
-    document.getElementById('leaveList').innerHTML = renderLeaveRows(leaves, true);
+    const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+    const membersHtml = state.teamMembers
+      .filter(m => m.id !== state.currentUser.id)
+      .map((member, idx) => {
+        const memberLeaves = state.leaves.filter(l => l.applicantId === member.id);
+        const usedDays = memberLeaves
+          .filter(l => l.status === '승인 완료')
+          .reduce((sum, l) => sum + calcLeaveDays(l), 0);
+        const remaining = state.totalLeave - usedDays;
+        const color = AVATAR_BG[idx % AVATAR_BG.length];
+        const allMemberLeaves = memberLeaves.sort((a, b) => b.startDate.localeCompare(a.startDate));
+        const leavesHtml = allMemberLeaves.length
+          ? allMemberLeaves.map(lv => `
+            <div class="leave-row">
+              <div class="leave-row-main">
+                <div class="leave-row-top">
+                  <span class="leave-row-type">${lv.type}</span>
+                  ${leaveStatusBadge(lv.status)}
+                </div>
+                <div class="leave-row-meta">
+                  <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
+                  <span>신청일 ${lv.requestedAt}</span>
+                </div>
+              </div>
+            </div>`).join('')
+          : '<div class="leave-empty">연차 내역이 없습니다.</div>';
+        return `
+          <div class="member-leave-card">
+            <div class="member-leave-header">
+              <div class="member-leave-avatar" style="background:${color}">${escapeHtml(member.name[0])}</div>
+              <div class="member-leave-info">
+                <div class="member-leave-name">${escapeHtml(member.name)}</div>
+                <div class="member-leave-role">${escapeHtml(member.role)}</div>
+              </div>
+            </div>
+            <div class="member-leave-kpi-row">
+              <div class="leave-kpi-card">
+                <div class="leave-kpi-label">총 연차</div>
+                <div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div>
+              </div>
+              <div class="leave-kpi-card">
+                <div class="leave-kpi-label">사용 연차</div>
+                <div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div>
+              </div>
+              <div class="leave-kpi-card">
+                <div class="leave-kpi-label">잔여 연차</div>
+                <div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div>
+              </div>
+            </div>
+            <div class="member-leave-list">${leavesHtml}</div>
+          </div>`;
+      }).join('');
+    document.getElementById('leaveList').innerHTML =
+      membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>';
     return;
   } else { // 이력
     leaves = getMyLeaves()

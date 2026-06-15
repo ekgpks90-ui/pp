@@ -3607,8 +3607,6 @@ h1, h2, h3, p { margin: 0; }
   padding: 16px 20px;
 }
 
-.leave-kpi-card.used   { background: #fef3c7; border-color: #fde68a; }
-.leave-kpi-card.remaining { background: #d1fae5; border-color: #a7f3d0; }
 
 .leave-kpi-label {
   font-size: 12px;
@@ -3671,6 +3669,55 @@ h1, h2, h3, p { margin: 0; }
   padding: 40px 0;
   color: #9ca3af;
   font-size: 14px;
+}
+
+.member-leave-card {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.member-leave-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.member-leave-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.member-leave-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.member-leave-role {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.member-leave-kpi-row {
+  display: flex;
+  gap: 10px;
+}
+.member-leave-kpi-row .leave-kpi-card {
+  padding: 12px 14px;
+}
+.member-leave-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .leave-row {
