@@ -3799,6 +3799,81 @@ h1, h2, h3, p { margin: 0; }
 .mp-meeting-avatar-more { font-size: 10px; color: var(--muted); margin-left: 2px; }
 .mp-meeting-meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
 
+/* ─── My Files Card ──────────────────────────────────────────────────────── */
+.mp-files-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+.mp-files-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mp-files-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.mp-files-count {
+  font-size: 11px;
+  color: var(--muted);
+}
+.mp-files-list { display: flex; flex-direction: column; }
+.mp-file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mp-file-item:last-child { border-bottom: none; }
+.mp-file-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.mp-file-ext-pdf { background: #fee2e2; }
+.mp-file-ext-ppt { background: #fff7ed; }
+.mp-file-ext-img { background: #d1fae5; }
+.mp-file-ext-xls { background: #dcfce7; }
+.mp-file-ext-doc { background: #dbeafe; }
+.mp-file-info { flex: 1; min-width: 0; }
+.mp-file-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mp-file-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.mp-files-more-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px 0;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-sub);
+  cursor: pointer;
+}
+.mp-files-more-btn:hover { background: var(--bg); }
+
 /* ─── Recorder Button Styles ─────────────────────────────────────────────── */
 .recorder-btn {
   width: 44px;

@@ -55,6 +55,7 @@ const state = {
   myPageCalYear: _now.getFullYear(),
   myPageCalMonth: _now.getMonth(),
   myPageSelectedDate: null,
+  mpFilesExpanded: false,
 
   teamMembers: [
     { id: 'u-1', name: 'Jihye',   role: 'UI/UX Designer',   team: '디자인팀', onLeave: false, leaveType: null,
@@ -1140,6 +1141,7 @@ function renderMyPage() {
       <div class="mp-col-left">
         ${_mpProfile(u)}
         ${_mpCharts()}
+        ${_mpFiles()}
       </div>
       <div class="mp-col-center">
         ${_mpAI()}
@@ -1312,6 +1314,42 @@ function _sessionMins(s) {
   const [sh,sm]=s.startTime.split(':').map(Number);
   const [eh,em]=s.endTime.split(':').map(Number);
   return (eh*60+em)-(sh*60+sm);
+}
+
+const MP_FILES_DATA = [
+  { id:'mf1', name:'디자인_기획서_v2.pdf',    ext:'pdf', date:'2026-06-10', from:'디자인팀 주간 회의' },
+  { id:'mf2', name:'마케팅전략_Q2.pptx',       ext:'ppt', date:'2026-06-08', from:'마케팅 업무 요청' },
+  { id:'mf3', name:'와이어프레임_홈.png',       ext:'img', date:'2026-06-05', from:'UX 리뷰 회의' },
+  { id:'mf4', name:'사용자조사_결과.pdf',       ext:'pdf', date:'2026-06-03', from:'사용자 조사 업무' },
+  { id:'mf5', name:'스프린트_계획.xlsx',        ext:'xls', date:'2026-06-01', from:'스프린트 계획 회의' },
+  { id:'mf6', name:'로고_최종본.png',           ext:'img', date:'2026-05-28', from:'브랜드 리뉴얼 업무' },
+  { id:'mf7', name:'개발_명세서.docx',          ext:'doc', date:'2026-05-25', from:'개발팀 협업 요청' },
+];
+
+function _mpFiles() {
+  const ICON = { pdf:'📄', ppt:'📊', img:'🖼', xls:'📗', doc:'📝' };
+  const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
+  const list = state.mpFilesExpanded ? MP_FILES_DATA : MP_FILES_DATA.slice(0,5);
+  const items = list.map(f=>`
+    <div class="mp-file-item">
+      <span class="mp-file-icon ${CLS[f.ext]||''}">${ICON[f.ext]||'📎'}</span>
+      <div class="mp-file-info">
+        <div class="mp-file-name">${escapeHtml(f.name)}</div>
+        <div class="mp-file-meta">${escapeHtml(f.from)} · ${f.date}</div>
+      </div>
+    </div>`).join('');
+  const moreBtn = MP_FILES_DATA.length>5
+    ? `<button class="mp-files-more-btn" data-mp-files-toggle>${state.mpFilesExpanded?'접기':'더보기'}</button>`
+    : '';
+  return `
+    <div class="mp-files-card">
+      <div class="mp-files-header">
+        <span class="mp-files-title">내가 올린 파일</span>
+        <span class="mp-files-count">${MP_FILES_DATA.length}개</span>
+      </div>
+      <div class="mp-files-list">${items}</div>
+      ${moreBtn}
+    </div>`;
 }
 
 function _mpAI() {
@@ -4017,6 +4055,11 @@ function bindEvents() {
     const dateCell = e.target.closest('[data-mp-date]');
     if (dateCell) {
       state.myPageSelectedDate = dateCell.dataset.mpDate;
+      renderMyPage();
+      return;
+    }
+    if (e.target.closest('[data-mp-files-toggle]')) {
+      state.mpFilesExpanded = !state.mpFilesExpanded;
       renderMyPage();
       return;
     }
