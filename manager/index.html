@@ -248,7 +248,7 @@
           <!-- Col 2: Daily Todo -->
           <section class="col-card">
             <div class="card-header">
-              <h2>오늘 할 일</h2>
+              <h2 id="dailyTodoTitle">오늘 할 일</h2>
               <input type="date" id="dailyTodoDatePicker" class="daily-date-picker" />
             </div>
             <div class="session-list" id="sessionList"></div>
@@ -438,17 +438,6 @@
             <select id="sessionWorkItem"></select>
           </label>
           <label>
-            업무카테고리
-            <select id="sessionCategory">
-              <option>디자인</option>
-              <option>기획</option>
-              <option>개발</option>
-              <option>운영</option>
-              <option>리서치</option>
-              <option>퍼블리싱</option>
-            </select>
-          </label>
-          <label>
             세부업무명
             <input id="sessionTitle" placeholder="작업세션명을 입력하세요" required />
           </label>
@@ -486,14 +475,11 @@
           <div class="accept-item-row">
             <span class="accept-item-label">업무항목명</span>
             <span class="accept-item-title" id="acceptTitleDisplay"></span>
+            <span class="accept-item-period" id="acceptPeriodDisplay"></span>
           </div>
           <div class="accept-item-row">
             <span class="accept-item-label">업무유형</span>
-            <span class="accept-item-type" id="acceptTypeDisplay"></span>
-          </div>
-          <div class="accept-item-row">
-            <span class="accept-item-label">시작일~마감일</span>
-            <span class="accept-item-period" id="acceptPeriodDisplay"></span>
+            <span class="ts-req-pri" id="acceptTypeDisplay"></span>
           </div>
           <div class="accept-item-row">
             <span class="accept-item-label">프로세스</span>

@@ -771,6 +771,19 @@ h1, h2, h3, p { margin: 0; }
   margin-left: 4px;
   letter-spacing: 0.01em;
 }
+.badge-from-request {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  height: 15px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--blue-soft, #dbeafe);
+  color: var(--blue, #2563eb);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
 
 .empty-state {
   padding: 24px;

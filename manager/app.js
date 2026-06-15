@@ -12,6 +12,16 @@ const _mondayDate = new Date(_now);
 _mondayDate.setDate(_mondayDate.getDate() + _mondayOff);
 const _mondayISO  = _localISO(_mondayDate);
 
+// ─── Date shift: anchor dummy data to real today ─────────────────────────────
+const _ANCHOR = new Date('2026-06-13T00:00:00'); // dummy data 기준 "오늘" 날짜
+const _SHIFT_DAYS = Math.round((_now.getTime() - _ANCHOR.getTime()) / 86400000);
+function _shiftDate(isoStr) {
+  if (!isoStr) return isoStr;
+  const d = new Date(isoStr + 'T00:00:00');
+  d.setDate(d.getDate() + _SHIFT_DAYS);
+  return _localISO(d);
+}
+
 // ─── State ───────────────────────────────────────────────────────────────────
 
 const state = {
@@ -28,6 +38,7 @@ const state = {
   drawerDayTasks: null,
   inlineAddItemId: null,
   today: _todayISO,
+  dailyViewDate: _todayISO,
   currentPage: 'home',
   calYear: _now.getFullYear(),
   calMonth: _now.getMonth(),
@@ -105,24 +116,27 @@ const state = {
 
   workItems: [
     // 고정업무 — recurringDays: 1=월,2=화,3=수,4=목,5=금, end:null=무기한
-    { id: 'wi-1',  title: '주간 디자인 싱크 미팅',  description: '매주 월요일 팀 전체 디자인 방향 및 이번 주 업무 우선순위를 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1],         participants: ['Jihye', '장준혁'] },
+    { id: 'wi-1',  title: '주간 디자인 싱크 미팅',  description: '매주 월요일 팀 전체 디자인 방향 및 이번 주 업무 우선순위를 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1],         participants: ['Jihye'] },
     { id: 'wi-2',  title: '일일 작업 기록',          description: '매일 작업 진행 상황을 Figma 및 노션에 기록하고 팀과 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1,2,3,4,5], participants: ['Jihye'] },
-    { id: 'wi-3',  title: '디자인 리뷰 미팅',        description: '화요일·목요일 팀 내 디자인 산출물 리뷰 및 피드백 세션.', start: '2026-06-01', end: null, type: '고정', recurringDays: [2,4],       participants: ['Jihye', '장준혁', '최유진'] },
-    { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['Jihye', '윤소이'] },
-    // 긴급업무
-    { id: 'wi-5',  title: '앱 온보딩 화면 긴급 수정',  description: '출시 전 QA에서 발견된 온보딩 UX 문제를 긴급 수정합니다. 인터랙션 흐름 및 카피 오류 포함.', start: '2026-06-11', end: '2026-06-14', type: '긴급', participants: ['Jihye', '최유진', '박서연'] },
-    { id: 'wi-6',  title: '이벤트 배너 긴급 제작',     description: '(주)그린푸드 요청으로 주말 프로모션 배너 3종을 긴급 제작합니다.', start: '2026-06-12', end: '2026-06-13', type: '긴급', participants: ['Jihye', '정하은'] },
-    // 일반업무
-    { id: 'wi-7',  title: '메인 홈 화면 리디자인',    description: '앱 메인 홈 화면 전면 리디자인. 정보 구조 개선 및 신규 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진'] },
-    { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
-    { id: 'wi-9',  title: '신규 서비스 UX 리서치',    description: '신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출, 개선 방향 정리.', start: '2026-06-10', end: '2026-06-17', type: '일반', participants: ['Jihye', '김도현'] },
-    { id: 'wi-10', title: '블루밍헬스 브랜딩 작업',     description: '블루밍헬스 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-21', type: '일반', participants: ['Jihye', '이나경'] },
-    { id: 'wi-11', title: '모바일 앱 UI 개선',        description: '기존 모바일 앱의 주요 화면 UI를 개선하여 사용성 및 일관성을 높입니다.', start: '2026-06-13', end: '2026-06-20', type: '일반', participants: ['Jihye'] },
-    { id: 'wi-12', title: '핏라이프 랜딩 페이지 시안',  description: '핏라이프 신규 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'] },
-    { id: 'wi-13', title: '제품 아이콘 리뉴얼',       description: '앱 내 아이콘 세트 전면 리뉴얼. 일관된 스타일 가이드 기반으로 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이'] },
-    // 반복 일반·긴급 예시 (세부항목 아이콘 테스트용)
+    { id: 'wi-3',  title: '디자인 리뷰 미팅',        description: '화요일·목요일 팀 내 디자인 산출물 리뷰 및 피드백 세션.', start: '2026-06-01', end: null, type: '고정', recurringDays: [2,4],       participants: ['Jihye'] },
+    { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['Jihye'] },
+    // 긴급업무 (업무요청 수락)
+    { id: 'wi-5',  title: '(주)모아커머스 앱 리뉴얼',       description: '(주)모아커머스 커머스 앱 전면 리뉴얼. 온보딩 UX 개선 및 인터랙션 흐름 수정 포함.', start: '2026-06-11', end: '2026-06-14', type: '긴급', participants: ['Jihye', '최유진', '박서연'], sourceRequestId: 'wr-r1' },
+    { id: 'wi-6',  title: '(주)그린푸드 프로모션 배너',      description: '(주)그린푸드 여름 프로모션 SNS 배너 3종 제작.', start: '2026-06-12', end: '2026-06-13', type: '긴급', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-r2' },
+    // 일반업무 (업무요청 수락)
+    { id: 'wi-7',  title: '테크스타트 서비스 UI/UX',        description: '테크스타트(주) SaaS 서비스 메인 화면 전면 리디자인. 정보 구조 개선 및 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진'], sourceRequestId: 'wr-r3' },
+    // 일반업무 (직접 추가)
+    { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['Jihye'] },
+    // 일반업무 (업무요청 수락)
+    { id: 'wi-9',  title: '스카이벤처스 UX 리서치',         description: '스카이벤처스 신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출.', start: '2026-06-10', end: '2026-06-17', type: '일반', participants: ['Jihye', '김도현'], sourceRequestId: 'wr-r4' },
+    { id: 'wi-10', title: '블루밍헬스 리브랜딩',             description: '블루밍헬스 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-21', type: '일반', participants: ['Jihye', '이나경'], sourceRequestId: 'wr-r5' },
+    { id: 'wi-11', title: '핏라이프 모바일 앱',              description: '핏라이프 모바일 앱 주요 화면 UI 개선. 사용성 및 일관성 향상.', start: '2026-06-13', end: '2026-06-20', type: '일반', participants: ['Jihye'], sourceRequestId: 'wr-r6' },
+    { id: 'wi-12', title: '핏라이프 랜딩 페이지',            description: '핏라이프 신규 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-r7' },
+    { id: 'wi-13', title: '(주)모아커머스 아이콘 세트',      description: '(주)모아커머스 앱 내 아이콘 세트 전면 리뉴얼. 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이'], sourceRequestId: 'wr-r8' },
+    // 반복업무 (직접 추가)
     { id: 'wi-14', title: '주간 업무 보고서 작성',    description: '매주 금요일 팀 주간 업무 현황을 정리하여 보고서를 작성합니다.', start: '2026-06-01', end: null, type: '일반', recurringDays: [5], participants: ['Jihye'] },
-    { id: 'wi-15', title: 'QA 긴급 버그 처리',       description: '출시 전 QA 기간 중 발생하는 긴급 버그를 신속히 처리합니다.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진'] },
+    // 반복업무 (업무요청 수락)
+    { id: 'wi-15', title: '(주)모아커머스 QA 지원',          description: '(주)모아커머스 앱 출시 전 QA 기간 디자인 버그 긴급 처리.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진'], sourceRequestId: 'wr-r9' },
     // 5월 업무
     { id: 'wi-m1', title: '디자인 시스템 v2 구축',        description: '버튼·폼·카드·모달 등 핵심 컴포넌트 전면 개편. Figma 토큰 일원화 및 다크모드 대응 포함.', start: '2026-05-01', end: '2026-05-23', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
     { id: 'wi-m2', title: 'Q2 사용자 리서치',             description: '2분기 신규 서비스 출시 전 사용자 인터뷰 12건 진행 및 페르소나 재정립.', start: '2026-05-06', end: '2026-05-16', type: '일반', participants: ['Jihye', '김도현'] },
@@ -473,6 +487,29 @@ const state = {
   ],
 };
 
+// ─── Apply date shift to dummy data ──────────────────────────────────────────
+if (_SHIFT_DAYS !== 0) {
+  state.workItems.forEach(w => {
+    w.start = _shiftDate(w.start);
+    if (w.end) w.end = _shiftDate(w.end);
+  });
+  state.sessions.forEach(s => { s.date = _shiftDate(s.date); });
+  state.requests.forEach(r => {
+    r.start = _shiftDate(r.start);
+    r.end = _shiftDate(r.end);
+  });
+  state.assignmentRequests.forEach(a => { a.deadline = _shiftDate(a.deadline); });
+  state.leaves.forEach(l => {
+    l.startDate = _shiftDate(l.startDate);
+    l.endDate = _shiftDate(l.endDate);
+    l.requestedAt = _shiftDate(l.requestedAt);
+  });
+  state.meetings.forEach(m => {
+    m.date = _shiftDate(m.date);
+    (m.actionItems || []).forEach(a => { a.dueDate = _shiftDate(a.dueDate); });
+  });
+}
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const BASE_WEEK_START = _mondayISO; // Monday of real current week (computed at load)
@@ -671,7 +708,7 @@ function renderWeeklyTasks() {
       <div class="day-card ${isToday ? 'is-today' : ''}">
         <div class="day-card-header">
           <span class="day-label">${day.label}</span>
-          <span class="day-date">${day.date.slice(5).replace('-', '/')}</span>
+          <span class="day-date" data-day-date="${day.date}" style="cursor:pointer">${day.date.slice(5).replace('-', '/')}</span>
         </div>
         <div class="day-items">${innerHtml}</div>
       </div>
@@ -694,7 +731,7 @@ function openDetailPanel(itemId) {
   const item = state.workItems.find(w => w.id === itemId);
   if (!item) return;
   state.detailPanelItemId = itemId;
-  state.detailDraft = { title: item.title, type: item.type, end: item.end || '', description: item.description || '', recurringDays: item.recurringDays ? [...item.recurringDays] : [1] };
+  state.detailDraft = { title: item.title, type: item.type, start: item.start, end: item.end || '', description: item.description || '', recurringDays: item.recurringDays ? [...item.recurringDays] : [1] };
   renderDetailPanel();
   const overlay = document.getElementById('detailOverlay');
   overlay.classList.remove('hidden');
@@ -722,19 +759,24 @@ function renderDetailPanel() {
   const rd = draft.recurringDays || [1];
   const DAY_LABELS = ['월', '화', '수', '목', '금'];
 
+  const fromRequest = !!item.sourceRequestId;
+
   const isDirty = draft.title !== item.title
     || draft.type !== item.type
+    || draft.start !== item.start
     || draft.end !== (item.end || '')
     || draft.description !== (item.description || '')
     || JSON.stringify(rd) !== JSON.stringify(item.recurringDays || []);
 
+  const dateDisabled = fromRequest ? 'disabled style="opacity:0.5;cursor:default"' : '';
+
   const dateRowHtml = isFixed
     ? `<div class="dw-field-2col">
         <label class="dw-field"><span>시작일</span>
-          <input type="date" value="${item.start}" disabled style="opacity:0.5;cursor:default" />
+          <input type="date" id="detailStartDate" value="${draft.start}" ${dateDisabled} />
         </label>
         <label class="dw-field"><span>종료일 <span class="dw-field-optional">미입력 시 무기한</span></span>
-          <input type="date" id="detailEndDate" value="${draft.end}" />
+          <input type="date" id="detailEndDate" value="${draft.end}" ${dateDisabled} />
         </label>
       </div>
       <div class="dw-field">
@@ -748,21 +790,19 @@ function renderDetailPanel() {
       </div>`
     : `<div class="dw-field-2col">
         <label class="dw-field"><span>시작일</span>
-          <input type="date" value="${item.start}" disabled style="opacity:0.5;cursor:default" />
+          <input type="date" id="detailStartDate" value="${draft.start}" ${dateDisabled} />
         </label>
         <label class="dw-field"><span>마감일</span>
-          <input type="date" id="detailEndDate" value="${draft.end}" />
+          <input type="date" id="detailEndDate" value="${draft.end}" ${dateDisabled} />
         </label>
       </div>`;
 
   const sessionsHtml = sessions.length
     ? sessions.map(s => {
-        const cat = CAT_COLORS[s.category] || { bg: '#f3f4f6', color: '#6b7280' };
         return `
           <div class="detail-session-item">
             <span class="detail-session-dot ${s.done ? 'done' : 'pending'}"></span>
             <span class="detail-session-name">${escapeHtml(s.title)}</span>
-            <span class="detail-session-cat" style="background:${cat.bg};color:${cat.color}">${escapeHtml(s.category)}</span>
             <span class="detail-session-time">${s.startTime}~${s.endTime}</span>
           </div>`;
       }).join('')
@@ -771,15 +811,16 @@ function renderDetailPanel() {
   document.getElementById('detailPanelBody').innerHTML = `
     <div class="detail-form">
       ${delayed ? '<span class="badge-delayed" style="align-self:flex-start">지연중</span>' : ''}
+      ${fromRequest ? '<span class="badge-from-request">업무요청</span>' : ''}
 
       <label class="dw-field">
-        <span>업무명</span>
-        <input id="detailTitle" value="${escapeHtml(draft.title)}" placeholder="업무명을 입력하세요" style="font-weight:600" />
+        <span>업무명${fromRequest ? ' <span class="dw-field-optional">수정 불가</span>' : ''}</span>
+        <input id="detailTitle" value="${escapeHtml(draft.title)}" placeholder="업무명을 입력하세요" style="font-weight:600${fromRequest ? ';opacity:0.5;cursor:default' : ''}" ${fromRequest ? 'disabled' : ''} />
       </label>
 
       <label class="dw-field">
-        <span>업무유형</span>
-        <select id="detailType">
+        <span>업무유형${fromRequest ? ' <span class="dw-field-optional">수정 불가</span>' : ''}</span>
+        <select id="detailType" ${fromRequest ? 'disabled style="opacity:0.5;cursor:default"' : ''}>
           <option value="일반" ${draft.type === '일반' ? 'selected' : ''}>일반</option>
           <option value="긴급" ${draft.type === '긴급' ? 'selected' : ''}>긴급</option>
           <option value="고정" ${draft.type === '고정' ? 'selected' : ''}>고정</option>
@@ -793,7 +834,7 @@ function renderDetailPanel() {
         <textarea id="detailDescription" placeholder="업무 설명을 입력하세요" rows="4">${escapeHtml(draft.description)}</textarea>
       </label>
 
-      <div>
+      ${item.sourceRequestId ? `<div>
         <p class="detail-section-title">참여자</p>
         <div class="detail-participants">
           ${(item.participants || []).map(name => `
@@ -802,7 +843,7 @@ function renderDetailPanel() {
               <span>${escapeHtml(name)}</span>
             </div>`).join('')}
         </div>
-      </div>
+      </div>` : ''}
 
       <div>
         <p class="detail-section-title">오늘 작업세션 (${sessions.length}개)</p>
@@ -830,13 +871,17 @@ function saveDetailDraft() {
   const draft = state.detailDraft;
   item.title = draft.title.trim() || item.title;
   item.type  = draft.type;
+  item.start = draft.start || item.start;
   item.end   = draft.end || (draft.type === '고정' ? null : item.end);
   item.description = draft.description;
   if (draft.type === '고정') item.recurringDays = draft.recurringDays && draft.recurringDays.length ? [...draft.recurringDays] : item.recurringDays;
-  // Reset draft to match saved
-  state.detailDraft = { ...draft, title: item.title, recurringDays: item.recurringDays ? [...item.recurringDays] : [1] };
+  // 패널 닫기 (state 즉시 초기화 + 애니메이션)
+  const overlay = document.getElementById('detailOverlay');
+  state.detailPanelItemId = null;
+  state.detailDraft = null;
+  overlay.classList.remove('open');
+  overlay.addEventListener('transitionend', () => overlay.classList.add('hidden'), { once: true });
   renderAll();
-  renderDetailPanel();
 }
 
 function renderDetailPanelIfOpen() {
@@ -844,8 +889,19 @@ function renderDetailPanelIfOpen() {
 }
 
 function renderDailyTodo() {
-  const today = state.today;
-  const todayWeekday = new Date(today).getDay(); // 1=월~5=금 (JS getDay matches our system for Mon-Fri)
+  const today = state.dailyViewDate;
+  const todayWeekday = new Date(today).getDay();
+
+  // 헤더 날짜 표시 업데이트
+  const picker = $('#dailyTodoDatePicker');
+  if (picker) picker.value = today;
+  const headerLabel = document.getElementById('dailyTodoTitle');
+  if (headerLabel) {
+    const isRealToday = today === state.today;
+    const d = new Date(today + 'T00:00:00');
+    const DOW = ['일','월','화','수','목','금','토'];
+    headerLabel.textContent = isRealToday ? '오늘 할 일' : `${today.slice(5).replace('-','/')} (${DOW[d.getDay()]}) 할 일`;
+  }
 
   const todayItems = state.workItems.filter(item => {
     if (item.type === '고정') {
@@ -869,10 +925,6 @@ function renderDailyTodo() {
       <div class="task-inline-add task-inline-top" data-inline-wrap="${state.inlineAddItemId}">
         <span class="task-inline-label">${escapeHtml(inlineItem?.title || '')}</span>
         <div class="task-inline-fields">
-          <select class="task-inline-cat" data-inline-cat="${state.inlineAddItemId}">
-            <option value="">카테고리</option>
-            ${Object.keys(CAT_COLORS).map(c => `<option value="${c}">${c}</option>`).join('')}
-          </select>
           <input class="task-inline-input" type="text"
             placeholder="세부 업무항목 입력 후 Enter"
             data-inline-item="${state.inlineAddItemId}" autocomplete="off" />
@@ -888,7 +940,10 @@ function renderDailyTodo() {
   });
   allSessions.sort((a, b) => {
     const hasA = !!a.startTime, hasB = !!b.startTime;
-    if (!hasA && !hasB) return 0;
+    if (!hasA && !hasB) {
+      // 시간 없는 세션끼리는 state.sessions 원래 순서 유지 (새로 추가된 것이 맨 아래)
+      return state.sessions.indexOf(a) - state.sessions.indexOf(b);
+    }
     if (!hasA) return 1;
     if (!hasB) return -1;
     return a.startTime.localeCompare(b.startTime);
@@ -915,7 +970,6 @@ function renderDailyTodo() {
 }
 
 function renderSessionRow(s) {
-  const catClass = CAT_CLASS[s.category] || 'cat-default';
   const isEditing = state.editingSessionId === s.id;
   const timeMarkup = `
     <div class="session-time-inputs">
@@ -935,7 +989,6 @@ function renderSessionRow(s) {
         ${s.done ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
       </button>
       <div class="session-body">
-        <span class="session-cat ${catClass}">${escapeHtml(s.category)}</span>
         ${titleHtml}
         ${timeMarkup}
       </div>
@@ -945,16 +998,17 @@ function renderSessionRow(s) {
 }
 
 function renderKpis() {
-  const today = todaySessions();
-  const allWeek = weekSessions();
+  const daySessions = visibleSessions().filter(s => s.date === state.dailyViewDate);
 
-  const todayMin = today.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
-  const weekMin  = allWeek.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
-  const done     = today.filter(s => s.done).length;
-  const remaining= today.filter(s => !s.done).length;
+  const todayMin = daySessions.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
+  const done     = daySessions.filter(s => s.done).length;
+  const remaining= daySessions.filter(s => !s.done).length;
+
+  const isRealToday = state.dailyViewDate === state.today;
+  const timeLabel = isRealToday ? '오늘 작업시간' : `${state.dailyViewDate.slice(5).replace('-','/')} 작업시간`;
 
   const cells = [
-    { val: fmtDuration(todayMin), lbl: '오늘 작업시간',       color: '#2563eb' },
+    { val: fmtDuration(todayMin), lbl: timeLabel,       color: '#2563eb' },
     { val: `${done} / ${done + remaining}`, lbl: '세션 완료율', color: '#10b981' },
   ];
 
@@ -1010,11 +1064,8 @@ function renderRequestList() {
     return `
       <div class="req-item ${isRejected ? 'is-rejected' : ''}">
         <div class="req-item-header">
-          <span class="req-item-title">${escapeHtml(r.title)}</span>
-          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-            ${statusBadge}
-            <span class="req-source">${escapeHtml(r.requestTeam)}</span>
-          </div>
+          <span class="req-item-title">${escapeHtml(r.requestTeam)} · ${escapeHtml(r.title)}</span>
+          ${statusBadge}
         </div>
         ${processText}
         <div class="req-desc">${escapeHtml(r.detail)}</div>
@@ -2421,7 +2472,6 @@ function renderCalDetailBody(workItemId) {
                 <div class="cal-detail-session-row">
                   <span class="cal-detail-session-dot${s.done ? ' done' : ''}"></span>
                   <span class="cal-detail-session-title${s.done ? ' done' : ''}">${escapeHtml(s.title)}</span>
-                  <span class="session-cat ${CAT_CLASS_MAP[s.category] || ''}">${escapeHtml(s.category)}</span>
                   ${s.startTime ? `<span class="cal-detail-session-time">${s.startTime}~${s.endTime}</span>` : ''}
                 </div>`).join('')
             }
@@ -2670,7 +2720,6 @@ function closeSessionModal() { $('#sessionModal').classList.add('hidden'); }
 function createSessionFromModal(e) {
   e.preventDefault();
   const workItemId = $('#sessionWorkItem').value;
-  const category  = $('#sessionCategory').value;
   const title     = $('#sessionTitle').value.trim();
   const startTime = $('#sessionStart').value;
   const endTime   = $('#sessionEnd').value;
@@ -2682,7 +2731,7 @@ function createSessionFromModal(e) {
     authorId: state.currentUser.id,
     authorName: state.currentUser.name,
     date: state.today,
-    category,
+    category: '',
     title,
     startTime,
     endTime,
@@ -2734,8 +2783,10 @@ function openAcceptModal(requestId) {
   state.selectedRequestId = requestId;
 
   // 요청 정보 표시
-  $('#acceptTitleDisplay').textContent = r.title;
-  $('#acceptTypeDisplay').textContent = r.priority === '긴급' ? '긴급' : '일반';
+  $('#acceptTitleDisplay').textContent = `${r.requestTeam} · ${r.title}`;
+  const typeEl = $('#acceptTypeDisplay');
+  typeEl.textContent = r.priority === '긴급' ? '긴급' : '일반';
+  typeEl.className = `ts-req-pri ${r.priority === '긴급' ? 'ts-pri-urgent' : 'ts-pri-normal'}`;
   $('#acceptPeriodDisplay').textContent = `${r.start} ~ ${r.end}`;
   $('#acceptProcessDisplay').textContent = r.processName || '—';
 
@@ -3398,6 +3449,15 @@ function bindEvents() {
       return;
     }
 
+    // Day date click → switch daily view
+    const dayDateBtn = e.target.closest('[data-day-date]');
+    if (dayDateBtn) {
+      state.dailyViewDate = dayDateBtn.dataset.dayDate;
+      renderDailyTodo();
+      renderKpis();
+      return;
+    }
+
     // Close inline input if clicking outside the session panel or task items
     if (state.inlineAddItemId &&
         !e.target.closest('[data-inline-wrap]') &&
@@ -3790,16 +3850,14 @@ function bindEvents() {
       const itemId = inp.dataset.inlineItem;
       const title = inp.value.trim();
       if (!title) return;
-      const catSel = document.querySelector(`[data-inline-cat="${itemId}"]`);
-      const category = catSel ? catSel.value : '';
       state.sessions.push({
         id: `ws-${Date.now()}`,
         workItemId: itemId,
         authorId: state.currentUser.id,
         authorName: state.currentUser.name,
-        category,
+        category: '',
         title,
-        date: state.today,
+        date: state.dailyViewDate,
         startTime: '',
         endTime: '',
         done: false
@@ -4011,6 +4069,13 @@ function bindEvents() {
 
   // blur(Tab 포함): 저장하되 재정렬 없음
   document.addEventListener('change', e => {
+    // Daily todo date picker
+    if (e.target.id === 'dailyTodoDatePicker') {
+      state.dailyViewDate = e.target.value;
+      renderDailyTodo();
+      renderKpis();
+      return;
+    }
     const timeInp = e.target.closest('[data-time-start], [data-time-end]');
     if (timeInp) saveTimeInput(timeInp, false);
   });
@@ -4033,6 +4098,12 @@ function bindEvents() {
       }
       if (e.target.id === 'detailEndDate') {
         state.detailDraft.end = e.target.value;
+        const btn = document.getElementById('detailSaveBtn');
+        if (btn) btn.disabled = !isDetailDirty();
+        return;
+      }
+      if (e.target.id === 'detailStartDate') {
+        state.detailDraft.start = e.target.value;
         const btn = document.getElementById('detailSaveBtn');
         if (btn) btn.disabled = !isDetailDirty();
         return;
