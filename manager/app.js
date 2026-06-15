@@ -111,14 +111,14 @@ const state = {
     { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['Jihye', '윤소이'] },
     // 긴급업무
     { id: 'wi-5',  title: '앱 온보딩 화면 긴급 수정',  description: '출시 전 QA에서 발견된 온보딩 UX 문제를 긴급 수정합니다. 인터랙션 흐름 및 카피 오류 포함.', start: '2026-06-11', end: '2026-06-14', type: '긴급', participants: ['Jihye', '최유진', '박서연'] },
-    { id: 'wi-6',  title: '이벤트 배너 긴급 제작',     description: '마케팅팀 요청으로 주말 프로모션 배너 3종을 긴급 제작합니다.', start: '2026-06-12', end: '2026-06-13', type: '긴급', participants: ['Jihye', '정하은'] },
+    { id: 'wi-6',  title: '이벤트 배너 긴급 제작',     description: '(주)그린푸드 요청으로 주말 프로모션 배너 3종을 긴급 제작합니다.', start: '2026-06-12', end: '2026-06-13', type: '긴급', participants: ['Jihye', '정하은'] },
     // 일반업무
     { id: 'wi-7',  title: '메인 홈 화면 리디자인',    description: '앱 메인 홈 화면 전면 리디자인. 정보 구조 개선 및 신규 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진'] },
     { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
     { id: 'wi-9',  title: '신규 서비스 UX 리서치',    description: '신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출, 개선 방향 정리.', start: '2026-06-10', end: '2026-06-17', type: '일반', participants: ['Jihye', '김도현'] },
-    { id: 'wi-10', title: '고객사 A 브랜딩 작업',     description: '고객사 A의 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-21', type: '일반', participants: ['Jihye', '이나경'] },
+    { id: 'wi-10', title: '블루밍헬스 브랜딩 작업',     description: '블루밍헬스 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-21', type: '일반', participants: ['Jihye', '이나경'] },
     { id: 'wi-11', title: '모바일 앱 UI 개선',        description: '기존 모바일 앱의 주요 화면 UI를 개선하여 사용성 및 일관성을 높입니다.', start: '2026-06-13', end: '2026-06-20', type: '일반', participants: ['Jihye'] },
-    { id: 'wi-12', title: '마케팅 랜딩 페이지 시안',  description: '신규 마케팅 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'] },
+    { id: 'wi-12', title: '핏라이프 랜딩 페이지 시안',  description: '핏라이프 신규 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'] },
     { id: 'wi-13', title: '제품 아이콘 리뉴얼',       description: '앱 내 아이콘 세트 전면 리뉴얼. 일관된 스타일 가이드 기반으로 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이'] },
     // 반복 일반·긴급 예시 (세부항목 아이콘 테스트용)
     { id: 'wi-14', title: '주간 업무 보고서 작성',    description: '매주 금요일 팀 주간 업무 현황을 정리하여 보고서를 작성합니다.', start: '2026-06-01', end: null, type: '일반', recurringDays: [5], participants: ['Jihye'] },
@@ -127,7 +127,7 @@ const state = {
     { id: 'wi-m1', title: '디자인 시스템 v2 구축',        description: '버튼·폼·카드·모달 등 핵심 컴포넌트 전면 개편. Figma 토큰 일원화 및 다크모드 대응 포함.', start: '2026-05-01', end: '2026-05-23', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
     { id: 'wi-m2', title: 'Q2 사용자 리서치',             description: '2분기 신규 서비스 출시 전 사용자 인터뷰 12건 진행 및 페르소나 재정립.', start: '2026-05-06', end: '2026-05-16', type: '일반', participants: ['Jihye', '김도현'] },
     { id: 'wi-m3', title: '모바일 앱 리뉴얼 1차 시안',    description: '기존 모바일 앱 전면 리뉴얼. 네비게이션 구조 개선 및 신규 비주얼 아이덴티티 적용 1차 시안 제작.', start: '2026-05-12', end: '2026-05-30', type: '일반', participants: ['Jihye', '최유진'] },
-    { id: 'wi-m4', title: '5월 브랜드 캠페인 소재 제작',  description: '5월 가정의 달 캠페인용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'] },
+    { id: 'wi-m4', title: '(주)그린푸드 캠페인 소재 제작',  description: '(주)그린푸드 5월 프로모션용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'] },
     { id: 'wi-m5', title: '신규 온보딩 플로우 설계',      description: '신규 가입자 온보딩 UX 개선. 단계 축소 및 인터랙션 개선안 설계.', start: '2026-05-26', end: '2026-06-06', type: '일반', participants: ['Jihye', '최유진'] },
   ],
 
@@ -224,27 +224,32 @@ const state = {
 
 
   requests: [
-    { id: 'wr-1', title: '신제품 론칭 SNS 배너', processName: '배너관리 프로세스', detail: '7월 신제품 론칭에 맞춰 인스타그램·페이스북용 배너 각 2종씩 제작 요청드립니다.', requester: '김지수', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-13', end: '2026-06-18', priority: '긴급', status: '수락 대기' },
-    { id: 'wr-2', title: '채용 공고 포스터 디자인', processName: '콘텐츠 제작 프로세스', detail: 'UI 디자이너 채용 공고 포스터 제작 부탁드립니다. 사내 게시 및 SNS 게재용 2가지 사이즈 필요합니다.', requester: '박소현', requestTeam: 'HR팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-16', end: '2026-06-20', priority: '일반', status: '수락 대기' },
-    { id: 'wr-3', title: 'B2B 제안서 템플릿 제작', processName: null, detail: '영업팀 PT용 B2B 제안서 PPT 템플릿 디자인이 필요합니다. 브랜드 가이드라인 기반으로 제작해 주세요.', requester: '이준호', requestTeam: '영업팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-17', end: '2026-06-23', priority: '일반', status: '수락 대기' },
+    { id: 'wr-1', title: '신제품 론칭 SNS 배너', processName: '배너관리 프로세스', detail: '7월 신제품 론칭에 맞춰 인스타그램·페이스북용 배너 각 2종씩 제작 요청드립니다.', requester: '김지수', requestTeam: '(주)그린푸드', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-13', end: '2026-06-18', priority: '긴급', status: '수락 대기' },
+    { id: 'wr-2', title: '브랜드 리뉴얼 포스터 디자인', processName: '콘텐츠 제작 프로세스', detail: '브랜드 리뉴얼에 맞춰 홍보 포스터 제작 부탁드립니다. 오프라인 게시용 및 SNS 게재용 2가지 사이즈 필요합니다.', requester: '박소현', requestTeam: '블루밍헬스', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-16', end: '2026-06-20', priority: '일반', status: '수락 대기' },
+    { id: 'wr-3', title: 'B2B 제안서 템플릿 제작', processName: null, detail: '투자 유치 PT용 제안서 PPT 템플릿 디자인이 필요합니다. 브랜드 가이드라인 기반으로 제작해 주세요.', requester: '이준호', requestTeam: '테크스타트(주)', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-17', end: '2026-06-23', priority: '일반', status: '수락 대기' },
   ],
 
   assignmentRequests: [
-    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-2', stepAssignees: {} },
-    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
-    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
-    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: {} },
+    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '(주)그린푸드',     hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-2', title: '브랜드 리뉴얼 포스터 디자인',     team: '블루밍헬스',       hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-2', stepAssignees: {} },
+    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '테크스타트(주)',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
+    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '(주)모아커머스',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
+    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '(주)모아커머스',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-6', title: '온보딩 가이드 시각화',             team: '핏라이프',         hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-7', title: '공동 이벤트 키비주얼',             team: '(주)그린푸드',     hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '스카이벤처스',     hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
+    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '(주)모아커머스',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: {} },
   ],
 
   notifications: [
-    { id: 'n-1', title: '업무요청 도착', body: '마케팅팀에서 업무를 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
-    { id: 'n-2', title: '디자인 리뷰 피드백', body: '장준혁 님이 홈 화면 시안에 코멘트를 남겼습니다.', unread: true },
-    { id: 'n-3', title: '회의 일정 변경', body: '오늘 디자인 리뷰 미팅이 오후 3시로 변경되었습니다.', unread: false },
+    { id: 'n-1', title: '업무요청 도착', body: '(주)그린푸드에서 업무를 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
+    { id: 'n-2', title: '업무요청 수락', body: '이나경 님이 업무요청을 수락했습니다.', requestTitle: 'Q3 브랜드 가이드 제작', unread: true },
+    { id: 'n-3', title: '업무요청 거절', body: '박민준 님이 업무요청을 거절했습니다.', requestTitle: '제품 상세페이지 리뉴얼', unread: true },
+    { id: 'n-4', title: '업무항목 추가', body: '회의록 액션아이템이 이번 주 업무에 추가되었습니다.', unread: false },
+    { id: 'n-5', title: '연차 신청 완료', body: '연차 신청이 정상적으로 접수되었습니다.', unread: false },
+    { id: 'n-6', title: '연차 승인', body: '6/20(금) 종일 연차가 승인되었습니다.', unread: false },
+    { id: 'n-7', title: '연차 반려', body: '6/25(수) 오전 반차가 반려되었습니다.', unread: true },
+    { id: 'n-8', title: '회의 등록 완료', body: '회의가 등록되었습니다. (참석자 4명)', unread: false },
   ],
 
   meetings: [
@@ -266,7 +271,7 @@ const state = {
       { id: 'act-mr1-2', text: 'AI 디자인 검토 도구 조사 및 보고', dueDate: '2026-06-13', assignee: '박민준', done: false, addedToWeekly: false },
     ],
     date: '2026-06-03', author: '김민준', duration: '42:18', attendees: 4, attendeeNames: ['김민준', '이수진', '박민준', 'Jihye'] },
-    { id: 'mr-2', team: '디자인팀', type: '클라이언트 미팅', title: '클라이언트 A사 중간 보고',
+    { id: 'mr-2', team: '디자인팀', type: '클라이언트 미팅', title: '(주)모아커머스 중간 보고',
     summary: '클라이언트 요구사항 변경 사항 정리 및 일정 재조정. 추가 화면 설계 요청이 접수되었으며 다음 회의까지 시안 완성 일정을 확정하였습니다.',
     aiPoints: ['클라이언트 요구사항 3건 변경 확인 및 문서화 완료', '추가 화면 2종(마이페이지·알림센터) 설계 요청 접수', '다음 회의 전까지 시안 초안 완성 일정 6/10으로 확정', '일정 지연 리스크 대비 버퍼 1주 확보 합의'],
     discussions: ['클라이언트 측 내부 검토 프로세스 변경으로 피드백 사이클 지연 우려', '화면 추가로 인한 개발 일정 영향도 재산정 필요', '다음 미팅은 시안 리뷰 목적으로 6/12 예정'],
@@ -283,8 +288,8 @@ const state = {
       { id: 'act-mr2-3', text: '변경된 요구사항 문서 업데이트 및 공유', dueDate: '2026-06-05', assignee: '김민준', done: false, addedToWeekly: false },
     ],
     date: '2026-06-03', author: '김민준', duration: '38:54', attendees: 3, attendeeNames: ['김민준', 'Jihye', '이나경'] },
-    { id: 'mr-3', team: '디자인팀', type: '타팀 협업회의', title: '타팀 협업 킥오프',
-    summary: '디자인-개발팀 간 협업 프로세스 정립 회의. 주요 업무 연결 포인트 확인 및 공유 채널 설정에 대한 합의가 이루어졌습니다.',
+    { id: 'mr-3', team: '디자인팀', type: '내부 협업회의', title: '디자인-개발 협업 킥오프',
+    summary: '디자인-개발 간 협업 프로세스 정립 회의. 주요 업무 연결 포인트 확인 및 공유 채널 설정에 대한 합의가 이루어졌습니다.',
     aiPoints: ['디자인-개발 협업 채널 Slack #design-dev 신설 합의', '스펙 변경 시 48시간 전 사전 공지 원칙 수립', 'Figma 링크 공유 → 개발 착수 프로세스 공식화', '주 1회 싱크업 미팅 정례화 (매주 화요일 오전 10시)'],
     discussions: ['이전 스프린트에서 디자인 변경이 개발에 사전 공유 없이 반영된 사례 복기', '개발팀 요청: 컴포넌트 변경 시 영향 범위 명시 필요', '디자인팀 요청: 개발 완료 화면 캡처 공유로 검수 프로세스 개선'],
     script: [
@@ -320,16 +325,16 @@ const state = {
     { id: 'mr-5', team: '개발팀', type: '주간 회의', title: '주간 진행상황 공유 #24',
     summary: '이번 주 완료된 작업 현황 공유 및 다음 주 계획 확인. 블로커 이슈 3건이 확인되었으며 관련 담당자 지정이 완료되었습니다.',
     aiPoints: ['이번 주 완료 업무 7건, 진행 중 4건, 미착수 2건', '블로커 3건: 에셋 미수령 / 리뷰 지연 / 외부 API 미확정', '다음 주 우선순위: 랜딩 페이지 디자인 완료 + 내부 리뷰'],
-    discussions: ['에셋 미수령 건은 마케팅팀에 재요청 예정 (정하은 담당)', '외부 API 확정 지연으로 관련 화면 목업으로 대체 진행 결정', '이번 주 완료율 63% — 목표 80% 대비 저조, 다음 주 만회 계획 필요'],
+    discussions: ['에셋 미수령 건은 블루밍헬스 담당자에게 재요청 예정 (정하은 담당)', '외부 API 확정 지연으로 관련 화면 목업으로 대체 진행 결정', '이번 주 완료율 63% — 목표 80% 대비 저조, 다음 주 만회 계획 필요'],
     script: [
       { time: '00:02', speaker: '박민준', text: '주간 공유 시작합니다. 이번 주 완료 건부터 돌아가며 공유해 주세요.' },
-      { time: '03:20', speaker: '이나경', text: '브랜드 가이드 업데이트 완료했습니다. 에셋 파일은 마케팅팀에서 아직 못 받았어요.' },
-      { time: '07:10', speaker: '정하은', text: '제가 마케팅팀에 다시 연락해볼게요. 이번 주 안에 받을 수 있을 것 같습니다.' },
+      { time: '03:20', speaker: '이나경', text: '브랜드 가이드 업데이트 완료했습니다. 에셋 파일은 블루밍헬스 쪽에서 아직 못 받았어요.' },
+      { time: '07:10', speaker: '정하은', text: '제가 블루밍헬스 담당자에게 다시 연락해볼게요. 이번 주 안에 받을 수 있을 것 같습니다.' },
       { time: '12:45', speaker: 'Jihye', text: '외부 API가 아직 확정이 안 됐는데, 관련 화면은 목업으로 먼저 진행하는 게 좋을 것 같아요.' },
       { time: '18:30', speaker: '박민준', text: '완료율이 63%라 다음 주에 좀 더 속도를 내야 할 것 같습니다. 각자 블로커 빠르게 해소 부탁드립니다.' },
     ],
     actionItems: [
-      { id: 'act-mr5-1', text: '마케팅팀 에셋 재요청 및 수령', dueDate: '2026-05-31', assignee: '정하은', done: true, addedToWeekly: false },
+      { id: 'act-mr5-1', text: '블루밍헬스 에셋 재요청 및 수령', dueDate: '2026-05-31', assignee: '정하은', done: true, addedToWeekly: false },
       { id: 'act-mr5-2', text: '외부 API 대체 목업 화면 작성', dueDate: '2026-06-02', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr5-3', text: '다음 주 완료율 80% 달성 계획 공유', dueDate: '2026-06-01', assignee: '박민준', done: false, addedToWeekly: false },
     ],
@@ -351,7 +356,7 @@ const state = {
       { id: 'act-mr6-3', text: '다음 분기 리서치 계획서 작성', dueDate: '2026-06-13', assignee: '최지영', done: false, addedToWeekly: false },
     ],
     startDate: '2026-05-30', endDate: '2026-05-30', author: '최지영', duration: '1:24:15', attendees: 8, attendeeNames: ['최지영', '김도현', '박서연', '이수진', 'Jihye', '최유진', '정하은', '이나경'] },
-    { id: 'mr-7', team: '마케팅팀', type: '업무 보고', title: '월간 성과 보고 — 5월',
+    { id: 'mr-7', team: '디자인팀', type: '업무 보고', title: '월간 성과 보고 — 5월',
     summary: '5월 주요 달성 지표 및 미달성 항목 리뷰. 6월 집중 개선 과제 3가지 합의 및 담당자 배정이 완료되었습니다.',
     aiPoints: ['5월 완료율 78% (목표 85% 대비 -7%)', '미달성 원인: 외부 의존성 지연 2건, 요구사항 변경 1건', '6월 개선 과제 3가지: 리뷰 사이클 단축 / 스펙 동결 기준 수립 / 일정 버퍼 확보', '팀 전반 번아웃 징후 감지 — 업무량 조정 검토 필요'],
     discussions: ['목표 대비 7% 부족한 원인이 외부 요인인지 내부 프로세스 문제인지 분석 필요', '리뷰 사이클이 길어지는 구간(개발 핸드오프 이후)에 병목 집중', '6월에는 스펙 동결 기준을 착수 3일 전으로 명확히 설정하기로 합의'],
@@ -948,39 +953,10 @@ function renderKpis() {
   const done     = today.filter(s => s.done).length;
   const remaining= today.filter(s => !s.done).length;
 
-  // Member KPI (4개)
   const cells = [
     { val: fmtDuration(todayMin), lbl: '오늘 작업시간',       color: '#2563eb' },
-    { val: `${done}`,             lbl: '완료 작업세션',       color: '#10b981' },
-    { val: `${remaining}`,        lbl: '남은 작업세션',       color: '#f59e0b' },
-    { val: fmtDuration(weekMin),  lbl: '이번주 누적 작업시간', color: '#6366f1' },
+    { val: `${done} / ${done + remaining}`, lbl: '세션 완료율', color: '#10b981' },
   ];
-
-  // Manager KPI (추가 4개)
-  const role = state.currentUser.role;
-  if (role === 'Manager' || role === 'Owner') {
-    const now = new Date();
-    const delayed = state.workItems.filter(w =>
-      w.type !== '고정' && w.end && new Date(w.end) < now &&
-      state.sessions.some(s => s.workItemId === w.id && !s.done)
-    ).length;
-    const urgent = state.workItems.filter(w => w.type === '긴급' && w.end && new Date(w.end) >= now).length;
-    const waiting = state.requests.filter(r => r.status === '수락 대기').length;
-    const overloaded = state.teamMembers.filter(m => {
-      const memberSessions = state.sessions.filter(s =>
-        s.date === _localISO(now) && !s.done &&
-        state.workItems.some(w => w.id === s.workItemId && w.participants?.includes(m.name))
-      );
-      return memberSessions.length >= 5;
-    }).length;
-
-    cells.push(
-      { val: `${delayed}`,    lbl: '지연중 업무',  color: '#ef4444' },
-      { val: `${urgent}`,     lbl: '긴급업무',     color: '#f97316' },
-      { val: `${waiting}`,    lbl: '응답 대기',    color: '#8b5cf6' },
-      { val: `${overloaded}`, lbl: '과부하 직원',  color: '#ec4899' },
-    );
-  }
 
   $('#kpiGrid').innerHTML = cells.map(c => `
     <div class="kpi-cell">
@@ -1027,8 +1003,8 @@ function renderRequestList() {
         <button class="req-reject" type="button" data-reject-request="${r.id}">거절</button>
       </div>` : '';
 
-    const processTag = r.processName
-      ? `<span class="req-process-tag">${escapeHtml(r.processName)}</span>`
+    const processText = r.processName
+      ? `<div class="req-process-text">${escapeHtml(r.processName)}</div>`
       : '';
 
     return `
@@ -1040,9 +1016,9 @@ function renderRequestList() {
             <span class="req-source">${escapeHtml(r.requestTeam)}</span>
           </div>
         </div>
-        ${processTag}
+        ${processText}
         <div class="req-desc">${escapeHtml(r.detail)}</div>
-        <div class="req-meta">${escapeHtml(r.requester)} · 마감 ${r.end.slice(5).replace('-', '/')}</div>
+        <div class="req-meta">${escapeHtml(r.requester)} · ${r.start.slice(5).replace('-', '/')} ~ ${r.end.slice(5).replace('-', '/')}</div>
         ${actions}
       </div>
     `;
@@ -2758,21 +2734,16 @@ function openAcceptModal(requestId) {
   state.selectedRequestId = requestId;
 
   // 요청 정보 표시
-  $('#acceptRequestInfo').innerHTML = `
-    <div style="font-weight:600;color:#111827;margin-bottom:4px">${escapeHtml(r.title)}</div>
-    <div>${escapeHtml(r.detail)}</div>
-    <div style="margin-top:4px">${escapeHtml(r.requester)} · ${escapeHtml(r.requestTeam)}</div>
-  `;
+  $('#acceptTitleDisplay').textContent = r.title;
+  $('#acceptTypeDisplay').textContent = r.priority === '긴급' ? '긴급' : '일반';
+  $('#acceptPeriodDisplay').textContent = `${r.start} ~ ${r.end}`;
+  $('#acceptProcessDisplay').textContent = r.processName || '—';
 
-  // Pre-fill form with request data
-  $('#acceptTitle').value = r.title;
-  const typeMap = { '긴급': '긴급', '일반': '일반', '고정': '고정' };
-  $('#acceptType').value = typeMap[r.priority] || '일반';
-  $('#acceptStart').value = r.start;
-  $('#acceptEnd').value = r.end;
+  // 작업 날짜 기본값: 오늘
+  $('#acceptTodoDate').value = _localISO(new Date());
 
   $('#acceptModal').classList.remove('hidden');
-  setTimeout(() => $('#acceptTitle').focus(), 50);
+  setTimeout(() => $('#acceptTodoDate').focus(), 50);
 }
 
 function closeAcceptModal() {
@@ -2784,18 +2755,16 @@ function submitAcceptForm(e) {
   const r = state.requests.find(x => x.id === state.selectedRequestId);
   if (!r) return;
 
-  const title = $('#acceptTitle').value.trim();
-  const type  = $('#acceptType').value;
-  const start = $('#acceptStart').value;
-  const end   = $('#acceptEnd').value;
-  if (!title || !start || !end) return;
+  const todoDate = $('#acceptTodoDate').value;
+  if (!todoDate) return;
 
+  // 업무항목 자동 추가 (프로젝트명·시작일·마감일 그대로)
   const newItem = {
     id: `wi-${Date.now()}`,
-    title,
-    start,
-    end,
-    type,
+    title: r.title,
+    start: r.start,
+    end: r.end,
+    type: r.priority === '긴급' ? '긴급' : '일반',
     participants: [state.currentUser.name],
     sourceRequestId: r.id,
   };
@@ -2804,11 +2773,27 @@ function submitAcceptForm(e) {
   state.selectedTaskId = newItem.id;
   r.status = '수락';
 
+  // 선택한 날짜에 세부업무항목(작업세션) 자동 생성 — 프로세스명으로 표시
+  if (r.processName) {
+    state.sessions.push({
+      id: `ws-${Date.now()}`,
+      workItemId: newItem.id,
+      authorId: state.currentUser.id,
+      authorName: state.currentUser.name,
+      date: todoDate,
+      category: '',
+      title: r.processName,
+      startTime: '',
+      endTime: '',
+      done: false,
+    });
+  }
+
   // 시작일이 포함된 주로 뷰 이동
-  const diffDays = Math.floor((toDate(start) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor((toDate(r.start) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
   state.weekOffset = Math.floor(diffDays / 7);
 
-  addNotification('중요', '업무항목 추가', `"${title}" 업무항목이 이번 주 업무에 추가되었습니다.`, title);
+  addNotification('중요', '업무항목 추가', `"${r.title}" 업무항목이 이번 주 업무에 추가되었습니다.`, r.title);
   closeAcceptModal();
   closeRequestModal();
   renderAll();
