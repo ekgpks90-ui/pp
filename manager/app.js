@@ -998,7 +998,19 @@ function renderSessionRow(s) {
 }
 
 function renderKpis() {
-  const daySessions = visibleSessions().filter(s => s.date === state.dailyViewDate);
+  const viewDate = state.dailyViewDate;
+  const viewWeekday = new Date(viewDate).getDay();
+  const viewItems = state.workItems.filter(item => {
+    if (item.type === '고정') {
+      const rd = item.recurringDays || [1,2,3,4,5];
+      return rd.includes(viewWeekday) && item.start <= viewDate && (item.end === null || item.end >= viewDate);
+    }
+    return item.start <= viewDate && item.end >= viewDate;
+  });
+  let daySessions = [];
+  viewItems.forEach(item => {
+    daySessions.push(...sessionsByItem(item.id).filter(s => s.date === viewDate));
+  });
 
   const todayMin = daySessions.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
   const done     = daySessions.filter(s => s.done).length;
