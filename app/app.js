@@ -1142,11 +1142,11 @@ function renderMyPage() {
       </div>
       <div class="mp-col-center">
         ${_mpAI()}
-        ${_mpCharts()}
+        ${_mpMeetings()}
       </div>
       <div class="mp-col-right">
         ${_mpCalPanel()}
-        ${_mpMeetings()}
+        ${_mpCharts()}
       </div>
     </div>
   `;
