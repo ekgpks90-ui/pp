@@ -2366,7 +2366,7 @@ h1, h2, h3, p { margin: 0; }
 
 .ts-wi-urgent { background: var(--red); }
 .ts-wi-normal { background: #d1d5db; }
-.ts-wi-pin { width: 11px; height: 11px; flex: 0 0 auto; color: #9ca3af; margin-top: 1px; }
+.ts-wi-pin { width: 13px; height: 13px; flex: 0 0 auto; color: #6b7280; margin-top: 2px; }
 
 .ts-wi-title {
   white-space: nowrap;
