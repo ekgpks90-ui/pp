@@ -3820,6 +3820,9 @@ h1, h2, h3, p { margin: 0; }
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .mp-files-header {
   display: flex;
