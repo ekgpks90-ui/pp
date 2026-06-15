@@ -395,6 +395,27 @@ const state = {
       { id: 'act-mr8-3', text: '스타일 토큰 일원화 작업 착수', dueDate: '2026-06-07', assignee: '정하은', done: false, addedToWeekly: false },
     ],
     date: '2026-05-27', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', 'Jihye', '정하은', '박서연', '최유진'] },
+    { id: 'mr-9', team: '디자인팀', type: '주간 회의', title: '디자인팀 주간 싱크 #25',
+    summary: '이번 주 디자인 작업 현황 공유 및 우선순위 재조정. 온보딩 화면 개선안 초안을 6/10까지 완성하기로 합의했습니다.',
+    aiPoints: ['온보딩 플로우 초안 6/10 마감 확정', '컴포넌트 리뷰 일정 6/12로 확정', '이번 주 블로커: 클라이언트 피드백 대기 중'],
+    discussions: ['온보딩 화면 단계 수를 5단계 → 3단계로 줄이는 방향 논의', '컴포넌트 리뷰는 이수진, Jihye 공동 진행'],
+    script: [{ time: '00:02', speaker: '이수진', text: '주간 싱크 시작합니다.' }],
+    actionItems: [{ id: 'act-mr9-1', text: '온보딩 화면 초안 작성', dueDate: '2026-06-10', assignee: 'Jihye', done: false, addedToWeekly: false }],
+    date: '2026-06-09', author: '이수진', duration: '22:05', attendees: 4, attendeeNames: ['이수진', 'Jihye', '박서연', '윤소영'] },
+    { id: 'mr-10', team: '디자인팀', type: '클라이언트 미팅', title: '클라이언트 A사 시안 리뷰',
+    summary: '마이페이지 대시보드 시안 및 알림센터 화면 초안 리뷰. 전반적으로 긍정적 피드백이 나왔으나 색상 톤 조정 요청이 접수되었습니다.',
+    aiPoints: ['마이페이지 시안 80% 승인, 색상 톤 조정 요청', '알림센터 레이아웃 승인, 아이콘 교체 요청', '최종 시안 제출 6/17로 합의'],
+    discussions: ['색상 톤은 현재보다 10% 밝게 조정 요청', '아이콘은 라인 스타일로 통일 요청'],
+    script: [{ time: '00:03', speaker: '김민준', text: '시안 리뷰 시작합니다.' }],
+    actionItems: [{ id: 'act-mr10-1', text: '색상 톤 조정 및 재제출', dueDate: '2026-06-17', assignee: 'Jihye', done: false, addedToWeekly: false }],
+    date: '2026-06-11', author: '김민준', duration: '31:48', attendees: 3, attendeeNames: ['김민준', 'Jihye', '이나경'] },
+    { id: 'mr-11', team: 'PM팀', type: '타팀 협업회의', title: '개발팀 핸드오프 미팅',
+    summary: '디자인 최종 시안 개발팀 전달 및 스펙 문서 검토. 개발 착수 일정 6/16으로 확정, 스펙 동결 기준 재확인이 이루어졌습니다.',
+    aiPoints: ['개발 착수 6/16 확정', '스펙 동결 착수 3일 전 유지', '공유 Figma 링크 및 스펙 문서 전달 완료'],
+    discussions: ['마진·패딩 값 Figma Variables로 정리 요청', '반응형 분기점 3가지로 통일'],
+    script: [{ time: '00:01', speaker: '박민준', text: '핸드오프 미팅 시작합니다.' }],
+    actionItems: [{ id: 'act-mr11-1', text: 'Figma Variables 정리 및 공유', dueDate: '2026-06-15', assignee: 'Jihye', done: false, addedToWeekly: false }],
+    date: '2026-06-13', author: '박민준', duration: '28:14', attendees: 5, attendeeNames: ['박민준', 'Jihye', '이수진', '김도현', '최유진'] },
   ],
 
   // 연차 데이터 — id, applicantId, applicantName, applicantRole, type, date, reason, status, approverId, approverName, rejectedReason, requestedAt
@@ -1416,35 +1437,54 @@ function _mpAI() {
 
 function _mpMeetings() {
   const myName = state.currentUser.name;
-  const meetings = (state.meetings || []).filter(m =>
-    Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName)
+  const monthPrefix = `${state.myPageCalYear}-${String(state.myPageCalMonth + 1).padStart(2, '0')}`;
+  const sel = state.myPageSelectedDate;
+
+  const all = (state.meetings || []).filter(m =>
+    Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName) &&
+    (m.date || '').startsWith(monthPrefix)
   );
-  const inner = meetings.length
-    ? meetings.map(m => {
-        const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
-          `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
-        ).join('');
-        const more = m.attendeeNames.length > 4
-          ? `<span class="mp-meeting-avatar-more">+${m.attendeeNames.length - 4}</span>` : '';
-        return `
-          <div class="mp-meeting-card" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
-            <div class="mp-meeting-card-top">
-              <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
-            </div>
-            <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
-            <div class="mp-meeting-card-bottom">
-              <div class="mp-meeting-avatars">${avatars}${more}</div>
-              <span class="mp-meeting-meta">${m.date}</span>
-              <span class="mp-meeting-meta">${m.duration}</span>
-            </div>
-          </div>`;
-      }).join('')
-    : `<div class="mp-meetings-empty">참여한 회의가 없습니다.</div>`;
+
+  // Selected date meetings first, rest sorted by date desc
+  const highlighted = sel ? all.filter(m => m.date === sel) : [];
+  const rest = sel ? all.filter(m => m.date !== sel).sort((a,b) => b.date.localeCompare(a.date))
+                   : [...all].sort((a,b) => b.date.localeCompare(a.date));
+  const sorted = [...highlighted, ...rest];
+
+  const renderCard = (m, isHL) => {
+    const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
+      `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
+    ).join('');
+    const more = m.attendeeNames.length > 4
+      ? `<span class="mp-meeting-avatar-more">+${m.attendeeNames.length - 4}</span>` : '';
+    return `
+      <div class="mp-meeting-card${isHL ? ' mp-meeting-hl' : ''}" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
+        <div class="mp-meeting-card-top">
+          <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
+        </div>
+        <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
+        <div class="mp-meeting-card-bottom">
+          <div class="mp-meeting-avatars">${avatars}${more}</div>
+          <span class="mp-meeting-meta">${m.date}</span>
+          <span class="mp-meeting-meta">${m.duration}</span>
+        </div>
+      </div>`;
+  };
+
+  const inner = sorted.length
+    ? sorted.map(m => renderCard(m, sel && m.date === sel)).join('')
+    : `<div class="mp-meetings-empty">이달 참여한 회의가 없습니다.</div>`;
+
+  const subtitle = sel
+    ? `<span class="mp-meetings-sub">${sel} · ${highlighted.length}건 하이라이트</span>`
+    : '';
+
   return `
     <div class="mp-meetings-section">
       <div class="mp-meetings-header">
         <span class="mp-section-label">참여한 회의</span>
-        <span class="mp-meetings-count">${meetings.length}건</span>
+        ${subtitle}
+        <span class="mp-meetings-count">${sorted.length}건</span>
       </div>
       <div class="mp-meetings-list">${inner}</div>
     </div>

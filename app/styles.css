@@ -3778,6 +3778,12 @@ h1, h2, h3, p { margin: 0; }
   cursor: pointer; transition: background 0.15s;
 }
 .mp-meeting-card:hover { background: var(--line-soft); }
+.mp-meeting-card.mp-meeting-hl {
+  background: var(--blue-mid);
+  border: 1.5px solid var(--blue);
+}
+.mp-meeting-card.mp-meeting-hl:hover { background: var(--blue-light, #dbeafe); }
+.mp-meetings-sub { font-size: 11px; color: var(--blue); font-weight: 500; flex: 1; }
 .mp-meeting-card-top { display: flex; align-items: center; gap: 7px; }
 .mp-meeting-card-title {
   flex: 1; font-size: 13px; font-weight: 600; color: var(--text);
