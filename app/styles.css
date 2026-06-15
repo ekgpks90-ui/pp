@@ -3634,8 +3634,9 @@ h1, h2, h3, p { margin: 0; }
   display: grid;
   grid-template-columns: 220px 1fr 380px;
   gap: 12px;
-  align-items: start;
+  align-items: stretch;
 }
+.mp-col-center { display: flex; flex-direction: column; gap: 10px; }
 .mp-col-left { display: flex; flex-direction: column; gap: 10px; }
 
 /* Left: profile */
@@ -3675,7 +3676,6 @@ h1, h2, h3, p { margin: 0; }
 .mp-profile-val  { color: var(--text-primary); font-weight: 500; }
 
 /* Center: AI + meetings stacked */
-.mp-col-center { display: flex; flex-direction: column; gap: 10px; }
 .mp-chart-card {
   background: var(--surface);
   border: 1px solid var(--line);
