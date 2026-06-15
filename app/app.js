@@ -1139,6 +1139,7 @@ function renderMyPage() {
     <div class="mp-grid">
       <div class="mp-col-left">
         ${_mpProfile(u)}
+        ${_mpCharts()}
       </div>
       <div class="mp-col-center">
         ${_mpAI()}
@@ -1146,7 +1147,6 @@ function renderMyPage() {
       </div>
       <div class="mp-col-right">
         ${_mpCalPanel()}
-        ${_mpCharts()}
       </div>
     </div>
   `;
