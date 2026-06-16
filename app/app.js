@@ -431,6 +431,69 @@ const state = {
 
   leaveTab: '내 연차',         // '내 연차' | '팀 연차' | '승인 대기' | '이력'
   totalLeave: 15,              // 총 연차 (연간)
+
+  processes: [
+    { id: 'pc-1', category: 'UI/UX 디자인', steps: [
+      { id: 'ps-1-01', title: '브리핑 & 계약',          role: '기획'   },
+      { id: 'ps-1-02', title: '리서치 (사용자/경쟁사)',  role: '리서치' },
+      { id: 'ps-1-03', title: '정보구조도(IA) 설계',     role: '기획'   },
+      { id: 'ps-1-04', title: '와이어프레임 제작',       role: '디자인' },
+      { id: 'ps-1-05', title: '1차 피드백',             role: '전체'   },
+      { id: 'ps-1-06', title: '1차 수정',               role: '디자인' },
+      { id: 'ps-1-07', title: '1차 UI 디자인',          role: '디자인' },
+      { id: 'ps-1-08', title: '2차 피드백',             role: '전체'   },
+      { id: 'ps-1-09', title: '2차 수정',               role: '디자인' },
+      { id: 'ps-1-10', title: '프로토타입 제작',         role: '디자인' },
+      { id: 'ps-1-11', title: '사용성 테스트',           role: '리서치' },
+      { id: 'ps-1-12', title: '최종 디자인 확정',        role: '디자인' },
+      { id: 'ps-1-13', title: '개발 핸드오프',           role: '개발'   },
+      { id: 'ps-1-14', title: '디자인 QA',              role: '디자인' },
+    ]},
+    { id: 'pc-3', category: '디지털 콘텐츠', steps: [
+      { id: 'ps-3-01', title: '브리핑 & 계약',          role: '기획'   },
+      { id: 'ps-3-02', title: '콘셉트 기획',            role: '기획'   },
+      { id: 'ps-3-03', title: '카피 & 구성안 작성',     role: '카피'   },
+      { id: 'ps-3-04', title: '시안 제작',              role: '디자인' },
+      { id: 'ps-3-05', title: '1차 피드백',             role: '전체'   },
+      { id: 'ps-3-06', title: '1차 수정',               role: '디자인' },
+      { id: 'ps-3-07', title: '최종 디자인 확정',        role: '디자인' },
+      { id: 'ps-3-08', title: '파일 납품',              role: '제작'   },
+    ]},
+    { id: 'pc-4', category: '영상 & 모션', steps: [
+      { id: 'ps-4-01', title: '브리핑 & 계약',          role: '기획'   },
+      { id: 'ps-4-02', title: '스토리보드 작성',         role: '기획'   },
+      { id: 'ps-4-03', title: '1차 피드백',             role: '전체'   },
+      { id: 'ps-4-04', title: '1차 수정',               role: '기획'   },
+      { id: 'ps-4-05', title: '스크립트 & 보이스 녹음',  role: '제작'   },
+      { id: 'ps-4-06', title: '1차 편집',               role: '제작'   },
+      { id: 'ps-4-07', title: '2차 피드백',             role: '전체'   },
+      { id: 'ps-4-08', title: '2차 수정',               role: '제작'   },
+      { id: 'ps-4-09', title: '최종 확정',              role: '전체'   },
+      { id: 'ps-4-10', title: '파일 납품',              role: '제작'   },
+    ]},
+  ],
+
+  processJobs: [
+    {
+      id: 'pj-1', processId: 'pc-1',
+      title: '모바일 앱 UI 리디자인', deadline: '2026-07-31',
+      currentStepIdx: 3, status: 'active', createdAt: '2026-06-01',
+      stepAssignees: {
+        'ps-1-01': ['Jihye'], 'ps-1-02': ['김도현'],
+        'ps-1-03': ['Jihye', '장준혁'], 'ps-1-04': ['장준혁'],
+        'ps-1-05': ['Jihye', '장준혁', '최유진'],
+      },
+    },
+    {
+      id: 'pj-2', processId: 'pc-3',
+      title: '여름 SNS 콘텐츠 패키지', deadline: '2026-07-10',
+      currentStepIdx: 2, status: 'active', createdAt: '2026-06-08',
+      stepAssignees: {
+        'ps-3-01': ['Jihye'], 'ps-3-02': ['최유진'],
+        'ps-3-03': ['정하은'], 'ps-3-04': ['정하은', '이나경'],
+      },
+    },
+  ],
 };
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -1582,6 +1645,109 @@ function _mpMeetings() {
   `;
 }
 
+// ─── My Process (team member view) ───────────────────────────────────────────
+
+const APP_PROC_ROLE_STYLE = {
+  '기획':   { bg: '#ede9fe', color: '#6d28d9' },
+  '디자인': { bg: '#fce7f3', color: '#be185d' },
+  '리서치': { bg: '#dbeafe', color: '#1d4ed8' },
+  '개발':   { bg: '#dcfce7', color: '#15803d' },
+  '제작':   { bg: '#ffedd5', color: '#c2410c' },
+  '카피':   { bg: '#fef9c3', color: '#854d0e' },
+  '전체':   { bg: '#f3f4f6', color: '#374151' },
+};
+const APP_PROC_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+
+function appProcRoleBadge(role) {
+  const s = APP_PROC_ROLE_STYLE[role] || { bg: '#f3f4f6', color: '#374151' };
+  return `<span class="app-proc-role" style="background:${s.bg};color:${s.color}">${role || '미지정'}</span>`;
+}
+function appProcAvatar(name) {
+  const idx = state.teamMembers.findIndex(m => m.name === name);
+  const bg  = APP_PROC_AVATAR_BG[idx >= 0 ? idx % APP_PROC_AVATAR_BG.length : 0];
+  return `<span class="app-proc-avatar" style="background:${bg}" title="${escapeHtml(name)}">${name[0]}</span>`;
+}
+
+function renderMyProcess() {
+  const el = document.getElementById('myProcList');
+  if (!el) return;
+  const myName = state.currentUser.name;
+
+  const myJobs = (state.processJobs || []).filter(job =>
+    Object.values(job.stepAssignees || {}).some(arr => arr.includes(myName))
+  );
+
+  if (!myJobs.length) {
+    el.innerHTML = '<div class="app-proc-empty">배정된 프로세스가 없습니다.</div>';
+    return;
+  }
+
+  el.innerHTML = myJobs.map(job => {
+    const proc = state.processes.find(p => p.id === job.processId);
+    if (!proc) return '';
+    const steps = proc.steps;
+    const myStepIds = Object.entries(job.stepAssignees || {})
+      .filter(([, arr]) => arr.includes(myName))
+      .map(([id]) => id);
+
+    const flowHtml = steps.map((step, idx) => {
+      const isMine    = myStepIds.includes(step.id);
+      const isCurrent = idx === job.currentStepIdx;
+      const isDone    = idx < job.currentStepIdx;
+      const assignees = job.stepAssignees?.[step.id] || [];
+      const cls = ['app-proc-flow-step', isMine ? 'is-mine' : '', isCurrent ? 'is-current' : '', isDone ? 'is-done' : ''].filter(Boolean).join(' ');
+      return `
+        <div class="${cls}">
+          <div class="app-proc-flow-dot">
+            ${isDone
+              ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+              : `<span class="app-proc-flow-num">${idx + 1}</span>`}
+          </div>
+          <div class="app-proc-flow-label">${escapeHtml(step.title)}</div>
+          ${isMine ? `<div class="app-proc-flow-mine-tag">내 단계</div>` : ''}
+          ${assignees.length ? `<div class="app-proc-flow-assignees">${assignees.slice(0,3).map(n => appProcAvatar(n)).join('')}</div>` : ''}
+        </div>`;
+    }).join('<div class="app-proc-flow-line"></div>');
+
+    const currentStep   = steps[job.currentStepIdx];
+    const prevStep      = job.currentStepIdx > 0 ? steps[job.currentStepIdx - 1] : null;
+    const nextStep      = job.currentStepIdx < steps.length - 1 ? steps[job.currentStepIdx + 1] : null;
+    const prevAssignees = prevStep ? (job.stepAssignees?.[prevStep.id] || []) : [];
+    const nextAssignees = nextStep ? (job.stepAssignees?.[nextStep.id] || []) : [];
+
+    return `
+      <div class="app-proc-job-card">
+        <div class="app-proc-job-top">
+          <div>
+            <div class="app-proc-job-title">${escapeHtml(job.title)}</div>
+            <div class="app-proc-job-meta">${escapeHtml(proc.category)} · 마감 ${job.deadline}</div>
+          </div>
+          <div class="app-proc-progress-pill">${job.currentStepIdx}/${steps.length} 단계</div>
+        </div>
+        <div class="app-proc-flow-wrap">${flowHtml}</div>
+        <div class="app-proc-step-context">
+          ${prevStep ? `<div class="app-proc-ctx-row">
+            <span class="app-proc-ctx-label">이전 단계</span>
+            <span class="app-proc-ctx-step is-done">${escapeHtml(prevStep.title)}</span>
+            ${appProcRoleBadge(prevStep.role)}
+            <span class="app-proc-ctx-assignees">${prevAssignees.map(n => appProcAvatar(n)).join('')}</span>
+          </div>` : ''}
+          <div class="app-proc-ctx-row is-current">
+            <span class="app-proc-ctx-label">현재 단계</span>
+            <span class="app-proc-ctx-step">${escapeHtml(currentStep?.title || '-')}</span>
+            ${currentStep ? appProcRoleBadge(currentStep.role) : ''}
+          </div>
+          ${nextStep ? `<div class="app-proc-ctx-row">
+            <span class="app-proc-ctx-label">다음 단계</span>
+            <span class="app-proc-ctx-step">${escapeHtml(nextStep.title)}</span>
+            ${appProcRoleBadge(nextStep.role)}
+            <span class="app-proc-ctx-assignees">${nextAssignees.map(n => appProcAvatar(n)).join('')}</span>
+          </div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
 function renderAll() {
   renderWeekFilter();
   renderNotifications();
@@ -1590,6 +1756,7 @@ function renderAll() {
     renderDailyTodo();
     renderKpis();
     renderRequestList();
+    renderMyProcess();
     if (!$('#taskDrawer').classList.contains('hidden')) renderDrawerBody();
   } else if (state.currentPage === 'meeting-room') {
     renderCalendarPage();
@@ -1612,6 +1779,7 @@ function switchPage(page) {
     btn.classList.toggle('active', btn.dataset.nav === page);
   });
   $('#homeGrid').classList.toggle('hidden', page !== 'home');
+  $('#myProcSection')?.classList.toggle('hidden', page !== 'home');
   $('#meetingRoomPage')?.classList.toggle('hidden', page !== 'meeting-room');
   $('#calPage')?.classList.toggle('hidden', page !== 'calendar');
   $('#teamStatusPage')?.classList.toggle('hidden', page !== 'team-status');

@@ -404,66 +404,110 @@ const state = {
     {
       id: 'pc-1', category: 'UI/UX 디자인',
       steps: [
-        { id: 'ps-1-01', title: '브리핑 & 계약' },
-        { id: 'ps-1-02', title: '리서치 (사용자/경쟁사)' },
-        { id: 'ps-1-03', title: '정보구조도(IA) 설계' },
-        { id: 'ps-1-04', title: '와이어프레임 제작' },
-        { id: 'ps-1-05', title: '1차 피드백' },
-        { id: 'ps-1-06', title: '1차 수정' },
-        { id: 'ps-1-07', title: '1차 UI 디자인' },
-        { id: 'ps-1-08', title: '2차 피드백' },
-        { id: 'ps-1-09', title: '2차 수정' },
-        { id: 'ps-1-10', title: '프로토타입 제작' },
-        { id: 'ps-1-11', title: '사용성 테스트' },
-        { id: 'ps-1-12', title: '최종 디자인 확정' },
-        { id: 'ps-1-13', title: '개발 핸드오프' },
-        { id: 'ps-1-14', title: '디자인 QA' },
+        { id: 'ps-1-01', title: '브리핑 & 계약',           role: '기획' },
+        { id: 'ps-1-02', title: '리서치 (사용자/경쟁사)',   role: '리서치' },
+        { id: 'ps-1-03', title: '정보구조도(IA) 설계',      role: '기획' },
+        { id: 'ps-1-04', title: '와이어프레임 제작',        role: '디자인' },
+        { id: 'ps-1-05', title: '1차 피드백',              role: '전체' },
+        { id: 'ps-1-06', title: '1차 수정',                role: '디자인' },
+        { id: 'ps-1-07', title: '1차 UI 디자인',           role: '디자인' },
+        { id: 'ps-1-08', title: '2차 피드백',              role: '전체' },
+        { id: 'ps-1-09', title: '2차 수정',                role: '디자인' },
+        { id: 'ps-1-10', title: '프로토타입 제작',          role: '디자인' },
+        { id: 'ps-1-11', title: '사용성 테스트',            role: '리서치' },
+        { id: 'ps-1-12', title: '최종 디자인 확정',         role: '디자인' },
+        { id: 'ps-1-13', title: '개발 핸드오프',            role: '개발' },
+        { id: 'ps-1-14', title: '디자인 QA',               role: '디자인' },
       ],
     },
     {
       id: 'pc-2', category: '브랜드 & 인쇄물',
       steps: [
-        { id: 'ps-2-01', title: '브리핑 & 계약' },
-        { id: 'ps-2-02', title: '리서치 (시장/경쟁사)' },
-        { id: 'ps-2-03', title: '콘셉트 기획' },
-        { id: 'ps-2-04', title: '시안 제작' },
-        { id: 'ps-2-05', title: '1차 피드백' },
-        { id: 'ps-2-06', title: '1차 수정' },
-        { id: 'ps-2-07', title: '2차 시안 제작' },
-        { id: 'ps-2-08', title: '2차 피드백' },
-        { id: 'ps-2-09', title: '2차 수정' },
-        { id: 'ps-2-10', title: '최종 디자인 확정' },
-        { id: 'ps-2-11', title: '인쇄 사양 확인' },
-        { id: 'ps-2-12', title: '파일 납품' },
+        { id: 'ps-2-01', title: '브리핑 & 계약',           role: '기획' },
+        { id: 'ps-2-02', title: '리서치 (시장/경쟁사)',     role: '리서치' },
+        { id: 'ps-2-03', title: '콘셉트 기획',             role: '기획' },
+        { id: 'ps-2-04', title: '시안 제작',               role: '디자인' },
+        { id: 'ps-2-05', title: '1차 피드백',              role: '전체' },
+        { id: 'ps-2-06', title: '1차 수정',                role: '디자인' },
+        { id: 'ps-2-07', title: '2차 시안 제작',           role: '디자인' },
+        { id: 'ps-2-08', title: '2차 피드백',              role: '전체' },
+        { id: 'ps-2-09', title: '2차 수정',                role: '디자인' },
+        { id: 'ps-2-10', title: '최종 디자인 확정',         role: '디자인' },
+        { id: 'ps-2-11', title: '인쇄 사양 확인',           role: '제작' },
+        { id: 'ps-2-12', title: '파일 납품',               role: '제작' },
       ],
     },
     {
       id: 'pc-3', category: '디지털 콘텐츠',
       steps: [
-        { id: 'ps-3-01', title: '브리핑 & 계약' },
-        { id: 'ps-3-02', title: '콘셉트 기획' },
-        { id: 'ps-3-03', title: '카피 & 구성안 작성' },
-        { id: 'ps-3-04', title: '시안 제작' },
-        { id: 'ps-3-05', title: '1차 피드백' },
-        { id: 'ps-3-06', title: '1차 수정' },
-        { id: 'ps-3-07', title: '최종 디자인 확정' },
-        { id: 'ps-3-08', title: '파일 납품' },
+        { id: 'ps-3-01', title: '브리핑 & 계약',           role: '기획' },
+        { id: 'ps-3-02', title: '콘셉트 기획',             role: '기획' },
+        { id: 'ps-3-03', title: '카피 & 구성안 작성',       role: '카피' },
+        { id: 'ps-3-04', title: '시안 제작',               role: '디자인' },
+        { id: 'ps-3-05', title: '1차 피드백',              role: '전체' },
+        { id: 'ps-3-06', title: '1차 수정',                role: '디자인' },
+        { id: 'ps-3-07', title: '최종 디자인 확정',         role: '디자인' },
+        { id: 'ps-3-08', title: '파일 납품',               role: '제작' },
       ],
     },
     {
       id: 'pc-4', category: '영상 & 모션',
       steps: [
-        { id: 'ps-4-01', title: '브리핑 & 계약' },
-        { id: 'ps-4-02', title: '스토리보드 작성' },
-        { id: 'ps-4-03', title: '1차 피드백' },
-        { id: 'ps-4-04', title: '1차 수정' },
-        { id: 'ps-4-05', title: '스크립트 & 보이스 녹음' },
-        { id: 'ps-4-06', title: '1차 편집' },
-        { id: 'ps-4-07', title: '2차 피드백' },
-        { id: 'ps-4-08', title: '2차 수정' },
-        { id: 'ps-4-09', title: '최종 디자인 확정' },
-        { id: 'ps-4-10', title: '파일 납품' },
+        { id: 'ps-4-01', title: '브리핑 & 계약',           role: '기획' },
+        { id: 'ps-4-02', title: '스토리보드 작성',          role: '기획' },
+        { id: 'ps-4-03', title: '1차 피드백',              role: '전체' },
+        { id: 'ps-4-04', title: '1차 수정',                role: '기획' },
+        { id: 'ps-4-05', title: '스크립트 & 보이스 녹음',   role: '제작' },
+        { id: 'ps-4-06', title: '1차 편집',                role: '제작' },
+        { id: 'ps-4-07', title: '2차 피드백',              role: '전체' },
+        { id: 'ps-4-08', title: '2차 수정',                role: '제작' },
+        { id: 'ps-4-09', title: '최종 확정',               role: '전체' },
+        { id: 'ps-4-10', title: '파일 납품',               role: '제작' },
       ],
+    },
+  ],
+
+  processJobs: [
+    {
+      id: 'pj-1', processId: 'pc-1',
+      title: '모바일 앱 UI 리디자인',
+      deadline: '2026-07-31',
+      currentStepIdx: 3,
+      status: 'active',
+      createdAt: '2026-06-01',
+      stepAssignees: {
+        'ps-1-01': ['Jihye'],
+        'ps-1-02': ['김도현'],
+        'ps-1-03': ['Jihye', '장준혁'],
+        'ps-1-04': ['장준혁'],
+        'ps-1-05': ['Jihye', '장준혁', '최유진'],
+      },
+    },
+    {
+      id: 'pj-2', processId: 'pc-3',
+      title: '여름 SNS 콘텐츠 패키지',
+      deadline: '2026-07-10',
+      currentStepIdx: 2,
+      status: 'active',
+      createdAt: '2026-06-08',
+      stepAssignees: {
+        'ps-3-01': ['Jihye'],
+        'ps-3-02': ['최유진'],
+        'ps-3-03': ['정하은'],
+        'ps-3-04': ['정하은', '이나경'],
+      },
+    },
+    {
+      id: 'pj-3', processId: 'pc-4',
+      title: '브랜드 홍보 영상',
+      deadline: '2026-06-30',
+      currentStepIdx: 1,
+      status: 'active',
+      createdAt: '2026-05-28',
+      stepAssignees: {
+        'ps-4-01': ['장준혁'],
+        'ps-4-02': ['장준혁', '박서연'],
+      },
     },
   ],
 };
@@ -3363,28 +3407,77 @@ function submitWorkRequest(e) {
 
 // ─── Process Management Page ─────────────────────────────────────────────────
 
-let _procOpenCats = new Set(['pc-1', 'pc-2', 'pc-3', 'pc-4']);
+let _procTab       = 'templates'; // 'templates' | 'assign'
+let _procOpenCats  = new Set(['pc-1', 'pc-2', 'pc-3', 'pc-4']);
+let _procDragId    = null;
+let _procDragCatId = null;
+
+// new-job form state
+let _njProcessId   = null;
+let _njAssignees   = {}; // { stepId: string[] }
+let _njActiveStep  = null;
+
+const PROC_ROLE_STYLE = {
+  '기획':   { bg: '#ede9fe', color: '#6d28d9' },
+  '디자인': { bg: '#fce7f3', color: '#be185d' },
+  '리서치': { bg: '#dbeafe', color: '#1d4ed8' },
+  '개발':   { bg: '#dcfce7', color: '#15803d' },
+  '제작':   { bg: '#ffedd5', color: '#c2410c' },
+  '카피':   { bg: '#fef9c3', color: '#854d0e' },
+  '전체':   { bg: '#f3f4f6', color: '#374151' },
+};
+const PROC_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+
+function procRoleBadge(role) {
+  const s = PROC_ROLE_STYLE[role] || { bg: '#f3f4f6', color: '#374151' };
+  return `<span class="proc-step-role" style="background:${s.bg};color:${s.color}">${role || '미지정'}</span>`;
+}
+
+function procMemberAvatar(name) {
+  const idx = state.teamMembers.findIndex(m => m.name === name);
+  const bg  = PROC_AVATAR_BG[idx >= 0 ? idx % PROC_AVATAR_BG.length : 0];
+  return `<span class="proc-avatar" style="background:${bg}" title="${escapeHtml(name)}">${name[0]}</span>`;
+}
 
 function renderProcessPage() {
   const body = $('#processBody');
   if (!body) return;
 
-  if (!state.processes || state.processes.length === 0) {
-    body.innerHTML = '<div class="proc-empty">등록된 카테고리가 없습니다.<br>+ 카테고리 추가 버튼을 눌러 시작하세요.</div>';
-    return;
+  // tab bar (injected into header area)
+  const tabBarEl = document.getElementById('procTabBar');
+  if (tabBarEl) {
+    tabBarEl.innerHTML = [
+      { id: 'templates', label: '프로세스 등록' },
+      { id: 'assign',    label: '업무 배정' },
+    ].map(t => `<button class="proc-tab${_procTab === t.id ? ' active' : ''}" type="button" data-proc-tab="${t.id}">${t.label}</button>`).join('');
   }
 
-  const EDIT_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-  const DEL_SVG  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+  if (_procTab === 'templates') _renderProcTemplates(body);
+  else                          _renderProcAssign(body);
+}
+
+// ── Tab 1: 프로세스 등록 ─────────────────────────────────────────────────────
+
+function _renderProcTemplates(body) {
+  const DRAG_SVG = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="color:#c8c8d8"><circle cx="5.5" cy="4" r="1.1"/><circle cx="10.5" cy="4" r="1.1"/><circle cx="5.5" cy="8" r="1.1"/><circle cx="10.5" cy="8" r="1.1"/><circle cx="5.5" cy="12" r="1.1"/><circle cx="10.5" cy="12" r="1.1"/></svg>`;
+  const EDIT_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+  const DEL_SVG  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
   const CHEV_SVG = `<svg class="proc-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
   const PLUS_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
+  if (!state.processes.length) {
+    body.innerHTML = '<div class="proc-empty">등록된 프로세스가 없습니다.<br>+ 프로세스 추가 버튼을 눌러 시작하세요.</div>';
+    return;
+  }
 
   body.innerHTML = `<div class="proc-list">${state.processes.map(cat => {
     const isOpen = _procOpenCats.has(cat.id);
     const steps = cat.steps.map((step, idx) => `
-      <div class="proc-step-row">
+      <div class="proc-step-row" draggable="true" data-drag-step="${step.id}" data-drag-cat="${cat.id}">
+        <span class="proc-drag-handle">${DRAG_SVG}</span>
         <span class="proc-step-num">${idx + 1}</span>
-        <span class="proc-step-title">${step.title}</span>
+        <span class="proc-step-title">${escapeHtml(step.title)}</span>
+        ${procRoleBadge(step.role)}
         <div class="proc-step-actions">
           <button class="proc-icon-btn" type="button" data-edit-step="${step.id}" data-cat-id="${cat.id}" title="수정">${EDIT_SVG}</button>
           <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-step="${step.id}" data-cat-id="${cat.id}" title="삭제">${DEL_SVG}</button>
@@ -3394,21 +3487,203 @@ function renderProcessPage() {
     return `
       <div class="proc-card${isOpen ? ' is-open' : ''}" data-cat="${cat.id}">
         <div class="proc-card-header" data-toggle-cat="${cat.id}">
-          <span class="proc-cat-title">${cat.category}</span>
+          <span class="proc-cat-title">${escapeHtml(cat.category)}</span>
           <span class="proc-step-count">${cat.steps.length}단계</span>
           <span class="proc-header-spacer"></span>
           <div class="proc-card-actions">
-            <button class="proc-icon-btn" type="button" data-edit-cat="${cat.id}" title="카테고리 수정">${EDIT_SVG}</button>
-            <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${cat.id}" title="카테고리 삭제">${DEL_SVG}</button>
+            <button class="proc-icon-btn" type="button" data-edit-cat="${cat.id}" title="수정">${EDIT_SVG}</button>
+            <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${cat.id}" title="삭제">${DEL_SVG}</button>
           </div>
           ${CHEV_SVG}
         </div>
         <div class="proc-body">
-          <div class="proc-step-list">${steps || '<div class="proc-no-steps">등록된 프로세스가 없습니다.</div>'}</div>
-          <button class="proc-add-step-btn" type="button" data-add-step="${cat.id}">${PLUS_SVG} 프로세스 추가</button>
+          <div class="proc-step-list" data-step-list="${cat.id}">
+            ${steps || '<div class="proc-no-steps">등록된 단계가 없습니다.</div>'}
+          </div>
+          <button class="proc-add-step-btn" type="button" data-add-step="${cat.id}">${PLUS_SVG} 단계 추가</button>
         </div>
       </div>`;
   }).join('')}</div>`;
+
+  // Drag-to-reorder
+  body.querySelectorAll('[data-drag-step]').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      _procDragId = el.dataset.dragStep;
+      _procDragCatId = el.dataset.dragCat;
+      el.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragend', () => {
+      _procDragId = null; _procDragCatId = null;
+      body.querySelectorAll('.proc-step-row').forEach(r => r.classList.remove('is-dragging','drag-over'));
+    });
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      body.querySelectorAll('.proc-step-row').forEach(r => r.classList.remove('drag-over'));
+      if (el.dataset.dragCat === _procDragCatId) el.classList.add('drag-over');
+    });
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      const toId = el.dataset.dragStep;
+      const toCat = el.dataset.dragCat;
+      if (!_procDragId || _procDragId === toId || _procDragCatId !== toCat) return;
+      const cat = state.processes.find(p => p.id === toCat);
+      if (!cat) return;
+      const fi = cat.steps.findIndex(s => s.id === _procDragId);
+      const ti = cat.steps.findIndex(s => s.id === toId);
+      const [moved] = cat.steps.splice(fi, 1);
+      cat.steps.splice(ti, 0, moved);
+      renderProcessPage();
+    });
+  });
+}
+
+// ── Tab 2: 업무 배정 ─────────────────────────────────────────────────────────
+
+function _renderProcAssign(body) {
+  const jobs = (state.processJobs || []);
+
+  body.innerHTML = `
+    <div class="proc-assign-layout">
+      <div class="proc-assign-form-col">
+        <div class="proc-form-card">
+          <div class="proc-form-card-title">새 업무 배정</div>
+          <div class="form-field">
+            <span class="form-field-label">프로세스 선택</span>
+            <select id="njProcess">
+              <option value="">-- 프로세스 선택 --</option>
+              ${state.processes.map(p => `<option value="${p.id}"${_njProcessId === p.id ? ' selected' : ''}>${escapeHtml(p.category)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-field">
+            <span class="form-field-label">업무명</span>
+            <input type="text" id="njTitle" placeholder="업무명을 입력하세요" value="${escapeHtml(document.getElementById('njTitle')?.value || '')}" />
+          </div>
+          <div class="form-field">
+            <span class="form-field-label">마감일</span>
+            <input type="date" id="njDeadline" value="${document.getElementById('njDeadline')?.value || ''}" />
+          </div>
+          <div id="njStepsWrap"></div>
+          <button class="dark-btn" type="button" id="njSubmit" style="width:100%;margin-top:12px"${!_njProcessId ? ' disabled' : ''}>배정 완료</button>
+        </div>
+      </div>
+
+      <div class="proc-assign-jobs-col">
+        <div class="proc-jobs-title">진행 중인 배정 <span class="proc-jobs-count">${jobs.length}</span></div>
+        <div class="proc-jobs-list">
+          ${jobs.length ? jobs.map(j => _procJobCardHtml(j)).join('') : '<div class="proc-empty" style="padding:24px">배정된 업무가 없습니다.</div>'}
+        </div>
+      </div>
+    </div>`;
+
+  _renderNjSteps();
+
+  document.getElementById('njProcess')?.addEventListener('change', e => {
+    _njProcessId = e.target.value || null;
+    _njAssignees = {};
+    _njActiveStep = null;
+    _renderNjSteps();
+    const btn = document.getElementById('njSubmit');
+    if (btn) btn.disabled = !_njProcessId;
+  });
+
+  document.getElementById('njSubmit')?.addEventListener('click', _submitProcJob);
+}
+
+function _renderNjSteps() {
+  const wrap = document.getElementById('njStepsWrap');
+  if (!wrap) return;
+  if (!_njProcessId) { wrap.innerHTML = ''; return; }
+  const proc = state.processes.find(p => p.id === _njProcessId);
+  if (!proc) return;
+
+  const stepsHtml = proc.steps.map((step, idx) => {
+    const assignees = _njAssignees[step.id] || [];
+    const avatarsHtml = assignees.slice(0,3).map(n => procMemberAvatar(n)).join('') +
+      (assignees.length > 3 ? `<span class="proc-avatar-extra">+${assignees.length - 3}</span>` : '');
+    return `
+      <div class="proc-nj-step-row" data-nj-step="${step.id}">
+        <span class="proc-nj-step-num">${idx + 1}</span>
+        <div class="proc-nj-step-info">
+          <span class="proc-nj-step-title">${escapeHtml(step.title)}</span>
+          ${procRoleBadge(step.role)}
+        </div>
+        <button class="proc-nj-assign-btn" type="button" data-nj-open-panel="${step.id}">
+          ${assignees.length
+            ? `<span class="proc-nj-avatars">${avatarsHtml}</span><span class="proc-nj-count">${assignees.length}명</span>`
+            : `<span class="proc-nj-plus">+</span><span class="proc-nj-label">담당자</span>`}
+        </button>
+      </div>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="proc-nj-steps-label">단계별 담당자</div>
+    <div class="proc-nj-steps-list" id="njStepsList">${stepsHtml}</div>
+    <div class="proc-nj-panel hidden" id="njPanel"><div id="njPanelList"></div></div>`;
+}
+
+function _renderNjPanel(stepId) {
+  const panelList = document.getElementById('njPanelList');
+  if (!panelList) return;
+  const members = state.teamMembers.filter(m => !m.onLeave);
+  const current = _njAssignees[stepId] || [];
+  panelList.innerHTML = members.map(m => `
+    <div class="proc-nj-member-row${current.includes(m.name) ? ' is-checked' : ''}" data-nj-pick="${m.name}" data-nj-step="${stepId}">
+      ${procMemberAvatar(m.name)}
+      <span class="proc-nj-member-name">${escapeHtml(m.name)}</span>
+      <span class="proc-nj-member-role">${escapeHtml(m.role)}</span>
+      <svg class="proc-nj-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>`).join('');
+}
+
+function _procJobCardHtml(job) {
+  const proc = state.processes.find(p => p.id === job.processId);
+  if (!proc) return '';
+  const done = job.currentStepIdx;
+  const total = proc.steps.length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const currentStep = proc.steps[job.currentStepIdx] || proc.steps[total - 1];
+  const assignees = Object.values(job.stepAssignees || {}).flat();
+  const uniqueAssignees = [...new Set(assignees)];
+
+  return `
+    <div class="proc-job-card">
+      <div class="proc-job-card-top">
+        <div>
+          <div class="proc-job-title">${escapeHtml(job.title)}</div>
+          <div class="proc-job-meta">${escapeHtml(proc.category)} · 마감 ${job.deadline}</div>
+        </div>
+        <span class="proc-job-status-badge">진행 중</span>
+      </div>
+      <div class="proc-job-progress-row">
+        <div class="proc-job-progress-track"><div class="proc-job-progress-fill" style="width:${pct}%"></div></div>
+        <span class="proc-job-pct">${done}/${total}</span>
+      </div>
+      <div class="proc-job-current-step">현재 단계 · <strong>${escapeHtml(currentStep?.title || '-')}</strong>${currentStep?.role ? ' · ' + procRoleBadge(currentStep.role) : ''}</div>
+      <div class="proc-job-assignees">
+        ${uniqueAssignees.slice(0,5).map(n => procMemberAvatar(n)).join('')}
+        ${uniqueAssignees.length > 5 ? `<span class="proc-avatar-extra">+${uniqueAssignees.length - 5}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function _submitProcJob() {
+  const title = document.getElementById('njTitle')?.value.trim();
+  const deadline = document.getElementById('njDeadline')?.value;
+  if (!_njProcessId || !title) { alert('프로세스와 업무명을 입력해주세요.'); return; }
+  state.processJobs = state.processJobs || [];
+  state.processJobs.unshift({
+    id: 'pj-' + Date.now(),
+    processId: _njProcessId,
+    title,
+    deadline: deadline || '-',
+    currentStepIdx: 0,
+    status: 'active',
+    createdAt: state.today,
+    stepAssignees: JSON.parse(JSON.stringify(_njAssignees)),
+  });
+  _njProcessId = null; _njAssignees = {}; _njActiveStep = null;
+  renderProcessPage();
 }
 
 function cancelLeaveRequest(id) {
@@ -3658,15 +3933,66 @@ function bindEvents() {
       return;
     }
 
+    // Process: tab switch
+    const procTabBtn = e.target.closest('[data-proc-tab]');
+    if (procTabBtn) {
+      _procTab = procTabBtn.dataset.procTab;
+      _njProcessId = null; _njAssignees = {}; _njActiveStep = null;
+      renderProcessPage();
+      return;
+    }
+
     // Process: add step
     const addStepBtn = e.target.closest('[data-add-step]');
     if (addStepBtn) {
       const cat = state.processes.find(c => c.id === addStepBtn.dataset.addStep);
       if (!cat) return;
-      const name = prompt('새 프로세스 이름을 입력하세요');
+      const name = prompt('새 단계 이름을 입력하세요');
       if (!name || !name.trim()) return;
-      cat.steps.push({ id: `ps-${cat.id}-${Date.now()}`, title: name.trim() });
+      const roleInput = prompt('역할을 입력하세요 (기획/디자인/리서치/개발/제작/카피/전체)') || '미지정';
+      cat.steps.push({ id: `ps-${cat.id}-${Date.now()}`, title: name.trim(), role: roleInput.trim() });
       renderProcessPage();
+      return;
+    }
+
+    // Process assign: open member panel for step
+    const njOpenPanel = e.target.closest('[data-nj-open-panel]');
+    if (njOpenPanel) {
+      const stepId = njOpenPanel.dataset.njOpenPanel;
+      const panel = document.getElementById('njPanel');
+      if (!panel) return;
+      if (_njActiveStep === stepId && !panel.classList.contains('hidden')) {
+        panel.classList.add('hidden');
+        _njActiveStep = null;
+      } else {
+        _njActiveStep = stepId;
+        _renderNjPanel(stepId);
+        const row = njOpenPanel.closest('[data-nj-step]');
+        if (row) { row.appendChild(panel); }
+        panel.classList.remove('hidden');
+      }
+      return;
+    }
+
+    // Process assign: pick/unpick a member
+    const njPickBtn = e.target.closest('[data-nj-pick]');
+    if (njPickBtn) {
+      const name = njPickBtn.dataset.njPick;
+      const stepId = njPickBtn.dataset.njStep;
+      _njAssignees[stepId] = _njAssignees[stepId] || [];
+      const idx = _njAssignees[stepId].indexOf(name);
+      if (idx >= 0) _njAssignees[stepId].splice(idx, 1);
+      else _njAssignees[stepId].push(name);
+      njPickBtn.classList.toggle('is-checked', idx < 0);
+      const chk = njPickBtn.querySelector('.proc-nj-check');
+      if (chk) chk.style.opacity = idx < 0 ? '1' : '0';
+      _renderNjSteps();
+      const stepPanel = document.getElementById('njPanel');
+      if (stepPanel && _njActiveStep) {
+        _renderNjPanel(_njActiveStep);
+        const row = document.querySelector(`[data-nj-step="${_njActiveStep}"]`);
+        if (row) { row.appendChild(stepPanel); stepPanel.classList.remove('hidden'); }
+      }
       return;
     }
 
