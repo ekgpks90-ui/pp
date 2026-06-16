@@ -3592,12 +3592,11 @@ h1, h2, h3, p { margin: 0; }
 
 .mp-page {
   flex: 1;
-  overflow: hidden;
-  padding: 16px 24px;
+  overflow-y: auto;
+  padding: 16px 24px 32px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 0;
 }
 .mp-header { margin-bottom: 0; }
 .mp-title  { font-size: 18px; font-weight: 700; color: var(--text-primary); }
@@ -3635,12 +3634,10 @@ h1, h2, h3, p { margin: 0; }
   display: grid;
   grid-template-columns: 220px 1fr 380px;
   gap: 12px;
-  align-items: stretch;
-  flex: 1;
-  min-height: 0;
+  align-items: start;
 }
-.mp-col-left  { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
-.mp-col-center { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
+.mp-col-left  { display: flex; flex-direction: column; gap: 10px; }
+.mp-col-center { display: flex; flex-direction: column; gap: 10px; }
 
 /* Left: profile */
 .mp-profile-card {
@@ -3704,7 +3701,7 @@ h1, h2, h3, p { margin: 0; }
 .mp-cat-time { color: var(--text-primary); font-weight: 500; text-align: right; font-size: 11px; }
 
 /* Right: calendar + sessions */
-.mp-col-right { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
+.mp-col-right { display: flex; flex-direction: column; gap: 10px; }
 .mp-cal-mini-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
 .mp-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .mp-cal-btn {
