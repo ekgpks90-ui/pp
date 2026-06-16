@@ -4463,7 +4463,7 @@ h1, h2, h3, p { margin: 0; }
 .modal-assign-wide { width: min(600px, 96vw); }
 
 /* Phase 1: 카테고리 선택 */
-.assign-phase-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.assign-phase-title { font-size: 13px; font-weight: 600; color: #4a66ff; margin-bottom: 4px; }
 .assign-phase-hint  { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
 
 .assign-cat-list {
@@ -4700,7 +4700,7 @@ h1, h2, h3, p { margin: 0; }
 .proc-cat-title {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text);
+  color: #4a66ff;
   flex: 0 0 auto;
   white-space: nowrap;
   overflow: hidden;
