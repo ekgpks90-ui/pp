@@ -3555,6 +3555,17 @@ h1, h2, h3, p { margin: 0; }
 .leave-tab-btn:hover { color: #111827; }
 .leave-tab-btn.active { color: #111827; font-weight: 700; border-bottom-color: #111827; }
 
+.leave-type-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
 .leave-list-wrap {
   flex: 1;
   overflow-y: auto;

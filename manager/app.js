@@ -2894,6 +2894,23 @@ function renderLeaveTabBar() {
   // tab bar removed — layout is now 2-island
 }
 
+function leaveTypeIcon(type) {
+  const icons = {
+    '종일 연차': `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8" cy="8" r="7" fill="#3b82f6"/>
+    </svg>`,
+    '오전 반차': `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8" cy="8" r="7" fill="#d1d5db"/>
+      <path d="M8 1A7 7 0 0 0 8 15Z" fill="#10b981"/>
+    </svg>`,
+    '오후 반차': `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8" cy="8" r="7" fill="#d1d5db"/>
+      <path d="M8 1A7 7 0 0 1 8 15Z" fill="#8b5cf6"/>
+    </svg>`,
+  };
+  return `<span class="leave-type-icon" title="${type}">${icons[type] || type}</span>`;
+}
+
 function leaveStatusBadge(status) {
   const map = {
     '승인 대기': 'badge-pending',
@@ -2917,7 +2934,7 @@ function renderLeaveRows(leaves, hideActions = false) {
       <div class="leave-row-main">
         <div class="leave-row-top">
           <span class="leave-row-name">${lv.applicantName}</span>
-          <span class="leave-row-type">${lv.type}</span>
+          ${leaveTypeIcon(lv.type)}
           ${leaveStatusBadge(lv.status)}
         </div>
         <div class="leave-row-meta">
@@ -2970,7 +2987,7 @@ function _renderLeaveTeamSection() {
           <div class="leave-row">
             <div class="leave-row-main">
               <div class="leave-row-top">
-                <span class="leave-row-type">${lv.type}</span>
+                ${leaveTypeIcon(lv.type)}
                 ${leaveStatusBadge(lv.status)}
               </div>
               <div class="leave-row-meta">
@@ -3020,7 +3037,7 @@ function _renderLeavePendingSection() {
         <div class="leave-row-main">
           <div class="leave-row-top">
             <span class="leave-row-name">${escapeHtml(lv.applicantName)}</span>
-            <span class="leave-row-type">${lv.type}</span>
+            ${leaveTypeIcon(lv.type)}
           </div>
           <div class="leave-row-meta">
             <span>신청일 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
@@ -3078,7 +3095,7 @@ function _renderLeaveLeftSection() {
             <div class="leave-row">
               <div class="leave-row-main">
                 <div class="leave-row-top">
-                  <span class="leave-row-type">${lv.type}</span>
+                  ${leaveTypeIcon(lv.type)}
                   ${leaveStatusBadge(lv.status)}
                 </div>
                 <div class="leave-row-meta">
