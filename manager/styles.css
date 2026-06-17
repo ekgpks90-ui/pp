@@ -5154,13 +5154,13 @@ h1, h2, h3, p { margin: 0; }
 
 .proc-step-num {
   flex: 0 0 auto;
-  font-size: 16px;
+  font-size: 14px;
   font-family: 'DM Mono', monospace;
   color: var(--muted);
   width: 18px;
   text-align: right;
 }
-.proc-step-title { flex: 1 1 auto; font-size: 16px; color: var(--text); }
+.proc-step-title { flex: 1 1 auto; font-size: 14px; color: var(--text); }
 
 /* Step edit/delete — hidden until row hover */
 .proc-step-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.13s; }
