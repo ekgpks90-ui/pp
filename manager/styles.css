@@ -3731,7 +3731,7 @@ h1, h2, h3, p { margin: 0; }
 /* ── Leave: 2-island layout ──────────────────────────────────────────── */
 .leave-islands {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 16px;
   align-items: start;
   padding-bottom: 28px;
