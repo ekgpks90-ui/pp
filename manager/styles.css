@@ -3476,8 +3476,12 @@ h1, h2, h3, p { margin: 0; }
   height: 100%;
   padding: 28px 32px 0;
   gap: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
+.leave-page::-webkit-scrollbar { width: 4px; }
+.leave-page::-webkit-scrollbar-track { background: transparent; }
+.leave-page::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
 
 .leave-header {
   display: flex;
@@ -3730,6 +3734,7 @@ h1, h2, h3, p { margin: 0; }
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   align-items: start;
+  padding-bottom: 28px;
 }
 .leave-island {
   display: flex;
@@ -3742,7 +3747,13 @@ h1, h2, h3, p { margin: 0; }
   border-radius: 16px;
   padding: 18px 20px;
   min-height: 120px;
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
+.leave-island-card::-webkit-scrollbar { width: 4px; }
+.leave-island-card::-webkit-scrollbar-track { background: transparent; }
+.leave-island-card::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
 .leave-island-title {
   font-size: 14px;
   font-weight: 700;
@@ -3751,6 +3762,13 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   align-items: center;
   gap: 8px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  padding-top: 2px;
+  padding-bottom: 6px;
+  margin-top: -2px;
 }
 .leave-pending-count {
   background: #fef3c7;
