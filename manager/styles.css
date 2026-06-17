@@ -5064,7 +5064,7 @@ h1, h2, h3, p { margin: 0; }
 .proc-card-header:hover { background: var(--surface-muted); }
 
 .proc-cat-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: #4a66ff;
   flex: 0 0 auto;
