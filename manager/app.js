@@ -3374,21 +3374,7 @@ let _njProcessId   = null;
 let _njAssignees   = {}; // { stepId: string[] }
 let _njActiveStep  = null;
 
-const PROC_ROLE_STYLE = {
-  '기획':   { bg: '#ede9fe', color: '#6d28d9' },
-  '디자인': { bg: '#fce7f3', color: '#be185d' },
-  '리서치': { bg: '#dbeafe', color: '#1d4ed8' },
-  '개발':   { bg: '#dcfce7', color: '#15803d' },
-  '제작':   { bg: '#ffedd5', color: '#c2410c' },
-  '카피':   { bg: '#fef9c3', color: '#854d0e' },
-  '전체':   { bg: '#f3f4f6', color: '#374151' },
-};
 const PROC_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
-
-function procRoleBadge(role) {
-  const s = PROC_ROLE_STYLE[role] || { bg: '#f3f4f6', color: '#374151' };
-  return `<span class="proc-step-role" style="background:${s.bg};color:${s.color}">${role || '미지정'}</span>`;
-}
 
 function procMemberAvatar(name) {
   const idx = state.teamMembers.findIndex(m => m.name === name);
@@ -3434,7 +3420,6 @@ function _renderProcTemplates(body) {
         <span class="proc-drag-handle">${DRAG_SVG}</span>
         <span class="proc-step-num">${idx + 1}</span>
         <span class="proc-step-title">${escapeHtml(step.title)}</span>
-        ${procRoleBadge(step.role)}
         <div class="proc-step-actions">
           <button class="proc-icon-btn" type="button" data-edit-step="${step.id}" data-cat-id="${cat.id}" title="수정">${EDIT_SVG}</button>
           <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-step="${step.id}" data-cat-id="${cat.id}" title="삭제">${DEL_SVG}</button>
@@ -3563,7 +3548,6 @@ function _renderNjSteps() {
         <span class="proc-nj-step-num">${idx + 1}</span>
         <div class="proc-nj-step-info">
           <span class="proc-nj-step-title">${escapeHtml(step.title)}</span>
-          ${procRoleBadge(step.role)}
         </div>
         <button class="proc-nj-assign-btn" type="button" data-nj-open-panel="${step.id}">
           ${assignees.length
@@ -3616,7 +3600,7 @@ function _procJobCardHtml(job) {
         <div class="proc-job-progress-track"><div class="proc-job-progress-fill" style="width:${pct}%"></div></div>
         <span class="proc-job-pct">${done}/${total}</span>
       </div>
-      <div class="proc-job-current-step">현재 단계 · <strong>${escapeHtml(currentStep?.title || '-')}</strong>${currentStep?.role ? ' · ' + procRoleBadge(currentStep.role) : ''}</div>
+      <div class="proc-job-current-step">현재 단계 · <strong>${escapeHtml(currentStep?.title || '-')}</strong></div>
       <div class="proc-job-assignees">
         ${uniqueAssignees.slice(0,5).map(n => procMemberAvatar(n)).join('')}
         ${uniqueAssignees.length > 5 ? `<span class="proc-avatar-extra">+${uniqueAssignees.length - 5}</span>` : ''}
@@ -3916,8 +3900,7 @@ function bindEvents() {
       if (!cat) return;
       const name = prompt('새 단계 이름을 입력하세요');
       if (!name || !name.trim()) return;
-      const roleInput = prompt('역할을 입력하세요 (기획/디자인/리서치/개발/제작/카피/전체)') || '미지정';
-      cat.steps.push({ id: `ps-${cat.id}-${Date.now()}`, title: name.trim(), role: roleInput.trim() });
+      cat.steps.push({ id: `ps-${cat.id}-${Date.now()}`, title: name.trim() });
       renderProcessPage();
       return;
     }
