@@ -2896,19 +2896,19 @@ function renderLeaveTabBar() {
 
 function leaveTypeIcon(type) {
   const icons = {
-    '종일 연차': `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="8" cy="8" r="7" fill="#3b82f6"/>
+    '종일 연차': `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8" cy="8" r="7" fill="#374151"/>
     </svg>`,
-    '오전 반차': `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="8" cy="8" r="7" fill="#d1d5db"/>
-      <path d="M8 1A7 7 0 0 0 8 15Z" fill="#10b981"/>
+    '오전 반차': `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8" cy="8" r="7" fill="#e5e7eb"/>
+      <path d="M8 1A7 7 0 0 0 8 15Z" fill="#374151"/>
     </svg>`,
-    '오후 반차': `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="8" cy="8" r="7" fill="#d1d5db"/>
-      <path d="M8 1A7 7 0 0 1 8 15Z" fill="#8b5cf6"/>
+    '오후 반차': `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="8" cy="8" r="7" fill="#e5e7eb"/>
+      <path d="M8 1A7 7 0 0 1 8 15Z" fill="#374151"/>
     </svg>`,
   };
-  return `<span class="leave-type-icon" title="${type}">${icons[type] || type}</span>`;
+  return `<span class="leave-type-icon">${icons[type] || ''}<span class="leave-type-label">${type}</span></span>`;
 }
 
 function leaveStatusBadge(status) {

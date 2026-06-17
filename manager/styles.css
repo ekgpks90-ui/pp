@@ -3558,12 +3558,13 @@ h1, h2, h3, p { margin: 0; }
 .leave-type-icon {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--bg);
+  gap: 5px;
   flex-shrink: 0;
+}
+.leave-type-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-sub);
 }
 
 .leave-list-wrap {
