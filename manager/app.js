@@ -47,6 +47,8 @@ const state = {
   myPageCalYear: _now.getFullYear(),
   myPageCalMonth: _now.getMonth(),
   myPageSelectedDate: null,
+  mpFilesExpanded: false,
+  mpMeetingsExpanded: false,
 
   teamMembers: [
     { id: 'u-1', name: 'Jihye',   role: 'UI/UX Designer',   team: '디자인팀', onLeave: false, leaveType: null,
@@ -499,6 +501,31 @@ const state = {
       { id: 'act-mr8-3', text: '스타일 토큰 일원화 작업 착수', dueDate: '2026-06-07', assignee: '정하은', done: false, addedToWeekly: false },
     ],
     date: '2026-05-27', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', 'Jihye', '정하은', '박서연', '최유진'] },
+    { id: 'mr-9', team: '디자인팀', type: '주간 회의', title: '디자인팀 주간 싱크 #22',
+    summary: '이번 주 진행 업무 공유 및 우선순위 재조정. 온보딩 수정 일정과 배너 제작 현황을 점검했습니다.',
+    aiPoints: ['온보딩 화면 수정 3건 이번 주 내 완료 예정', '배너 시안 검토 일정 목요일로 확정', '고객사 A 컬러 시스템 시안 다음 주 공유'],
+    discussions: ['온보딩 수정 범위 추가 가능성 검토 필요', '배너 사이즈 스펙 마케팅팀과 재확인'],
+    script: [],
+    actionItems: [],
+    date: '2026-06-09', author: 'Jihye', duration: '28:15', attendees: 4, attendeeNames: ['Jihye', '이나경', '정하은', '박서연'] },
+    { id: 'mr-10', team: '디자인팀', type: '클라이언트 미팅', title: '고객사 A 1차 시안 발표',
+    summary: '로고 1차 시안 3종 발표 및 클라이언트 피드백 수렴. 컬러 방향성은 긍정적이나 서체 변경 요청이 있었습니다.',
+    aiPoints: ['로고 시안 B안 방향으로 진행 확정', '서체: 현재 Pretendard → Noto Serif 검토 요청', '다음 미팅 일정: 6월 18일'],
+    discussions: ['서체 변경 시 전체 BI 일관성 검토 필요'],
+    script: [],
+    actionItems: [
+      { id: 'act-mr10-1', text: '서체 대안 2종 추가 시안 제작', dueDate: '2026-06-16', assignee: '이나경', done: false, addedToWeekly: false },
+    ],
+    date: '2026-06-11', author: 'Jihye', duration: '45:00', attendees: 3, attendeeNames: ['Jihye', '이나경', '최유진'] },
+    { id: 'mr-11', team: '전체', type: '긴급 회의', title: '앱 출시 전 최종 QA 점검',
+    summary: 'QA 기간 중 발견된 온보딩 버그 현황 공유 및 수정 우선순위 합의. 출시 일정은 예정대로 유지하기로 결정.',
+    aiPoints: ['온보딩 버그 총 7건 — 이번 주 내 5건 수정 목표', '나머지 2건은 출시 후 핫픽스로 처리', '출시 일정 6월 20일 유지'],
+    discussions: ['출시 일정 연기 여부 논의 — 현행 유지로 합의', '핫픽스 대응 담당자 Jihye·최유진으로 확정'],
+    script: [],
+    actionItems: [
+      { id: 'act-mr11-1', text: '온보딩 버그 5건 수정 완료', dueDate: '2026-06-17', assignee: 'Jihye', done: false, addedToWeekly: false },
+    ],
+    date: '2026-06-17', author: '최유진', duration: '32:00', attendees: 5, attendeeNames: ['Jihye', '최유진', '박서연', '정하은', '이나경'] },
   ],
 
   // 연차 데이터 — id, applicantId, applicantName, applicantRole, type, date, reason, status, approverId, approverName, rejectedReason, requestedAt
@@ -1362,9 +1389,12 @@ function renderMyPage() {
       </div>
       <div class="mp-col-center">
         ${_mpAI()}
+        ${_mpFiles()}
+      </div>
+      <div class="mp-col-right">
+        ${_mpCalPanel()}
         ${_mpMeetings()}
       </div>
-      <div class="mp-col-right">${_mpCalPanel()}</div>
     </div>
   `;
 }
@@ -1531,6 +1561,122 @@ function _sessionMins(s) {
   return (eh*60+em)-(sh*60+sm);
 }
 
+const MP_FILES_DATA = [
+  { id:'mf1', name:'디자인_기획서_v2.pdf',    ext:'pdf', date:'2026-06-10', from:'디자인팀 주간 회의' },
+  { id:'mf2', name:'마케팅전략_Q2.pptx',       ext:'ppt', date:'2026-06-08', from:'마케팅 업무 요청' },
+  { id:'mf3', name:'와이어프레임_홈.png',       ext:'img', date:'2026-06-05', from:'UX 리뷰 회의' },
+  { id:'mf4', name:'사용자조사_결과.pdf',       ext:'pdf', date:'2026-06-03', from:'사용자 조사 업무' },
+  { id:'mf5', name:'스프린트_계획.xlsx',        ext:'xls', date:'2026-06-01', from:'스프린트 계획 회의' },
+  { id:'mf6', name:'로고_최종본.png',           ext:'img', date:'2026-05-28', from:'브랜드 리뉴얼 업무' },
+  { id:'mf7', name:'개발_명세서.docx',          ext:'doc', date:'2026-05-25', from:'개발팀 협업 요청' },
+];
+
+function _mpFiles() {
+  const ICON = { pdf:'📄', ppt:'📊', img:'🖼', xls:'📗', doc:'📝' };
+  const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
+  const list = state.mpFilesExpanded ? MP_FILES_DATA : MP_FILES_DATA.slice(0,5);
+
+  const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  let lastMonth = null;
+  const items = list.map(f => {
+    const [,m] = f.date.split('-');
+    const monthKey = f.date.slice(0,7);
+    const monthLabel = monthKey !== lastMonth
+      ? `<div class="mp-file-month-label">${MONTH_KO[parseInt(m,10)-1]}</div>`
+      : '';
+    lastMonth = monthKey;
+    return `${monthLabel}
+    <div class="mp-file-item" data-mp-file-open="${f.id}" role="button" tabindex="0">
+      <span class="mp-file-icon ${CLS[f.ext]||''}">${ICON[f.ext]||'📎'}</span>
+      <div class="mp-file-info">
+        <div class="mp-file-name">${escapeHtml(f.name)}</div>
+        <div class="mp-file-meta">${escapeHtml(f.from)} · ${f.date}</div>
+      </div>
+      <button class="mp-file-dl-btn" data-mp-file-dl="${f.id}" title="다운로드">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M7.5 1v9M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>`;
+  }).join('');
+
+  const moreBtn = MP_FILES_DATA.length>5
+    ? `<button class="mp-files-more-btn" data-mp-files-toggle>${state.mpFilesExpanded?'접기':'더보기'}</button>`
+    : '';
+  return `
+    <div class="mp-files-card">
+      <div class="mp-files-header">
+        <span class="mp-files-title">내가 올린 파일</span>
+        <span class="mp-files-count">${MP_FILES_DATA.length}개</span>
+      </div>
+      <div class="mp-files-list">${items}</div>
+      ${moreBtn}
+    </div>`;
+}
+
+function openFilePreview(id) {
+  const f = MP_FILES_DATA.find(x => x.id === id);
+  if (!f) return;
+  const ICON = { pdf:'📄', ppt:'📊', img:'🖼', xls:'📗', doc:'📝' };
+  const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
+  const PREVIEW_BG = { img:'mp-fpreview-img', pdf:'mp-fpreview-pdf', ppt:'mp-fpreview-ppt', xls:'mp-fpreview-xls', doc:'mp-fpreview-doc' };
+
+  const existing = document.getElementById('mpFileModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'mpFileModal';
+  modal.className = 'mp-fmodal-overlay';
+  modal.innerHTML = `
+    <div class="mp-fmodal">
+      <div class="mp-fmodal-header">
+        <div class="mp-fmodal-title-row">
+          <span class="mp-file-icon ${CLS[f.ext]||''}" style="width:36px;height:36px;font-size:20px">${ICON[f.ext]||'📎'}</span>
+          <div>
+            <div class="mp-fmodal-name">${escapeHtml(f.name)}</div>
+            <div class="mp-fmodal-meta">${escapeHtml(f.from)} · ${f.date}</div>
+          </div>
+        </div>
+        <button class="mp-fmodal-close" id="mpFileModalClose">✕</button>
+      </div>
+      <div class="mp-fmodal-preview ${PREVIEW_BG[f.ext]||''}">
+        <div class="mp-fpreview-placeholder">
+          <span style="font-size:48px">${ICON[f.ext]||'📎'}</span>
+          <p>${escapeHtml(f.name)}</p>
+          <span class="mp-fpreview-label">미리보기를 지원하지 않는 형식입니다</span>
+        </div>
+      </div>
+      <div class="mp-fmodal-footer">
+        <button class="dark-btn mp-fmodal-dl-btn" data-mp-file-dl="${f.id}">
+          <svg width="14" height="14" viewBox="0 0 15 15" fill="none" style="margin-right:6px">
+            <path d="M7.5 1v9M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          다운로드
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal || e.target.id === 'mpFileModalClose') modal.remove();
+    if (e.target.closest('[data-mp-file-dl]')) {
+      const fid = e.target.closest('[data-mp-file-dl]').dataset.mpFileDl;
+      triggerFileDl(fid);
+    }
+  });
+}
+
+function triggerFileDl(id) {
+  const f = MP_FILES_DATA.find(x => x.id === id);
+  if (!f) return;
+  const a = document.createElement('a');
+  a.href = '#';
+  a.download = f.name;
+  a.click();
+}
+
 function _mpAI() {
   const uid=state.currentUser.id;
   const monthPrefix=state.today.slice(0,7);
@@ -1595,37 +1741,65 @@ function _mpAI() {
 
 function _mpMeetings() {
   const myName = state.currentUser.name;
-  const meetings = (state.meetings || []).filter(m =>
-    Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName)
+  const monthPrefix = `${state.myPageCalYear}-${String(state.myPageCalMonth + 1).padStart(2, '0')}`;
+  const sel = state.myPageSelectedDate;
+
+  const all = (state.meetings || []).filter(m =>
+    Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName) &&
+    (m.date || '').startsWith(monthPrefix)
   );
-  const inner = meetings.length
-    ? meetings.map(m => {
-        const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
-          `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
-        ).join('');
-        const more = m.attendeeNames.length > 4
-          ? `<span class="mp-meeting-avatar-more">+${m.attendeeNames.length - 4}</span>` : '';
-        return `
-          <div class="mp-meeting-card" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
-            <div class="mp-meeting-card-top">
-              <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
-            </div>
-            <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
-            <div class="mp-meeting-card-bottom">
-              <div class="mp-meeting-avatars">${avatars}${more}</div>
-              <span class="mp-meeting-meta">${m.date}</span>
-              <span class="mp-meeting-meta">${m.duration}</span>
-            </div>
-          </div>`;
-      }).join('')
-    : `<div class="mp-meetings-empty">참여한 회의가 없습니다.</div>`;
+
+  const highlighted = sel ? all.filter(m => m.date === sel) : [];
+  const rest = sel ? all.filter(m => m.date !== sel).sort((a,b) => b.date.localeCompare(a.date))
+                   : [...all].sort((a,b) => b.date.localeCompare(a.date));
+  const sorted = [...highlighted, ...rest];
+
+  const renderCard = (m, isHL) => {
+    const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
+      `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
+    ).join('');
+    const more = m.attendeeNames.length > 4
+      ? `<span class="mp-meeting-avatar-more">+${m.attendeeNames.length - 4}</span>` : '';
+    return `
+      <div class="mp-meeting-card${isHL ? ' mp-meeting-hl' : ''}" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
+        <div class="mp-meeting-card-top">
+          <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
+        </div>
+        <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
+        <div class="mp-meeting-card-bottom">
+          <div class="mp-meeting-avatars">${avatars}${more}</div>
+          <span class="mp-meeting-meta">${m.date}</span>
+          <span class="mp-meeting-meta">${m.duration}</span>
+        </div>
+      </div>`;
+  };
+
+  const SHOW = 3;
+  const visible = state.mpMeetingsExpanded ? sorted : sorted.slice(0, SHOW);
+
+  const inner = visible.length
+    ? visible.map(m => renderCard(m, sel && m.date === sel)).join('')
+    : `<div class="mp-meetings-empty">이달 참여한 회의가 없습니다.</div>`;
+
+  const subtitle = sel
+    ? `<span class="mp-meetings-sub">${sel} · ${highlighted.length}건 하이라이트</span>`
+    : '';
+
+  const moreBtn = sorted.length > SHOW
+    ? `<button class="mp-meetings-more-btn" data-mp-meetings-toggle>
+        ${state.mpMeetingsExpanded ? '접기' : `더보기 +${sorted.length - SHOW}`}
+       </button>`
+    : '';
+
   return `
     <div class="mp-meetings-section">
       <div class="mp-meetings-header">
         <span class="mp-section-label">참여한 회의</span>
-        <span class="mp-meetings-count">${meetings.length}건</span>
+        ${subtitle}
+        <span class="mp-meetings-count">${sorted.length}건</span>
       </div>
       <div class="mp-meetings-list">${inner}</div>
+      ${moreBtn}
     </div>
   `;
 }
@@ -4489,6 +4663,28 @@ function bindEvents() {
     if (dateCell) {
       state.myPageSelectedDate = dateCell.dataset.mpDate;
       renderMyPage();
+      return;
+    }
+    const filesToggle = e.target.closest('[data-mp-files-toggle]');
+    if (filesToggle) {
+      state.mpFilesExpanded = !state.mpFilesExpanded;
+      renderMyPage();
+      return;
+    }
+    const meetingsToggle = e.target.closest('[data-mp-meetings-toggle]');
+    if (meetingsToggle) {
+      state.mpMeetingsExpanded = !state.mpMeetingsExpanded;
+      renderMyPage();
+      return;
+    }
+    const dlBtn = e.target.closest('[data-mp-file-dl]');
+    if (dlBtn && !e.target.closest('#mpFileModal')) {
+      triggerFileDl(dlBtn.dataset.mpFileDl);
+      return;
+    }
+    const fileItem = e.target.closest('[data-mp-file-open]');
+    if (fileItem && !e.target.closest('[data-mp-file-dl]')) {
+      openFilePreview(fileItem.dataset.mpFileOpen);
       return;
     }
   });
