@@ -3198,50 +3198,100 @@ function submitAssign() {
 }
 
 // ── Process Management Page ───────────────────────────────────────────────────
+let _procOpenCats = new Set();
+let _procDragId   = null;
+let _procDragCatId = null;
+
+const PROC_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+function procMemberAvatar(name) {
+  const idx = state.teamMembers.findIndex(m => m.name === name);
+  const bg  = PROC_AVATAR_BG[idx >= 0 ? idx % PROC_AVATAR_BG.length : 0];
+  return `<span class="proc-avatar" style="background:${bg}" title="${escapeHtml(name)}">${name[0]}</span>`;
+}
+
 function renderProcessPage() {
   const body = document.getElementById('processBody');
   if (!body) return;
 
-  const cats = state.processes || [];
+  const tabBarEl = document.getElementById('procTabBar');
+  if (tabBarEl) {
+    tabBarEl.innerHTML = `<button class="proc-tab active" type="button">+ 프로세스 등록</button>`;
+  }
 
-  if (!cats.length) {
-    body.innerHTML = `<div class="proc-empty">등록된 프로세스가 없습니다.<br>카테고리를 추가해 보세요.</div>`;
+  if (!state.processes.length) {
+    body.innerHTML = '<div class="proc-empty">등록된 프로세스가 없습니다.</div>';
     return;
   }
 
-  body.innerHTML = cats.map(cat => {
-    const steps = (cat.steps || []).map((step, i) => `
-      <div class="proc-step-row" data-step-id="${escapeHtml(step.id)}">
-        <span class="proc-step-num">${String(i + 1).padStart(2, '0')}.</span>
-        <span class="proc-step-title" id="proc-step-title-${escapeHtml(step.id)}">${escapeHtml(step.title)}</span>
+  const EDIT_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+  const DEL_SVG  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+  const CHEV_SVG = `<svg class="proc-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+  const PLUS_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
+  body.innerHTML = `<div class="proc-list">${state.processes.map(cat => {
+    const isOpen = _procOpenCats.has(cat.id);
+    const steps = cat.steps.map((step, idx) => `
+      <div class="proc-step-row" draggable="true" data-drag-step="${step.id}" data-drag-cat="${cat.id}">
+        <span class="proc-step-num">${String(idx + 1).padStart(2,'0')}.</span>
+        <span class="proc-step-title">${escapeHtml(step.title)}</span>
         <div class="proc-step-actions">
-          <button class="proc-icon-btn" type="button" data-edit-step="${escapeHtml(step.id)}" data-cat-id="${escapeHtml(cat.id)}" title="수정">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-step="${escapeHtml(step.id)}" data-cat-id="${escapeHtml(cat.id)}" title="삭제">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-          </button>
+          <button class="proc-icon-btn" type="button" data-edit-step="${step.id}" data-cat-id="${cat.id}" title="수정">${EDIT_SVG}</button>
+          <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-step="${step.id}" data-cat-id="${cat.id}" title="삭제">${DEL_SVG}</button>
         </div>
       </div>`).join('');
 
     return `
-      <div class="proc-card" data-cat-id="${escapeHtml(cat.id)}">
-        <div class="proc-card-header">
+      <div class="proc-card${isOpen ? ' is-open' : ''}" data-cat="${cat.id}">
+        <div class="proc-card-header" data-toggle-cat="${cat.id}">
           <span class="proc-cat-title">${escapeHtml(cat.category)}</span>
+          <span class="proc-step-count">${cat.steps.length}단계</span>
+          <span class="proc-header-spacer"></span>
           <div class="proc-card-actions">
-            <span class="proc-step-count">${cat.steps.length}단계</span>
-            <button class="proc-icon-btn" type="button" data-edit-cat="${escapeHtml(cat.id)}" title="카테고리 수정">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-            <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${escapeHtml(cat.id)}" title="카테고리 삭제">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-            </button>
+            <button class="proc-icon-btn" type="button" data-edit-cat="${cat.id}" title="수정">${EDIT_SVG}</button>
+            <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${cat.id}" title="삭제">${DEL_SVG}</button>
           </div>
+          ${CHEV_SVG}
         </div>
-        <div class="proc-step-list">${steps}</div>
-        <button class="proc-add-step-btn" type="button" data-add-step="${escapeHtml(cat.id)}">+ 프로세스 추가</button>
+        <div class="proc-body">
+          <div class="proc-step-list" data-step-list="${cat.id}">
+            ${steps || '<div class="proc-no-steps">등록된 단계가 없습니다.</div>'}
+          </div>
+          <button class="proc-add-step-btn" type="button" data-add-step="${cat.id}">${PLUS_SVG} 단계 추가</button>
+        </div>
       </div>`;
-  }).join('');
+  }).join('')}</div>`;
+
+  // Drag-to-reorder
+  body.querySelectorAll('[data-drag-step]').forEach(el => {
+    el.addEventListener('dragstart', e => {
+      _procDragId = el.dataset.dragStep;
+      _procDragCatId = el.dataset.dragCat;
+      el.classList.add('is-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragend', () => {
+      _procDragId = null; _procDragCatId = null;
+      body.querySelectorAll('.proc-step-row').forEach(r => r.classList.remove('is-dragging','drag-over'));
+    });
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      body.querySelectorAll('.proc-step-row').forEach(r => r.classList.remove('drag-over'));
+      if (el.dataset.dragCat === _procDragCatId) el.classList.add('drag-over');
+    });
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      const toId = el.dataset.dragStep;
+      const toCat = el.dataset.dragCat;
+      if (!_procDragId || _procDragId === toId || _procDragCatId !== toCat) return;
+      const cat = state.processes.find(p => p.id === toCat);
+      if (!cat) return;
+      const fi = cat.steps.findIndex(s => s.id === _procDragId);
+      const ti = cat.steps.findIndex(s => s.id === toId);
+      const [moved] = cat.steps.splice(fi, 1);
+      cat.steps.splice(ti, 0, moved);
+      renderProcessPage();
+    });
+  });
 }
 
 function cancelLeaveRequest(id) {
@@ -3432,6 +3482,17 @@ function bindEvents() {
       state.pendingDeleteResourceWiId = rmResBtn.dataset.wiId;
       $('#deleteModalDesc').textContent = '삭제된 리소스는 복구할 수 없습니다.';
       $('#deleteModal').classList.remove('hidden');
+      return;
+    }
+
+    // Process: toggle accordion
+    const toggleCatBtn = e.target.closest('[data-toggle-cat]');
+    if (toggleCatBtn && !e.target.closest('[data-edit-cat]') && !e.target.closest('[data-delete-cat]')) {
+      const catId = toggleCatBtn.dataset.toggleCat;
+      if (_procOpenCats.has(catId)) _procOpenCats.delete(catId);
+      else _procOpenCats.add(catId);
+      const card = document.querySelector(`.proc-card[data-cat="${catId}"]`);
+      if (card) card.classList.toggle('is-open', _procOpenCats.has(catId));
       return;
     }
 
