@@ -3044,11 +3044,80 @@ function _renderLeavePendingSection() {
 
 function renderLeavePage() {
   renderLeaveKpi();
-  renderLeaveTabBar();
-  _renderLeaveMySection();
-  _renderLeaveHistorySection();
-  _renderLeaveTeamSection();
+  _renderLeaveLeftSection();
   _renderLeavePendingSection();
+}
+
+function _renderLeaveLeftSection() {
+  const el = document.getElementById('leaveLeftSection');
+  if (!el) return;
+
+  const TABS = [
+    { key: '내 연차', label: '내 연차' },
+    { key: '팀 연차', label: '팀 연차' },
+    { key: '이력',    label: '이력' },
+  ];
+  if (!TABS.find(t => t.key === state.leaveTab)) state.leaveTab = '내 연차';
+
+  const tabBar = `
+    <div class="leave-tab-bar" id="leaveTabBar">
+      ${TABS.map(t => `<button class="leave-tab-btn${state.leaveTab === t.key ? ' active' : ''}" data-leave-tab="${t.key}">${t.label}</button>`).join('')}
+    </div>`;
+
+  let content = '';
+  if (state.leaveTab === '내 연차') {
+    const myLeaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
+    content = `<div class="leave-list">${renderLeaveRows(myLeaves)}</div>`;
+  } else if (state.leaveTab === '팀 연차') {
+    const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+    const membersHtml = state.teamMembers
+      .filter(m => m.id !== state.currentUser.id)
+      .map((member, idx) => {
+        const memberLeaves = state.leaves.filter(l => l.applicantId === member.id);
+        const usedDays = memberLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0);
+        const remaining = state.totalLeave - usedDays;
+        const color = AVATAR_BG[idx % AVATAR_BG.length];
+        const leavesHtml = memberLeaves.length
+          ? memberLeaves.sort((a, b) => b.startDate.localeCompare(a.startDate)).map(lv => `
+            <div class="leave-row">
+              <div class="leave-row-main">
+                <div class="leave-row-top">
+                  <span class="leave-row-type">${lv.type}</span>
+                  ${leaveStatusBadge(lv.status)}
+                </div>
+                <div class="leave-row-meta">
+                  <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
+                  <span>신청일 ${lv.requestedAt}</span>
+                </div>
+              </div>
+            </div>`).join('')
+          : '<div class="leave-empty">연차 내역이 없습니다.</div>';
+        return `
+          <div class="member-leave-card">
+            <div class="member-leave-header">
+              <div class="member-leave-avatar" style="background:${color}">${escapeHtml(member.name[0])}</div>
+              <div class="member-leave-info">
+                <div class="member-leave-name">${escapeHtml(member.name)}</div>
+                <div class="member-leave-role">${escapeHtml(member.role)}</div>
+              </div>
+            </div>
+            <div class="member-leave-kpi-row">
+              <div class="leave-kpi-card"><div class="leave-kpi-label">총 연차</div><div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div></div>
+              <div class="leave-kpi-card"><div class="leave-kpi-label">사용 연차</div><div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div></div>
+              <div class="leave-kpi-card"><div class="leave-kpi-label">잔여 연차</div><div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div></div>
+            </div>
+            <div class="member-leave-list">${leavesHtml}</div>
+          </div>`;
+      }).join('');
+    content = `<div class="leave-list">${membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>'}</div>`;
+  } else if (state.leaveTab === '이력') {
+    const history = getMyLeaves()
+      .filter(l => l.status === '승인 완료' || l.status === '반려')
+      .sort((a, b) => b.startDate.localeCompare(a.startDate));
+    content = `<div class="leave-list">${renderLeaveRows(history, true)}</div>`;
+  }
+
+  el.innerHTML = tabBar + content;
 }
 
 function openLeaveModal() {
@@ -4580,7 +4649,7 @@ function bindEvents() {
   document.getElementById('closeLeaveModal')?.addEventListener('click', closeLeaveModal);
   document.getElementById('cancelLeaveModal')?.addEventListener('click', closeLeaveModal);
   document.getElementById('leaveForm')?.addEventListener('submit', submitLeave);
-  document.getElementById('leaveTabBar')?.addEventListener('click', e => {
+  document.getElementById('leaveLeftSection')?.addEventListener('click', e => {
     const btn = e.target.closest('[data-leave-tab]');
     if (btn) { state.leaveTab = btn.dataset.leaveTab; renderLeavePage(); }
   });
