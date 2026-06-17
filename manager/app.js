@@ -3232,7 +3232,7 @@ function renderProcessPage() {
     const isOpen = _procOpenCats.has(cat.id);
     const steps = cat.steps.map((step, idx) => `
       <div class="proc-step-row" draggable="true" data-drag-step="${step.id}" data-drag-cat="${cat.id}">
-        <span class="proc-step-num">${idx + 1}</span>
+        <span class="proc-step-num">${String(idx + 1).padStart(2,'0')}.</span>
         <span class="proc-step-title">${escapeHtml(step.title)}</span>
         <div class="proc-step-actions">
           <button class="proc-icon-btn" type="button" data-edit-step="${step.id}" data-cat-id="${cat.id}" title="수정">${EDIT_SVG}</button>

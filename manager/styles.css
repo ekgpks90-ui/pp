@@ -5173,9 +5173,17 @@ h1, h2, h3, p { margin: 0; }
 }
 .proc-step-count {
   flex: 0 0 auto;
-  font-size: 14px;
-  color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 99px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 /* Pushes actions + chevron to the right */
@@ -5252,17 +5260,11 @@ h1, h2, h3, p { margin: 0; }
 
 .proc-step-num {
   flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--text);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  font-size: 14px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  width: 18px;
+  text-align: right;
 }
 .proc-step-title { flex: 1 1 auto; font-size: 14px; color: var(--text); }
 
