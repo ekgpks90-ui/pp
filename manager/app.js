@@ -3021,7 +3021,6 @@ function _renderLeavePendingSection() {
           <div class="leave-row-top">
             <span class="leave-row-name">${escapeHtml(lv.applicantName)}</span>
             <span class="leave-row-type">${lv.type}</span>
-            ${leaveStatusBadge(lv.status)}
           </div>
           <div class="leave-row-meta">
             <span>신청일 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
