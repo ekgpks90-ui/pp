@@ -2921,8 +2921,7 @@ function renderLeaveRows(leaves, hideActions = false) {
           ${leaveStatusBadge(lv.status)}
         </div>
         <div class="leave-row-meta">
-          <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
-          <span>신청일 ${lv.requestedAt}</span>
+          <span>신청일 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
           ${lv.approverName ? `<span>처리자 ${lv.approverName}</span>` : ''}
         </div>
         ${lv.reason ? `<div class="leave-row-reason">${lv.reason}</div>` : ''}
@@ -2975,8 +2974,7 @@ function _renderLeaveTeamSection() {
                 ${leaveStatusBadge(lv.status)}
               </div>
               <div class="leave-row-meta">
-                <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
-                <span>신청일 ${lv.requestedAt}</span>
+                <span>신청일 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
               </div>
             </div>
           </div>`).join('')
@@ -3026,8 +3024,7 @@ function _renderLeavePendingSection() {
             ${leaveStatusBadge(lv.status)}
           </div>
           <div class="leave-row-meta">
-            <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
-            <span>신청일 ${lv.requestedAt}</span>
+            <span>신청일 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
           </div>
           ${lv.reason ? `<div class="leave-row-reason">${escapeHtml(lv.reason)}</div>` : ''}
         </div>
@@ -3086,8 +3083,7 @@ function _renderLeaveLeftSection() {
                   ${leaveStatusBadge(lv.status)}
                 </div>
                 <div class="leave-row-meta">
-                  <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
-                  <span>신청일 ${lv.requestedAt}</span>
+                  <span>신청일 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
                 </div>
               </div>
             </div>`).join('')
