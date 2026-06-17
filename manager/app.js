@@ -3398,7 +3398,6 @@ function renderProcessPage() {
 // ── Tab 1: 프로세스 등록 ─────────────────────────────────────────────────────
 
 function _renderProcTemplates(body) {
-  const DRAG_SVG = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="color:#c8c8d8"><circle cx="5.5" cy="4" r="1.1"/><circle cx="10.5" cy="4" r="1.1"/><circle cx="5.5" cy="8" r="1.1"/><circle cx="10.5" cy="8" r="1.1"/><circle cx="5.5" cy="12" r="1.1"/><circle cx="10.5" cy="12" r="1.1"/></svg>`;
   const EDIT_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
   const DEL_SVG  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
   const CHEV_SVG = `<svg class="proc-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
@@ -3413,7 +3412,6 @@ function _renderProcTemplates(body) {
     const isOpen = _procOpenCats.has(cat.id);
     const steps = cat.steps.map((step, idx) => `
       <div class="proc-step-row" draggable="true" data-drag-step="${step.id}" data-drag-cat="${cat.id}">
-        <span class="proc-drag-handle">${DRAG_SVG}</span>
         <span class="proc-step-num">${idx + 1}</span>
         <span class="proc-step-title">${escapeHtml(step.title)}</span>
         <div class="proc-step-actions">

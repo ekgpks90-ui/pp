@@ -5145,6 +5145,11 @@ h1, h2, h3, p { margin: 0; }
   gap: 10px;
   padding: 9px 14px;
   border-bottom: 1px solid var(--line-soft);
+  cursor: default;
+}
+.proc-step-row:hover {
+  cursor: grab;
+  background: var(--surface-muted);
 }
 
 .proc-step-num {
@@ -5221,16 +5226,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 /* ── Process: drag handle ─────────────────────────────────────────────── */
-.proc-drag-handle {
-  display: flex;
-  align-items: center;
-  cursor: grab;
-  padding: 0 4px;
-  opacity: 0;
-  transition: opacity 0.13s;
-}
-.proc-step-row:hover .proc-drag-handle { opacity: 1; }
-.proc-step-row.is-dragging { opacity: .4; }
+.proc-step-row.is-dragging { opacity: .4; cursor: grabbing; }
 .proc-step-row.drag-over { border-top: 2px solid var(--blue); }
 
 /* ── Process: assign layout ───────────────────────────────────────────── */
