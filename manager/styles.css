@@ -3640,17 +3640,18 @@ h1, h2, h3, p { margin: 0; }
 .leave-tab-btn:hover { color: #111827; }
 .leave-tab-btn.active { color: #111827; font-weight: 700; border-bottom-color: #111827; }
 
-.leave-type-icon {
+.leave-type-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
   flex-shrink: 0;
 }
-.leave-type-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-sub);
-}
+.leave-type-full { background: #1f2937; color: #fff; }
+.leave-type-am   { background: #6b7280; color: #fff; }
+.leave-type-pm   { background: #e5e7eb; color: #374151; }
 
 .leave-list-wrap {
   flex: 1;
