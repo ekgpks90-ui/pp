@@ -479,18 +479,23 @@
           <button class="icon-btn" id="closeAcceptModal" type="button">✕</button>
         </div>
         <form class="form-stack" id="acceptForm">
-          <div class="accept-item-row">
-            <span class="accept-item-label">업무항목명</span>
-            <span class="accept-item-title" id="acceptTitleDisplay"></span>
-            <span class="accept-item-period" id="acceptPeriodDisplay"></span>
-          </div>
-          <div class="accept-item-row">
-            <span class="accept-item-label">업무유형</span>
-            <span class="ts-req-pri" id="acceptTypeDisplay"></span>
-          </div>
-          <div class="accept-item-row">
-            <span class="accept-item-label">프로세스</span>
-            <span class="accept-process-name" id="acceptProcessDisplay">—</span>
+          <div class="accept-info-box">
+            <div class="accept-info-row">
+              <span class="accept-info-label">업무항목명</span>
+              <div class="accept-info-value">
+                <div class="accept-info-title-row">
+                  <span class="accept-info-type" id="acceptTypeDisplay"></span>
+                  <span class="accept-info-title" id="acceptTitleDisplay"></span>
+                </div>
+                <span class="accept-info-period" id="acceptPeriodDisplay"></span>
+              </div>
+            </div>
+            <div class="accept-info-row">
+              <span class="accept-info-label">작업 단계</span>
+              <div class="accept-info-value">
+                <div class="accept-steps-list" id="acceptStepsDisplay"></div>
+              </div>
+            </div>
           </div>
           <label>
             <span>작업 날짜 <span style="font-weight:400;color:var(--muted)">(이 날짜 오늘 할 일에 자동 추가)</span></span>

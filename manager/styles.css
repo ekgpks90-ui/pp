@@ -1030,6 +1030,90 @@ h1, h2, h3, p { margin: 0; }
 
 .req-count-badge.hidden { display: none; }
 
+/* Accept modal info box */
+.accept-info-box {
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.accept-info-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 14px 16px;
+}
+.accept-info-row + .accept-info-row {
+  border-top: 1px solid var(--line-soft);
+}
+.accept-info-label {
+  flex-shrink: 0;
+  width: 80px;
+  font-size: 13px;
+  color: var(--soft);
+  padding-top: 2px;
+}
+.accept-info-value {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.accept-info-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.accept-info-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.accept-info-type {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.accept-info-type.type-urgent {
+  color: #dc2626;
+  background: #fef2f2;
+}
+.accept-info-type.type-normal {
+  color: #2563eb;
+  background: #eff6ff;
+}
+.accept-info-period {
+  font-size: 12px;
+  color: var(--muted);
+}
+.accept-process-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.accept-steps-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.accept-step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--bg-sub);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+.accept-step-role {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
 /* Request list */
 .req-list {
   flex: 1 1 auto;
