@@ -425,7 +425,8 @@ const state = {
   notifications: [
     { id: 'n-1', title: '업무요청 도착', body: '마케팅팀에서 SNS 배너 제작을 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
     { id: 'n-2', title: '업무요청 도착', body: '기획팀에서 인트로 모션 그래픽을 요청했습니다.', requestTitle: '신규 서비스 인트로 모션', unread: true },
-    { id: 'n-3', title: '디자인 리뷰 피드백', body: '장준혁 님이 카탈로그 시안에 코멘트를 남겼습니다.', unread: false },
+    { id: 'n-3', title: '연차 승인', body: '박민준 님의 오후 반차(06/10) 신청이 승인되었습니다.', unread: false },
+    { id: 'n-4', title: '회의 등록 완료', body: '"스프린트 회고 #12" 회의가 등록되었습니다. (참석자 4명)', unread: false },
   ],
 
   meetings: [
@@ -822,13 +823,14 @@ function weekItems() {
 }
 
 function sortByType(a, b) {
-  const order = { 고정: 0, 긴급: 1, 일반: 2 };
+  const order = { 회의: 0, 고정: 1, 긴급: 2, 일반: 3 };
   return (order[a.type] - order[b.type]) || a.title.localeCompare(b.title, 'ko');
 }
 
 function typeIconClass(type) {
   if (type === '고정') return 'pin';
   if (type === '긴급') return 'red';
+  if (type === '회의') return 'orange';
   return 'gray';
 }
 
@@ -869,9 +871,10 @@ function renderWeeklyTasks() {
     } else {
       period = `${item.start.slice(5).replace('-', '.')} ~ ${item.end.slice(5).replace('-', '.')}`;
     }
+    const iconCls = item.type === '긴급' ? 'red' : item.type === '회의' ? 'orange' : 'gray';
     const iconHtml = item.type === '고정'
       ? pinSvg
-      : `<span class="type-icon ${item.type === '긴급' ? 'red' : 'gray'}"></span>`;
+      : `<span class="type-icon ${iconCls}"></span>`;
     return `
       <div class="task-item${isLastFixed ? ' is-last-fixed' : ''}" data-task-id="${item.id}" role="button" tabindex="0">
         ${iconHtml}
@@ -2200,8 +2203,28 @@ function saveMeeting(e) {
     duration, attendees, attendeeNames,
   };
   state.meetings.unshift(newMeeting);
+
+  // 내가 참여자에 포함되어 있으면 알림 + 이번 주 업무에 자동 추가
+  const myName = state.currentUser.name;
+  if (attendeeNames.includes(myName)) {
+    addNotification('중요', '회의 등록 완료', `"${title}" 회의에 참여자로 등록되었습니다. (참석자 ${attendees}명)`);
+    const meetingItem = {
+      id: `wi-mtg-${Date.now()}`,
+      title,
+      start: date,
+      end: date,
+      type: '회의',
+      participants: attendeeNames,
+      sourceMeetingId: newMeeting.id,
+    };
+    state.workItems.unshift(meetingItem);
+  } else {
+    addNotification('일반', '회의 등록 완료', `"${title}" 회의가 등록되었습니다. (참석자 ${attendees}명)`);
+  }
+
   closeMeetingSaveModal();
   renderCalendarPage();
+  renderNotifications();
 }
 
 // ─── Meeting Detail Panel ──────────────────────────────────────────────────────
@@ -2827,7 +2850,7 @@ function submitAcceptForm(e) {
   const todayDiff = Math.floor((toDate(state.today) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
   state.weekOffset = Math.floor(todayDiff / 7);
 
-  addNotification('중요', '업무항목 추가', `"${title}" 업무항목이 이번 주 업무에 추가되었습니다.`, title);
+  addNotification('중요', '업무요청 수락', `"${title}" 업무요청을 수락하여 이번 주 업무에 추가되었습니다.`, title);
   closeAcceptModal();
   closeRequestModal();
   renderAll();
@@ -3250,8 +3273,13 @@ function submitLeave(e) {
     approverId: null, approverName: null, rejectedReason: null,
     requestedAt: state.today,
   });
+  const dateLabel = type === '종일 연차' && startDate !== endDate
+    ? `${startDate.slice(5).replace('-','/')} ~ ${endDate.slice(5).replace('-','/')}`
+    : `${startDate.slice(5).replace('-','/')}`;
+  addNotification('일반', '연차 신청 완료', `${type}(${dateLabel}) 신청이 접수되었습니다.`);
   closeLeaveModal();
   renderLeavePage();
+  renderNotifications();
 }
 
 
@@ -3848,7 +3876,11 @@ function bindEvents() {
     const leaveApproveBtn = e.target.closest('[data-leave-approve]');
     if (leaveApproveBtn) {
       const lv = state.leaves.find(l => l.id === leaveApproveBtn.dataset.leaveApprove);
-      if (lv) { lv.status = '승인 완료'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name; renderLeavePage(); }
+      if (lv) {
+        lv.status = '승인 완료'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name;
+        addNotification('일반', '연차 승인', `${lv.applicantName} 님의 ${lv.type}(${lv.startDate.slice(5).replace('-','/')}) 신청이 승인되었습니다.`);
+        renderLeavePage(); renderNotifications();
+      }
       return;
     }
 
@@ -3858,7 +3890,11 @@ function bindEvents() {
       const reason = prompt('반려 사유를 입력하세요');
       if (reason === null) return;
       const lv = state.leaves.find(l => l.id === leaveRejectBtn.dataset.leaveReject);
-      if (lv) { lv.status = '반려'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name; lv.rejectedReason = reason.trim() || '사유 없음'; renderLeavePage(); }
+      if (lv) {
+        lv.status = '반려'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name; lv.rejectedReason = reason.trim() || '사유 없음';
+        addNotification('일반', '연차 반려', `${lv.applicantName} 님의 ${lv.type}(${lv.startDate.slice(5).replace('-','/')}) 신청이 반려되었습니다.`);
+        renderLeavePage(); renderNotifications();
+      }
       return;
     }
 

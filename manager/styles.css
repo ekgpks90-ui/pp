@@ -701,6 +701,7 @@ h1, h2, h3, p { margin: 0; }
 }
 
 .type-icon.red { border-radius: 50%; background: var(--red); }
+.type-icon.orange { border-radius: 50%; background: #f59e0b; }
 .type-icon.gray { border-radius: 50%; background: #c8c8d8; }
 
 .task-body {
