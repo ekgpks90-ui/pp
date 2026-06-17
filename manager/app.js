@@ -3244,7 +3244,7 @@ function renderProcessPage() {
       <div class="proc-card${isOpen ? ' is-open' : ''}" data-cat="${cat.id}">
         <div class="proc-card-header" data-toggle-cat="${cat.id}">
           <span class="proc-cat-title">${escapeHtml(cat.category)}</span>
-          <span class="proc-step-count">${cat.steps.length}단계</span>
+          <span class="proc-step-count">${cat.steps.length}</span>
           <span class="proc-header-spacer"></span>
           <div class="proc-card-actions">
             <button class="proc-icon-btn" type="button" data-edit-cat="${cat.id}" title="수정">${EDIT_SVG}</button>
