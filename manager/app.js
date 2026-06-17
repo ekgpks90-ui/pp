@@ -3389,14 +3389,10 @@ function renderProcessPage() {
   // tab bar (injected into header area)
   const tabBarEl = document.getElementById('procTabBar');
   if (tabBarEl) {
-    tabBarEl.innerHTML = [
-      { id: 'templates', label: '프로세스 등록' },
-      { id: 'assign',    label: '업무 배정' },
-    ].map(t => `<button class="proc-tab${_procTab === t.id ? ' active' : ''}" type="button" data-proc-tab="${t.id}">${t.label}</button>`).join('');
+    tabBarEl.innerHTML = `<button class="proc-tab active" type="button" data-proc-tab="templates">+ 프로세스 등록</button>`;
   }
 
-  if (_procTab === 'templates') _renderProcTemplates(body);
-  else                          _renderProcAssign(body);
+  _renderProcTemplates(body);
 }
 
 // ── Tab 1: 프로세스 등록 ─────────────────────────────────────────────────────
