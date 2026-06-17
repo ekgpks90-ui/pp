@@ -2717,10 +2717,7 @@ function renderLeaveKpi() {
 }
 
 function renderLeaveTabBar() {
-  const tabs = ['내 연차', '팀 연차', '이력'];
-  document.getElementById('leaveTabBar').innerHTML = tabs.map(t => `
-    <button class="leave-tab-btn${state.leaveTab === t ? ' active' : ''}" data-leave-tab="${t}">${t}</button>
-  `).join('');
+  // tab bar removed — layout is now 2-island
 }
 
 function leaveStatusBadge(status) {
@@ -2762,79 +2759,122 @@ function renderLeaveRows(leaves, hideActions = false) {
   `).join('');
 }
 
-function renderLeaveList() {
-  const tab = state.leaveTab;
-  let leaves;
-  if (tab === '내 연차') {
-    leaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
-  } else if (tab === '팀 연차') {
-    const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
-    const membersHtml = state.teamMembers
-      .filter(m => m.id !== state.currentUser.id)
-      .map((member, idx) => {
-        const memberLeaves = state.leaves.filter(l => l.applicantId === member.id);
-        const usedDays = memberLeaves
-          .filter(l => l.status === '승인 완료')
-          .reduce((sum, l) => sum + calcLeaveDays(l), 0);
-        const remaining = state.totalLeave - usedDays;
-        const color = AVATAR_BG[idx % AVATAR_BG.length];
-        const allMemberLeaves = memberLeaves.sort((a, b) => b.startDate.localeCompare(a.startDate));
-        const leavesHtml = allMemberLeaves.length
-          ? allMemberLeaves.map(lv => `
-            <div class="leave-row">
-              <div class="leave-row-main">
-                <div class="leave-row-top">
-                  <span class="leave-row-type">${lv.type}</span>
-                  ${leaveStatusBadge(lv.status)}
-                </div>
-                <div class="leave-row-meta">
-                  <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
-                  <span>신청일 ${lv.requestedAt}</span>
-                </div>
+function renderLeaveList() {} // kept for compatibility
+
+function _renderLeaveMySection() {
+  const el = document.getElementById('leaveMySection');
+  if (!el) return;
+  const myLeaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
+  el.innerHTML = `
+    <div class="leave-island-title">내 연차</div>
+    <div class="leave-list">${renderLeaveRows(myLeaves)}</div>`;
+}
+
+function _renderLeaveHistorySection() {
+  const el = document.getElementById('leaveHistorySection');
+  if (!el) return;
+  const history = getMyLeaves()
+    .filter(l => l.status === '승인 완료' || l.status === '반려')
+    .sort((a, b) => b.startDate.localeCompare(a.startDate));
+  el.innerHTML = `
+    <div class="leave-island-title">이력</div>
+    <div class="leave-list">${renderLeaveRows(history, true)}</div>`;
+}
+
+function _renderLeaveTeamSection() {
+  const el = document.getElementById('leaveTeamSection');
+  if (!el) return;
+  const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+  const membersHtml = state.teamMembers
+    .filter(m => m.id !== state.currentUser.id)
+    .map((member, idx) => {
+      const memberLeaves = state.leaves.filter(l => l.applicantId === member.id);
+      const usedDays = memberLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0);
+      const remaining = state.totalLeave - usedDays;
+      const color = AVATAR_BG[idx % AVATAR_BG.length];
+      const leavesHtml = memberLeaves.length
+        ? memberLeaves.sort((a, b) => b.startDate.localeCompare(a.startDate)).map(lv => `
+          <div class="leave-row">
+            <div class="leave-row-main">
+              <div class="leave-row-top">
+                <span class="leave-row-type">${lv.type}</span>
+                ${leaveStatusBadge(lv.status)}
               </div>
-            </div>`).join('')
-          : '<div class="leave-empty">연차 내역이 없습니다.</div>';
-        return `
-          <div class="member-leave-card">
-            <div class="member-leave-header">
-              <div class="member-leave-avatar" style="background:${color}">${escapeHtml(member.name[0])}</div>
-              <div class="member-leave-info">
-                <div class="member-leave-name">${escapeHtml(member.name)}</div>
-                <div class="member-leave-role">${escapeHtml(member.role)}</div>
-              </div>
-            </div>
-            <div class="member-leave-kpi-row">
-              <div class="leave-kpi-card">
-                <div class="leave-kpi-label">총 연차</div>
-                <div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div>
-              </div>
-              <div class="leave-kpi-card">
-                <div class="leave-kpi-label">사용 연차</div>
-                <div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div>
-              </div>
-              <div class="leave-kpi-card">
-                <div class="leave-kpi-label">잔여 연차</div>
-                <div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div>
+              <div class="leave-row-meta">
+                <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
+                <span>신청일 ${lv.requestedAt}</span>
               </div>
             </div>
-            <div class="member-leave-list">${leavesHtml}</div>
-          </div>`;
-      }).join('');
-    document.getElementById('leaveList').innerHTML =
-      membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>';
-    return;
-  } else { // 이력
-    leaves = getMyLeaves()
-      .filter(l => l.status === '승인 완료' || l.status === '반려')
-      .sort((a, b) => b.startDate.localeCompare(a.startDate));
-  }
-  document.getElementById('leaveList').innerHTML = renderLeaveRows(leaves);
+          </div>`).join('')
+        : '<div class="leave-empty">연차 내역이 없습니다.</div>';
+      return `
+        <div class="member-leave-card">
+          <div class="member-leave-header">
+            <div class="member-leave-avatar" style="background:${color}">${escapeHtml(member.name[0])}</div>
+            <div class="member-leave-info">
+              <div class="member-leave-name">${escapeHtml(member.name)}</div>
+              <div class="member-leave-role">${escapeHtml(member.role)}</div>
+            </div>
+          </div>
+          <div class="member-leave-kpi-row">
+            <div class="leave-kpi-card">
+              <div class="leave-kpi-label">총 연차</div>
+              <div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div>
+            </div>
+            <div class="leave-kpi-card">
+              <div class="leave-kpi-label">사용 연차</div>
+              <div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div>
+            </div>
+            <div class="leave-kpi-card">
+              <div class="leave-kpi-label">잔여 연차</div>
+              <div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div>
+            </div>
+          </div>
+          <div class="member-leave-list">${leavesHtml}</div>
+        </div>`;
+    }).join('');
+  el.innerHTML = `
+    <div class="leave-island-title">팀 연차</div>
+    <div class="leave-list">${membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>'}</div>`;
+}
+
+function _renderLeavePendingSection() {
+  const el = document.getElementById('leavePendingSection');
+  if (!el) return;
+  const pending = state.leaves.filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
+  const rows = pending.length
+    ? pending.map(lv => `
+      <div class="leave-row">
+        <div class="leave-row-main">
+          <div class="leave-row-top">
+            <span class="leave-row-name">${escapeHtml(lv.applicantName)}</span>
+            <span class="leave-row-type">${lv.type}</span>
+            ${leaveStatusBadge(lv.status)}
+          </div>
+          <div class="leave-row-meta">
+            <span>📅 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
+            <span>신청일 ${lv.requestedAt}</span>
+          </div>
+          ${lv.reason ? `<div class="leave-row-reason">${escapeHtml(lv.reason)}</div>` : ''}
+        </div>
+        <div class="leave-row-actions">
+          <button class="leave-action-btn approve" data-leave-approve="${lv.id}">승인</button>
+          <button class="leave-action-btn reject" data-leave-reject="${lv.id}">반려</button>
+        </div>
+      </div>`).join('')
+    : '<div class="leave-empty">승인 대기 중인 요청이 없습니다.</div>';
+  el.innerHTML = `
+    <div class="leave-island-title">승인 대기 <span class="leave-pending-count">${pending.length}</span></div>
+    <div class="leave-list">${rows}</div>`;
 }
 
 function renderLeavePage() {
   renderLeaveKpi();
   renderLeaveTabBar();
-  renderLeaveList();
+  _renderLeaveMySection();
+  _renderLeaveHistorySection();
+  _renderLeaveTeamSection();
+  _renderLeavePendingSection();
 }
 
 function openLeaveModal() {
@@ -3484,6 +3524,24 @@ function bindEvents() {
     // Reject request
     const reject = e.target.closest('[data-reject-request]');
     if (reject) { openRejectModal(reject.dataset.rejectRequest); return; }
+
+    // Leave: approve
+    const leaveApproveBtn = e.target.closest('[data-leave-approve]');
+    if (leaveApproveBtn) {
+      const lv = state.leaves.find(l => l.id === leaveApproveBtn.dataset.leaveApprove);
+      if (lv) { lv.status = '승인 완료'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name; renderLeavePage(); }
+      return;
+    }
+
+    // Leave: reject
+    const leaveRejectBtn = e.target.closest('[data-leave-reject]');
+    if (leaveRejectBtn) {
+      const reason = prompt('반려 사유를 입력하세요');
+      if (reason === null) return;
+      const lv = state.leaves.find(l => l.id === leaveRejectBtn.dataset.leaveReject);
+      if (lv) { lv.status = '반려'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name; lv.rejectedReason = reason.trim() || '사유 없음'; renderLeavePage(); }
+      return;
+    }
 
     // Toggle session done
 

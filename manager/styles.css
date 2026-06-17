@@ -3724,6 +3724,43 @@ h1, h2, h3, p { margin: 0; }
 .badge-approved { background: #d1fae5; color: #065f46; }
 .badge-rejected { background: #fee2e2; color: #991b1b; }
 
+/* ── Leave: 2-island layout ──────────────────────────────────────────── */
+.leave-islands {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.leave-island {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.leave-island-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 20px;
+  min-height: 120px;
+}
+.leave-island-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.leave-pending-count {
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 /* ─── Form Field (label + control stack) ─── */
 .form-field {
   display: flex;
