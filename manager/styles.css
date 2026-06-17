@@ -5154,7 +5154,7 @@ h1, h2, h3, p { margin: 0; }
 
 .proc-step-num {
   flex: 0 0 auto;
-  font-size: 11px;
+  font-size: 16px;
   font-family: 'DM Mono', monospace;
   color: var(--muted);
   width: 18px;
