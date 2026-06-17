@@ -19,7 +19,6 @@ const state = {
   selectedRequestId: null,
   pendingDeleteSessionId: null,
   pendingDeleteWorkItemId: null,
-  pendingLeaveCancelId: null,
   editingSessionId: null,
   editingSessionOriginalTitle: null,
   editingSessionTimeId: null,
@@ -31,7 +30,10 @@ const state = {
   currentPage: 'home',
   calYear: _now.getFullYear(),
   calMonth: _now.getMonth(),
-  calSelectedProjectId: null,
+  calViewMode: 'monthly',
+  calWeekOffset: 0,
+  calMemberFilter: '전체',
+  calSelectedEventId: null,
   pendingDeleteResourceId: null,
   pendingDeleteResourceWiId: null,
   workItemResources: {},
@@ -47,8 +49,6 @@ const state = {
   myPageCalYear: _now.getFullYear(),
   myPageCalMonth: _now.getMonth(),
   myPageSelectedDate: null,
-  mpFilesExpanded: false,
-  mpMeetingsExpanded: false,
 
   teamMembers: [
     { id: 'u-1', name: 'Jihye',   role: 'UI/UX Designer',   team: '디자인팀', onLeave: false, leaveType: null,
@@ -106,95 +106,59 @@ const state = {
     // 고정업무 — recurringDays: 1=월,2=화,3=수,4=목,5=금, end:null=무기한
     { id: 'wi-1',  title: '주간 디자인 싱크 미팅',  description: '매주 월요일 팀 전체 디자인 방향 및 이번 주 업무 우선순위를 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1],         participants: ['Jihye', '장준혁'] },
     { id: 'wi-2',  title: '일일 작업 기록',          description: '매일 작업 진행 상황을 Figma 및 노션에 기록하고 팀과 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1,2,3,4,5], participants: ['Jihye'] },
-    { id: 'wi-3',  title: '디자인 리뷰 미팅',        description: '화요일·목요일 팀 내 디자인 산출물 리뷰 및 피드백 세션.', start: '2026-06-01', end: null, type: '고정', recurringDays: [2,4],       participants: ['Jihye'] },
-    { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['Jihye'] },
-    // 긴급업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-5',  title: '(주)모아커머스 앱 리뉴얼',       description: '(주)모아커머스 커머스 앱 전면 리뉴얼. 온보딩 UX 개선 및 인터랙션 흐름 수정 포함.', start: '2026-06-11', end: '2026-06-18', type: '긴급', participants: ['Jihye', '최유진', '박서연'], sourceRequestId: 'wr-r1', processId: 'pc-1' },
-    // 긴급업무 (업무요청 수락) — 디지털 콘텐츠
-    { id: 'wi-6',  title: '(주)그린푸드 프로모션 배너',      description: '(주)그린푸드 여름 프로모션 SNS 배너 3종 제작. 인스타·페이스북·유튜브 썸네일.', start: '2026-06-12', end: '2026-06-17', type: '긴급', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-r2', processId: 'pc-3' },
-    // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-7',  title: '테크스타트 서비스 UI/UX',        description: '테크스타트(주) SaaS 서비스 메인 화면 전면 리디자인. 정보 구조 개선 및 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진'], sourceRequestId: 'wr-r3', processId: 'pc-1' },
-    // 일반업무 (직접 추가)
-    { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['Jihye'] },
-    // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-9',  title: '스카이벤처스 UX 리서치',         description: '스카이벤처스 신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출.', start: '2026-06-10', end: '2026-06-20', type: '일반', participants: ['Jihye', '김도현'], sourceRequestId: 'wr-r4', processId: 'pc-1' },
-    // 일반업무 (업무요청 수락) — 브랜드 & 인쇄물
-    { id: 'wi-10', title: '블루밍헬스 리브랜딩',             description: '블루밍헬스 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-24', type: '일반', participants: ['Jihye', '이나경'], sourceRequestId: 'wr-r5', processId: 'pc-2' },
-    // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-11', title: '핏라이프 모바일 앱',              description: '핏라이프 모바일 앱 주요 화면 UI 개선. 사용성 및 일관성 향상.', start: '2026-06-13', end: '2026-06-23', type: '일반', participants: ['Jihye'], sourceRequestId: 'wr-r6', processId: 'pc-1' },
-    // 일반업무 (업무요청 수락) — 디지털 콘텐츠
-    { id: 'wi-12', title: '핏라이프 랜딩 페이지',            description: '핏라이프 신규 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-r7', processId: 'pc-3' },
-    // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-13', title: '(주)모아커머스 아이콘 세트',      description: '(주)모아커머스 앱 내 아이콘 세트 전면 리뉴얼. 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이'], sourceRequestId: 'wr-r8', processId: 'pc-1' },
-    // 반복업무 (직접 추가)
+    { id: 'wi-3',  title: '디자인 리뷰 미팅',        description: '화요일·목요일 팀 내 디자인 산출물 리뷰 및 피드백 세션.', start: '2026-06-01', end: null, type: '고정', recurringDays: [2,4],       participants: ['Jihye', '장준혁', '최유진'] },
+    { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['Jihye', '윤소이'] },
+    // 긴급업무
+    { id: 'wi-5',  title: '앱 온보딩 화면 긴급 수정',  description: '출시 전 QA에서 발견된 온보딩 UX 문제를 긴급 수정합니다. 인터랙션 흐름 및 카피 오류 포함.', start: '2026-06-11', end: '2026-06-14', type: '긴급', participants: ['Jihye', '최유진', '박서연'] },
+    { id: 'wi-6',  title: '이벤트 배너 긴급 제작',     description: '마케팅팀 요청으로 주말 프로모션 배너 3종을 긴급 제작합니다.', start: '2026-06-12', end: '2026-06-13', type: '긴급', participants: ['Jihye', '정하은'] },
+    // 일반업무
+    { id: 'wi-7',  title: '메인 홈 화면 리디자인',    description: '앱 메인 홈 화면 전면 리디자인. 정보 구조 개선 및 신규 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진'] },
+    { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
+    { id: 'wi-9',  title: '신규 서비스 UX 리서치',    description: '신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출, 개선 방향 정리.', start: '2026-06-10', end: '2026-06-17', type: '일반', participants: ['Jihye', '김도현'] },
+    { id: 'wi-10', title: '고객사 A 브랜딩 작업',     description: '고객사 A의 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-21', type: '일반', participants: ['Jihye', '이나경'] },
+    { id: 'wi-11', title: '모바일 앱 UI 개선',        description: '기존 모바일 앱의 주요 화면 UI를 개선하여 사용성 및 일관성을 높입니다.', start: '2026-06-13', end: '2026-06-20', type: '일반', participants: ['Jihye'] },
+    { id: 'wi-12', title: '마케팅 랜딩 페이지 시안',  description: '신규 마케팅 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'] },
+    { id: 'wi-13', title: '제품 아이콘 리뉴얼',       description: '앱 내 아이콘 세트 전면 리뉴얼. 일관된 스타일 가이드 기반으로 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이'] },
+    // 반복 일반·긴급 예시 (세부항목 아이콘 테스트용)
     { id: 'wi-14', title: '주간 업무 보고서 작성',    description: '매주 금요일 팀 주간 업무 현황을 정리하여 보고서를 작성합니다.', start: '2026-06-01', end: null, type: '일반', recurringDays: [5], participants: ['Jihye'] },
-    // 긴급 반복업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-15', title: '(주)모아커머스 QA 지원',          description: '(주)모아커머스 앱 출시 전 QA 기간 디자인 버그 긴급 처리.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진'], sourceRequestId: 'wr-r9', processId: 'pc-1' },
-    // 일반업무 (업무요청 수락) — 영상 & 모션
-    { id: 'wi-16', title: '넥스트에듀 서비스 소개 영상',     description: '넥스트에듀(주) 온라인 교육 플랫폼 서비스 소개 영상 60초. 스토리보드부터 최종 편집까지.', start: '2026-06-15', end: '2026-06-25', type: '일반', participants: ['Jihye', '박서연'], sourceRequestId: 'wr-r10', processId: 'pc-4' },
-    // 일반업무 (업무요청 수락) — 브랜드 & 인쇄물
-    { id: 'wi-17', title: '하이브뷰티 제품 카탈로그',        description: '하이브뷰티 2026 S/S 제품 카탈로그 32p 디자인. 인쇄 및 PDF 납품.', start: '2026-06-12', end: '2026-06-20', type: '일반', participants: ['Jihye', '이나경', '정하은'], sourceRequestId: 'wr-r11', processId: 'pc-2' },
+    { id: 'wi-15', title: 'QA 긴급 버그 처리',       description: '출시 전 QA 기간 중 발생하는 긴급 버그를 신속히 처리합니다.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진'] },
     // 5월 업무
     { id: 'wi-m1', title: '디자인 시스템 v2 구축',        description: '버튼·폼·카드·모달 등 핵심 컴포넌트 전면 개편. Figma 토큰 일원화 및 다크모드 대응 포함.', start: '2026-05-01', end: '2026-05-23', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
     { id: 'wi-m2', title: 'Q2 사용자 리서치',             description: '2분기 신규 서비스 출시 전 사용자 인터뷰 12건 진행 및 페르소나 재정립.', start: '2026-05-06', end: '2026-05-16', type: '일반', participants: ['Jihye', '김도현'] },
     { id: 'wi-m3', title: '모바일 앱 리뉴얼 1차 시안',    description: '기존 모바일 앱 전면 리뉴얼. 네비게이션 구조 개선 및 신규 비주얼 아이덴티티 적용 1차 시안 제작.', start: '2026-05-12', end: '2026-05-30', type: '일반', participants: ['Jihye', '최유진'] },
-    { id: 'wi-m4', title: '(주)그린푸드 캠페인 소재 제작',  description: '(주)그린푸드 5월 프로모션용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-m4', processId: 'pc-3' },
+    { id: 'wi-m4', title: '5월 브랜드 캠페인 소재 제작',  description: '5월 가정의 달 캠페인용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'] },
     { id: 'wi-m5', title: '신규 온보딩 플로우 설계',      description: '신규 가입자 온보딩 UX 개선. 단계 축소 및 인터랙션 개선안 설계.', start: '2026-05-26', end: '2026-06-06', type: '일반', participants: ['Jihye', '최유진'] },
   ],
 
   sessions: [
-    // ── 오늘(동적) Jihye 세션 ──────────────────────────────────────────────
-    { id: 'ws-1', workItemId: 'wi-7',  stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: '2차 피드백 반영 정리',     startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-2', workItemId: 'wi-6',  stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: '배너 최종 시안 확정',       startTime: '', endTime: '', done: false },
-    { id: 'ws-3', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '콘셉트 확정',               startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-4', workItemId: 'wi-16', stepId: 'ps-4-02', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '스토리보드 초안 작성',       startTime: '13:00', endTime: '15:00', done: false },
-    { id: 'ws-5', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: '카탈로그 1차 수정 반영',     startTime: '15:30', endTime: '17:30', done: false },
-    { id: 'ws-6', workItemId: 'wi-15', stepId: 'ps-1-14', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: 'QA 버그 수정',               startTime: '', endTime: '', done: false },
-    // ── 과거 세션 — 히스토리 캘린더용 ──────────────────────────────────────
-    // 06/02 (월)
+    // 오늘(2026-06-13 토) 세션
+    { id: 'ws-1', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '인터랙션 흐름 수정',         startTime: '', endTime: '', done: false },
+    { id: 'ws-2', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '리서치', title: '사용성 테스트 시나리오 정리', startTime: '', endTime: '', done: false },
+    { id: 'ws-3', workItemId: 'wi-6',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '배너 최종 시안 완성',         startTime: '', endTime: '', done: false },
+    { id: 'ws-4', workItemId: 'wi-6',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '클라이언트 피드백 반영',      startTime: '', endTime: '', done: false },
+    { id: 'ws-5', workItemId: 'wi-11', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '초기 와이어프레임 스케치',    startTime: '', endTime: '', done: false },
+    // 과거 세션 — 히스토리 캘린더용
     { id: 'ws-h1',  workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-02', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
     { id: 'ws-h2',  workItemId: 'wi-8',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-02', category: '디자인', title: '버튼 컴포넌트 정리',        startTime: '10:30', endTime: '12:30', done: true },
     { id: 'ws-h3',  workItemId: 'wi-2',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-02', category: '기획',   title: '일일 작업 기록',            startTime: '18:00', endTime: '18:30', done: true },
-    // 06/03 (화)
     { id: 'ws-h4',  workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-03', category: '디자인', title: '홈 화면 시안 리뷰',         startTime: '14:00', endTime: '15:30', done: true },
     { id: 'ws-h5',  workItemId: 'wi-8',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-03', category: '디자인', title: '폼 컴포넌트 스타일 정리',   startTime: '10:00', endTime: '12:00', done: true },
-    // 06/04 (수)
     { id: 'ws-h6',  workItemId: 'wi-2',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-04', category: '기획',   title: '일일 작업 기록',            startTime: '17:30', endTime: '18:00', done: true },
-    // 06/05 연차 (세션 없음)
-    // 06/06 (금)
+    // 2026-06-05 연차 (세션 없음)
     { id: 'ws-h7',  workItemId: 'wi-4',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-06', category: '디자인', title: 'Figma 라이브러리 정리',     startTime: '14:00', endTime: '16:00', done: true },
     { id: 'ws-h8',  workItemId: 'wi-2',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-06', category: '기획',   title: '일일 작업 기록',            startTime: '17:00', endTime: '17:30', done: true },
-    // 06/09 (월)
     { id: 'ws-h9',  workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h10', workItemId: 'wi-7',  stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '테크스타트 킥오프 브리핑',   startTime: '10:30', endTime: '12:30', done: true },
-    { id: 'ws-h11', workItemId: 'wi-10', stepId: 'ps-2-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '블루밍헬스 브리핑 & 계약',   startTime: '14:00', endTime: '17:00', done: true },
-    // 06/10 (화)
-    { id: 'ws-h12', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '디자인', title: '디자인 리뷰 — 컴포넌트',    startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h13', workItemId: 'wi-9',  stepId: 'ps-1-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '리서치', title: '사용자 인터뷰 녹취 분석',   startTime: '09:00', endTime: '11:30', done: true },
-    { id: 'ws-h14', workItemId: 'wi-7',  stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '기획',   title: 'IA 설계 초안 작업',          startTime: '13:00', endTime: '16:00', done: true },
-    // 06/11 (수)
-    { id: 'ws-h15', workItemId: 'wi-5',  stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '와이어프레임 제작',          startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-h16', workItemId: 'wi-5',  stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '수정 범위 정리 및 공유',    startTime: '11:30', endTime: '13:00', done: true },
-    { id: 'ws-h17', workItemId: 'wi-10', stepId: 'ps-2-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '브랜드 콘셉트 기획',         startTime: '14:00', endTime: '17:00', done: true },
-    // 06/12 (목)
-    { id: 'ws-h18', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '디자인 리뷰 — 앱·브랜딩',   startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h19', workItemId: 'wi-6',  stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '배너 초안 3종 제작',        startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-h20', workItemId: 'wi-9',  stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '리서치', title: '페르소나 초안 작성',        startTime: '16:00', endTime: '17:30', done: true },
-    // 06/13 (금)
-    { id: 'ws-h21', workItemId: 'wi-5', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '1차 UI 디자인 작업',        startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-h22', workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '카탈로그 표지 시안 제작',    startTime: '13:00', endTime: '16:00', done: true },
-    { id: 'ws-h23', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '핏라이프 IA 설계',           startTime: '16:30', endTime: '18:00', done: true },
-    // 06/15 (월 — 이번 주)
-    { id: 'ws-h24', workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h25', workItemId: 'wi-7',  stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '1차 UI 디자인 계속',        startTime: '10:00', endTime: '13:00', done: true },
-    { id: 'ws-h26', workItemId: 'wi-16', stepId: 'ps-4-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '넥스트에듀 킥오프 브리핑',   startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h27', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '로고 시안 1차 제작',        startTime: '16:00', endTime: '18:00', done: true },
-    // 06/16 (화)
-    { id: 'ws-h28', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '디자인 리뷰 — UI·카탈로그',  startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h29', workItemId: 'wi-12', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '핏라이프 랜딩 브리핑',       startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h30', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '콘셉트 기획',               startTime: '10:00', endTime: '12:00', done: true },
-    { id: 'ws-h31', workItemId: 'wi-5',  stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '2차 피드백 반영 정리',      startTime: '16:00', endTime: '18:00', done: true },
-    { id: 'ws-h32', workItemId: 'wi-17', stepId: 'ps-2-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '카탈로그 1차 피드백 수집',   startTime: '13:00', endTime: '14:00', done: true },
+    { id: 'ws-h10', workItemId: 'wi-7',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '디자인', title: '홈 화면 IA 검토',           startTime: '10:30', endTime: '12:30', done: true },
+    { id: 'ws-h11', workItemId: 'wi-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '디자인', title: '로고 1차 시안 작업',        startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-h12', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '디자인', title: '카드 컴포넌트 리뷰',        startTime: '14:00', endTime: '15:30', done: true },
+    { id: 'ws-h13', workItemId: 'wi-9',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '리서치', title: '사용자 인터뷰 녹취 분석',   startTime: '09:00', endTime: '11:30', done: true },
+    { id: 'ws-h14', workItemId: 'wi-7',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '디자인', title: '홈 화면 2차 시안 작업',     startTime: '13:00', endTime: '16:00', done: true },
+    { id: 'ws-h15', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '온보딩 1단계 화면 수정',    startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-h16', workItemId: 'wi-5',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '수정 범위 정리 및 공유',    startTime: '11:30', endTime: '13:00', done: true },
+    { id: 'ws-h17', workItemId: 'wi-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '컬러 시스템 시안 제작',     startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-h18', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '디자인 리뷰 — 홈·온보딩',   startTime: '14:00', endTime: '15:30', done: true },
+    { id: 'ws-h19', workItemId: 'wi-6',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '배너 초안 3종 제작',        startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-h20', workItemId: 'wi-9',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '리서치', title: '페르소나 초안 작성',        startTime: '16:00', endTime: '17:30', done: true },
     // 5월 세션
     // 05-01 (금)
     { id: 'ws-m01', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-01', category: '디자인', title: '디자인 시스템 현황 분석 및 개선 방향 정리', startTime: '09:30', endTime: '12:00', done: true },
@@ -225,17 +189,17 @@ const state = {
     { id: 'ws-m18', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-15', category: '리서치', title: '페르소나 3종 도출 및 공유',                startTime: '10:00', endTime: '12:30', done: true },
     { id: 'ws-m19', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-15', category: '디자인', title: '마이페이지 화면 시안 제작',                startTime: '14:00', endTime: '17:00', done: true },
     // 05-19 (월)
-    { id: 'ws-m20', workItemId: 'wi-m4', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '기획',   title: '캠페인 소재 컨셉 기획',                    startTime: '09:00', endTime: '10:30', done: true },
-    { id: 'ws-m21', workItemId: 'wi-m4', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: 'SNS 배너 1차 시안 3종 제작',               startTime: '11:00', endTime: '14:00', done: true },
+    { id: 'ws-m20', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '기획',   title: '캠페인 소재 컨셉 기획',                    startTime: '09:00', endTime: '10:30', done: true },
+    { id: 'ws-m21', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: 'SNS 배너 1차 시안 3종 제작',               startTime: '11:00', endTime: '14:00', done: true },
     { id: 'ws-m22', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: '온보딩 화면 시안 수정',                    startTime: '15:00', endTime: '17:00', done: true },
     // 05-20 (화)
-    { id: 'ws-m23', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '디자인', title: '배너 피드백 반영 및 2차 수정',             startTime: '09:30', endTime: '12:00', done: true },
+    { id: 'ws-m23', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '디자인', title: '배너 피드백 반영 및 2차 수정',             startTime: '09:30', endTime: '12:00', done: true },
     { id: 'ws-m24', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '디자인', title: '디자인 시스템 QA 검토',                    startTime: '14:00', endTime: '17:00', done: true },
     // 05-21 (수)
-    { id: 'ws-m25', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '디자인', title: '스토리·썸네일 소재 제작',                  startTime: '09:00', endTime: '12:30', done: true },
+    { id: 'ws-m25', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '디자인', title: '스토리·썸네일 소재 제작',                  startTime: '09:00', endTime: '12:30', done: true },
     { id: 'ws-m26', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '기획',   title: '앱 화면 흐름도 최종 정리',                startTime: '14:00', endTime: '16:00', done: true },
     // 05-22 (목)
-    { id: 'ws-m27', workItemId: 'wi-m4', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '캠페인 소재 최종 납품',                    startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-m27', workItemId: 'wi-m4', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '캠페인 소재 최종 납품',                    startTime: '09:00', endTime: '11:00', done: true },
     { id: 'ws-m28', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '디자인 시스템 Figma 배포',                 startTime: '13:00', endTime: '16:00', done: true },
     // 05-23 (금)
     { id: 'ws-m29', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-23', category: '디자인', title: '모바일 앱 시안 내부 리뷰',                 startTime: '14:00', endTime: '16:00', done: true },
@@ -254,179 +218,99 @@ const state = {
     { id: 'ws-m38', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-29', category: '기획',   title: '리뉴얼 진행 현황 정리 및 공유',           startTime: '14:00', endTime: '15:30', done: true },
     // 05-30 (금) — 오전 반차
     { id: 'ws-m39', workItemId: 'wi-m5', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-30', category: '디자인', title: '온보딩 플로우 팀 리뷰',                   startTime: '14:00', endTime: '16:00', done: true },
-
-    // ─── 팀원 세션 (간트 캘린더용) ─────────────────────────────────────
-    // wi-5 (주)모아커머스 앱 리뉴얼 — 최유진, 박서연
-    { id: 'ws-t01', workItemId: 'wi-5', stepId: 'ps-1-11', authorId: 'u-3', authorName: '최유진', date: '2026-06-12', category: '리서치', title: '사용성 테스트 진행',        startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t02', workItemId: 'wi-5', stepId: 'ps-1-14', authorId: 'u-3', authorName: '최유진', date: '2026-06-14', category: '디자인', title: '디자인 QA 검수',             startTime: '10:00', endTime: '13:00', done: true },
-    { id: 'ws-t03', workItemId: 'wi-5', stepId: 'ps-1-12', authorId: 'u-4', authorName: '박서연', date: '2026-06-13', category: '디자인', title: '최종 디자인 확정 참여',      startTime: '14:00', endTime: '17:00', done: false },
-    // wi-5 Jihye 추가 (06/12, 06/14 커버)
-    { id: 'ws-t04', workItemId: 'wi-5', stepId: 'ps-1-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '프로토타입 수정',             startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t05', workItemId: 'wi-5', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '개발 핸드오프 준비',          startTime: '09:00', endTime: '12:00', done: true },
-
-    // wi-6 (주)그린푸드 프로모션 배너 — 정하은
-    { id: 'ws-t06', workItemId: 'wi-6', stepId: 'ps-3-07', authorId: 'u-5', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '배너 최종 확인',             startTime: '10:00', endTime: '12:00', done: false },
-    { id: 'ws-t07', workItemId: 'wi-6', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '파일 납품 정리',             startTime: '14:00', endTime: '16:00', done: false },
-
-    // wi-7 테크스타트 서비스 UI/UX — 최유진 + Jihye 추가
-    { id: 'ws-t08', workItemId: 'wi-7', stepId: 'ps-1-02', authorId: 'u-3', authorName: '최유진', date: '2026-06-09', category: '리서치', title: '경쟁사 UI 분석',             startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t09', workItemId: 'wi-7', stepId: 'ps-1-02', authorId: 'u-3', authorName: '최유진', date: '2026-06-10', category: '리서치', title: '사용자 리서치 정리',         startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t10', workItemId: 'wi-7', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '메인 와이어프레임 작업',     startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t11', workItemId: 'wi-7', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '서브 와이어프레임 작업',     startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t12', workItemId: 'wi-7', stepId: 'ps-1-05', authorId: 'u-3', authorName: '최유진', date: '2026-06-12', category: '기획',   title: '1차 피드백 정리',             startTime: '14:00', endTime: '16:00', done: true },
-    { id: 'ws-t13', workItemId: 'wi-7', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '1차 수정 반영',               startTime: '16:00', endTime: '18:00', done: true },
-    { id: 'ws-t14', workItemId: 'wi-7', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '1차 수정 마무리',             startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-t15', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '1차 UI 디자인 시작',          startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t16', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '1차 UI 디자인 계속',          startTime: '10:00', endTime: '16:00', done: false },
-    { id: 'ws-t17', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-3', authorName: '최유진', date: '2026-06-14', category: '디자인', title: '서브 페이지 UI 작업',         startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t18', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-3', authorName: '최유진', date: '2026-06-16', category: '디자인', title: '서브 페이지 UI 마무리',       startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t19', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-3', authorName: '최유진', date: '2026-06-16', category: '기획',   title: '2차 피드백 정리',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t20', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-3', authorName: '최유진', date: '2026-06-17', category: '기획',   title: '2차 피드백 반영 정리',        startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t21', workItemId: 'wi-7', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '디자인', title: '2차 수정 반영',               startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t22', workItemId: 'wi-7', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '2차 수정 마무리',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t23', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '최종 디자인 확정',            startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t24', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-3', authorName: '최유진', date: '2026-06-19', category: '디자인', title: '최종 디자인 검토',            startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t25', workItemId: 'wi-7', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '개발 핸드오프',               startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t26', workItemId: 'wi-7', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '핸드오프 마무리',             startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-9 스카이벤처스 UX 리서치 — 김도현 + Jihye 추가
-    { id: 'ws-t27', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-6', authorName: '김도현', date: '2026-06-10', category: '리서치', title: '사용자 인터뷰 1차',          startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t28', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-6', authorName: '김도현', date: '2026-06-11', category: '리서치', title: '사용자 인터뷰 2차',          startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t29', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-6', authorName: '김도현', date: '2026-06-12', category: '리서치', title: '인터뷰 결과 분석',           startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t30', workItemId: 'wi-9', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '페르소나 기반 와이어프레임',  startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t31', workItemId: 'wi-9', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '와이어프레임 정리',           startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t32', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-6', authorName: '김도현', date: '2026-06-14', category: '기획',   title: '1차 피드백 수집',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t33', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-6', authorName: '김도현', date: '2026-06-15', category: '기획',   title: '1차 피드백 정리',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t34', workItemId: 'wi-9', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '피드백 반영 수정',            startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t35', workItemId: 'wi-9', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '디자인', title: '수정 마무리 및 공유',         startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-10 블루밍헬스 리브랜딩 — 이나경 + Jihye 추가
-    { id: 'ws-t36', workItemId: 'wi-10', stepId: 'ps-2-02', authorId: 'u-7', authorName: '이나경', date: '2026-06-09', category: '리서치', title: '브랜드 시장 리서치',         startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t37', workItemId: 'wi-10', stepId: 'ps-2-02', authorId: 'u-7', authorName: '이나경', date: '2026-06-11', category: '리서치', title: '경쟁사 브랜드 분석',         startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t38', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '로고 시안 제작',              startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t39', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-7', authorName: '이나경', date: '2026-06-12', category: '디자인', title: '서브 시안 제작',             startTime: '13:00', endTime: '17:00', done: true },
-    { id: 'ws-t40', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '시안 수정',                  startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t41', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-7', authorName: '이나경', date: '2026-06-14', category: '디자인', title: '서브 시안 수정',             startTime: '13:00', endTime: '17:00', done: true },
-    { id: 'ws-t42', workItemId: 'wi-10', stepId: 'ps-2-05', authorId: 'u-7', authorName: '이나경', date: '2026-06-15', category: '기획',   title: '1차 피드백 정리',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t43', workItemId: 'wi-10', stepId: 'ps-2-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '피드백 반영 수정',            startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t44', workItemId: 'wi-10', stepId: 'ps-2-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '수정 마무리',                startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t45', workItemId: 'wi-10', stepId: 'ps-2-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '2차 시안 시작',              startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t46', workItemId: 'wi-10', stepId: 'ps-2-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '2차 시안 완료',              startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t47', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-7', authorName: '이나경', date: '2026-06-18', category: '기획',   title: '2차 피드백 정리',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t48', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-7', authorName: '이나경', date: '2026-06-19', category: '기획',   title: '2차 피드백 반영 정리',        startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t49', workItemId: 'wi-10', stepId: 'ps-2-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '2차 수정 반영',              startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t50', workItemId: 'wi-10', stepId: 'ps-2-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '2차 수정 완료',              startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t51', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '최종 확정 작업',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t52', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-7', authorName: '이나경', date: '2026-06-21', category: '디자인', title: '최종 확정 검토',             startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-11 핏라이프 모바일 앱 — Jihye 추가
-    { id: 'ws-t53', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: 'IA 설계 초안',                startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t54', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '기획',   title: 'IA 설계 마무리',              startTime: '13:00', endTime: '16:00', done: false },
-    { id: 'ws-t55', workItemId: 'wi-11', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '와이어프레임 시작',           startTime: '16:00', endTime: '18:00', done: false },
-    { id: 'ws-t56', workItemId: 'wi-11', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '와이어프레임 완료',           startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t57', workItemId: 'wi-11', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: 'UI 디자인 시작',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t58', workItemId: 'wi-11', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: 'UI 디자인 완료',             startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t59', workItemId: 'wi-11', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '최종 확정 시작',             startTime: '18:00', endTime: '19:00', done: false },
-    { id: 'ws-t60', workItemId: 'wi-11', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '최종 확정 완료',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t61', workItemId: 'wi-11', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '개발 핸드오프 시작',          startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t62', workItemId: 'wi-11', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '개발 핸드오프 마무리',        startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-12 핏라이프 랜딩 페이지 — 정하은 + Jihye
-    { id: 'ws-t63', workItemId: 'wi-12', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '브리핑 정리',                  startTime: '09:00', endTime: '10:00', done: false },
-    { id: 'ws-t64', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '콘셉트 기획',                  startTime: '10:00', endTime: '12:00', done: false },
-    { id: 'ws-t65', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '콘셉트 확정',                  startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-t66', workItemId: 'wi-12', stepId: 'ps-3-03', authorId: 'u-5', authorName: '정하은', date: '2026-06-17', category: '기획',   title: '카피 & 구성안 작성',            startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t67', workItemId: 'wi-12', stepId: 'ps-3-03', authorId: 'u-5', authorName: '정하은', date: '2026-06-18', category: '기획',   title: '구성안 확정',                   startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t68', workItemId: 'wi-12', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '시안 제작 시작',               startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t69', workItemId: 'wi-12', stepId: 'ps-3-04', authorId: 'u-5', authorName: '정하은', date: '2026-06-19', category: '디자인', title: '서브 시안 작업',              startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t70', workItemId: 'wi-12', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '시안 마무리',                startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t71', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-5', authorName: '정하은', date: '2026-06-20', category: '기획',   title: '1차 피드백 수집',              startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t72', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-5', authorName: '정하은', date: '2026-06-21', category: '기획',   title: '1차 피드백 정리',              startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t73', workItemId: 'wi-12', stepId: 'ps-3-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-21', category: '디자인', title: '수정 반영',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t74', workItemId: 'wi-12', stepId: 'ps-3-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-22', category: '디자인', title: '수정 완료',                   startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t75', workItemId: 'wi-12', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-22', category: '디자인', title: '최종 확정',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t76', workItemId: 'wi-12', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '디자인', title: '최종 확인',                   startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-t77', workItemId: 'wi-12', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-06-23', category: '디자인', title: '파일 납품 준비',              startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t78', workItemId: 'wi-12', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-06-24', category: '디자인', title: '파일 납품',                  startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-13 (주)모아커머스 아이콘 세트 — 윤소이 + Jihye
-    { id: 'ws-t79', workItemId: 'wi-13', stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '기획',   title: '킥오프 브리핑',                startTime: '09:00', endTime: '10:00', done: false },
-    { id: 'ws-t80', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '디자인', title: '아이콘 디자인 시작',           startTime: '10:00', endTime: '17:00', done: false },
-    { id: 'ws-t81', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-8', authorName: '윤소이', date: '2026-06-24', category: '디자인', title: '아이콘 서브세트 작업',         startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t82', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-25', category: '디자인', title: '아이콘 디자인 계속',           startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t83', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-8', authorName: '윤소이', date: '2026-06-26', category: '디자인', title: '아이콘 작업 마무리',           startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t84', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-8', authorName: '윤소이', date: '2026-06-26', category: '기획',   title: '피드백 정리',                  startTime: '17:00', endTime: '18:00', done: false },
-    { id: 'ws-t85', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-8', authorName: '윤소이', date: '2026-06-27', category: '기획',   title: '피드백 반영',                  startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t86', workItemId: 'wi-13', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-27', category: '디자인', title: '수정 반영',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t87', workItemId: 'wi-13', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-28', category: '디자인', title: '수정 완료',                   startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t88', workItemId: 'wi-13', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-28', category: '디자인', title: '최종 확정',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t89', workItemId: 'wi-13', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-29', category: '디자인', title: '최종 QA',                     startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t90', workItemId: 'wi-13', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-29', category: '디자인', title: '핸드오프 시작',               startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t91', workItemId: 'wi-13', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-30', category: '디자인', title: '핸드오프 완료',               startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-16 넥스트에듀 서비스 소개 영상 — 박서연 (영상 & 모션)
-    { id: 'ws-t92', workItemId: 'wi-16', stepId: 'ps-4-02', authorId: 'u-4', authorName: '박서연', date: '2026-06-16', category: '기획',   title: '스토리보드 공동 작업',          startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t93', workItemId: 'wi-16', stepId: 'ps-4-05', authorId: 'u-4', authorName: '박서연', date: '2026-06-18', category: '제작',   title: '보이스 녹음 진행',              startTime: '10:00', endTime: '13:00', done: false },
-    { id: 'ws-t94', workItemId: 'wi-16', stepId: 'ps-4-06', authorId: 'u-4', authorName: '박서연', date: '2026-06-19', category: '제작',   title: '1차 편집 시작',                 startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t95', workItemId: 'wi-16', stepId: 'ps-4-06', authorId: 'u-4', authorName: '박서연', date: '2026-06-20', category: '제작',   title: '1차 편집 마무리',               startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t96', workItemId: 'wi-16', stepId: 'ps-4-08', authorId: 'u-4', authorName: '박서연', date: '2026-06-22', category: '제작',   title: '2차 수정',                      startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t97', workItemId: 'wi-16', stepId: 'ps-4-10', authorId: 'u-4', authorName: '박서연', date: '2026-06-25', category: '제작',   title: '파일 납품',                     startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-17 하이브뷰티 제품 카탈로그 — 이나경, 정하은 (브랜드 & 인쇄물)
-    { id: 'ws-t98',  workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-7', authorName: '이나경', date: '2026-06-13', category: '디자인', title: '카탈로그 레이아웃 시안',        startTime: '09:00', endTime: '13:00', done: true },
-    { id: 'ws-t99',  workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-5', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '제품 비주얼 작업',              startTime: '14:00', endTime: '17:00', done: true },
-    { id: 'ws-t100', workItemId: 'wi-17', stepId: 'ps-2-05', authorId: 'u-7', authorName: '이나경', date: '2026-06-16', category: '기획',   title: '1차 피드백 수집',               startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-t101', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-7', authorName: '이나경', date: '2026-06-17', category: '디자인', title: '카탈로그 수정 작업',            startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t102', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-5', authorName: '정하은', date: '2026-06-17', category: '디자인', title: '제품 페이지 수정',              startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t103', workItemId: 'wi-17', stepId: 'ps-2-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '2차 시안 제작',                startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t104', workItemId: 'wi-17', stepId: 'ps-2-11', authorId: 'u-7', authorName: '이나경', date: '2026-06-19', category: '제작',   title: '인쇄 사양 확인',               startTime: '14:00', endTime: '16:00', done: false },
-    { id: 'ws-t105', workItemId: 'wi-17', stepId: 'ps-2-12', authorId: 'u-5', authorName: '정하은', date: '2026-06-20', category: '제작',   title: '파일 납품',                    startTime: '09:00', endTime: '12:00', done: false },
-
-    // wi-m4 (주)그린푸드 캠페인 소재 — 정하은
-    { id: 'ws-t106', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-5', authorName: '정하은', date: '2026-05-20', category: '디자인', title: '배너 서브 시안 작업',         startTime: '09:00', endTime: '17:00', done: true },
-    { id: 'ws-t107', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-5', authorName: '정하은', date: '2026-05-22', category: '디자인', title: '소재 정리',                   startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t108', workItemId: 'wi-m4', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-05-23', category: '디자인', title: '파일 납품',                   startTime: '09:00', endTime: '12:00', done: true },
   ],
 
 
 
   requests: [
-    { id: 'wr-1', title: '신제품 론칭 SNS 배너', detail: '7월 신제품 론칭에 맞춰 인스타그램·페이스북용 배너 각 2종씩 제작 요청드립니다.', requester: '김지수', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-18', end: '2026-06-23', priority: '긴급', status: '수락 대기', processId: 'pc-3',
-      selectedSteps: [
-        { stepId: 'ps-3-02', title: '콘셉트 기획', role: '기획' },
-        { stepId: 'ps-3-04', title: '시안 제작', role: '디자인' },
-      ]
-    },
-    { id: 'wr-2', title: '채용 공고 포스터 디자인', detail: 'UI 디자이너 채용 공고 포스터 제작 부탁드립니다. 사내 게시 및 SNS 게재용 2가지 사이즈 필요합니다.', requester: '박소현', requestTeam: 'HR팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-18', end: '2026-06-24', priority: '일반', status: '수락 대기', processId: 'pc-2',
-      selectedSteps: [
-        { stepId: 'ps-2-04', title: '시안 제작', role: '디자인' },
-        { stepId: 'ps-2-10', title: '최종 디자인 확정', role: '디자인' },
-      ]
-    },
-    { id: 'wr-3', title: '신규 서비스 인트로 모션', detail: '앱 첫 진입 시 재생되는 15초 인트로 모션 그래픽이 필요합니다. 브랜드 톤에 맞춰 제작해 주세요.', requester: '이준호', requestTeam: '기획팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-19', end: '2026-06-27', priority: '일반', status: '수락 대기', processId: 'pc-4',
-      selectedSteps: [
-        { stepId: 'ps-4-02', title: '스토리보드 작성', role: '기획' },
-      ]
-    },
+    { id: 'wr-1', title: '신제품 론칭 SNS 배너', detail: '7월 신제품 론칭에 맞춰 인스타그램·페이스북용 배너 각 2종씩 제작 요청드립니다.', requester: '김지수', requestTeam: '마케팅팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-13', end: '2026-06-18', priority: '긴급', status: '수락 대기' },
+    { id: 'wr-2', title: '채용 공고 포스터 디자인', detail: 'UI 디자이너 채용 공고 포스터 제작 부탁드립니다. 사내 게시 및 SNS 게재용 2가지 사이즈 필요합니다.', requester: '박소현', requestTeam: 'HR팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-16', end: '2026-06-20', priority: '일반', status: '수락 대기' },
+    { id: 'wr-3', title: 'B2B 제안서 템플릿 제작', detail: '영업팀 PT용 B2B 제안서 PPT 템플릿 디자인이 필요합니다. 브랜드 가이드라인 기반으로 제작해 주세요.', requester: '이준호', requestTeam: '영업팀', deliveryTeam: '디자인팀', assignee: null, start: '2026-06-17', end: '2026-06-23', priority: '일반', status: '수락 대기' },
   ],
 
   assignmentRequests: [
-    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-23', priority: '긴급', status: '수락대기중',   assignees: ['Jihye', '최유진'], processId: 'pc-3', stepAssignees: { 'ps-3-02': ['Jihye'], 'ps-3-04': ['Jihye', '최유진'], 'ps-3-07': ['최유진'] } },
-    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-24', priority: '일반', status: '수락대기중',   assignees: ['Jihye'], processId: 'pc-2', stepAssignees: { 'ps-2-04': ['Jihye'], 'ps-2-10': ['Jihye'], 'ps-2-12': ['정하은'] } },
-    { id: 'ar-3', title: '신규 서비스 인트로 모션',          team: '기획팀',   hours: 16, deadline: '2026-06-27', priority: '일반', status: '수락대기중',   assignees: ['Jihye', '박서연'], processId: 'pc-4', stepAssignees: { 'ps-4-02': ['Jihye'], 'ps-4-05': ['박서연'], 'ps-4-06': ['박서연'] } },
-    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-25', priority: '일반', status: '재배정',     assignees: [], processId: 'pc-2', stepAssignees: {} },
-    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-6', title: '브랜드 소개 영상 30초',           team: '마케팅팀', hours: 20, deadline: '2026-06-30', priority: '일반', status: '신규요청',   assignees: [], processId: 'pc-4', stepAssignees: {} },
-    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
-    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-30', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: {} },
+    { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작',       team: '마케팅팀', hours: 12, deadline: '2026-06-18', priority: '긴급', status: '신규요청',   assignees: [] },
+    { id: 'ar-2', title: '채용 공고 포스터 디자인',          team: 'HR팀',     hours: 6,  deadline: '2026-06-20', priority: '일반', status: '신규요청',   assignees: [] },
+    { id: 'ar-3', title: 'B2B 제안서 PPT 템플릿',           team: '영업팀',   hours: 10, deadline: '2026-06-23', priority: '일반', status: '재배정',     assignees: [] },
+    { id: 'ar-4', title: '서비스 소개 브로셔 리디자인',      team: '기획팀',   hours: 8,  deadline: '2026-06-21', priority: '일반', status: '재배정',     assignees: [] },
+    { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트',      team: '기획팀',   hours: 4,  deadline: '2026-06-19', priority: '일반', status: '신규요청',   assignees: [] },
+    { id: 'ar-6', title: '사내 온보딩 가이드 시각화',        team: 'HR팀',     hours: 16, deadline: '2026-06-25', priority: '일반', status: '신규요청',   assignees: [] },
+    { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼',    team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'] },
+    { id: 'ar-8', title: '분기 성과 인포그래픽 제작',        team: '경영팀',   hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'] },
+    { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼',    team: '기획팀',   hours: 14, deadline: '2026-06-24', priority: '일반', status: '배정완료',   assignees: ['정하은', 'Jihye'] },
+  ],
+
+  processes: [
+    {
+      id: 'pc-1', category: 'UI/UX 디자인',
+      steps: [
+        { id: 'ps-1-01', title: '브리핑 & 계약' },
+        { id: 'ps-1-02', title: '리서치 (사용자/경쟁사)' },
+        { id: 'ps-1-03', title: '정보구조도(IA) 설계' },
+        { id: 'ps-1-04', title: '와이어프레임 제작' },
+        { id: 'ps-1-05', title: '와이어프레임 피드백' },
+        { id: 'ps-1-06', title: '1차 UI 디자인' },
+        { id: 'ps-1-07', title: '1차 수정' },
+        { id: 'ps-1-08', title: '2차 UI 디자인' },
+        { id: 'ps-1-09', title: '2차 수정' },
+        { id: 'ps-1-10', title: '프로토타입 제작' },
+        { id: 'ps-1-11', title: '사용성 테스트' },
+        { id: 'ps-1-12', title: '최종 디자인 확정' },
+        { id: 'ps-1-13', title: '개발 핸드오프' },
+        { id: 'ps-1-14', title: '디자인 QA' },
+      ],
+    },
+    {
+      id: 'pc-2', category: '브랜드 & 인쇄물',
+      steps: [
+        { id: 'ps-2-01', title: '브리핑 & 계약' },
+        { id: 'ps-2-02', title: '리서치 (시장/경쟁사)' },
+        { id: 'ps-2-03', title: '콘셉트 기획' },
+        { id: 'ps-2-04', title: '시안 제작' },
+        { id: 'ps-2-05', title: '1차 피드백' },
+        { id: 'ps-2-06', title: '1차 수정' },
+        { id: 'ps-2-07', title: '2차 시안 제작' },
+        { id: 'ps-2-08', title: '2차 피드백' },
+        { id: 'ps-2-09', title: '2차 수정' },
+        { id: 'ps-2-10', title: '최종 디자인 확정' },
+        { id: 'ps-2-11', title: '인쇄 사양 확인' },
+        { id: 'ps-2-12', title: '파일 납품' },
+      ],
+    },
+    {
+      id: 'pc-3', category: '디지털 콘텐츠',
+      steps: [
+        { id: 'ps-3-01', title: '브리핑 & 계약' },
+        { id: 'ps-3-02', title: '콘셉트 기획' },
+        { id: 'ps-3-03', title: '카피 & 구성안 작성' },
+        { id: 'ps-3-04', title: '시안 제작' },
+        { id: 'ps-3-05', title: '1차 피드백' },
+        { id: 'ps-3-06', title: '1차 수정' },
+        { id: 'ps-3-07', title: '최종 디자인 확정' },
+        { id: 'ps-3-08', title: '파일 납품' },
+      ],
+    },
+    {
+      id: 'pc-4', category: '영상 & 모션',
+      steps: [
+        { id: 'ps-4-01', title: '브리핑 & 계약' },
+        { id: 'ps-4-02', title: '스토리보드 작성' },
+        { id: 'ps-4-03', title: '스토리보드 피드백' },
+        { id: 'ps-4-04', title: '스크립트 & 보이스 녹음' },
+        { id: 'ps-4-05', title: '1차 편집' },
+        { id: 'ps-4-06', title: '1차 피드백' },
+        { id: 'ps-4-07', title: '1차 수정' },
+        { id: 'ps-4-08', title: '최종 편집' },
+        { id: 'ps-4-09', title: '최종 디자인 확정' },
+        { id: 'ps-4-10', title: '파일 납품' },
+      ],
+    },
   ],
 
   notifications: [
-    { id: 'n-1', title: '업무요청 도착', body: '마케팅팀에서 SNS 배너 제작을 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
-    { id: 'n-2', title: '업무요청 도착', body: '기획팀에서 인트로 모션 그래픽을 요청했습니다.', requestTitle: '신규 서비스 인트로 모션', unread: true },
-    { id: 'n-3', title: '연차 승인', body: '박민준 님의 오후 반차(06/10) 신청이 승인되었습니다.', unread: false },
-    { id: 'n-4', title: '회의 등록 완료', body: '"스프린트 회고 #12" 회의가 등록되었습니다. (참석자 4명)', unread: false },
+    { id: 'n-1', title: '업무요청 도착', body: '마케팅팀에서 업무를 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
+    { id: 'n-2', title: '디자인 리뷰 피드백', body: '장준혁 님이 홈 화면 시안에 코멘트를 남겼습니다.', unread: true },
+    { id: 'n-3', title: '회의 일정 변경', body: '오늘 디자인 리뷰 미팅이 오후 3시로 변경되었습니다.', unread: false },
   ],
 
   meetings: [
@@ -482,7 +366,7 @@ const state = {
       { id: 'act-mr3-3', text: '주간 싱크업 캘린더 초대 발송', dueDate: '2026-06-03', assignee: '최유진', done: true, addedToWeekly: false },
     ],
     date: '2026-06-02', author: '이수진', duration: '35:42', attendees: 6, attendeeNames: ['이수진', 'Jihye', '김도현', '박서연', '최유진', '정하은'] },
-    { id: 'mr-4', team: '개발팀', type: '스프린트 기획', title: '2분기 스프린트 계획 수립',
+    { id: 'mr-4', team: '디자인팀 02', type: '스프린트 기획', title: '2분기 스프린트 계획 수립',
     summary: '2분기 주요 마일스톤 설정 및 업무 분배. 우선순위 조정 및 리소스 할당에 대한 논의가 완료되었습니다.',
     aiPoints: ['2분기 핵심 목표: 신규 서비스 UI 3종 완성', '스프린트 1(6월): 와이어프레임·IA 확정', '스프린트 2(7월): 시각 디자인 + 프로토타입', '스프린트 3(8월): 개발 핸드오프 + QA 지원', '리소스 부족으로 외부 프리랜서 1명 추가 검토'],
     discussions: ['6월 집중 업무 과부하 우려 — 우선순위 상위 3개 업무 집중, 나머지 7월로 이월', '디자인 시스템 업데이트 병행 진행 여부 논의 → 스프린트 2 이후로 연기 결정', '주간 진척 리포트 양식 통일 필요'],
@@ -499,7 +383,7 @@ const state = {
       { id: 'act-mr4-3', text: '주간 진척 리포트 양식 초안 작성', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
     date: '2026-06-01', author: '박민준', duration: '58:20', attendees: 5, attendeeNames: ['박민준', '이수진', '김도현', '최유진', 'Jihye'] },
-    { id: 'mr-5', team: '개발팀', type: '주간 회의', title: '주간 진행상황 공유 #24',
+    { id: 'mr-5', team: '디자인팀 02', type: '주간 회의', title: '주간 진행상황 공유 #24',
     summary: '이번 주 완료된 작업 현황 공유 및 다음 주 계획 확인. 블로커 이슈 3건이 확인되었으며 관련 담당자 지정이 완료되었습니다.',
     aiPoints: ['이번 주 완료 업무 7건, 진행 중 4건, 미착수 2건', '블로커 3건: 에셋 미수령 / 리뷰 지연 / 외부 API 미확정', '다음 주 우선순위: 랜딩 페이지 디자인 완료 + 내부 리뷰'],
     discussions: ['에셋 미수령 건은 마케팅팀에 재요청 예정 (정하은 담당)', '외부 API 확정 지연으로 관련 화면 목업으로 대체 진행 결정', '이번 주 완료율 63% — 목표 80% 대비 저조, 다음 주 만회 계획 필요'],
@@ -516,7 +400,7 @@ const state = {
       { id: 'act-mr5-3', text: '다음 주 완료율 80% 달성 계획 공유', dueDate: '2026-06-01', assignee: '박민준', done: false, addedToWeekly: false },
     ],
     date: '2026-05-29', author: '박민준', duration: '25:10', attendees: 4, attendeeNames: ['박민준', '이나경', '정하은', 'Jihye'] },
-    { id: 'mr-6', team: 'PM팀', type: '워크샵', title: 'UX 리서치 워크샵',
+    { id: 'mr-6', team: '디자인팀 03', type: '워크샵', title: 'UX 리서치 워크샵',
     summary: '사용자 인터뷰 결과 공유 및 페르소나 재정립. 주요 사용자 니즈 기반 개선 방향성 설정 합의가 이루어졌습니다.',
     aiPoints: ['사용자 인터뷰 18건 분석 완료 — 주요 페인포인트 5가지 도출', '기존 페르소나 3종 → 4종으로 재정립 (신규: 중간관리자형 추가)', '개선 우선순위: 온보딩 플로우 간소화 > 알림 설정 > 검색 기능', '다음 분기 리서치 주제: 모바일 사용 패턴 분석'],
     discussions: ['인터뷰 참여자 중 70%가 온보딩 복잡성을 가장 큰 불편으로 꼽음', '페르소나 4번째 유형(중간관리자) 추가는 전원 합의', 'B2B 고객과 개인 사용자 간 니즈 차이 명확히 구분 필요'],
@@ -533,7 +417,7 @@ const state = {
       { id: 'act-mr6-3', text: '다음 분기 리서치 계획서 작성', dueDate: '2026-06-13', assignee: '최지영', done: false, addedToWeekly: false },
     ],
     startDate: '2026-05-30', endDate: '2026-05-30', author: '최지영', duration: '1:24:15', attendees: 8, attendeeNames: ['최지영', '김도현', '박서연', '이수진', 'Jihye', '최유진', '정하은', '이나경'] },
-    { id: 'mr-7', team: '마케팅팀', type: '업무 보고', title: '월간 성과 보고 — 5월',
+    { id: 'mr-7', team: '디자인팀 04', type: '업무 보고', title: '월간 성과 보고 — 5월',
     summary: '5월 주요 달성 지표 및 미달성 항목 리뷰. 6월 집중 개선 과제 3가지 합의 및 담당자 배정이 완료되었습니다.',
     aiPoints: ['5월 완료율 78% (목표 85% 대비 -7%)', '미달성 원인: 외부 의존성 지연 2건, 요구사항 변경 1건', '6월 개선 과제 3가지: 리뷰 사이클 단축 / 스펙 동결 기준 수립 / 일정 버퍼 확보', '팀 전반 번아웃 징후 감지 — 업무량 조정 검토 필요'],
     discussions: ['목표 대비 7% 부족한 원인이 외부 요인인지 내부 프로세스 문제인지 분석 필요', '리뷰 사이클이 길어지는 구간(개발 핸드오프 이후)에 병목 집중', '6월에는 스펙 동결 기준을 착수 3일 전으로 명확히 설정하기로 합의'],
@@ -550,7 +434,7 @@ const state = {
       { id: 'act-mr7-3', text: '6월 업무량 조정 계획 제출', dueDate: '2026-06-05', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
     date: '2026-05-28', author: '강지훈', duration: '47:33', attendees: 7, attendeeNames: ['강지훈', 'Jihye', '이수진', '박서연', '김도현', '최유진', '이나경'] },
-    { id: 'mr-8', team: '디자인팀', type: '기술 공유', title: 'Figma 컴포넌트 최적화 세션',
+    { id: 'mr-8', team: '디자인팀 05', type: '기술 공유', title: 'Figma 컴포넌트 최적화 세션',
     summary: '팀 내 Figma 라이브러리 구조 개선 방안 공유. 재사용 가능한 컴포넌트 설계 패턴 정립 및 스타일 토큰 일원화 논의가 진행되었습니다.',
     aiPoints: ['현재 Figma 라이브러리 컴포넌트 수 214개 → 중복·미사용 47개 정리 예정', '스타일 토큰 체계 Color/Spacing/Typography 3계층으로 일원화', 'Auto Layout 미적용 컴포넌트 32개 일괄 전환 계획', 'Figma Variables 활용한 다크모드 지원 방안 논의'],
     discussions: ['컴포넌트 네이밍 컨벤션 불일치로 검색 효율 저하 — 네이밍 가이드 수립 필요', '스타일 토큰 일원화 후 기존 화면에 일괄 적용하는 방법론 합의 필요', '다크모드 지원은 현 시점 우선순위에서 제외, 토큰 구조만 준비'],
@@ -567,31 +451,6 @@ const state = {
       { id: 'act-mr8-3', text: '스타일 토큰 일원화 작업 착수', dueDate: '2026-06-07', assignee: '정하은', done: false, addedToWeekly: false },
     ],
     date: '2026-05-27', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', 'Jihye', '정하은', '박서연', '최유진'] },
-    { id: 'mr-9', team: '디자인팀', type: '주간 회의', title: '디자인팀 주간 싱크 #22',
-    summary: '이번 주 진행 업무 공유 및 우선순위 재조정. 온보딩 수정 일정과 배너 제작 현황을 점검했습니다.',
-    aiPoints: ['온보딩 화면 수정 3건 이번 주 내 완료 예정', '배너 시안 검토 일정 목요일로 확정', '고객사 A 컬러 시스템 시안 다음 주 공유'],
-    discussions: ['온보딩 수정 범위 추가 가능성 검토 필요', '배너 사이즈 스펙 마케팅팀과 재확인'],
-    script: [],
-    actionItems: [],
-    date: '2026-06-09', author: 'Jihye', duration: '28:15', attendees: 4, attendeeNames: ['Jihye', '이나경', '정하은', '박서연'] },
-    { id: 'mr-10', team: '디자인팀', type: '클라이언트 미팅', title: '고객사 A 1차 시안 발표',
-    summary: '로고 1차 시안 3종 발표 및 클라이언트 피드백 수렴. 컬러 방향성은 긍정적이나 서체 변경 요청이 있었습니다.',
-    aiPoints: ['로고 시안 B안 방향으로 진행 확정', '서체: 현재 Pretendard → Noto Serif 검토 요청', '다음 미팅 일정: 6월 18일'],
-    discussions: ['서체 변경 시 전체 BI 일관성 검토 필요'],
-    script: [],
-    actionItems: [
-      { id: 'act-mr10-1', text: '서체 대안 2종 추가 시안 제작', dueDate: '2026-06-16', assignee: '이나경', done: false, addedToWeekly: false },
-    ],
-    date: '2026-06-11', author: 'Jihye', duration: '45:00', attendees: 3, attendeeNames: ['Jihye', '이나경', '최유진'] },
-    { id: 'mr-11', team: '전체', type: '긴급 회의', title: '앱 출시 전 최종 QA 점검',
-    summary: 'QA 기간 중 발견된 온보딩 버그 현황 공유 및 수정 우선순위 합의. 출시 일정은 예정대로 유지하기로 결정.',
-    aiPoints: ['온보딩 버그 총 7건 — 이번 주 내 5건 수정 목표', '나머지 2건은 출시 후 핫픽스로 처리', '출시 일정 6월 20일 유지'],
-    discussions: ['출시 일정 연기 여부 논의 — 현행 유지로 합의', '핫픽스 대응 담당자 Jihye·최유진으로 확정'],
-    script: [],
-    actionItems: [
-      { id: 'act-mr11-1', text: '온보딩 버그 5건 수정 완료', dueDate: '2026-06-17', assignee: 'Jihye', done: false, addedToWeekly: false },
-    ],
-    date: '2026-06-17', author: '최유진', duration: '32:00', attendees: 5, attendeeNames: ['Jihye', '최유진', '박서연', '정하은', '이나경'] },
   ],
 
   // 연차 데이터 — id, applicantId, applicantName, applicantRole, type, date, reason, status, approverId, approverName, rejectedReason, requestedAt
@@ -606,117 +465,6 @@ const state = {
 
   leaveTab: '내 연차',         // '내 연차' | '팀 연차' | '승인 대기' | '이력'
   totalLeave: 15,              // 총 연차 (연간)
-
-  processes: [
-    {
-      id: 'pc-1', category: 'UI/UX 디자인',
-      steps: [
-        { id: 'ps-1-01', title: '브리핑 & 계약',           role: '기획' },
-        { id: 'ps-1-02', title: '리서치 (사용자/경쟁사)',   role: '리서치' },
-        { id: 'ps-1-03', title: '정보구조도(IA) 설계',      role: '기획' },
-        { id: 'ps-1-04', title: '와이어프레임 제작',        role: '디자인' },
-        { id: 'ps-1-05', title: '1차 피드백',              role: '전체' },
-        { id: 'ps-1-06', title: '1차 수정',                role: '디자인' },
-        { id: 'ps-1-07', title: '1차 UI 디자인',           role: '디자인' },
-        { id: 'ps-1-08', title: '2차 피드백',              role: '전체' },
-        { id: 'ps-1-09', title: '2차 수정',                role: '디자인' },
-        { id: 'ps-1-10', title: '프로토타입 제작',          role: '디자인' },
-        { id: 'ps-1-11', title: '사용성 테스트',            role: '리서치' },
-        { id: 'ps-1-12', title: '최종 디자인 확정',         role: '디자인' },
-        { id: 'ps-1-13', title: '개발 핸드오프',            role: '개발' },
-        { id: 'ps-1-14', title: '디자인 QA',               role: '디자인' },
-      ],
-    },
-    {
-      id: 'pc-2', category: '브랜드 & 인쇄물',
-      steps: [
-        { id: 'ps-2-01', title: '브리핑 & 계약',           role: '기획' },
-        { id: 'ps-2-02', title: '리서치 (시장/경쟁사)',     role: '리서치' },
-        { id: 'ps-2-03', title: '콘셉트 기획',             role: '기획' },
-        { id: 'ps-2-04', title: '시안 제작',               role: '디자인' },
-        { id: 'ps-2-05', title: '1차 피드백',              role: '전체' },
-        { id: 'ps-2-06', title: '1차 수정',                role: '디자인' },
-        { id: 'ps-2-07', title: '2차 시안 제작',           role: '디자인' },
-        { id: 'ps-2-08', title: '2차 피드백',              role: '전체' },
-        { id: 'ps-2-09', title: '2차 수정',                role: '디자인' },
-        { id: 'ps-2-10', title: '최종 디자인 확정',         role: '디자인' },
-        { id: 'ps-2-11', title: '인쇄 사양 확인',           role: '제작' },
-        { id: 'ps-2-12', title: '파일 납품',               role: '제작' },
-      ],
-    },
-    {
-      id: 'pc-3', category: '디지털 콘텐츠',
-      steps: [
-        { id: 'ps-3-01', title: '브리핑 & 계약',           role: '기획' },
-        { id: 'ps-3-02', title: '콘셉트 기획',             role: '기획' },
-        { id: 'ps-3-03', title: '카피 & 구성안 작성',       role: '카피' },
-        { id: 'ps-3-04', title: '시안 제작',               role: '디자인' },
-        { id: 'ps-3-05', title: '1차 피드백',              role: '전체' },
-        { id: 'ps-3-06', title: '1차 수정',                role: '디자인' },
-        { id: 'ps-3-07', title: '최종 디자인 확정',         role: '디자인' },
-        { id: 'ps-3-08', title: '파일 납품',               role: '제작' },
-      ],
-    },
-    {
-      id: 'pc-4', category: '영상 & 모션',
-      steps: [
-        { id: 'ps-4-01', title: '브리핑 & 계약',           role: '기획' },
-        { id: 'ps-4-02', title: '스토리보드 작성',          role: '기획' },
-        { id: 'ps-4-03', title: '1차 피드백',              role: '전체' },
-        { id: 'ps-4-04', title: '1차 수정',                role: '기획' },
-        { id: 'ps-4-05', title: '스크립트 & 보이스 녹음',   role: '제작' },
-        { id: 'ps-4-06', title: '1차 편집',                role: '제작' },
-        { id: 'ps-4-07', title: '2차 피드백',              role: '전체' },
-        { id: 'ps-4-08', title: '2차 수정',                role: '제작' },
-        { id: 'ps-4-09', title: '최종 확정',               role: '전체' },
-        { id: 'ps-4-10', title: '파일 납품',               role: '제작' },
-      ],
-    },
-  ],
-
-  processJobs: [
-    {
-      id: 'pj-1', processId: 'pc-1',
-      title: '모바일 앱 UI 리디자인',
-      deadline: '2026-07-31',
-      currentStepIdx: 3,
-      status: 'active',
-      createdAt: '2026-06-01',
-      stepAssignees: {
-        'ps-1-01': ['Jihye'],
-        'ps-1-02': ['김도현'],
-        'ps-1-03': ['Jihye', '장준혁'],
-        'ps-1-04': ['장준혁'],
-        'ps-1-05': ['Jihye', '장준혁', '최유진'],
-      },
-    },
-    {
-      id: 'pj-2', processId: 'pc-3',
-      title: '여름 SNS 콘텐츠 패키지',
-      deadline: '2026-07-10',
-      currentStepIdx: 2,
-      status: 'active',
-      createdAt: '2026-06-08',
-      stepAssignees: {
-        'ps-3-01': ['Jihye'],
-        'ps-3-02': ['최유진'],
-        'ps-3-03': ['정하은'],
-        'ps-3-04': ['정하은', '이나경'],
-      },
-    },
-    {
-      id: 'pj-3', processId: 'pc-4',
-      title: '브랜드 홍보 영상',
-      deadline: '2026-06-30',
-      currentStepIdx: 1,
-      status: 'active',
-      createdAt: '2026-05-28',
-      stepAssignees: {
-        'ps-4-01': ['장준혁'],
-        'ps-4-02': ['장준혁', '박서연'],
-      },
-    },
-  ],
 };
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -736,10 +484,11 @@ const CAT_CLASS = {
 };
 
 const TEAM_COLORS = {
-  '디자인팀':  '#2563eb',
-  '개발팀':    '#10b981',
-  'PM팀':      '#f59e0b',
-  '마케팅팀':  '#8b5cf6',
+  '디자인팀':    '#2563eb',
+  '디자인팀 02': '#10b981',
+  '디자인팀 03': '#f59e0b',
+  '디자인팀 04': '#8b5cf6',
+  '디자인팀 05': '#ef4444',
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -823,14 +572,13 @@ function weekItems() {
 }
 
 function sortByType(a, b) {
-  const order = { 회의: 0, 고정: 1, 긴급: 2, 일반: 3 };
+  const order = { 고정: 0, 긴급: 1, 일반: 2 };
   return (order[a.type] - order[b.type]) || a.title.localeCompare(b.title, 'ko');
 }
 
 function typeIconClass(type) {
   if (type === '고정') return 'pin';
   if (type === '긴급') return 'red';
-  if (type === '회의') return 'orange';
   return 'gray';
 }
 
@@ -871,10 +619,9 @@ function renderWeeklyTasks() {
     } else {
       period = `${item.start.slice(5).replace('-', '.')} ~ ${item.end.slice(5).replace('-', '.')}`;
     }
-    const iconCls = item.type === '긴급' ? 'red' : item.type === '회의' ? 'orange' : 'gray';
     const iconHtml = item.type === '고정'
       ? pinSvg
-      : `<span class="type-icon ${iconCls}"></span>`;
+      : `<span class="type-icon ${item.type === '긴급' ? 'red' : 'gray'}"></span>`;
     return `
       <div class="task-item${isLastFixed ? ' is-last-fixed' : ''}" data-task-id="${item.id}" role="button" tabindex="0">
         ${iconHtml}
@@ -1183,6 +930,7 @@ function renderSessionRow(s) {
         ${s.done ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
       </button>
       <div class="session-body">
+        <span class="session-cat ${catClass}">${escapeHtml(s.category)}</span>
         ${titleHtml}
         ${timeMarkup}
       </div>
@@ -1192,25 +940,15 @@ function renderSessionRow(s) {
 }
 
 function renderKpis() {
-  const viewDate = state.dailyViewDate;
-  const viewWeekday = new Date(viewDate).getDay();
-  const viewItems = state.workItems.filter(item => {
-    if (item.type === '고정') {
-      const rd = item.recurringDays || [1,2,3,4,5];
-      return rd.includes(viewWeekday) && item.start <= viewDate && (item.end === null || item.end >= viewDate);
-    }
-    return item.start <= viewDate && item.end >= viewDate;
-  });
-  let daySessions = [];
-  viewItems.forEach(item => {
-    daySessions.push(...sessionsByItem(item.id).filter(s => s.date === viewDate));
-  });
+  const today = todaySessions();
+  const allWeek = weekSessions();
 
-  const todayMin = daySessions.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
-  const done     = daySessions.filter(s => s.done).length;
-  const remaining= daySessions.filter(s => !s.done).length;
+  const todayMin = today.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
+  const weekMin  = allWeek.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
+  const done     = today.filter(s => s.done).length;
+  const remaining= today.filter(s => !s.done).length;
 
-  const total = daySessions.length;
+  const total = today.length;
   const cells = [
     { val: fmtDuration(todayMin),      lbl: '오늘 작업시간', color: '#2563eb' },
     { val: `${done}/${total}`,          lbl: '완료 세션',     color: '#10b981' },
@@ -1265,10 +1003,13 @@ function renderRequestList() {
       <div class="req-item ${isRejected ? 'is-rejected' : ''}">
         <div class="req-item-header">
           <span class="req-item-title">${escapeHtml(r.title)}</span>
-          ${statusBadge}
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            ${statusBadge}
+            <span class="req-source">${escapeHtml(r.requestTeam)}</span>
+          </div>
         </div>
         <div class="req-desc">${escapeHtml(r.detail)}</div>
-        <div class="req-meta">${escapeHtml(r.requester)} · ${r.start.slice(5).replace('-', '/')} ~ ${r.end.slice(5).replace('-', '/')}</div>
+        <div class="req-meta">${escapeHtml(r.requester)} · 마감 ${r.end.slice(5).replace('-', '/')}</div>
         ${actions}
       </div>
     `;
@@ -1399,17 +1140,11 @@ function renderTeamStatusPage() {
     const total    = items.length;
     const pct      = total > 0 ? Math.round(done / total * 100) : 0;
 
-    const PIN_SVG = `<svg class="ts-wi-pin" viewBox="0 0 16 16" fill="currentColor"><path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/></svg>`;
-    const itemsHtml = items.map(item => {
-      const indicator = item.type === '고정'
-        ? PIN_SVG
-        : `<span class="ts-wi-dot ts-wi-${item.type === '긴급' ? 'urgent' : 'normal'}"></span>`;
-      return `
+    const itemsHtml = items.map(item => `
       <div class="ts-wi-row${item.done ? ' ts-wi-done' : ''}">
-        ${indicator}
+        <span class="ts-wi-dot ts-wi-${item.type === '긴급' ? 'urgent' : item.type === '고정' ? 'fixed' : 'normal'}"></span>
         <span class="ts-wi-title">${escapeHtml(item.title)}</span>
-      </div>`;
-    }).join('');
+      </div>`).join('');
 
     return `
       <div class="ts-card">
@@ -1452,12 +1187,9 @@ function renderMyPage() {
       </div>
       <div class="mp-col-center">
         ${_mpAI()}
-        ${_mpFiles()}
-      </div>
-      <div class="mp-col-right">
-        ${_mpCalPanel()}
         ${_mpMeetings()}
       </div>
+      <div class="mp-col-right">${_mpCalPanel()}</div>
     </div>
   `;
 }
@@ -1618,126 +1350,9 @@ function _mpCalPanel() {
 }
 
 function _sessionMins(s) {
-  if (!s.startTime || !s.endTime) return 0;
   const [sh,sm]=s.startTime.split(':').map(Number);
   const [eh,em]=s.endTime.split(':').map(Number);
   return (eh*60+em)-(sh*60+sm);
-}
-
-const MP_FILES_DATA = [
-  { id:'mf1', name:'디자인_기획서_v2.pdf',    ext:'pdf', date:'2026-06-10', from:'디자인팀 주간 회의' },
-  { id:'mf2', name:'마케팅전략_Q2.pptx',       ext:'ppt', date:'2026-06-08', from:'마케팅 업무 요청' },
-  { id:'mf3', name:'와이어프레임_홈.png',       ext:'img', date:'2026-06-05', from:'UX 리뷰 회의' },
-  { id:'mf4', name:'사용자조사_결과.pdf',       ext:'pdf', date:'2026-06-03', from:'사용자 조사 업무' },
-  { id:'mf5', name:'스프린트_계획.xlsx',        ext:'xls', date:'2026-06-01', from:'스프린트 계획 회의' },
-  { id:'mf6', name:'로고_최종본.png',           ext:'img', date:'2026-05-28', from:'브랜드 리뉴얼 업무' },
-  { id:'mf7', name:'개발_명세서.docx',          ext:'doc', date:'2026-05-25', from:'개발팀 협업 요청' },
-];
-
-function _mpFiles() {
-  const ICON = { pdf:'📄', ppt:'📊', img:'🖼', xls:'📗', doc:'📝' };
-  const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
-  const list = state.mpFilesExpanded ? MP_FILES_DATA : MP_FILES_DATA.slice(0,5);
-
-  const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  let lastMonth = null;
-  const items = list.map(f => {
-    const [,m] = f.date.split('-');
-    const monthKey = f.date.slice(0,7);
-    const monthLabel = monthKey !== lastMonth
-      ? `<div class="mp-file-month-label">${MONTH_KO[parseInt(m,10)-1]}</div>`
-      : '';
-    lastMonth = monthKey;
-    return `${monthLabel}
-    <div class="mp-file-item" data-mp-file-open="${f.id}" role="button" tabindex="0">
-      <span class="mp-file-icon ${CLS[f.ext]||''}">${ICON[f.ext]||'📎'}</span>
-      <div class="mp-file-info">
-        <div class="mp-file-name">${escapeHtml(f.name)}</div>
-        <div class="mp-file-meta">${escapeHtml(f.from)} · ${f.date}</div>
-      </div>
-      <button class="mp-file-dl-btn" data-mp-file-dl="${f.id}" title="다운로드">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M7.5 1v9M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M2 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>`;
-  }).join('');
-
-  const moreBtn = MP_FILES_DATA.length>5
-    ? `<button class="mp-files-more-btn" data-mp-files-toggle>${state.mpFilesExpanded?'접기':'더보기'}</button>`
-    : '';
-  return `
-    <div class="mp-files-card">
-      <div class="mp-files-header">
-        <span class="mp-files-title">내가 올린 파일</span>
-        <span class="mp-files-count">${MP_FILES_DATA.length}개</span>
-      </div>
-      <div class="mp-files-list">${items}</div>
-      ${moreBtn}
-    </div>`;
-}
-
-function openFilePreview(id) {
-  const f = MP_FILES_DATA.find(x => x.id === id);
-  if (!f) return;
-  const ICON = { pdf:'📄', ppt:'📊', img:'🖼', xls:'📗', doc:'📝' };
-  const CLS  = { pdf:'mp-file-ext-pdf', ppt:'mp-file-ext-ppt', img:'mp-file-ext-img', xls:'mp-file-ext-xls', doc:'mp-file-ext-doc' };
-  const PREVIEW_BG = { img:'mp-fpreview-img', pdf:'mp-fpreview-pdf', ppt:'mp-fpreview-ppt', xls:'mp-fpreview-xls', doc:'mp-fpreview-doc' };
-
-  const existing = document.getElementById('mpFileModal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'mpFileModal';
-  modal.className = 'mp-fmodal-overlay';
-  modal.innerHTML = `
-    <div class="mp-fmodal">
-      <div class="mp-fmodal-header">
-        <div class="mp-fmodal-title-row">
-          <span class="mp-file-icon ${CLS[f.ext]||''}" style="width:36px;height:36px;font-size:20px">${ICON[f.ext]||'📎'}</span>
-          <div>
-            <div class="mp-fmodal-name">${escapeHtml(f.name)}</div>
-            <div class="mp-fmodal-meta">${escapeHtml(f.from)} · ${f.date}</div>
-          </div>
-        </div>
-        <button class="mp-fmodal-close" id="mpFileModalClose">✕</button>
-      </div>
-      <div class="mp-fmodal-preview ${PREVIEW_BG[f.ext]||''}">
-        <div class="mp-fpreview-placeholder">
-          <span style="font-size:48px">${ICON[f.ext]||'📎'}</span>
-          <p>${escapeHtml(f.name)}</p>
-          <span class="mp-fpreview-label">미리보기를 지원하지 않는 형식입니다</span>
-        </div>
-      </div>
-      <div class="mp-fmodal-footer">
-        <button class="dark-btn mp-fmodal-dl-btn" data-mp-file-dl="${f.id}">
-          <svg width="14" height="14" viewBox="0 0 15 15" fill="none" style="margin-right:6px">
-            <path d="M7.5 1v9M4 7l3.5 3.5L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          다운로드
-        </button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-
-  modal.addEventListener('click', e => {
-    if (e.target === modal || e.target.id === 'mpFileModalClose') modal.remove();
-    if (e.target.closest('[data-mp-file-dl]')) {
-      const fid = e.target.closest('[data-mp-file-dl]').dataset.mpFileDl;
-      triggerFileDl(fid);
-    }
-  });
-}
-
-function triggerFileDl(id) {
-  const f = MP_FILES_DATA.find(x => x.id === id);
-  if (!f) return;
-  const a = document.createElement('a');
-  a.href = '#';
-  a.download = f.name;
-  a.click();
 }
 
 function _mpAI() {
@@ -1760,28 +1375,26 @@ function _mpAI() {
   const fmtDate=d=>d?`${d.slice(5,7)}/${d.slice(8,10)}`:'-';
 
   const hourMins={};
-  ms.filter(s=>s.startTime).forEach(s=>{const h=s.startTime.split(':')[0];hourMins[h]=(hourMins[h]||0)+_sessionMins(s);});
+  ms.forEach(s=>{const h=s.startTime.split(':')[0];hourMins[h]=(hourMins[h]||0)+_sessionMins(s);});
   const peakHour=Object.entries(hourMins).sort((a,b)=>b[1]-a[1])[0];
 
   const titleCount={};
   ms.forEach(s=>{titleCount[s.title]=(titleCount[s.title]||0)+1;});
   const repeated=Object.entries(titleCount).filter(([,c])=>c>=2).map(([t])=>t);
 
-  const timedMs=ms.filter(s=>s.startTime&&s.endTime);
-  const totalMins=timedMs.reduce((a,s)=>a+_sessionMins(s),0);
+  const totalMins=ms.reduce((a,s)=>a+_sessionMins(s),0);
   const fmtH=m=>{const h=Math.floor(m/60),mn=m%60;return h>0?`${h}h ${mn}m`:`${mn}m`;};
   const MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const now=new Date(state.today+'T00:00:00');
 
-  const allInsights=[
-    {icon:'📋',label:'가장 많이 수행한 업무',     value:topCat?`${topCat[0]} (${topCat[1]}건)`:null},
-    {icon:'⏱️',label:'가장 많은 시간이 투입된 업무',value:topWi?`${topWi[0]} (${fmtH(topWi[1])})`:null},
-    {icon:'🔁',label:'반복 업무 패턴',            value:repeated.length?repeated.slice(0,2).join(', '):null},
-    {icon:'🌟',label:'생산성이 높은 요일',         value:bestDay?`${fmtDate(bestDay[0])} (${fmtH(bestDay[1])})`:null},
-    {icon:'📉',label:'생산성이 낮은 요일',         value:worstDay&&worstDay!==bestDay?`${fmtDate(worstDay[0])} (${fmtH(worstDay[1])})`:null},
-    {icon:'⚡',label:'업무 집중 시간대',           value:peakHour?`${peakHour[0]}:00 ~ ${parseInt(peakHour[0])+1}:00`:null},
+  const insights=[
+    {icon:'📋',label:'가장 많이 수행한 업무',     value:topCat?`${topCat[0]} (${topCat[1]}건)`:'데이터 없음'},
+    {icon:'⏱️',label:'가장 많은 시간이 투입된 업무',value:topWi?`${topWi[0]} (${fmtH(topWi[1])})`:'데이터 없음'},
+    {icon:'🔁',label:'반복 업무 패턴',            value:repeated.length?repeated.slice(0,2).join(', '):'반복 업무 없음'},
+    {icon:'🌟',label:'생산성이 높은 요일',         value:bestDay?`${fmtDate(bestDay[0])} (${fmtH(bestDay[1])})`:'데이터 없음'},
+    {icon:'📉',label:'생산성이 낮은 요일',         value:worstDay?`${fmtDate(worstDay[0])} (${fmtH(worstDay[1])})`:'데이터 없음'},
+    {icon:'⚡',label:'업무 집중 시간대',           value:peakHour?`${peakHour[0]}:00 ~ ${parseInt(peakHour[0])+1}:00`:'데이터 없음'},
   ];
-  const insights=allInsights.filter(i=>i.value!==null);
 
   return `
     <div class="mp-ai-card">
@@ -1804,65 +1417,49 @@ function _mpAI() {
 
 function _mpMeetings() {
   const myName = state.currentUser.name;
-  const monthPrefix = `${state.myPageCalYear}-${String(state.myPageCalMonth + 1).padStart(2, '0')}`;
-  const sel = state.myPageSelectedDate;
-
-  const all = (state.meetings || []).filter(m =>
-    Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName) &&
-    (m.date || '').startsWith(monthPrefix)
+  const meetings = (state.meetings || []).filter(m =>
+    Array.isArray(m.attendeeNames) && m.attendeeNames.includes(myName)
   );
-
-  const highlighted = sel ? all.filter(m => m.date === sel) : [];
-  const rest = sel ? all.filter(m => m.date !== sel).sort((a,b) => b.date.localeCompare(a.date))
-                   : [...all].sort((a,b) => b.date.localeCompare(a.date));
-  const sorted = [...highlighted, ...rest];
-
-  const renderCard = (m, isHL) => {
-    const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
-      `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
-    ).join('');
-    const more = m.attendeeNames.length > 4
-      ? `<span class="mp-meeting-avatar-more">+${m.attendeeNames.length - 4}</span>` : '';
-    return `
-      <div class="mp-meeting-card${isHL ? ' mp-meeting-hl' : ''}" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
-        <div class="mp-meeting-card-top">
-          <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
-        </div>
-        <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
-        <div class="mp-meeting-card-bottom">
-          <div class="mp-meeting-avatars">${avatars}${more}</div>
-          <span class="mp-meeting-meta">${m.date}</span>
-          <span class="mp-meeting-meta">${m.duration}</span>
-        </div>
-      </div>`;
+  const TYPE_COLOR = {
+    '회고': '#7c4dff', '기획': '#4a66ff', '디자인': '#f5a623',
+    '전략': '#f04444', '클라이언트 미팅': '#0ea874', '워크샵': '#06b6d4',
+    '업무 보고': '#6b7280', '주간 공유': '#ec4899',
   };
-
-  const SHOW = 3;
-  const visible = state.mpMeetingsExpanded ? sorted : sorted.slice(0, SHOW);
-
-  const inner = visible.length
-    ? visible.map(m => renderCard(m, sel && m.date === sel)).join('')
-    : `<div class="mp-meetings-empty">이달 참여한 회의가 없습니다.</div>`;
-
-  const subtitle = sel
-    ? `<span class="mp-meetings-sub">${sel} · ${highlighted.length}건 하이라이트</span>`
-    : '';
-
-  const moreBtn = sorted.length > SHOW
-    ? `<button class="mp-meetings-more-btn" data-mp-meetings-toggle>
-        ${state.mpMeetingsExpanded ? '접기' : `더보기 +${sorted.length - SHOW}`}
-       </button>`
-    : '';
-
+  const inner = meetings.length
+    ? meetings.map(m => {
+        const color = TYPE_COLOR[m.type] || '#6b7280';
+        const myActions = (m.actionItems || []).filter(a => a.assignee === myName);
+        const actionBadge = myActions.length
+          ? `<span class="mp-meeting-action-badge">${myActions.length} 액션</span>`
+          : '';
+        const avatars = (m.attendeeNames || []).slice(0, 4).map(name =>
+          `<span class="mp-meeting-avatar${name === myName ? ' me' : ''}">${name.slice(0,1)}</span>`
+        ).join('');
+        const more = m.attendeeNames.length > 4
+          ? `<span class="mp-meeting-avatar-more">+${m.attendeeNames.length - 4}</span>` : '';
+        return `
+          <div class="mp-meeting-card" onclick="openMeetingDetail('${m.id}')" role="button" tabindex="0">
+            <div class="mp-meeting-card-top">
+              <span class="mp-meeting-badge" style="background:${color}">${m.type}</span>
+              <span class="mp-meeting-card-title">${escapeHtml(m.title)}</span>
+              ${actionBadge}
+            </div>
+            <div class="mp-meeting-card-summary">${escapeHtml(m.summary)}</div>
+            <div class="mp-meeting-card-bottom">
+              <div class="mp-meeting-avatars">${avatars}${more}</div>
+              <span class="mp-meeting-meta">${m.date}</span>
+              <span class="mp-meeting-meta">${m.duration}</span>
+            </div>
+          </div>`;
+      }).join('')
+    : `<div class="mp-meetings-empty">참여한 회의가 없습니다.</div>`;
   return `
     <div class="mp-meetings-section">
       <div class="mp-meetings-header">
         <span class="mp-section-label">참여한 회의</span>
-        ${subtitle}
-        <span class="mp-meetings-count">${sorted.length}건</span>
+        <span class="mp-meetings-count">${meetings.length}건</span>
       </div>
       <div class="mp-meetings-list">${inner}</div>
-      ${moreBtn}
     </div>
   `;
 }
@@ -2203,28 +1800,8 @@ function saveMeeting(e) {
     duration, attendees, attendeeNames,
   };
   state.meetings.unshift(newMeeting);
-
-  // 내가 참여자에 포함되어 있으면 알림 + 이번 주 업무에 자동 추가
-  const myName = state.currentUser.name;
-  if (attendeeNames.includes(myName)) {
-    addNotification('중요', '회의 등록 완료', `"${title}" 회의에 참여자로 등록되었습니다. (참석자 ${attendees}명)`);
-    const meetingItem = {
-      id: `wi-mtg-${Date.now()}`,
-      title,
-      start: date,
-      end: date,
-      type: '회의',
-      participants: attendeeNames,
-      sourceMeetingId: newMeeting.id,
-    };
-    state.workItems.unshift(meetingItem);
-  } else {
-    addNotification('일반', '회의 등록 완료', `"${title}" 회의가 등록되었습니다. (참석자 ${attendees}명)`);
-  }
-
   closeMeetingSaveModal();
   renderCalendarPage();
-  renderNotifications();
 }
 
 // ─── Meeting Detail Panel ──────────────────────────────────────────────────────
@@ -2352,200 +1929,571 @@ function addActionItemToWeekly(actId, meetingId) {
   }
 }
 
-// ─── Calendar Page (Gantt Timeline) ──────────────────────────────────────────
+// ─── Monthly Calendar Page ────────────────────────────────────────────────────
 
-const GANTT_COLORS = [
-  { bg: '#dbeafe', bar: '#3b82f6', text: '#1e40af' },
-  { bg: '#d1fae5', bar: '#10b981', text: '#065f46' },
-  { bg: '#fef3c7', bar: '#f59e0b', text: '#92400e' },
-  { bg: '#fce7f3', bar: '#ec4899', text: '#9d174d' },
-  { bg: '#ede9fe', bar: '#8b5cf6', text: '#5b21b6' },
-  { bg: '#e0f2fe', bar: '#0ea5e9', text: '#0c4a6e' },
-  { bg: '#fed7aa', bar: '#f97316', text: '#9a3412' },
-];
+const CAL_MEMBER_FILTERS = ['전체', '나'];
 
-function ganttMemberColor(name) {
+const WORK_ITEM_TYPE_COLOR = {
+  '고정': { bg: '#dbeafe', text: '#1d4ed8', border: '#bfdbfe' },
+  '긴급': { bg: '#fee2e2', text: '#dc2626', border: '#fecaca' },
+  '일반': { bg: '#f3f4f6', text: '#374151', border: '#e5e7eb' },
+};
+
+const STATUS_COLOR = {
+  '시작 전': { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb' },
+  '진행 중': { bg: '#dbeafe', text: '#1d4ed8', border: '#bfdbfe' },
+  '완료':    { bg: '#d1fae5', text: '#065f46', border: '#a7f3d0' },
+  '보류':    { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
+};
+
+function memberColor(name) {
   const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff;
   return palette[h % palette.length];
 }
 
-function getGanttProjects() {
-  return state.workItems.filter(wi => {
-    if (!wi.sourceRequestId || !wi.processId) return false;
-    if (wi.recurringDays) return false;
-    return true;
+function avatarHtml(participants, max = 3) {
+  if (!participants || !participants.length) return '';
+  const visible = participants.slice(0, max);
+  const overflow = participants.length - max;
+  let html = '<div class="cal-avatars">';
+  visible.forEach((name, i) => {
+    html += `<span class="cal-avatar" style="background:${memberColor(name)};z-index:${max - i}" title="${escapeHtml(name)}">${escapeHtml(name[0])}</span>`;
   });
+  if (overflow > 0) html += `<span class="cal-avatar cal-avatar-more">+${overflow}</span>`;
+  html += '</div>';
+  return html;
 }
 
-function renderCalSidebar() {
-  const sidebar = $('#calProjSidebar');
-  const allProjects = getGanttProjects();
-  const year = state.calYear;
-  const month = state.calMonth;
-  const monthStart = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-  const monthEnd = `${year}-${String(month + 1).padStart(2, '0')}-${String(new Date(year, month + 1, 0).getDate()).padStart(2, '0')}`;
-
-  // 해당 월에 기간이 걸치는 프로젝트만 표시
-  const projects = allProjects.filter(wi => wi.start <= monthEnd && wi.end >= monthStart);
-
-  const grouped = {};
+function getWorkItemStatus(wi) {
   const today = state.today;
-  projects.forEach(wi => {
-    let status = '진행 중';
-    if (wi.end < today) status = '완료';
-    else if (wi.start > today) status = '시작 전';
-    if (!grouped[status]) grouped[status] = [];
-    grouped[status].push(wi);
+  if (wi.type === '고정') return '진행 중';
+  if (!wi.end) return '진행 중';
+  if (wi.start > today) return '시작 전';
+  if (wi.end < today) return '완료';
+  return '진행 중';
+}
+
+function getWorkItemDates(wi) {
+  if (!wi.start) return [];
+  const dates = [];
+  const end = wi.end || wi.start;
+  const cur = new Date(wi.start + 'T00:00:00');
+  const endD = new Date(end + 'T00:00:00');
+  while (cur <= endD) {
+    dates.push(_localISO(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
+function getEventsForDayMine(dateStr) {
+  const myName = state.currentUser.name;
+  const dow = new Date(dateStr + 'T00:00:00').getDay();
+  const events = [];
+  state.workItems.forEach(wi => {
+    if (!wi.participants || !wi.participants.includes(myName)) return;
+    if (wi.recurringDays) {
+      // 반복 업무 (고정·일반·긴급 모두 포함)
+      if (wi.recurringDays.includes(dow) && dateStr >= wi.start && (wi.end === null || dateStr <= wi.end)) {
+        events.push({ id: wi.id, title: wi.title, type: wi.type, status: getWorkItemStatus(wi) });
+      }
+    } else {
+      if (getWorkItemDates(wi).includes(dateStr)) {
+        events.push({ id: wi.id, title: wi.title, type: wi.type, status: getWorkItemStatus(wi) });
+      }
+    }
   });
-  const order = ['진행 중', '시작 전', '완료'];
-  const badgeCls = { '진행 중': 'badge-new', '시작 전': 'badge-pending', '완료': 'badge-done' };
-  const monthLabel = `${year}.${String(month + 1).padStart(2, '0')} 프로젝트`;
-  let html = `<div class="cal-proj-sidebar-label">${monthLabel}</div>`;
-  if (!projects.length) {
-    html += '<div class="cal-proj-empty">이 달에 해당하는 프로젝트가 없습니다.</div>';
-  } else {
-    order.forEach(s => {
-      (grouped[s] || []).forEach(wi => {
-        const active = state.calSelectedProjectId === wi.id ? ' active' : '';
-        const proc = state.processes.find(p => p.id === wi.processId);
-        html += `<button class="cal-proj-item${active}" type="button" data-cal-proj="${wi.id}">
-          <span class="cal-proj-item-name">${escapeHtml(wi.title)}</span>
-          <span class="cal-proj-item-badge ${badgeCls[s]}">${s}</span>
-          ${proc ? `<span style="font-size:10px;color:var(--muted)">${escapeHtml(proc.category)}</span>` : ''}
-        </button>`;
+  return events;
+}
+
+function getEventsForDayAll(dateStr) {
+  const events = [];
+  state.workItems.forEach(wi => {
+    if (wi.recurringDays) return; // 반복 업무 제외 (월간 전체와 동일)
+    if (!wi.start) return;
+    if (getWorkItemDates(wi).includes(dateStr)) {
+      events.push({ id: wi.id, title: wi.title, type: wi.type, status: getWorkItemStatus(wi) });
+    }
+  });
+  return events;
+}
+
+function getCalWeekStart() {
+  const base = new Date(_now);
+  base.setDate(base.getDate() - base.getDay() + state.calWeekOffset * 7);
+  return base;
+}
+
+const PIN_ICON = `<svg class="cal-recur-pin" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/></svg>`;
+
+function calRecurItemIcon(type) {
+  if (type === '고정') return PIN_ICON;
+  const color = type === '긴급' ? '#ef4444' : '#9ca3af';
+  return `<span class="cal-recur-dot" style="background:${color}"></span>`;
+}
+
+function renderCalWeekView() {
+  const base = getCalWeekStart();
+  const DOW_KO = ['일', '월', '화', '수', '목', '금', '토'];
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(base);
+    d.setDate(d.getDate() + i);
+    const dateStr = _localISO(d);
+    return { dateStr, dow: DOW_KO[i], isToday: dateStr === state.today, isWeekend: i === 0 || i === 6 };
+  });
+
+  const weekStart = days[0].dateStr;
+  const weekEnd = days[6].dateStr;
+  $('#calMonthTitle').textContent = `${weekStart.slice(5,7)}.${weekStart.slice(8)} ~ ${weekEnd.slice(5,7)}.${weekEnd.slice(8)}`;
+
+  // 각 요일 칸에 배치할 이벤트 목록 (인덱스 0~6)
+  const eventsPerDay = Array.from({ length: 7 }, () => []);
+
+  if (state.calMemberFilter === '나') {
+    // 나: 비고정은 이번 주 첫 등장일 하루만, 고정은 반복 요일마다 표시 (월간 나와 동일)
+    const myName = state.currentUser.name;
+    // 비반복 업무 (spanning bar)
+    state.workItems.forEach(wi => {
+      if (wi.recurringDays) return;
+      if (!wi.participants || !wi.participants.includes(myName)) return;
+      if (!wi.start) return;
+      const end = wi.end || wi.start;
+      if (wi.start > weekEnd || end < weekStart) return;
+      const firstDay = wi.start >= weekStart ? wi.start : weekStart;
+      const dayIdx = days.findIndex(d => d.dateStr === firstDay);
+      if (dayIdx === -1) return;
+      const c = WORK_ITEM_TYPE_COLOR[wi.type] || WORK_ITEM_TYPE_COLOR['일반'];
+      eventsPerDay[dayIdx].push({ id: wi.id, title: wi.title, color: c, isRecurring: false });
+    });
+    // 반복 업무 (dot list) — 고정·일반·긴급 모두 포함
+    days.forEach(({ dateStr }, i) => {
+      const dow = new Date(dateStr + 'T00:00:00').getDay();
+      state.workItems.forEach(wi => {
+        if (!wi.recurringDays) return;
+        if (!wi.participants || !wi.participants.includes(myName)) return;
+        if (wi.recurringDays.includes(dow) && dateStr >= wi.start && (wi.end === null || dateStr <= wi.end)) {
+          eventsPerDay[i].push({ id: wi.id, title: wi.title, type: wi.type, isRecurring: true });
+        }
       });
     });
+  } else {
+    // 전체: 비반복 업무만, 이번 주 첫 등장일 하루만 표시
+    state.workItems.forEach(wi => {
+      if (wi.recurringDays) return;
+      if (!wi.start) return;
+      const end = wi.end || wi.start;
+      if (wi.start > weekEnd || end < weekStart) return;
+      const firstDay = wi.start >= weekStart ? wi.start : weekStart;
+      const dayIdx = days.findIndex(d => d.dateStr === firstDay);
+      if (dayIdx === -1) return;
+      const c = STATUS_COLOR[getWorkItemStatus(wi)] || STATUS_COLOR['시작 전'];
+      eventsPerDay[dayIdx].push({ id: wi.id, title: wi.title, color: c, isRecurring: false });
+    });
   }
-  sidebar.innerHTML = html;
+
+  let html = '<div class="cal-week-view">';
+  days.forEach(({ dateStr, dow, isToday, isWeekend }, i) => {
+    const events = eventsPerDay[i];
+    const dateLabel = `${parseInt(dateStr.slice(5,7))}/${parseInt(dateStr.slice(8))}`;
+    const colCls = ['cal-wv-col', isWeekend && 'weekend', isToday && 'today'].filter(Boolean).join(' ');
+    const dowCls = ['cal-wv-dow', dow === '일' && 'sun', dow === '토' && 'sat'].filter(Boolean).join(' ');
+    html += `
+      <div class="${colCls}">
+        <div class="cal-wv-header">
+          <span class="${dowCls}">${dow}</span>
+          <span class="cal-wv-date${isToday ? ' today-num' : ''}">${dateLabel}</span>
+        </div>
+        <div class="cal-wv-events">
+          ${events.map(ev => {
+            if (ev.isRecurring) {
+              const wi = state.workItems.find(w => w.id === ev.id);
+              const done = wi && getWorkItemStatus(wi) === '완료';
+              return `<div class="cal-recur-item cal-recur-item-wv" title="${escapeHtml(ev.title)}">${calRecurItemIcon(ev.type)}<span class="cal-recur-label${done ? ' done' : ''}">${escapeHtml(ev.title)}</span></div>`;
+            }
+            return `<div class="cal-wv-event" data-cal-event="${ev.id}" style="background:${ev.color.bg};color:${ev.color.text};border-left:3px solid ${ev.color.text}" title="${escapeHtml(ev.title)}">${escapeHtml(ev.title)}</div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  $('#calGridBody').innerHTML = html;
 }
 
-function renderGanttTimeline() {
-  const timeline = $('#calProjTimeline');
-  const wi = state.workItems.find(w => w.id === state.calSelectedProjectId);
-  if (!wi) {
-    timeline.innerHTML = '<div class="cal-proj-placeholder">← 좌측에서 프로젝트를 선택하세요</div>';
-    $('#calProjSelectedName').textContent = '← 프로젝트 선택';
-    $('#calMonthTitle').textContent = '';
-    return;
+function renderCalControls() {
+  $('#calStatusTabs').innerHTML = `
+    <div class="cal-member-tabs">
+      <button class="cal-member-tab${state.calMemberFilter === '전체' ? ' active' : ''}" type="button" data-cal-member="전체">전체</button>
+      <button class="cal-member-tab${state.calMemberFilter === '나' ? ' active' : ''}" type="button" data-cal-member="나">나</button>
+    </div>
+    <div class="cal-view-toggle">
+      <button class="cal-view-btn${state.calViewMode === 'monthly' ? ' active' : ''}" type="button" data-cal-view="monthly">월간</button>
+      <button class="cal-view-btn${state.calViewMode === 'weekly' ? ' active' : ''}" type="button" data-cal-view="weekly">주간</button>
+    </div>`;
+}
+
+function buildCalCells(year, month) {
+  const firstDow = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < firstDow; i++) {
+    cells.push({ dateStr: _localISO(new Date(year, month, 1 - (firstDow - i))), inMonth: false });
   }
-
-  const proc = state.processes.find(p => p.id === wi.processId);
-  if (!proc) {
-    timeline.innerHTML = '<div class="cal-proj-placeholder">프로세스 정보가 없습니다.</div>';
-    return;
-  }
-
-  $('#calProjSelectedName').textContent = wi.title;
-  const year = state.calYear;
-  const month = state.calMonth;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const monthStr = `${year}.${String(month + 1).padStart(2, '0')}`;
-  $('#calMonthTitle').textContent = monthStr;
-
-  // 세션 기반: stepId가 있는 세션만 필터 → 단계별·담당자별 날짜 범위 도출
-  const projSessions = state.sessions.filter(s => s.workItemId === wi.id && s.stepId);
-
-  const stepAssigneeMap = {};
-  projSessions.forEach(s => {
-    const key = `${s.stepId}|${s.authorName}`;
-    if (!stepAssigneeMap[key]) {
-      stepAssigneeMap[key] = { stepId: s.stepId, assignee: s.authorName, start: s.date, end: s.date };
-    } else {
-      if (s.date < stepAssigneeMap[key].start) stepAssigneeMap[key].start = s.date;
-      if (s.date > stepAssigneeMap[key].end) stepAssigneeMap[key].end = s.date;
-    }
-  });
-
-  // 프로세스 단계 순서대로 행 생성
-  const rows = [];
-  proc.steps.forEach(step => {
-    const assignees = Object.values(stepAssigneeMap).filter(sa => sa.stepId === step.id);
-    if (!assignees.length) return;
-    assignees.forEach((sa, i) => {
-      rows.push({ stepTitle: i === 0 ? step.title : '', assignee: sa.assignee, start: sa.start, end: sa.end, isFirst: i === 0 });
+  for (let day = 1; day <= lastDate; day++) {
+    cells.push({
+      dateStr: `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+      inMonth: true,
     });
-  });
-
-  // 날짜 헤더
-  let headHtml = '<div class="cal-tl-info-header">단계 / 담당자</div><div class="cal-tl-days">';
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const dow = new Date(dateStr + 'T00:00:00').getDay();
-    const isToday = dateStr === state.today;
-    const isWeekend = dow === 0 || dow === 6;
-    const cls = ['cal-tl-day', isToday && 'tl-today', isWeekend && 'tl-weekend'].filter(Boolean).join(' ');
-    headHtml += `<div class="${cls}">${d}</div>`;
   }
-  headHtml += '</div>';
+  let extra = 1;
+  while (cells.length % 7 !== 0) {
+    cells.push({ dateStr: _localISO(new Date(year, month + 1, extra++)), inMonth: false });
+  }
+  return cells;
+}
 
-  // 행 렌더링
-  let bodyHtml = '';
-  rows.forEach((row, ri) => {
-    const rowCls = row.isFirst
-      ? (ri === 0 ? 'cal-tl-row' : 'cal-tl-row cal-tl-row-step-border')
-      : 'cal-tl-row cal-tl-row-sub';
-    const color = GANTT_COLORS[ri % GANTT_COLORS.length];
-    const avatarBg = ganttMemberColor(row.assignee);
+function renderCalMonthGridAll(cells) {
+  const COL_W = 100 / 7;
+  const BLOCK_TOP = 30;
+  const BLOCK_H = 34;
+  const BLOCK_GAP = 3;
+  const MAX_LANES = 3;
+  let html = '';
 
-    // 좌측 정보
-    let infoHtml = '<div class="cal-tl-info">';
-    if (row.stepTitle) infoHtml += `<div class="cal-tl-step">${escapeHtml(row.stepTitle)}</div>`;
-    infoHtml += `<div class="cal-tl-who"><span class="cal-avatar" style="background:${avatarBg};width:20px;height:20px;font-size:10px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:white">${escapeHtml(row.assignee[0])}</span>${escapeHtml(row.assignee)}</div>`;
-    infoHtml += '</div>';
+  for (let row = 0; row < cells.length / 7; row++) {
+    const week = cells.slice(row * 7, row * 7 + 7);
+    const weekStart = week[0].dateStr;
+    const weekEnd = week[6].dateStr;
 
-    // 우측 트랙
-    let trackHtml = '<div class="cal-tl-track"><div class="cal-tl-grid">';
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const dow = new Date(dateStr + 'T00:00:00').getDay();
-      const isToday = dateStr === state.today;
-      const isWeekend = dow === 0 || dow === 6;
-      const cls = ['cal-tl-cell', isWeekend && 'tl-weekend-cell', isToday && 'tl-today-cell'].filter(Boolean).join(' ');
-      trackHtml += `<div class="${cls}"></div>`;
-    }
-    trackHtml += '</div>';
+    // Gather non-recurring items overlapping this week
+    const items = [];
+    state.workItems.forEach(wi => {
+      if (wi.recurringDays) return;
+      if (!wi.start) return;
+      const end = wi.end || wi.start;
+      if (wi.start > weekEnd || end < weekStart) return;
 
-    // Gantt 바 위치 계산
-    const monthStart = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-    const monthEnd = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
-    if (row.start <= monthEnd && row.end >= monthStart) {
-      const barStart = row.start >= monthStart ? row.start : monthStart;
-      const barEnd = row.end <= monthEnd ? row.end : monthEnd;
-      const startDay = parseInt(barStart.slice(8), 10);
-      const endDay = parseInt(barEnd.slice(8), 10);
-      const left = ((startDay - 1) / daysInMonth) * 100;
-      const width = ((endDay - startDay + 1) / daysInMonth) * 100;
-      trackHtml += `<div class="cal-tl-bar" style="left:${left}%;width:${width}%;background:${color.bar}">
-        <span class="cal-tl-bar-label" style="color:white">${escapeHtml(row.stepTitle || row.assignee)}</span>
+      let cs = week.findIndex(c => c.dateStr === wi.start);
+      let ce = week.findIndex(c => c.dateStr === end);
+      if (cs === -1) cs = wi.start < weekStart ? 0 : -1;
+      if (ce === -1) ce = end > weekEnd ? 6 : -1;
+      if (cs === -1 || ce === -1 || cs > ce) return;
+      items.push({ wi, cs, ce, isStart: wi.start >= weekStart, isEnd: end <= weekEnd });
+    });
+
+    // Lane assignment (greedy)
+    const laneEnds = [];
+    const placed = items.map(item => {
+      let lane = laneEnds.findIndex(e => e < item.cs);
+      if (lane === -1) { lane = laneEnds.length; laneEnds.push(item.ce); }
+      else laneEnds[lane] = item.ce;
+      return { ...item, lane };
+    });
+
+    const usedLanes = Math.min(placed.reduce((m, i) => Math.max(m, i.lane + 1), 0), MAX_LANES);
+    const rowH = BLOCK_TOP + usedLanes * (BLOCK_H + BLOCK_GAP) + 10;
+
+    html += `<div class="cal-week-row cal-week-row-all" style="min-height:${rowH}px">`;
+
+    // Day cells (background + day number only)
+    week.forEach((cell, col) => {
+      const isToday = cell.dateStr === state.today;
+      const isWeekend = col === 0 || col === 6;
+      const dayNum = parseInt(cell.dateStr.slice(8), 10);
+      const cls = ['cal-day-cell'];
+      if (!cell.inMonth) cls.push('out-month');
+      if (isToday) cls.push('today');
+      if (isWeekend) cls.push('weekend');
+      html += `<div class="${cls.join(' ')}"><span class="cal-day-num${isToday ? ' today-num' : ''}">${dayNum}</span></div>`;
+    });
+
+    // Spanning blocks
+    placed.forEach(({ wi, cs, ce, isStart, isEnd, lane }) => {
+      if (lane >= MAX_LANES) return;
+      const left = cs * COL_W;
+      const width = (ce - cs + 1) * COL_W;
+      const top = BLOCK_TOP + lane * (BLOCK_H + BLOCK_GAP);
+      const status = getWorkItemStatus(wi);
+      const c = STATUS_COLOR[status] || STATUS_COLOR['시작 전'];
+      const br = `${isStart ? '4px' : '0'} ${isEnd ? '4px' : '0'} ${isEnd ? '4px' : '0'} ${isStart ? '4px' : '0'}`;
+      const borderL = isStart ? `3px solid ${c.text}` : 'none';
+      html += `<div class="cal-span-block" style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${top}px;height:${BLOCK_H}px;background:${c.bg};color:${c.text};border-left:${borderL};border-radius:${br}" data-cal-event="${wi.id}" title="${escapeHtml(wi.title)}">
+        <span class="cal-span-title">${escapeHtml(wi.title)}</span>
+        ${avatarHtml(wi.participants)}
       </div>`;
-    }
-    trackHtml += '</div>';
+    });
 
-    bodyHtml += `<div class="${rowCls}">${infoHtml}${trackHtml}</div>`;
-  });
-
-  if (!rows.length) {
-    bodyHtml = '<div class="cal-proj-placeholder">이 월에 해당하는 단계가 없습니다.</div>';
+    html += '</div>';
   }
+  $('#calGridBody').innerHTML = html;
+}
 
-  timeline.innerHTML = `<div class="cal-tl-head">${headHtml}</div><div class="cal-tl-body">${bodyHtml}</div>`;
+function renderCalMonthGridMine(cells) {
+  const myName = state.currentUser.name;
+  const COL_W = 100 / 7;
+  const BLOCK_TOP = 30;
+  const BLOCK_H = 22;
+  const BLOCK_GAP = 3;
+  const MAX_LANES = 3;
+  let html = '';
+
+  for (let row = 0; row < cells.length / 7; row++) {
+    const week = cells.slice(row * 7, row * 7 + 7);
+    const weekStart = week[0].dateStr;
+    const weekEnd = week[6].dateStr;
+
+    // Spanning bars for non-recurring items I'm participating in
+    const items = [];
+    state.workItems.forEach(wi => {
+      if (wi.recurringDays) return;
+      if (!wi.participants || !wi.participants.includes(myName)) return;
+      if (!wi.start) return;
+      const end = wi.end || wi.start;
+      if (wi.start > weekEnd || end < weekStart) return;
+
+      let cs = week.findIndex(c => c.dateStr === wi.start);
+      let ce = week.findIndex(c => c.dateStr === end);
+      if (cs === -1) cs = wi.start < weekStart ? 0 : -1;
+      if (ce === -1) ce = end > weekEnd ? 6 : -1;
+      if (cs === -1 || ce === -1 || cs > ce) return;
+      items.push({ wi, cs, ce, isStart: wi.start >= weekStart, isEnd: end <= weekEnd });
+    });
+
+    // Lane assignment
+    const laneEnds = [];
+    const placed = items.map(item => {
+      let lane = laneEnds.findIndex(e => e < item.cs);
+      if (lane === -1) { lane = laneEnds.length; laneEnds.push(item.ce); }
+      else laneEnds[lane] = item.ce;
+      return { ...item, lane };
+    });
+
+    // Recurring dot items per day (고정·일반·긴급 모두)
+    const recurByCol = Array.from({ length: 7 }, () => []);
+    week.forEach((cell, col) => {
+      if (!cell.inMonth) return;
+      const dow = new Date(cell.dateStr + 'T00:00:00').getDay();
+      state.workItems.forEach(wi => {
+        if (!wi.recurringDays) return;
+        if (!wi.participants || !wi.participants.includes(myName)) return;
+        if (wi.recurringDays.includes(dow) && cell.dateStr >= wi.start && (wi.end === null || cell.dateStr <= wi.end)) {
+          recurByCol[col].push(wi);
+        }
+      });
+    });
+
+    const usedLanes = Math.min(placed.reduce((m, i) => Math.max(m, i.lane + 1), 0), MAX_LANES);
+    const maxRecur = recurByCol.reduce((m, arr) => Math.max(m, arr.length), 0);
+    const rowH = BLOCK_TOP + usedLanes * (BLOCK_H + BLOCK_GAP) + maxRecur * 18 + 10;
+
+    html += `<div class="cal-week-row cal-week-row-all" style="min-height:${rowH}px">`;
+
+    // Day cells
+    week.forEach((cell, col) => {
+      const isToday = cell.dateStr === state.today;
+      const isWeekend = col === 0 || col === 6;
+      const dayNum = parseInt(cell.dateStr.slice(8), 10);
+      const cls = ['cal-day-cell'];
+      if (!cell.inMonth) cls.push('out-month');
+      if (isToday) cls.push('today');
+      if (isWeekend) cls.push('weekend');
+      html += `<div class="${cls.join(' ')}"><span class="cal-day-num${isToday ? ' today-num' : ''}">${dayNum}</span></div>`;
+    });
+
+    // Spanning bars
+    placed.forEach(({ wi, cs, ce, isStart, isEnd, lane }) => {
+      if (lane >= MAX_LANES) return;
+      const left = cs * COL_W;
+      const width = (ce - cs + 1) * COL_W;
+      const top = BLOCK_TOP + lane * (BLOCK_H + BLOCK_GAP);
+      const c = WORK_ITEM_TYPE_COLOR[wi.type] || WORK_ITEM_TYPE_COLOR['일반'];
+      const br = `${isStart ? '4px' : '0'} ${isEnd ? '4px' : '0'} ${isEnd ? '4px' : '0'} ${isStart ? '4px' : '0'}`;
+      const borderL = isStart ? `3px solid ${c.text}` : 'none';
+      html += `<div class="cal-span-block" style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${top}px;height:${BLOCK_H}px;background:${c.bg};color:${c.text};border-left:${borderL};border-radius:${br}" data-cal-event="${wi.id}" title="${escapeHtml(wi.title)}">
+        <span class="cal-span-title">${escapeHtml(wi.title)}</span>
+      </div>`;
+    });
+
+    // Recurring items — dot + muted text style (세부항목)
+    const recurTop = BLOCK_TOP + usedLanes * (BLOCK_H + BLOCK_GAP) + 4;
+    recurByCol.forEach((wis, col) => {
+      wis.forEach((wi, idx) => {
+        const left = col * COL_W;
+        const done = getWorkItemStatus(wi) === '완료';
+        html += `<div class="cal-recur-item" style="left:calc(${left}% + 2px);width:calc(${COL_W}% - 4px);top:${recurTop + idx * 18}px" title="${escapeHtml(wi.title)}">${calRecurItemIcon(wi.type)}<span class="cal-recur-label${done ? ' done' : ''}">${escapeHtml(wi.title)}</span></div>`;
+      });
+    });
+
+    html += '</div>';
+  }
+  $('#calGridBody').innerHTML = html;
+}
+
+function renderCalMonthGrid() {
+  const { calYear: year, calMonth: month } = state;
+  $('#calMonthTitle').textContent = `${year}년 ${month + 1}월`;
+  const cells = buildCalCells(year, month);
+  if (state.calMemberFilter === '나') {
+    renderCalMonthGridMine(cells);
+  } else {
+    renderCalMonthGridAll(cells);
+  }
+}
+
+// renders just the grid body (not controls)
+function renderCalGrid() {
+  if (state.calViewMode === 'weekly') {
+    $('#calDowRow')?.classList.add('hidden');
+    $('#calGridBody')?.classList.add('cal-grid-body-weekly');
+    renderCalWeekView();
+  } else {
+    $('#calDowRow')?.classList.remove('hidden');
+    $('#calGridBody')?.classList.remove('cal-grid-body-weekly');
+    renderCalMonthGrid();
+  }
 }
 
 function renderCalPage() {
-  renderCalSidebar();
-  renderGanttTimeline();
+  renderCalControls();
+  renderCalGrid();
 }
 
-// Legacy stubs (이벤트 핸들러 호환)
-function renderCalControls() {}
-function renderCalGrid() {}
-function renderCalDetailBody() {}
-function openCalEventDetail() {}
-function closeCalEventDetail() { $('#calEventDetail')?.classList.add('hidden'); }
-function renderCalWeekView() {}
-function renderCalMonthGrid() {}
+function renderCalDetailBody(workItemId) {
+  const wi = state.workItems.find(x => x.id === workItemId);
+  if (!wi) return;
+  const status = getWorkItemStatus(wi);
+  const c = WORK_ITEM_TYPE_COLOR[wi.type] || WORK_ITEM_TYPE_COLOR['일반'];
+  const sc = { '진행 중': '#2563eb', '완료': '#10b981', '시작 전': '#9ca3af', '보류': '#f59e0b' }[status] || '#6b7280';
+  const wiSessions = state.sessions.filter(s => s.workItemId === workItemId);
+  const done = wiSessions.filter(s => s.done).length;
+  const total = wiSessions.length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const startFmt = wi.start ? `${wi.start.slice(0,4)}.${wi.start.slice(5,7)}.${wi.start.slice(8)}` : '-';
+  const endFmt = wi.end
+    ? `${wi.end.slice(0,4)}.${wi.end.slice(5,7)}.${wi.end.slice(8)}`
+    : wi.type === '고정' ? '무기한' : '-';
+  const DAY_MAP = ['일','월','화','수','목','금','토'];
+  const recurStr = wi.recurringDays
+    ? '매주 ' + wi.recurringDays.map(d => DAY_MAP[d] || '').join('·') : '';
+
+  // ── Sessions grouped by participant ────────────────────────────────────────
+  const participants = wi.participants || [];
+  const groups = participants.map(name => ({
+    name,
+    sessions: wiSessions.filter(s => s.authorName === name),
+  }));
+  // append authors not in participants list
+  wiSessions.forEach(s => {
+    if (!participants.includes(s.authorName) && !groups.find(g => g.name === s.authorName)) {
+      groups.push({ name: s.authorName, sessions: wiSessions.filter(x => x.authorName === s.authorName) });
+    }
+  });
+
+  const CAT_CLASS_MAP = { '디자인': 'cat-design', '기획': 'cat-plan', '개발': 'cat-dev', '운영': 'cat-ops', '리서치': 'cat-research', '퍼블리싱': 'cat-publish' };
+
+  const sessionsHtml = `
+    <div class="cal-detail-section">
+      <div class="cal-detail-section-title">작업세션 <span class="cal-section-count">${done}/${total}</span></div>
+      ${groups.length === 0 ? '<div class="cal-detail-empty">세션 없음</div>' :
+        groups.map(({ name, sessions }) => `
+          <div class="cal-participant-group">
+            <div class="cal-participant-header">
+              <span class="cal-participant-avatar" style="background:${memberColor(name)}">${escapeHtml(name[0])}</span>
+              <span class="cal-participant-name">${escapeHtml(name)}</span>
+              <span class="cal-participant-count">${sessions.length}개</span>
+            </div>
+            ${sessions.length === 0
+              ? '<div class="cal-participant-empty">작업 내역 없음</div>'
+              : sessions.map(s => `
+                <div class="cal-detail-session-row">
+                  <span class="cal-detail-session-dot${s.done ? ' done' : ''}"></span>
+                  <span class="cal-detail-session-title${s.done ? ' done' : ''}">${escapeHtml(s.title)}</span>
+                  <span class="session-cat ${CAT_CLASS_MAP[s.category] || ''}">${escapeHtml(s.category)}</span>
+                  ${s.startTime ? `<span class="cal-detail-session-time">${s.startTime}~${s.endTime}</span>` : ''}
+                </div>`).join('')
+            }
+          </div>`).join('')
+      }
+    </div>`;
+
+  // ── Resources ──────────────────────────────────────────────────────────────
+  const resources = state.workItemResources[workItemId] || [];
+  const myName = state.currentUser.name;
+
+  const resourcesHtml = `
+    <div class="cal-detail-section cal-resources-section">
+      <div class="cal-detail-section-title">아웃풋 / 리소스</div>
+      ${resources.length === 0 ? '<div class="cal-detail-empty">등록된 리소스가 없습니다</div>' : ''}
+      ${resources.map(r => {
+        const canDelete = r.uploadedBy === myName;
+        return `
+          <div class="cal-resource-row">
+            <span class="cal-resource-icon">${r.type === '링크' ? '🔗' : '📁'}</span>
+            <div class="cal-resource-info">
+              <span class="cal-resource-name">${escapeHtml(r.name)}</span>
+              <span class="cal-resource-uploader">by ${escapeHtml(r.uploadedBy)}</span>
+            </div>
+            ${canDelete ? `<button class="cal-resource-remove" type="button" data-rm-res="${r.id}" data-wi-id="${workItemId}" title="삭제"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg></button>` : '<span class="cal-resource-remove-placeholder"></span>'}
+          </div>`;
+      }).join('')}
+      <div class="cal-res-inputs">
+        <div class="cal-res-input-row">
+          <span class="cal-res-input-icon">🔗</span>
+          <input class="cal-resource-input" id="calResLinkInput" type="url" placeholder="링크 URL 입력" autocomplete="off" />
+          <button class="cal-res-add-btn" type="button" data-add-link="${workItemId}">추가</button>
+        </div>
+        <div class="cal-res-input-row">
+          <span class="cal-res-input-icon">📁</span>
+          <input class="cal-resource-file-input" id="calResFileInput" type="file" />
+          <button class="cal-res-add-btn" type="button" data-add-file="${workItemId}">업로드</button>
+        </div>
+      </div>
+    </div>`;
+
+  $('#calEventDetailBody').innerHTML = `
+    <div class="cal-detail-title">${escapeHtml(wi.title)}</div>
+    <div class="cal-detail-tags">
+      <span class="cal-detail-tag" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${wi.type}</span>
+      <span class="cal-detail-tag" style="background:${sc}1a;color:${sc}">${status}</span>
+    </div>
+    <div class="cal-detail-section">
+      <div class="cal-detail-section-title">프로젝트 상세</div>
+      <div class="cal-detail-row"><span class="cal-detail-key">시작일</span><span>${startFmt}</span></div>
+      <div class="cal-detail-row"><span class="cal-detail-key">마감일</span><span>${endFmt}</span></div>
+      ${recurStr ? `<div class="cal-detail-row"><span class="cal-detail-key">반복</span><span>${recurStr}</span></div>` : ''}
+      <div class="cal-detail-row"><span class="cal-detail-key">참여자</span><span>${(wi.participants || []).join(', ') || '-'}</span></div>
+    </div>
+    <div class="cal-detail-section">
+      <div class="cal-detail-section-title">진행률</div>
+      <div class="cal-detail-progress-row">
+        <div class="cal-detail-progress-bar"><div class="cal-detail-progress-fill" style="width:${pct}%"></div></div>
+        <span class="cal-detail-progress-pct">${pct}%</span>
+      </div>
+    </div>
+    ${wi.description ? `<div class="cal-detail-section"><div class="cal-detail-section-title">설명</div><div class="cal-detail-desc">${escapeHtml(wi.description)}</div></div>` : ''}
+    ${sessionsHtml}
+    ${resourcesHtml}
+  `;
+
+  if (state.calResourceFormOpen === workItemId) {
+    setTimeout(() => document.getElementById('calResName')?.focus(), 50);
+  }
+}
+
+function openCalEventDetail(workItemId) {
+  const wi = state.workItems.find(x => x.id === workItemId);
+  if (!wi) return;
+  state.calSelectedEventId = workItemId;
+  renderCalDetailBody(workItemId);
+  $('#calEventDetail').classList.remove('hidden');
+}
+
+function closeCalEventDetail() {
+  state.calSelectedEventId = null;
+  $('#calEventDetail').classList.add('hidden');
+}
+
 
 // ─── Drawer ──────────────────────────────────────────────────────────────────
 
@@ -2773,27 +2721,22 @@ function openAcceptModal(requestId) {
   if (!r) return;
   state.selectedRequestId = requestId;
 
-  // 업무항목명 & 유형 & 기간 표시
-  $('#acceptTitleDisplay').textContent = r.title;
-  const typeEl = $('#acceptTypeDisplay');
-  typeEl.textContent = r.priority === '긴급' ? '긴급' : '일반';
-  typeEl.className = 'accept-info-type ' + (r.priority === '긴급' ? 'type-urgent' : 'type-normal');
-  $('#acceptPeriodDisplay').textContent = `${r.start} ~ ${r.end}`;
+  // 요청 정보 표시
+  $('#acceptRequestInfo').innerHTML = `
+    <div style="font-weight:600;color:#111827;margin-bottom:4px">${escapeHtml(r.title)}</div>
+    <div>${escapeHtml(r.detail)}</div>
+    <div style="margin-top:4px">${escapeHtml(r.requester)} · ${escapeHtml(r.requestTeam)}</div>
+  `;
 
-  // 작업 단계 표시
-  const stepsEl = $('#acceptStepsDisplay');
-  if (r.selectedSteps && r.selectedSteps.length) {
-    stepsEl.innerHTML = r.selectedSteps.map(s => {
-      return `<span class="accept-step-chip">${escapeHtml(s.title)}</span>`;
-    }).join('');
-  } else {
-    stepsEl.innerHTML = '<span style="color:var(--muted)">—</span>';
-  }
-
-  // 작업 날짜 기본값: 오늘
-  $('#acceptTodoDate').value = state.today;
+  // Pre-fill form with request data
+  $('#acceptTitle').value = r.title;
+  const typeMap = { '긴급': '긴급', '일반': '일반', '고정': '고정' };
+  $('#acceptType').value = typeMap[r.priority] || '일반';
+  $('#acceptStart').value = r.start;
+  $('#acceptEnd').value = r.end;
 
   $('#acceptModal').classList.remove('hidden');
+  setTimeout(() => $('#acceptTitle').focus(), 50);
 }
 
 function closeAcceptModal() {
@@ -2805,11 +2748,11 @@ function submitAcceptForm(e) {
   const r = state.requests.find(x => x.id === state.selectedRequestId);
   if (!r) return;
 
-  const title = r.title;
-  const type  = r.priority === '긴급' ? '긴급' : '일반';
-  const todoDate = $('#acceptTodoDate').value;
-  const start = todoDate < r.start ? todoDate : r.start;
-  const end   = todoDate > r.end ? todoDate : r.end;
+  const title = $('#acceptTitle').value.trim();
+  const type  = $('#acceptType').value;
+  const start = $('#acceptStart').value;
+  const end   = $('#acceptEnd').value;
+  if (!title || !start || !end) return;
 
   const newItem = {
     id: `wi-${Date.now()}`,
@@ -2819,38 +2762,17 @@ function submitAcceptForm(e) {
     type,
     participants: [state.currentUser.name],
     sourceRequestId: r.id,
-    processId: r.processId || null,
   };
 
   state.workItems.push(newItem);
   state.selectedTaskId = newItem.id;
   r.status = '수락';
 
-  // 선택된 작업 단계들을 오늘할일(세션)에 자동 추가
-  if (r.selectedSteps && r.selectedSteps.length && todoDate) {
-    r.selectedSteps.forEach((step, i) => {
-      const newSession = {
-        id: `ws-${Date.now()}-${i}`,
-        workItemId: newItem.id,
-        stepId: step.stepId,
-        authorId: state.currentUser.id,
-        authorName: state.currentUser.name,
-        date: todoDate,
-        category: step.role,
-        title: step.title,
-        startTime: '',
-        endTime: '',
-        done: false,
-      };
-      state.sessions.push(newSession);
-    });
-  }
+  // 시작일이 포함된 주로 뷰 이동
+  const diffDays = Math.floor((toDate(start) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
+  state.weekOffset = Math.floor(diffDays / 7);
 
-  // 오늘이 포함된 주로 뷰 유지 (수락한 업무가 이번주에 보이도록)
-  const todayDiff = Math.floor((toDate(state.today) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
-  state.weekOffset = Math.floor(todayDiff / 7);
-
-  addNotification('중요', '업무요청 수락', `"${title}" 업무요청을 수락하여 이번 주 업무에 추가되었습니다.`, title);
+  addNotification('중요', '업무항목 추가', `"${title}" 업무항목이 이번 주 업무에 추가되었습니다.`, title);
   closeAcceptModal();
   closeRequestModal();
   renderAll();
@@ -2999,16 +2921,10 @@ function renderLeaveKpi() {
   `;
 }
 
-function renderLeaveTabBar() {
-  // tab bar removed — layout is now 2-island
-}
+function renderLeaveTabBar() {}
 
 function leaveTypeIcon(type) {
-  const cls = {
-    '종일 연차': 'leave-type-full',
-    '오전 반차': 'leave-type-am',
-    '오후 반차': 'leave-type-pm',
-  };
+  const cls = { '종일 연차': 'leave-type-full', '오전 반차': 'leave-type-am', '오후 반차': 'leave-type-pm' };
   return `<span class="leave-type-badge ${cls[type] || ''}">${type}</span>`;
 }
 
@@ -3050,35 +2966,31 @@ function renderLeaveRows(leaves, hideActions = false) {
   `).join('');
 }
 
-function renderLeaveList() {} // kept for compatibility
+function renderLeaveList() {}
 
-function _renderLeaveMySection() {
-  const el = document.getElementById('leaveMySection');
-  if (!el) return;
-  const myLeaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
-  el.innerHTML = `
-    <div class="leave-island-title">내 연차</div>
-    <div class="leave-list">${renderLeaveRows(myLeaves)}</div>`;
+function renderLeavePage() {
+  renderLeaveKpi();
+  _renderLeaveLeftSection();
+  _renderLeavePendingSection();
 }
 
-function _renderLeaveHistorySection() {
-  const el = document.getElementById('leaveHistorySection');
+function _renderLeaveLeftSection() {
+  const el = document.getElementById('leaveLeftSection');
   if (!el) return;
-  const history = getMyLeaves()
-    .filter(l => l.status === '승인 완료' || l.status === '반려')
-    .sort((a, b) => b.startDate.localeCompare(a.startDate));
-  el.innerHTML = `
-    <div class="leave-island-title">이력</div>
-    <div class="leave-list">${renderLeaveRows(history, true)}</div>`;
-}
+  const TABS = ['내 연차', '팀 연차', '이력'];
+  if (!TABS.includes(state.leaveTab)) state.leaveTab = '내 연차';
 
-function _renderLeaveTeamSection() {
-  const el = document.getElementById('leaveTeamSection');
-  if (!el) return;
-  const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
-  const membersHtml = state.teamMembers
-    .filter(m => m.id !== state.currentUser.id)
-    .map((member, idx) => {
+  const tabBar = `<div class="leave-tab-bar">${TABS.map(t =>
+    `<button class="leave-tab-btn${state.leaveTab === t ? ' active' : ''}" data-leave-tab="${t}">${t}</button>`
+  ).join('')}</div>`;
+
+  let content = '';
+  if (state.leaveTab === '내 연차') {
+    const leaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
+    content = `<div class="leave-list">${renderLeaveRows(leaves)}</div>`;
+  } else if (state.leaveTab === '팀 연차') {
+    const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
+    const membersHtml = state.teamMembers.filter(m => m.id !== state.currentUser.id).map((member, idx) => {
       const memberLeaves = state.leaves.filter(l => l.applicantId === member.id);
       const usedDays = memberLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0);
       const remaining = state.totalLeave - usedDays;
@@ -3107,25 +3019,20 @@ function _renderLeaveTeamSection() {
             </div>
           </div>
           <div class="member-leave-kpi-row">
-            <div class="leave-kpi-card">
-              <div class="leave-kpi-label">총 연차</div>
-              <div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div>
-            </div>
-            <div class="leave-kpi-card">
-              <div class="leave-kpi-label">사용 연차</div>
-              <div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div>
-            </div>
-            <div class="leave-kpi-card">
-              <div class="leave-kpi-label">잔여 연차</div>
-              <div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div>
-            </div>
+            <div class="leave-kpi-card"><div class="leave-kpi-label">총 연차</div><div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div></div>
+            <div class="leave-kpi-card"><div class="leave-kpi-label">사용 연차</div><div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div></div>
+            <div class="leave-kpi-card"><div class="leave-kpi-label">잔여 연차</div><div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div></div>
           </div>
           <div class="member-leave-list">${leavesHtml}</div>
         </div>`;
     }).join('');
-  el.innerHTML = `
-    <div class="leave-island-title">팀 연차</div>
-    <div class="leave-list">${membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>'}</div>`;
+    content = `<div class="leave-list">${membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>'}</div>`;
+  } else {
+    const leaves = getMyLeaves().filter(l => l.status === '승인 완료' || l.status === '반려').sort((a, b) => b.startDate.localeCompare(a.startDate));
+    content = `<div class="leave-list">${renderLeaveRows(leaves, true)}</div>`;
+  }
+
+  el.innerHTML = tabBar + content;
 }
 
 function _renderLeavePendingSection() {
@@ -3154,83 +3061,6 @@ function _renderLeavePendingSection() {
   el.innerHTML = `
     <div class="leave-island-title">승인 대기 <span class="leave-pending-count">${pending.length}</span></div>
     <div class="leave-list">${rows}</div>`;
-}
-
-function renderLeavePage() {
-  renderLeaveKpi();
-  _renderLeaveLeftSection();
-  _renderLeavePendingSection();
-}
-
-function _renderLeaveLeftSection() {
-  const el = document.getElementById('leaveLeftSection');
-  if (!el) return;
-
-  const TABS = [
-    { key: '내 연차', label: '내 연차' },
-    { key: '팀 연차', label: '팀 연차' },
-    { key: '이력',    label: '이력' },
-  ];
-  if (!TABS.find(t => t.key === state.leaveTab)) state.leaveTab = '내 연차';
-
-  const tabBar = `
-    <div class="leave-tab-bar" id="leaveTabBar">
-      ${TABS.map(t => `<button class="leave-tab-btn${state.leaveTab === t.key ? ' active' : ''}" data-leave-tab="${t.key}">${t.label}</button>`).join('')}
-    </div>`;
-
-  let content = '';
-  if (state.leaveTab === '내 연차') {
-    const myLeaves = getMyLeaves().filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate));
-    content = `<div class="leave-list">${renderLeaveRows(myLeaves)}</div>`;
-  } else if (state.leaveTab === '팀 연차') {
-    const AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
-    const membersHtml = state.teamMembers
-      .filter(m => m.id !== state.currentUser.id)
-      .map((member, idx) => {
-        const memberLeaves = state.leaves.filter(l => l.applicantId === member.id);
-        const usedDays = memberLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0);
-        const remaining = state.totalLeave - usedDays;
-        const color = AVATAR_BG[idx % AVATAR_BG.length];
-        const leavesHtml = memberLeaves.length
-          ? memberLeaves.sort((a, b) => b.startDate.localeCompare(a.startDate)).map(lv => `
-            <div class="leave-row">
-              <div class="leave-row-main">
-                <div class="leave-row-top">
-                  ${leaveTypeIcon(lv.type)}
-                  ${leaveStatusBadge(lv.status)}
-                </div>
-                <div class="leave-row-meta">
-                  <span>신청일 ${lv.startDate}${lv.endDate !== lv.startDate ? ' ~ ' + lv.endDate : ''}</span>
-                </div>
-              </div>
-            </div>`).join('')
-          : '<div class="leave-empty">연차 내역이 없습니다.</div>';
-        return `
-          <div class="member-leave-card">
-            <div class="member-leave-header">
-              <div class="member-leave-avatar" style="background:${color}">${escapeHtml(member.name[0])}</div>
-              <div class="member-leave-info">
-                <div class="member-leave-name">${escapeHtml(member.name)}</div>
-                <div class="member-leave-role">${escapeHtml(member.role)}</div>
-              </div>
-            </div>
-            <div class="member-leave-kpi-row">
-              <div class="leave-kpi-card"><div class="leave-kpi-label">총 연차</div><div class="leave-kpi-value">${state.totalLeave}<span class="leave-kpi-unit">일</span></div></div>
-              <div class="leave-kpi-card"><div class="leave-kpi-label">사용 연차</div><div class="leave-kpi-value">${usedDays}<span class="leave-kpi-unit">일</span></div></div>
-              <div class="leave-kpi-card"><div class="leave-kpi-label">잔여 연차</div><div class="leave-kpi-value">${remaining}<span class="leave-kpi-unit">일</span></div></div>
-            </div>
-            <div class="member-leave-list">${leavesHtml}</div>
-          </div>`;
-      }).join('');
-    content = `<div class="leave-list">${membersHtml || '<div class="leave-empty">팀원이 없습니다.</div>'}</div>`;
-  } else if (state.leaveTab === '이력') {
-    const history = getMyLeaves()
-      .filter(l => l.status === '승인 완료' || l.status === '반려')
-      .sort((a, b) => b.startDate.localeCompare(a.startDate));
-    content = `<div class="leave-list">${renderLeaveRows(history, true)}</div>`;
-  }
-
-  el.innerHTML = tabBar + content;
 }
 
 function openLeaveModal() {
@@ -3265,13 +3095,8 @@ function submitLeave(e) {
     approverId: null, approverName: null, rejectedReason: null,
     requestedAt: state.today,
   });
-  const dateLabel = type === '종일 연차' && startDate !== endDate
-    ? `${startDate.slice(5).replace('-','/')} ~ ${endDate.slice(5).replace('-','/')}`
-    : `${startDate.slice(5).replace('-','/')}`;
-  addNotification('일반', '연차 신청 완료', `${type}(${dateLabel}) 신청이 접수되었습니다.`);
   closeLeaveModal();
   renderLeavePage();
-  renderNotifications();
 }
 
 
@@ -3281,120 +3106,77 @@ function submitLeave(e) {
 // ── Assign Modal ─────────────────────────────────────────────────────────────
 const ASSIGN_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
 let _assignTargetId = null;
-let _assignStepAssignees = {};
-let _assignActiveStepId = null;
-let _assignSelectedCatId = null; // Phase 1에서 선택한 카테고리 id
-
-function memberBg(name) {
-  const idx = state.teamMembers.findIndex(m => m.name === name);
-  return ASSIGN_AVATAR_BG[(idx >= 0 ? idx : 0) % ASSIGN_AVATAR_BG.length];
-}
+let _assignSelectedMembers = [];
+let _assignDraft = [];
 
 function openAssignModal(arId) {
   const req = state.assignmentRequests.find(r => r.id === arId);
   if (!req) return;
   _assignTargetId = arId;
-  _assignStepAssignees = {};
-  _assignActiveStepId = null;
-  _assignSelectedCatId = null;
+  _assignSelectedMembers = [...(req.assignees || [])];
+  _assignDraft = [];
 
   const PRI_COLOR = { '긴급': 'var(--red)', '일반': 'var(--muted)' };
   document.getElementById('assignRequestInfo').innerHTML = `
     <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px">${escapeHtml(req.title)}</div>
     <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)">
       <span>요청팀 · <strong style="color:var(--text)">${escapeHtml(req.team)}</strong></span>
+      <span>예상시간 · <strong style="color:var(--text)">${req.hours}h</strong></span>
       <span>마감일 · <strong style="color:var(--text)">${escapeHtml(req.deadline)}</strong></span>
       <span>우선순위 · <strong style="color:${PRI_COLOR[req.priority] || 'var(--muted)'}">${escapeHtml(req.priority)}</strong></span>
     </div>`;
 
-  document.getElementById('assignCatPhase').classList.remove('hidden');
-  document.getElementById('assignStepPhase').classList.add('hidden');
-  document.getElementById('assignStepPanel')?.classList.add('hidden');
-  document.getElementById('submitAssignBtn').disabled = true;
-  renderAssignCatPhase();
+  document.getElementById('submitAssignBtn').disabled = _assignSelectedMembers.length === 0;
+  document.getElementById('assignMemberPanel')?.classList.add('hidden');
+  renderAssignAvatars();
   document.getElementById('assignModal').classList.remove('hidden');
 }
 
 function closeAssignModal() {
   document.getElementById('assignModal').classList.add('hidden');
   _assignTargetId = null;
-  _assignStepAssignees = {};
-  _assignActiveStepId = null;
-  _assignSelectedCatId = null;
+  _assignSelectedMembers = [];
+  _assignDraft = [];
 }
 
-function renderAssignCatPhase() {
-  const list = document.getElementById('assignCatList');
-  if (!list) return;
-  list.innerHTML = state.processes.map(cat => `
-    <button class="assign-cat-card" type="button" data-select-proc-cat="${cat.id}">
-      <span class="assign-cat-name">${escapeHtml(cat.category)}</span>
-      <span class="assign-cat-count">${cat.steps.length}단계</span>
-    </button>`).join('');
-}
-
-function switchToAssignStepPhase(catId) {
-  _assignSelectedCatId = catId;
-  _assignStepAssignees = {};
-  _assignActiveStepId = null;
-  const cat = state.processes.find(p => p.id === catId);
-  document.getElementById('assignCatPhase').classList.add('hidden');
-  document.getElementById('assignStepPhase').classList.remove('hidden');
-  document.getElementById('assignSelectedCatLabel').textContent = cat?.category || '';
-  document.getElementById('submitAssignBtn').disabled = false;
-  document.getElementById('assignStepPanel')?.classList.add('hidden');
-  renderAssignSteps();
-}
-
-function renderAssignSteps() {
-  const proc = state.processes.find(p => p.id === _assignSelectedCatId);
-  const list = document.getElementById('assignStepsList');
-  const panel = document.getElementById('assignStepPanel');
-  if (!list) return;
-
-  // innerHTML 교체 전에 패널을 목록 밖으로 빼놓아야 사라지지 않음
-  if (panel && list.contains(panel)) {
-    list.after(panel);
-  }
-
-  if (!proc || !proc.steps.length) {
-    list.innerHTML = '<div class="assign-steps-empty">연결된 프로세스가 없습니다.</div>';
-    return;
-  }
-  list.innerHTML = proc.steps.map((step, idx) => {
-    const assignees = _assignStepAssignees[step.id] || [];
-    const maxShow = 3;
-    const shown = assignees.slice(0, maxShow);
-    const extra = assignees.length - maxShow;
-    const avatarsInner = shown.map(n =>
-      `<span class="assign-step-avatar" style="background:${memberBg(n)}">${n[0]}</span>`
-    ).join('') + (extra > 0 ? `<span class="assign-step-extra">+${extra}</span>` : '');
-    const btnContent = assignees.length > 0
-      ? `<span class="assign-step-avatars">${avatarsInner}</span><span class="assign-step-name">${assignees.length}명</span>`
-      : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`;
+function renderAssignAvatars() {
+  const el = document.getElementById('assignAvatars');
+  if (!el) return;
+  el.innerHTML = _assignSelectedMembers.map(name => {
+    const idx = state.teamMembers.findIndex(m => m.name === name);
+    const bg  = ASSIGN_AVATAR_BG[(idx >= 0 ? idx : 0) % ASSIGN_AVATAR_BG.length];
     return `
-      <div class="assign-step-row" data-step-id="${step.id}">
-        <span class="assign-step-num">${idx + 1}</span>
-        <span class="assign-step-title">${escapeHtml(step.title)}</span>
-        <button class="assign-step-btn${assignees.length > 0 ? ' has-assignee' : ''}" type="button"
-          data-open-step-panel="${escapeHtml(step.id)}"
-          title="${assignees.length > 0 ? assignees.join(', ') : '담당자 지정'}">
-          ${btnContent}
-        </button>
+      <div class="ap-avatar-wrap" title="${escapeHtml(name)}">
+        <div class="ap-avatar" style="background:${bg}">${name[0]}</div>
+        <button class="ap-remove" type="button" data-remove-assign="${escapeHtml(name)}" aria-label="${escapeHtml(name)} 제거">✕</button>
       </div>`;
   }).join('');
+  const countEl = document.getElementById('assignCount');
+  if (countEl) {
+    if (_assignSelectedMembers.length) {
+      countEl.textContent = `${_assignSelectedMembers.length}명 선택`;
+      countEl.classList.remove('hidden');
+    } else {
+      countEl.classList.add('hidden');
+    }
+  }
+  document.getElementById('submitAssignBtn').disabled = _assignSelectedMembers.length === 0;
 }
 
-function renderAssignStepPanel(stepId) {
-  const list = document.getElementById('assignStepMemberList');
+function renderAssignMemberPanel() {
+  const list = document.getElementById('assignMemberList');
   if (!list) return;
   const members = state.teamMembers.filter(m => !m.onLeave);
-  const current = _assignStepAssignees[stepId] || [];
+  if (!members.length) {
+    list.innerHTML = '<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted)">팀원이 없습니다</div>';
+    return;
+  }
   list.innerHTML = members.map(m => {
-    const bg = memberBg(m.name);
-    const checked = current.includes(m.name);
+    const idx     = state.teamMembers.indexOf(m);
+    const bg      = ASSIGN_AVATAR_BG[idx % ASSIGN_AVATAR_BG.length];
+    const checked = _assignDraft.includes(m.name);
     return `
-      <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-step-member="${escapeHtml(m.name)}" data-for-step="${escapeHtml(stepId)}">
+      <div class="assign-member-option${checked ? ' is-selected' : ''}" data-pick-assign-member="${escapeHtml(m.name)}">
         <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
         <div>
           <div class="assign-member-name">${escapeHtml(m.name)}</div>
@@ -3406,406 +3188,60 @@ function renderAssignStepPanel(stepId) {
 }
 
 function submitAssign() {
-  if (!_assignTargetId) return;
+  if (!_assignTargetId || !_assignSelectedMembers.length) return;
   const req = state.assignmentRequests.find(r => r.id === _assignTargetId);
   if (!req) return;
-  req.stepAssignees = { ..._assignStepAssignees };
-  // assignees: 중복 없는 담당자 목록 (하위 단계에서 지정된 모든 사람)
-  req.assignees = [...new Set(Object.values(_assignStepAssignees).flat())];
-  req.status = '수락대기중';
+  req.assignees = [..._assignSelectedMembers];
+  req.status    = '수락대기중';
   closeAssignModal();
   renderTeamStatusPage();
 }
 
-// ─── Work Request Modal ───────────────────────────────────────────────────────
-
-let _wrSelectedCatId  = null;
-let _wrStepAssignees  = {};
-let _wrActiveStepId   = null;
-
-function renderWrCatList() {
-  const list = document.getElementById('wrCatList');
-  if (!list) return;
-  list.innerHTML = state.processes.map(cat => `
-    <button class="assign-cat-card" type="button" data-select-wr-cat="${cat.id}">
-      <span class="assign-cat-name">${escapeHtml(cat.category)}</span>
-      <span class="assign-cat-count">${cat.steps.length}단계</span>
-    </button>`).join('');
-}
-
-function switchToWrStepPhase(catId) {
-  _wrSelectedCatId  = catId;
-  _wrStepAssignees  = {};
-  _wrActiveStepId   = null;
-  const cat = state.processes.find(p => p.id === catId);
-  document.getElementById('wrCatPhase').classList.add('hidden');
-  document.getElementById('wrStepPhase').classList.remove('hidden');
-  document.getElementById('wrSelectedCatLabel').textContent = cat?.category || '';
-  document.getElementById('wrStepPanel')?.classList.add('hidden');
-  document.getElementById('wrSubmitBtn').disabled = false;
-  renderWrSteps();
-}
-
-function renderWrSteps() {
-  const proc  = state.processes.find(p => p.id === _wrSelectedCatId);
-  const list  = document.getElementById('wrStepsList');
-  const panel = document.getElementById('wrStepPanel');
-  if (!list) return;
-  if (panel && list.contains(panel)) list.after(panel);
-  if (!proc || !proc.steps.length) {
-    list.innerHTML = '<div class="assign-steps-empty">연결된 프로세스가 없습니다.</div>';
-    return;
-  }
-  list.innerHTML = proc.steps.map((step, idx) => {
-    const assignees = _wrStepAssignees[step.id] || [];
-    const maxShow = 3;
-    const shown = assignees.slice(0, maxShow);
-    const extra = assignees.length - maxShow;
-    const avatarsInner = shown.map(n =>
-      `<span class="assign-step-avatar" style="background:${memberBg(n)}">${n[0]}</span>`
-    ).join('') + (extra > 0 ? `<span class="assign-step-extra">+${extra}</span>` : '');
-    const btnContent = assignees.length > 0
-      ? `<span class="assign-step-avatars">${avatarsInner}</span><span class="assign-step-name">${assignees.length}명</span>`
-      : `<span class="assign-step-plus">+</span><span class="assign-step-name muted">담당자 지정</span>`;
-    return `
-      <div class="assign-step-row" data-step-id="${step.id}">
-        <span class="assign-step-num">${idx + 1}</span>
-        <span class="assign-step-title">${escapeHtml(step.title)}</span>
-        <button class="assign-step-btn${assignees.length > 0 ? ' has-assignee' : ''}" type="button"
-          data-open-wr-step-panel="${escapeHtml(step.id)}"
-          title="${assignees.length > 0 ? assignees.join(', ') : '담당자 지정'}">
-          ${btnContent}
-        </button>
-      </div>`;
-  }).join('');
-}
-
-function renderWrStepPanel(stepId) {
-  const list = document.getElementById('wrStepMemberList');
-  if (!list) return;
-  const members = state.teamMembers.filter(m => !m.onLeave);
-  const current = _wrStepAssignees[stepId] || [];
-  list.innerHTML = members.map(m => {
-    const bg      = memberBg(m.name);
-    const checked = current.includes(m.name);
-    return `
-      <div class="assign-step-panel-opt${checked ? ' is-selected' : ''}" data-pick-wr-member="${escapeHtml(m.name)}" data-for-wr-step="${escapeHtml(stepId)}">
-        <div class="assign-member-avatar" style="background:${bg}">${m.name[0]}</div>
-        <div>
-          <div class="assign-member-name">${escapeHtml(m.name)}</div>
-          <div class="assign-member-role">${escapeHtml(m.role)}</div>
-        </div>
-        <div class="ap-check${checked ? ' checked' : ''}">✓</div>
-      </div>`;
-  }).join('');
-}
-
-function openWorkRequestModal() {
-  document.getElementById('workRequestForm').reset();
-  document.getElementById('wrTeamDisplay').textContent = state.currentUser.team;
-  document.getElementById('wrDeadline').value = state.today;
-  _wrSelectedCatId = null;
-  _wrStepAssignees = {};
-  _wrActiveStepId  = null;
-  document.getElementById('wrCatPhase').classList.remove('hidden');
-  document.getElementById('wrStepPhase').classList.add('hidden');
-  document.getElementById('wrStepPanel')?.classList.add('hidden');
-  document.getElementById('wrSubmitBtn').disabled = true;
-  renderWrCatList();
-  document.getElementById('workRequestModal').classList.remove('hidden');
-}
-
-function closeWorkRequestModal() {
-  document.getElementById('workRequestModal').classList.add('hidden');
-  _wrSelectedCatId = null;
-  _wrStepAssignees = {};
-  _wrActiveStepId  = null;
-}
-
-function submitWorkRequest(e) {
-  e.preventDefault();
-  const title         = document.getElementById('wrTitle').value.trim();
-  const team          = state.currentUser.team;
-  const deadline      = document.getElementById('wrDeadline').value;
-  const priority      = document.querySelector('input[name="wrPriority"]:checked')?.value || '일반';
-  const customProcess = document.getElementById('wrCustomProcess')?.value.trim() || '';
-  if (!title || !deadline) return;
-  if (!_wrSelectedCatId && !customProcess) return;
-  const wrAssignees = [...new Set(Object.values(_wrStepAssignees).flat())];
-  state.assignmentRequests.push({
-    id: `ar-${Date.now()}`,
-    title,
-    team,
-    hours: 0,
-    deadline,
-    priority,
-    status:        wrAssignees.length > 0 ? '수락대기중' : '신규요청',
-    assignees:     wrAssignees,
-    processId:     _wrSelectedCatId || null,
-    customProcess: _wrSelectedCatId ? null : customProcess,
-    stepAssignees: { ..._wrStepAssignees },
-  });
-  closeWorkRequestModal();
-  renderTeamStatusPage();
-}
-
-// ─── Process Management Page ─────────────────────────────────────────────────
-
-let _procTab       = 'templates'; // 'templates' | 'assign'
-let _procOpenCats  = new Set(['pc-1', 'pc-2', 'pc-3', 'pc-4']);
-let _procDragId    = null;
-let _procDragCatId = null;
-
-// new-job form state
-let _njProcessId   = null;
-let _njAssignees   = {}; // { stepId: string[] }
-let _njActiveStep  = null;
-
-const PROC_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
-
-function procMemberAvatar(name) {
-  const idx = state.teamMembers.findIndex(m => m.name === name);
-  const bg  = PROC_AVATAR_BG[idx >= 0 ? idx % PROC_AVATAR_BG.length : 0];
-  return `<span class="proc-avatar" style="background:${bg}" title="${escapeHtml(name)}">${name[0]}</span>`;
-}
-
+// ── Process Management Page ───────────────────────────────────────────────────
 function renderProcessPage() {
-  const body = $('#processBody');
+  const body = document.getElementById('processBody');
   if (!body) return;
 
-  // tab bar (injected into header area)
-  const tabBarEl = document.getElementById('procTabBar');
-  if (tabBarEl) {
-    tabBarEl.innerHTML = `<button class="proc-tab active" type="button" data-proc-tab="templates">+ 프로세스 등록</button>`;
-  }
+  const cats = state.processes || [];
 
-  _renderProcTemplates(body);
-}
-
-// ── Tab 1: 프로세스 등록 ─────────────────────────────────────────────────────
-
-function _renderProcTemplates(body) {
-  const EDIT_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-  const DEL_SVG  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
-  const CHEV_SVG = `<svg class="proc-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
-  const PLUS_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-
-  if (!state.processes.length) {
-    body.innerHTML = '<div class="proc-empty">등록된 프로세스가 없습니다.<br>+ 프로세스 추가 버튼을 눌러 시작하세요.</div>';
+  if (!cats.length) {
+    body.innerHTML = `<div class="proc-empty">등록된 프로세스가 없습니다.<br>카테고리를 추가해 보세요.</div>`;
     return;
   }
 
-  body.innerHTML = `<div class="proc-list">${state.processes.map(cat => {
-    const isOpen = _procOpenCats.has(cat.id);
-    const steps = cat.steps.map((step, idx) => `
-      <div class="proc-step-row" draggable="true" data-drag-step="${step.id}" data-drag-cat="${cat.id}">
-        <span class="proc-step-num">${idx + 1}</span>
-        <span class="proc-step-title">${escapeHtml(step.title)}</span>
+  body.innerHTML = cats.map(cat => {
+    const steps = (cat.steps || []).map((step, i) => `
+      <div class="proc-step-row" data-step-id="${escapeHtml(step.id)}">
+        <span class="proc-step-num">${String(i + 1).padStart(2, '0')}.</span>
+        <span class="proc-step-title" id="proc-step-title-${escapeHtml(step.id)}">${escapeHtml(step.title)}</span>
         <div class="proc-step-actions">
-          <button class="proc-icon-btn" type="button" data-edit-step="${step.id}" data-cat-id="${cat.id}" title="수정">${EDIT_SVG}</button>
-          <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-step="${step.id}" data-cat-id="${cat.id}" title="삭제">${DEL_SVG}</button>
+          <button class="proc-icon-btn" type="button" data-edit-step="${escapeHtml(step.id)}" data-cat-id="${escapeHtml(cat.id)}" title="수정">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-step="${escapeHtml(step.id)}" data-cat-id="${escapeHtml(cat.id)}" title="삭제">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
         </div>
       </div>`).join('');
 
     return `
-      <div class="proc-card${isOpen ? ' is-open' : ''}" data-cat="${cat.id}">
-        <div class="proc-card-header" data-toggle-cat="${cat.id}">
+      <div class="proc-card" data-cat-id="${escapeHtml(cat.id)}">
+        <div class="proc-card-header">
           <span class="proc-cat-title">${escapeHtml(cat.category)}</span>
-          <span class="proc-step-count">${cat.steps.length}단계</span>
-          <span class="proc-header-spacer"></span>
           <div class="proc-card-actions">
-            <button class="proc-icon-btn" type="button" data-edit-cat="${cat.id}" title="수정">${EDIT_SVG}</button>
-            <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${cat.id}" title="삭제">${DEL_SVG}</button>
+            <span class="proc-step-count">${cat.steps.length}단계</span>
+            <button class="proc-icon-btn" type="button" data-edit-cat="${escapeHtml(cat.id)}" title="카테고리 수정">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="proc-icon-btn proc-icon-btn--danger" type="button" data-delete-cat="${escapeHtml(cat.id)}" title="카테고리 삭제">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </button>
           </div>
-          ${CHEV_SVG}
         </div>
-        <div class="proc-body">
-          <div class="proc-step-list" data-step-list="${cat.id}">
-            ${steps || '<div class="proc-no-steps">등록된 단계가 없습니다.</div>'}
-          </div>
-          <button class="proc-add-step-btn" type="button" data-add-step="${cat.id}">${PLUS_SVG} 단계 추가</button>
-        </div>
-      </div>`;
-  }).join('')}</div>`;
-
-  // Drag-to-reorder
-  body.querySelectorAll('[data-drag-step]').forEach(el => {
-    el.addEventListener('dragstart', e => {
-      _procDragId = el.dataset.dragStep;
-      _procDragCatId = el.dataset.dragCat;
-      el.classList.add('is-dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    el.addEventListener('dragend', () => {
-      _procDragId = null; _procDragCatId = null;
-      body.querySelectorAll('.proc-step-row').forEach(r => r.classList.remove('is-dragging','drag-over'));
-    });
-    el.addEventListener('dragover', e => {
-      e.preventDefault();
-      body.querySelectorAll('.proc-step-row').forEach(r => r.classList.remove('drag-over'));
-      if (el.dataset.dragCat === _procDragCatId) el.classList.add('drag-over');
-    });
-    el.addEventListener('drop', e => {
-      e.preventDefault();
-      const toId = el.dataset.dragStep;
-      const toCat = el.dataset.dragCat;
-      if (!_procDragId || _procDragId === toId || _procDragCatId !== toCat) return;
-      const cat = state.processes.find(p => p.id === toCat);
-      if (!cat) return;
-      const fi = cat.steps.findIndex(s => s.id === _procDragId);
-      const ti = cat.steps.findIndex(s => s.id === toId);
-      const [moved] = cat.steps.splice(fi, 1);
-      cat.steps.splice(ti, 0, moved);
-      renderProcessPage();
-    });
-  });
-}
-
-// ── Tab 2: 업무 배정 ─────────────────────────────────────────────────────────
-
-function _renderProcAssign(body) {
-  const jobs = (state.processJobs || []);
-
-  body.innerHTML = `
-    <div class="proc-assign-layout">
-      <div class="proc-assign-form-col">
-        <div class="proc-form-card">
-          <div class="proc-form-card-title">새 업무 배정</div>
-          <div class="form-field">
-            <span class="form-field-label">프로세스 선택</span>
-            <select id="njProcess">
-              <option value="">-- 프로세스 선택 --</option>
-              ${state.processes.map(p => `<option value="${p.id}"${_njProcessId === p.id ? ' selected' : ''}>${escapeHtml(p.category)}</option>`).join('')}
-            </select>
-          </div>
-          <div class="form-field">
-            <span class="form-field-label">업무명</span>
-            <input type="text" id="njTitle" placeholder="업무명을 입력하세요" value="${escapeHtml(document.getElementById('njTitle')?.value || '')}" />
-          </div>
-          <div class="form-field">
-            <span class="form-field-label">마감일</span>
-            <input type="date" id="njDeadline" value="${document.getElementById('njDeadline')?.value || ''}" />
-          </div>
-          <div id="njStepsWrap"></div>
-          <button class="dark-btn" type="button" id="njSubmit" style="width:100%;margin-top:12px"${!_njProcessId ? ' disabled' : ''}>배정 완료</button>
-        </div>
-      </div>
-
-      <div class="proc-assign-jobs-col">
-        <div class="proc-jobs-title">진행 중인 배정 <span class="proc-jobs-count">${jobs.length}</span></div>
-        <div class="proc-jobs-list">
-          ${jobs.length ? jobs.map(j => _procJobCardHtml(j)).join('') : '<div class="proc-empty" style="padding:24px">배정된 업무가 없습니다.</div>'}
-        </div>
-      </div>
-    </div>`;
-
-  _renderNjSteps();
-
-  document.getElementById('njProcess')?.addEventListener('change', e => {
-    _njProcessId = e.target.value || null;
-    _njAssignees = {};
-    _njActiveStep = null;
-    _renderNjSteps();
-    const btn = document.getElementById('njSubmit');
-    if (btn) btn.disabled = !_njProcessId;
-  });
-
-  document.getElementById('njSubmit')?.addEventListener('click', _submitProcJob);
-}
-
-function _renderNjSteps() {
-  const wrap = document.getElementById('njStepsWrap');
-  if (!wrap) return;
-  if (!_njProcessId) { wrap.innerHTML = ''; return; }
-  const proc = state.processes.find(p => p.id === _njProcessId);
-  if (!proc) return;
-
-  const stepsHtml = proc.steps.map((step, idx) => {
-    const assignees = _njAssignees[step.id] || [];
-    const avatarsHtml = assignees.slice(0,3).map(n => procMemberAvatar(n)).join('') +
-      (assignees.length > 3 ? `<span class="proc-avatar-extra">+${assignees.length - 3}</span>` : '');
-    return `
-      <div class="proc-nj-step-row" data-nj-step="${step.id}">
-        <span class="proc-nj-step-num">${idx + 1}</span>
-        <div class="proc-nj-step-info">
-          <span class="proc-nj-step-title">${escapeHtml(step.title)}</span>
-        </div>
-        <button class="proc-nj-assign-btn" type="button" data-nj-open-panel="${step.id}">
-          ${assignees.length
-            ? `<span class="proc-nj-avatars">${avatarsHtml}</span><span class="proc-nj-count">${assignees.length}명</span>`
-            : `<span class="proc-nj-plus">+</span><span class="proc-nj-label">담당자</span>`}
-        </button>
+        <div class="proc-step-list">${steps}</div>
+        <button class="proc-add-step-btn" type="button" data-add-step="${escapeHtml(cat.id)}">+ 프로세스 추가</button>
       </div>`;
   }).join('');
-
-  wrap.innerHTML = `
-    <div class="proc-nj-steps-label">단계별 담당자</div>
-    <div class="proc-nj-steps-list" id="njStepsList">${stepsHtml}</div>
-    <div class="proc-nj-panel hidden" id="njPanel"><div id="njPanelList"></div></div>`;
-}
-
-function _renderNjPanel(stepId) {
-  const panelList = document.getElementById('njPanelList');
-  if (!panelList) return;
-  const members = state.teamMembers.filter(m => !m.onLeave);
-  const current = _njAssignees[stepId] || [];
-  panelList.innerHTML = members.map(m => `
-    <div class="proc-nj-member-row${current.includes(m.name) ? ' is-checked' : ''}" data-nj-pick="${m.name}" data-nj-step="${stepId}">
-      ${procMemberAvatar(m.name)}
-      <span class="proc-nj-member-name">${escapeHtml(m.name)}</span>
-      <span class="proc-nj-member-role">${escapeHtml(m.role)}</span>
-      <svg class="proc-nj-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>`).join('');
-}
-
-function _procJobCardHtml(job) {
-  const proc = state.processes.find(p => p.id === job.processId);
-  if (!proc) return '';
-  const done = job.currentStepIdx;
-  const total = proc.steps.length;
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const currentStep = proc.steps[job.currentStepIdx] || proc.steps[total - 1];
-  const assignees = Object.values(job.stepAssignees || {}).flat();
-  const uniqueAssignees = [...new Set(assignees)];
-
-  return `
-    <div class="proc-job-card">
-      <div class="proc-job-card-top">
-        <div>
-          <div class="proc-job-title">${escapeHtml(job.title)}</div>
-          <div class="proc-job-meta">${escapeHtml(proc.category)} · 마감 ${job.deadline}</div>
-        </div>
-        <span class="proc-job-status-badge">진행 중</span>
-      </div>
-      <div class="proc-job-progress-row">
-        <div class="proc-job-progress-track"><div class="proc-job-progress-fill" style="width:${pct}%"></div></div>
-        <span class="proc-job-pct">${done}/${total}</span>
-      </div>
-      <div class="proc-job-current-step">현재 단계 · <strong>${escapeHtml(currentStep?.title || '-')}</strong></div>
-      <div class="proc-job-assignees">
-        ${uniqueAssignees.slice(0,5).map(n => procMemberAvatar(n)).join('')}
-        ${uniqueAssignees.length > 5 ? `<span class="proc-avatar-extra">+${uniqueAssignees.length - 5}</span>` : ''}
-      </div>
-    </div>`;
-}
-
-function _submitProcJob() {
-  const title = document.getElementById('njTitle')?.value.trim();
-  const deadline = document.getElementById('njDeadline')?.value;
-  if (!_njProcessId || !title) { alert('프로세스와 업무명을 입력해주세요.'); return; }
-  state.processJobs = state.processJobs || [];
-  state.processJobs.unshift({
-    id: 'pj-' + Date.now(),
-    processId: _njProcessId,
-    title,
-    deadline: deadline || '-',
-    currentStepIdx: 0,
-    status: 'active',
-    createdAt: state.today,
-    stepAssignees: JSON.parse(JSON.stringify(_njAssignees)),
-  });
-  _njProcessId = null; _njAssignees = {}; _njActiveStep = null;
-  renderProcessPage();
 }
 
 function cancelLeaveRequest(id) {
@@ -3863,32 +3299,6 @@ function bindEvents() {
     // Reject request
     const reject = e.target.closest('[data-reject-request]');
     if (reject) { openRejectModal(reject.dataset.rejectRequest); return; }
-
-    // Leave: approve
-    const leaveApproveBtn = e.target.closest('[data-leave-approve]');
-    if (leaveApproveBtn) {
-      const lv = state.leaves.find(l => l.id === leaveApproveBtn.dataset.leaveApprove);
-      if (lv) {
-        lv.status = '승인 완료'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name;
-        addNotification('일반', '연차 승인', `${lv.applicantName} 님의 ${lv.type}(${lv.startDate.slice(5).replace('-','/')}) 신청이 승인되었습니다.`);
-        renderLeavePage(); renderNotifications();
-      }
-      return;
-    }
-
-    // Leave: reject
-    const leaveRejectBtn = e.target.closest('[data-leave-reject]');
-    if (leaveRejectBtn) {
-      const reason = prompt('반려 사유를 입력하세요');
-      if (reason === null) return;
-      const lv = state.leaves.find(l => l.id === leaveRejectBtn.dataset.leaveReject);
-      if (lv) {
-        lv.status = '반려'; lv.approverId = state.currentUser.id; lv.approverName = state.currentUser.name; lv.rejectedReason = reason.trim() || '사유 없음';
-        addNotification('일반', '연차 반려', `${lv.applicantName} 님의 ${lv.type}(${lv.startDate.slice(5).replace('-','/')}) 신청이 반려되었습니다.`);
-        renderLeavePage(); renderNotifications();
-      }
-      return;
-    }
 
     // Toggle session done
 
@@ -3965,20 +3375,28 @@ function bindEvents() {
       dropdown.classList.add('hidden');
     }
 
-    // Calendar: project sidebar click
-    const calProjBtn = e.target.closest('[data-cal-proj]');
-    if (calProjBtn) {
-      state.calSelectedProjectId = calProjBtn.dataset.calProj;
-      // 선택된 프로젝트의 시작월로 이동
-      const wi = state.workItems.find(w => w.id === state.calSelectedProjectId);
-      if (wi && wi.start) {
-        const d = new Date(wi.start + 'T00:00:00');
-        state.calYear = d.getFullYear();
-        state.calMonth = d.getMonth();
-      }
+    // Calendar: member filter tabs (전체/나)
+    const calMemberTab = e.target.closest('[data-cal-member]');
+    if (calMemberTab) {
+      state.calMemberFilter = calMemberTab.dataset.calMember;
       renderCalPage();
       return;
     }
+
+    // Calendar: view toggle (월간/주간)
+    const calViewBtn = e.target.closest('[data-cal-view]');
+    if (calViewBtn) {
+      state.calViewMode = calViewBtn.dataset.calView;
+      renderCalPage();
+      return;
+    }
+
+    // Monthly calendar: event pill click → detail
+    const calEventPill = e.target.closest('[data-cal-event]');
+    if (calEventPill) { openCalEventDetail(calEventPill.dataset.calEvent); return; }
+
+    // Monthly calendar: close detail panel
+    if (e.target.closest('#calDetailClose')) { closeCalEventDetail(); return; }
 
     // Resource: add link
     const addLinkBtn = e.target.closest('[data-add-link]');
@@ -4017,18 +3435,7 @@ function bindEvents() {
       return;
     }
 
-    // Process: toggle accordion
-    const toggleCatBtn = e.target.closest('[data-toggle-cat]');
-    if (toggleCatBtn && !e.target.closest('[data-edit-cat]') && !e.target.closest('[data-delete-cat]')) {
-      const catId = toggleCatBtn.dataset.toggleCat;
-      if (_procOpenCats.has(catId)) _procOpenCats.delete(catId);
-      else _procOpenCats.add(catId);
-      const card = document.querySelector(`.proc-card[data-cat="${catId}"]`);
-      if (card) card.classList.toggle('is-open', _procOpenCats.has(catId));
-      return;
-    }
-
-    // Process: edit category
+    // Process: edit category name
     const editCatBtn = e.target.closest('[data-edit-cat]');
     if (editCatBtn) {
       const cat = state.processes.find(c => c.id === editCatBtn.dataset.editCat);
@@ -4045,7 +3452,6 @@ function bindEvents() {
       if (!cat) return;
       if (!confirm(`'${cat.category}' 카테고리를 삭제할까요?`)) return;
       state.processes = state.processes.filter(c => c.id !== deleteCatBtn.dataset.deleteCat);
-      _procOpenCats.delete(deleteCatBtn.dataset.deleteCat);
       renderProcessPage();
       return;
     }
@@ -4067,17 +3473,10 @@ function bindEvents() {
     if (deleteStepBtn) {
       const cat = state.processes.find(c => c.id === deleteStepBtn.dataset.catId);
       if (!cat) return;
-      if (!confirm(`'${cat.steps.find(s => s.id === deleteStepBtn.dataset.deleteStep)?.title}' 프로세스를 삭제할까요?`)) return;
+      const step = cat.steps.find(s => s.id === deleteStepBtn.dataset.deleteStep);
+      if (!step) return;
+      if (!confirm(`'${step.title}' 프로세스를 삭제할까요?`)) return;
       cat.steps = cat.steps.filter(s => s.id !== deleteStepBtn.dataset.deleteStep);
-      renderProcessPage();
-      return;
-    }
-
-    // Process: tab switch
-    const procTabBtn = e.target.closest('[data-proc-tab]');
-    if (procTabBtn) {
-      _procTab = procTabBtn.dataset.procTab;
-      _njProcessId = null; _njAssignees = {}; _njActiveStep = null;
       renderProcessPage();
       return;
     }
@@ -4087,51 +3486,11 @@ function bindEvents() {
     if (addStepBtn) {
       const cat = state.processes.find(c => c.id === addStepBtn.dataset.addStep);
       if (!cat) return;
-      const name = prompt('새 단계 이름을 입력하세요');
+      const name = prompt('새 프로세스 이름을 입력하세요');
       if (!name || !name.trim()) return;
-      cat.steps.push({ id: `ps-${cat.id}-${Date.now()}`, title: name.trim() });
+      const newId = `ps-${cat.id}-${Date.now()}`;
+      cat.steps.push({ id: newId, title: name.trim() });
       renderProcessPage();
-      return;
-    }
-
-    // Process assign: open member panel for step
-    const njOpenPanel = e.target.closest('[data-nj-open-panel]');
-    if (njOpenPanel) {
-      const stepId = njOpenPanel.dataset.njOpenPanel;
-      const panel = document.getElementById('njPanel');
-      if (!panel) return;
-      if (_njActiveStep === stepId && !panel.classList.contains('hidden')) {
-        panel.classList.add('hidden');
-        _njActiveStep = null;
-      } else {
-        _njActiveStep = stepId;
-        _renderNjPanel(stepId);
-        const row = njOpenPanel.closest('[data-nj-step]');
-        if (row) { row.appendChild(panel); }
-        panel.classList.remove('hidden');
-      }
-      return;
-    }
-
-    // Process assign: pick/unpick a member
-    const njPickBtn = e.target.closest('[data-nj-pick]');
-    if (njPickBtn) {
-      const name = njPickBtn.dataset.njPick;
-      const stepId = njPickBtn.dataset.njStep;
-      _njAssignees[stepId] = _njAssignees[stepId] || [];
-      const idx = _njAssignees[stepId].indexOf(name);
-      if (idx >= 0) _njAssignees[stepId].splice(idx, 1);
-      else _njAssignees[stepId].push(name);
-      njPickBtn.classList.toggle('is-checked', idx < 0);
-      const chk = njPickBtn.querySelector('.proc-nj-check');
-      if (chk) chk.style.opacity = idx < 0 ? '1' : '0';
-      _renderNjSteps();
-      const stepPanel = document.getElementById('njPanel');
-      if (stepPanel && _njActiveStep) {
-        _renderNjPanel(_njActiveStep);
-        const row = document.querySelector(`[data-nj-step="${_njActiveStep}"]`);
-        if (row) { row.appendChild(stepPanel); stepPanel.classList.remove('hidden'); }
-      }
       return;
     }
 
@@ -4139,133 +3498,58 @@ function bindEvents() {
     const openAssignBtn = e.target.closest('[data-open-assign]');
     if (openAssignBtn) { openAssignModal(openAssignBtn.dataset.openAssign); return; }
 
-    // Assign modal: Phase 1 — 카테고리 선택
-    const selectCatBtn = e.target.closest('[data-select-proc-cat]');
-    if (selectCatBtn) { switchToAssignStepPhase(selectCatBtn.dataset.selectProcCat); return; }
-
-    // Work Request modal: 카테고리 선택 → Phase 2
-    const wrCatBtn = e.target.closest('[data-select-wr-cat]');
-    if (wrCatBtn) { switchToWrStepPhase(wrCatBtn.dataset.selectWrCat); return; }
-
-    // Work Request modal: 카테고리 변경 (뒤로)
-    if (e.target.closest('#wrBackBtn')) {
-      _wrSelectedCatId = null;
-      _wrStepAssignees = {};
-      _wrActiveStepId  = null;
-      document.getElementById('wrStepPanel')?.classList.add('hidden');
-      document.getElementById('wrStepPhase').classList.add('hidden');
-      document.getElementById('wrCatPhase').classList.remove('hidden');
-      document.getElementById('wrSubmitBtn').disabled = !document.getElementById('wrCustomProcess')?.value.trim();
-      return;
-    }
-
-    // Work Request modal: open step member panel
-    const openWrStepPanel = e.target.closest('[data-open-wr-step-panel]');
-    if (openWrStepPanel) {
-      const stepId = openWrStepPanel.dataset.openWrStepPanel;
-      const panel  = document.getElementById('wrStepPanel');
+    // Assign modal: + button (toggle member panel)
+    if (e.target.closest('#assignAddBtn')) {
+      const panel = document.getElementById('assignMemberPanel');
       if (!panel) return;
-      if (_wrActiveStepId === stepId && !panel.classList.contains('hidden')) {
-        panel.classList.add('hidden');
-        _wrActiveStepId = null;
-      } else {
-        _wrActiveStepId = stepId;
-        renderWrStepPanel(stepId);
-        const row = openWrStepPanel.closest('.assign-step-row');
-        if (row) row.appendChild(panel);
+      if (panel.classList.contains('hidden')) {
+        _assignDraft = [..._assignSelectedMembers];
+        renderAssignMemberPanel();
         panel.classList.remove('hidden');
+      } else {
+        panel.classList.add('hidden');
       }
       return;
     }
 
-    // Work Request modal: pick member for step (multi-select toggle)
-    const pickWrMember = e.target.closest('[data-pick-wr-member]');
-    if (pickWrMember && pickWrMember.hasAttribute('data-for-wr-step')) {
-      const stepId = pickWrMember.dataset.forWrStep;
-      const name   = pickWrMember.dataset.pickWrMember;
-      if (!name) return;
-      if (!_wrStepAssignees[stepId]) _wrStepAssignees[stepId] = [];
-      const arr = _wrStepAssignees[stepId];
-      const i = arr.indexOf(name);
-      if (i >= 0) arr.splice(i, 1); else arr.push(name);
-      renderWrStepPanel(stepId);
-      renderWrSteps();
-      const panel = document.getElementById('wrStepPanel');
-      const row   = document.querySelector(`.assign-step-row[data-step-id="${stepId}"]`);
-      if (panel && row) { row.appendChild(panel); panel.classList.remove('hidden'); }
-      return;
-    }
-
-    // Assign modal: 카테고리 변경 (뒤로)
-    if (e.target.closest('#assignBackBtn')) {
-      _assignSelectedCatId = null;
-      _assignStepAssignees = {};
-      _assignActiveStepId = null;
-      document.getElementById('assignStepPanel')?.classList.add('hidden');
-      document.getElementById('assignStepPhase').classList.add('hidden');
-      document.getElementById('assignCatPhase').classList.remove('hidden');
-      document.getElementById('submitAssignBtn').disabled = true;
-      return;
-    }
-
-    // Assign modal: open step member panel
-    const openStepPanel = e.target.closest('[data-open-step-panel]');
-    if (openStepPanel) {
-      const stepId = openStepPanel.dataset.openStepPanel;
-      const panel  = document.getElementById('assignStepPanel');
-      if (!panel) return;
-      if (_assignActiveStepId === stepId && !panel.classList.contains('hidden')) {
-        panel.classList.add('hidden');
-        _assignActiveStepId = null;
+    // Assign modal: member list toggle in draft
+    const assignMemberOpt = e.target.closest('[data-pick-assign-member]');
+    if (assignMemberOpt) {
+      const name = assignMemberOpt.dataset.pickAssignMember;
+      if (_assignDraft.includes(name)) {
+        _assignDraft = _assignDraft.filter(n => n !== name);
       } else {
-        _assignActiveStepId = stepId;
-        renderAssignStepPanel(stepId);
-        // 패널을 해당 행 아래에 위치
-        const row = openStepPanel.closest('.assign-step-row');
-        if (row) {
-          row.appendChild(panel);
-        }
-        panel.classList.remove('hidden');
+        _assignDraft.push(name);
       }
+      renderAssignMemberPanel();
       return;
     }
 
-    // Assign modal: pick member for step (multi-select toggle)
-    const pickStepMember = e.target.closest('[data-pick-step-member]');
-    if (pickStepMember && pickStepMember.hasAttribute('data-for-step')) {
-      const stepId = pickStepMember.dataset.forStep;
-      const name   = pickStepMember.dataset.pickStepMember;
-      if (!name) return;
-      if (!_assignStepAssignees[stepId]) _assignStepAssignees[stepId] = [];
-      const arr = _assignStepAssignees[stepId];
-      const i = arr.indexOf(name);
-      if (i >= 0) arr.splice(i, 1); else arr.push(name);
-      // 패널은 열린 채로 유지 — 체크만 갱신 후 스텝 목록 아바타 업데이트
-      renderAssignStepPanel(stepId);
-      renderAssignSteps();
-      // 패널 다시 해당 행에 부착
-      const panel = document.getElementById('assignStepPanel');
-      const row   = document.querySelector(`.assign-step-row[data-step-id="${stepId}"]`);
-      if (panel && row) { row.appendChild(panel); panel.classList.remove('hidden'); }
+    // Assign modal: confirm selection
+    if (e.target.closest('#assignConfirmBtn')) {
+      _assignSelectedMembers = [..._assignDraft];
+      document.getElementById('assignMemberPanel')?.classList.add('hidden');
+      renderAssignAvatars();
       return;
     }
 
-    // Close assign step panel on outside click
-    const stepPanel = document.getElementById('assignStepPanel');
-    if (stepPanel && !stepPanel.classList.contains('hidden')
-        && !stepPanel.contains(e.target)
-        && !e.target.closest('[data-open-step-panel]')) {
-      stepPanel.classList.add('hidden');
-      _assignActiveStepId = null;
+    // Assign modal: remove avatar
+    const removeAssign = e.target.closest('[data-remove-assign]');
+    if (removeAssign) {
+      const name = removeAssign.dataset.removeAssign;
+      _assignSelectedMembers = _assignSelectedMembers.filter(n => n !== name);
+      _assignDraft = _assignDraft.filter(n => n !== name);
+      renderAssignAvatars();
+      const panel = document.getElementById('assignMemberPanel');
+      if (panel && !panel.classList.contains('hidden')) renderAssignMemberPanel();
+      return;
     }
 
-    // Close wr step panel on outside click
-    const wrPanel = document.getElementById('wrStepPanel');
-    if (wrPanel && !wrPanel.classList.contains('hidden')
-        && !wrPanel.contains(e.target)
-        && !e.target.closest('[data-open-wr-step-panel]')) {
-      wrPanel.classList.add('hidden');
-      _wrActiveStepId = null;
+    // Close assign member panel on outside click
+    const assignPicker = document.getElementById('assignPicker');
+    const assignPanel  = document.getElementById('assignMemberPanel');
+    if (assignPicker && assignPanel && !assignPicker.contains(e.target)) {
+      assignPanel.classList.add('hidden');
     }
 
     // Close popover on outside click
@@ -4734,27 +4018,8 @@ function bindEvents() {
   document.getElementById('cancelAssignModal')?.addEventListener('click', closeAssignModal);
   document.getElementById('assignForm')?.addEventListener('submit', e => { e.preventDefault(); submitAssign(); });
 
-  // Work Request Modal
-  document.getElementById('openWorkRequestModal')?.addEventListener('click', openWorkRequestModal);
-  document.getElementById('closeWorkRequestModal')?.addEventListener('click', closeWorkRequestModal);
-  document.getElementById('cancelWorkRequestModal')?.addEventListener('click', closeWorkRequestModal);
-  document.getElementById('workRequestForm')?.addEventListener('submit', submitWorkRequest);
-  document.getElementById('wrCustomProcess')?.addEventListener('input', () => {
-    if (!_wrSelectedCatId) {
-      document.getElementById('wrSubmitBtn').disabled = !document.getElementById('wrCustomProcess').value.trim();
-    }
-  });
-
   // Leave Management
   document.getElementById('openLeaveModal')?.addEventListener('click', openLeaveModal);
-
-  document.getElementById('addCategoryBtn')?.addEventListener('click', () => {
-    const name = prompt('새 카테고리 이름을 입력하세요');
-    if (!name || !name.trim()) return;
-    const newId = `pc-${Date.now()}`;
-    state.processes.push({ id: newId, category: name.trim(), steps: [] });
-    renderProcessPage();
-  });
 
   // Live days preview on date change
   function updateLeaveDaysPreview() {
@@ -4778,38 +4043,33 @@ function bindEvents() {
   document.getElementById('leaveLeftSection')?.addEventListener('click', e => {
     const btn = e.target.closest('[data-leave-tab]');
     if (btn) { state.leaveTab = btn.dataset.leaveTab; renderLeavePage(); }
+    const cancelBtn = e.target.closest('[data-leave-cancel]');
+    if (cancelBtn) { state.pendingLeaveCancelId = cancelBtn.dataset.leaveCancel; $('#leaveCancelModal').classList.remove('hidden'); }
   });
 
   document.getElementById('leaveList')?.addEventListener('click', e => {
     const cancelBtn = e.target.closest('[data-leave-cancel]');
-    if (cancelBtn) {
-      state.pendingLeaveCancelId = cancelBtn.dataset.leaveCancel;
-      $('#leaveCancelModal').classList.remove('hidden');
-      return;
-    }
+    if (cancelBtn) cancelLeaveRequest(cancelBtn.dataset.leaveCancel);
   });
 
-  $('#cancelLeaveConfirmNo')?.addEventListener('click', () => {
-    state.pendingLeaveCancelId = null;
-    $('#leaveCancelModal').classList.add('hidden');
-  });
-  $('#cancelLeaveConfirmYes')?.addEventListener('click', () => {
-    if (!state.pendingLeaveCancelId) return;
-    cancelLeaveRequest(state.pendingLeaveCancelId);
-    state.pendingLeaveCancelId = null;
-    $('#leaveCancelModal').classList.add('hidden');
-  });
-
-  // Calendar: prev/next month
+  // Calendar: prev/next (month or week)
   $('#calPrevMonth').addEventListener('click', () => {
-    if (state.calMonth === 0) { state.calYear -= 1; state.calMonth = 11; }
-    else state.calMonth -= 1;
-    renderCalPage();
+    if (state.calViewMode === 'weekly') {
+      state.calWeekOffset -= 1;
+    } else {
+      if (state.calMonth === 0) { state.calYear -= 1; state.calMonth = 11; }
+      else state.calMonth -= 1;
+    }
+    renderCalGrid();
   });
   $('#calNextMonth').addEventListener('click', () => {
-    if (state.calMonth === 11) { state.calYear += 1; state.calMonth = 0; }
-    else state.calMonth += 1;
-    renderCalPage();
+    if (state.calViewMode === 'weekly') {
+      state.calWeekOffset += 1;
+    } else {
+      if (state.calMonth === 11) { state.calYear += 1; state.calMonth = 0; }
+      else state.calMonth += 1;
+    }
+    renderCalGrid();
   });
   // My Page
   document.addEventListener('click', e => {
@@ -4835,28 +4095,6 @@ function bindEvents() {
     if (dateCell) {
       state.myPageSelectedDate = dateCell.dataset.mpDate;
       renderMyPage();
-      return;
-    }
-    const filesToggle = e.target.closest('[data-mp-files-toggle]');
-    if (filesToggle) {
-      state.mpFilesExpanded = !state.mpFilesExpanded;
-      renderMyPage();
-      return;
-    }
-    const meetingsToggle = e.target.closest('[data-mp-meetings-toggle]');
-    if (meetingsToggle) {
-      state.mpMeetingsExpanded = !state.mpMeetingsExpanded;
-      renderMyPage();
-      return;
-    }
-    const dlBtn = e.target.closest('[data-mp-file-dl]');
-    if (dlBtn && !e.target.closest('#mpFileModal')) {
-      triggerFileDl(dlBtn.dataset.mpFileDl);
-      return;
-    }
-    const fileItem = e.target.closest('[data-mp-file-open]');
-    if (fileItem && !e.target.closest('[data-mp-file-dl]')) {
-      openFilePreview(fileItem.dataset.mpFileOpen);
       return;
     }
   });
