@@ -5173,7 +5173,7 @@ h1, h2, h3, p { margin: 0; }
 }
 .proc-step-count {
   flex: 0 0 auto;
-  font-size: 14px;
+  font-size: 11px;
   color: var(--muted);
   font-family: 'DM Mono', monospace;
 }
