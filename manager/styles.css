@@ -5185,7 +5185,7 @@ h1, h2, h3, p { margin: 0; }
   border-top: 1px dashed var(--line);
   background: transparent;
   color: var(--blue);
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   flex-shrink: 0;
   margin-top: auto;
