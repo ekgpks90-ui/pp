@@ -1,18 +1,3 @@
-# 기획 문서 (Notion에서 관리)
-CLAUDE.md
-DESIGN.md
-INTERVIEW.md
-PLAN.md
-README.md
-agents/
-context/
-outputs/
-rules/
-sources/
-tasks/
-wireframes/
-workflows/
-
 # 스크린샷
 app/*.png
 ceo/*.png
