@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css?v=19" />
+    <link rel="stylesheet" href="./styles.css?v=22" />
   </head>
   <body>
     <div class="app-shell">
@@ -653,16 +653,20 @@
               <input type="date" id="schedMeetDate" required />
             </label>
             <label>
-              <span>회의실</span>
-              <select id="schedMeetRoom">
-                <option value="대회의실 A">대회의실 A</option>
-                <option value="대회의실 B">대회의실 B</option>
-                <option value="소회의실 1">소회의실 1</option>
-                <option value="소회의실 2">소회의실 2</option>
-                <option value="화상회의">화상회의</option>
-              </select>
+              <span>시간</span>
+              <input type="time" id="schedMeetTime" />
             </label>
           </div>
+          <label>
+            <span>회의실</span>
+            <select id="schedMeetRoom">
+              <option value="대회의실 A">대회의실 A</option>
+              <option value="대회의실 B">대회의실 B</option>
+              <option value="소회의실 1">소회의실 1</option>
+              <option value="소회의실 2">소회의실 2</option>
+              <option value="화상회의">화상회의</option>
+            </select>
+          </label>
           <div>
             <span class="form-label-text">참석자</span>
             <div class="attendee-picker" id="schedAttendeePicker" style="margin-top:5px">
@@ -704,6 +708,6 @@
       <div class="meeting-detail-body" id="meetingDetailContent"></div>
     </div>
 
-    <script src="./app.js?v=20"></script>
+    <script src="./app.js?v=27"></script>
   </body>
 </html>
