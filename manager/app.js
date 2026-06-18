@@ -793,13 +793,14 @@ function weekItems() {
 }
 
 function sortByType(a, b) {
-  const order = { 고정: 0, 긴급: 1, 일반: 2 };
+  const order = { 회의: 0, 고정: 1, 긴급: 2, 일반: 3 };
   return (order[a.type] - order[b.type]) || a.title.localeCompare(b.title, 'ko');
 }
 
 function typeIconClass(type) {
   if (type === '고정') return 'pin';
   if (type === '긴급') return 'red';
+  if (type === '회의') return 'orange';
   return 'gray';
 }
 
@@ -844,7 +845,7 @@ function renderWeeklyTasks() {
     }
     const iconHtml = item.type === '고정'
       ? pinSvg
-      : `<span class="type-icon ${item.type === '긴급' ? 'red' : 'gray'}"></span>`;
+      : `<span class="type-icon ${typeIconClass(item.type)}"></span>`;
     return `
       <div class="task-item${isLastFixed ? ' is-last-fixed' : ''}" data-task-id="${item.id}" role="button" tabindex="0">
         ${iconHtml}
