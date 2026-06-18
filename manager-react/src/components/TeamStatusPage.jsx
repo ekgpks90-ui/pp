@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { TODAY_ISO } from '../data/helpers'
+import { canEditOthersData } from '../data/roles'
 
 const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
 
@@ -7,16 +8,15 @@ function memberColor(idx) {
   return AVATAR_COLORS[idx % AVATAR_COLORS.length]
 }
 
-const PRI_CLS = { '긴급': 'text-red', '일반': 'text-muted' }
-
 const REQ_GROUPS = [
-  { statuses: ['신규요청'], label: '신규 요청', badgeCls: 'bg-blue/10 text-blue', showBtn: true },
-  { statuses: ['재배정'], label: '재배정', badgeCls: 'bg-red/10 text-red', showBtn: true },
-  { statuses: ['수락대기중'], label: '수락 대기 중', badgeCls: 'bg-[#f59e0b]/10 text-[#f59e0b]', showBtn: false },
-  { statuses: ['배정완료'], label: '배정 완료', badgeCls: 'bg-green/10 text-green', showBtn: false },
+  { statuses: ['신규요청'], label: '신규 요청', borderColor: '#2563eb', badgeCls: 'bg-blue/10 text-blue', showBtn: true },
+  { statuses: ['재배정'], label: '재배정', borderColor: '#ef4444', badgeCls: 'bg-red/10 text-red', showBtn: true },
+  { statuses: ['수락대기중'], label: '수락 대기 중', borderColor: '#f59e0b', badgeCls: 'bg-[#f59e0b]/10 text-[#f59e0b]', showBtn: false },
+  { statuses: ['배정완료'], label: '배정 완료', borderColor: '#10b981', badgeCls: 'bg-green/10 text-green', showBtn: false },
 ]
 
 export default function TeamStatusPage({ role, assignmentRequests, teamMembers, workItems, sessions, currentUser }) {
+  const canEditOthers = canEditOthersData(role)
   const today = new Date()
   const dateStr = `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`
 
@@ -50,7 +50,7 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <div className="flex items-center gap-3 mb-4 shrink-0">
-        <h2 className="text-[16px] font-bold text-text-primary">Team Status</h2>
+        <h2 className="text-[16px] font-bold text-text-primary">팀원 업무 현황</h2>
         <span className="text-[12px] text-muted">{currentUser?.team} · {dateStr} 기준</span>
       </div>
 
@@ -58,57 +58,67 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
         {/* KPI Row */}
         <div className="grid grid-cols-4 gap-3">
           {kpis.map(k => (
-            <div key={k.label} className="bg-white border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1">
-              <span className="text-[22px] font-bold font-mono tracking-[-0.03em]" style={{ color: k.color }}>{k.value}</span>
-              <span className="text-[12px] text-muted">{k.label}</span>
+            <div key={k.label} className="bg-white border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1.5">
+              <span className="text-[28px] font-bold leading-none" style={{ color: k.color }}>{k.value}</span>
+              <span className="text-[12px] text-muted font-medium">{k.label}</span>
             </div>
           ))}
         </div>
 
-        {/* Assignment Requests */}
+        {/* Assignment Requests — single card with border-left sections */}
         <div className="bg-white border border-line rounded-[10px] overflow-hidden">
           <div className="px-5 py-[15px] border-b border-line">
             <h3 className="text-[14px] font-semibold text-text-primary">배정 요청</h3>
           </div>
-          <div className="flex flex-col">
-            {REQ_GROUPS.map(group => {
+          <div className="flex flex-col overflow-x-auto">
+            {REQ_GROUPS.map((group, gi) => {
               const items = reqs.filter(r => group.statuses.includes(r.status))
               if (!items.length) return null
-              return items.map(r => (
-                <div key={r.id} className="flex items-center gap-3 px-5 py-3 border-b border-line last:border-b-0 text-[12px]">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${group.badgeCls} shrink-0`}>
-                    {group.label}
-                  </span>
-                  <span className="flex-1 text-text-primary font-medium truncate">{r.title}</span>
-                  <span className="text-muted shrink-0">{r.team}</span>
-                  <span className="text-muted shrink-0">마감 {r.deadline}</span>
-                  <span className={`shrink-0 font-medium ${PRI_CLS[r.priority] || 'text-muted'}`}>{r.priority}</span>
-                  <span className="w-[100px] shrink-0 flex justify-end">
-                    {group.showBtn ? (
-                      <button className="text-[11px] text-blue font-medium px-2.5 py-1 rounded-[7px] border border-blue/30 hover:bg-blue/5 cursor-pointer">
-                        담당자 배정
-                      </button>
-                    ) : (
-                      <div className="flex -space-x-1.5">
-                        {(r.assignees || []).slice(0, 3).map(name => {
-                          const mIdx = teamMembers.findIndex(m => m.name === name)
-                          return (
-                            <span key={name} className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-semibold border-2 border-white"
-                              style={{ background: memberColor(mIdx >= 0 ? mIdx : 0) }} title={name}>
-                              {name[0]}
-                            </span>
-                          )
-                        })}
-                        {(r.assignees || []).length > 3 && (
-                          <span className="w-5 h-5 rounded-full flex items-center justify-center bg-[#e5e7eb] text-[8px] font-semibold text-muted border-2 border-white">
-                            +{r.assignees.length - 3}
-                          </span>
+              return (
+                <div key={gi} className={`${gi > 0 ? 'border-t border-line' : ''}`} style={{ borderLeft: `3px solid ${group.borderColor}` }}>
+                  {items.map((r, ri) => (
+                    <div key={r.id}
+                      className={`grid items-center gap-2.5 px-4 py-2.5 text-[13px] text-text-primary ${ri > 0 ? 'border-t border-line' : ''}`}
+                      style={{ gridTemplateColumns: '92px minmax(130px, 1fr) 72px 110px 52px 110px', minWidth: 580 }}>
+                      <span className={`text-[11px] font-semibold px-2 py-[3px] rounded text-center whitespace-nowrap ${group.badgeCls}`}>
+                        {group.label}
+                      </span>
+                      <span className="font-medium truncate">{r.title}</span>
+                      <span className="text-[12px] text-muted truncate">{r.team}</span>
+                      <span className="text-[12px] whitespace-nowrap">
+                        <span className="text-[11px] text-muted mr-0.5">요청일</span> {r.deadline}
+                      </span>
+                      <span className={`text-[11px] font-semibold px-[7px] py-[2px] rounded text-center ${r.priority === '긴급' ? 'bg-red/10 text-red' : 'bg-surface-muted text-muted'}`}>
+                        {r.priority}
+                      </span>
+                      <span className="flex justify-end">
+                        {group.showBtn && canEditOthers ? (
+                          <button className="text-[11px] font-semibold px-2.5 py-[3px] rounded border border-blue bg-blue/5 text-blue cursor-pointer hover:opacity-75 whitespace-nowrap">
+                            담당자 배정
+                          </button>
+                        ) : (
+                          <div className="flex items-center">
+                            {(r.assignees || []).slice(0, 3).map((name, ai) => {
+                              const mIdx = teamMembers.findIndex(m => m.name === name)
+                              return (
+                                <span key={name} className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold border-2 border-white"
+                                  style={{ background: memberColor(mIdx >= 0 ? mIdx : 0), marginLeft: ai > 0 ? -7 : 0 }} title={name}>
+                                  {name[0]}
+                                </span>
+                              )
+                            })}
+                            {(r.assignees || []).length > 3 && (
+                              <span className="w-6 h-6 rounded-full flex items-center justify-center bg-[#e5e7eb] text-[9px] font-semibold text-[#374151] border-2 border-white" style={{ marginLeft: -7 }}>
+                                +{r.assignees.length - 3}
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
-                  </span>
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))
+              )
             })}
             {reqs.length === 0 && (
               <div className="px-5 py-6 text-[12px] text-muted text-center">배정 요청이 없습니다.</div>

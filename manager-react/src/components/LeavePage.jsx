@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { TODAY_ISO } from '../data/helpers'
+import { canApproveLeave, canViewTeamLeaves } from '../data/roles'
 
-const TYPE_CLS = { '종일 연차': 'bg-blue/10 text-blue', '오전 반차': 'bg-[#f59e0b]/10 text-[#f59e0b]', '오후 반차': 'bg-purple/10 text-purple' }
+const TYPE_CLS = { '종일 연차': 'bg-[#1f2937] text-white', '오전 반차': 'bg-[#6b7280] text-white', '오후 반차': 'bg-[#e5e7eb] text-[#374151]' }
 const STATUS_CLS = { '승인 대기': 'bg-[#f59e0b]/10 text-[#f59e0b]', '승인 완료': 'bg-green/10 text-green', '반려': 'bg-red/10 text-red' }
 const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
 
@@ -12,26 +13,26 @@ function calcLeaveDays(lv) {
   return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)) + 1)
 }
 
-function LeaveRow({ lv, showActions, currentUser, onApprove, onReject, onCancel }) {
+function LeaveRow({ lv, showActions, currentUser, onCancel }) {
   return (
-    <div className="bg-white border border-line rounded-lg p-3 flex items-start gap-3">
-      <div className="flex-1 flex flex-col gap-1.5">
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] font-medium text-text-primary">{lv.applicantName}</span>
-          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${TYPE_CLS[lv.type] || ''}`}>{lv.type}</span>
-          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${STATUS_CLS[lv.status] || ''}`}>{lv.status}</span>
+    <div className="bg-white border border-line rounded-[10px] p-[14px_16px] flex items-start gap-3">
+      <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[14px] font-semibold text-text-primary">{lv.applicantName}</span>
+          <span className={`text-[11px] font-medium px-2 py-[2px] rounded-[20px] ${TYPE_CLS[lv.type] || ''}`}>{lv.type}</span>
+          <span className={`text-[11px] font-semibold px-2 py-[2px] rounded ${STATUS_CLS[lv.status] || ''}`}>{lv.status}</span>
         </div>
-        <div className="text-[11px] text-muted flex gap-3">
+        <div className="text-[12px] text-muted flex gap-3 flex-wrap">
           <span>신청일 {lv.startDate}{lv.endDate !== lv.startDate ? ` ~ ${lv.endDate}` : ''}</span>
           {lv.approverName && <span>처리자 {lv.approverName}</span>}
         </div>
-        {lv.reason && <div className="text-[11px] text-text-sub">{lv.reason}</div>}
-        {lv.rejectedReason && <div className="text-[11px] text-red">반려 사유: {lv.rejectedReason}</div>}
+        {lv.reason && <div className="text-[12px] text-text-sub mt-1">{lv.reason}</div>}
+        {lv.rejectedReason && <div className="text-[12px] text-red mt-1">반려 사유: {lv.rejectedReason}</div>}
       </div>
       {showActions && (
-        <div className="flex gap-1.5 shrink-0">
+        <div className="flex flex-col gap-1.5 shrink-0">
           {lv.status === '승인 대기' && lv.applicantId === currentUser?.id && lv.startDate >= TODAY_ISO && (
-            <button onClick={() => onCancel?.(lv.id)} className="text-[11px] text-muted hover:text-red px-2 py-1 rounded border border-line hover:border-red/30 cursor-pointer">취소</button>
+            <button onClick={() => onCancel?.(lv.id)} className="text-[12px] font-medium text-muted border border-line rounded-[6px] px-3 py-[5px] hover:text-text-sub cursor-pointer whitespace-nowrap">취소</button>
           )}
         </div>
       )}
@@ -40,8 +41,10 @@ function LeaveRow({ lv, showActions, currentUser, onApprove, onReject, onCancel 
 }
 
 export default function LeavePage({ role, currentUser, leaves, totalLeave, teamMembers, onUpdateLeaves }) {
+  const canApprove = canApproveLeave(role)
+  const canViewTeam = canViewTeamLeaves(role)
   const [tab, setTab] = useState('내 연차')
-  const TABS = ['내 연차', '팀 연차', '이력']
+  const TABS = canViewTeam ? ['내 연차', '팀 연차', '이력'] : ['내 연차', '이력']
 
   const myLeaves = useMemo(() => leaves.filter(l => l.applicantId === currentUser?.id), [leaves, currentUser])
   const usedDays = useMemo(() => myLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0), [myLeaves])
@@ -66,19 +69,19 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
       </div>
 
       <div className="flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto pb-4">
-        {/* KPI Row */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1">
-            <span className="text-[22px] font-bold font-mono tracking-[-0.03em] text-text-primary">{totalLeave}<span className="text-[13px] font-normal text-muted ml-1">일</span></span>
+        {/* KPI Row — label on top, value below (원본 스타일) */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-[#f9fafb] border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1.5">
             <span className="text-[12px] text-muted">총 연차</span>
+            <span className="text-[28px] font-bold leading-none text-text-primary">{totalLeave}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></span>
           </div>
-          <div className="bg-white border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1">
-            <span className="text-[22px] font-bold font-mono tracking-[-0.03em] text-blue">{usedDays}<span className="text-[13px] font-normal text-muted ml-1">일</span></span>
+          <div className="bg-[#f9fafb] border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1.5">
             <span className="text-[12px] text-muted">사용 연차</span>
+            <span className="text-[28px] font-bold leading-none text-text-primary">{usedDays}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></span>
           </div>
-          <div className="bg-white border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1">
-            <span className="text-[22px] font-bold font-mono tracking-[-0.03em] text-green">{remaining}<span className="text-[13px] font-normal text-muted ml-1">일</span></span>
+          <div className="bg-[#f9fafb] border border-line rounded-[10px] px-5 py-4 flex flex-col gap-1.5">
             <span className="text-[12px] text-muted">잔여 연차</span>
+            <span className="text-[28px] font-bold leading-none text-text-primary">{remaining}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></span>
           </div>
         </div>
 
@@ -88,18 +91,18 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
             <div className="flex border-b border-line shrink-0">
               {TABS.map(t => (
                 <button key={t} onClick={() => setTab(t)}
-                  className={`px-4 py-3 text-[13px] font-medium cursor-pointer transition-colors ${tab === t ? 'text-blue border-b-2 border-blue' : 'text-muted hover:text-text-sub'}`}>
+                  className={`px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors border-b-2 -mb-px ${tab === t ? 'text-text-primary font-bold border-text-primary' : 'text-muted border-transparent hover:text-text-sub'}`}>
                   {t}
                 </button>
               ))}
             </div>
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5">
               {tab === '내 연차' && (
                 myLeaves.filter(l => l.status === '승인 대기').length > 0
                   ? myLeaves.filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate)).map(lv => (
                     <LeaveRow key={lv.id} lv={lv} showActions currentUser={currentUser} onCancel={handleCancel} />
                   ))
-                  : <div className="text-[12px] text-muted text-center py-6">승인 대기 중인 연차가 없습니다.</div>
+                  : <div className="text-[14px] text-muted text-center py-10">승인 대기 중인 연차가 없습니다.</div>
               )}
               {tab === '팀 연차' && (
                 teamMembers.filter(m => m.id !== currentUser?.id).map((member, idx) => {
@@ -107,43 +110,43 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                   const mUsed = memberLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0)
                   const mRemaining = totalLeave - mUsed
                   return (
-                    <div key={member.id} className="border border-line rounded-lg p-3 flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-semibold"
+                    <div key={member.id} className="border-[1.5px] border-line rounded-[10px] p-[18px_20px] flex flex-col gap-3.5">
+                      <div className="flex items-center gap-3">
+                        <span className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[15px] font-bold shrink-0"
                           style={{ background: AVATAR_COLORS[idx % AVATAR_COLORS.length] }}>
                           {member.name[0]}
                         </span>
                         <div>
-                          <div className="text-[12px] font-medium text-text-primary">{member.name}</div>
-                          <div className="text-[10px] text-muted">{member.role}</div>
+                          <div className="text-[14px] font-semibold text-text-primary">{member.name}</div>
+                          <div className="text-[12px] text-muted mt-0.5">{member.role}</div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="bg-surface-muted rounded px-2 py-1.5">
-                          <div className="text-[10px] text-muted">총 연차</div>
-                          <div className="text-[13px] font-bold">{totalLeave}일</div>
+                      <div className="flex gap-2.5">
+                        <div className="flex-1 bg-[#f9fafb] border border-line rounded-[10px] px-3.5 py-3">
+                          <div className="text-[12px] text-muted">총 연차</div>
+                          <div className="text-[28px] font-bold leading-none text-text-primary mt-1.5">{totalLeave}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></div>
                         </div>
-                        <div className="bg-surface-muted rounded px-2 py-1.5">
-                          <div className="text-[10px] text-muted">사용</div>
-                          <div className="text-[13px] font-bold">{mUsed}일</div>
+                        <div className="flex-1 bg-[#f9fafb] border border-line rounded-[10px] px-3.5 py-3">
+                          <div className="text-[12px] text-muted">사용</div>
+                          <div className="text-[28px] font-bold leading-none text-text-primary mt-1.5">{mUsed}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></div>
                         </div>
-                        <div className="bg-surface-muted rounded px-2 py-1.5">
-                          <div className="text-[10px] text-muted">잔여</div>
-                          <div className="text-[13px] font-bold">{mRemaining}일</div>
+                        <div className="flex-1 bg-[#f9fafb] border border-line rounded-[10px] px-3.5 py-3">
+                          <div className="text-[12px] text-muted">잔여</div>
+                          <div className="text-[28px] font-bold leading-none text-text-primary mt-1.5">{mRemaining}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></div>
                         </div>
                       </div>
                       {memberLeaves.length > 0 ? (
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-2">
                           {memberLeaves.sort((a, b) => b.startDate.localeCompare(a.startDate)).map(lv => (
                             <div key={lv.id} className="flex items-center gap-2 text-[11px]">
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${TYPE_CLS[lv.type] || ''}`}>{lv.type}</span>
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${STATUS_CLS[lv.status] || ''}`}>{lv.status}</span>
-                              <span className="text-muted">{lv.startDate}{lv.endDate !== lv.startDate ? ` ~ ${lv.endDate}` : ''}</span>
+                              <span className={`px-2 py-[2px] rounded-[20px] font-medium ${TYPE_CLS[lv.type] || ''}`}>{lv.type}</span>
+                              <span className={`px-2 py-[2px] rounded font-semibold ${STATUS_CLS[lv.status] || ''}`}>{lv.status}</span>
+                              <span className="text-muted">신청일 {lv.startDate}{lv.endDate !== lv.startDate ? ` ~ ${lv.endDate}` : ''}</span>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-[11px] text-muted">연차 내역 없음</div>
+                        <div className="text-[14px] text-muted text-center py-6">연차 내역이 없습니다.</div>
                       )}
                     </div>
                   )
@@ -154,46 +157,50 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                   ? myLeaves.filter(l => l.status === '승인 완료' || l.status === '반려').sort((a, b) => b.startDate.localeCompare(a.startDate)).map(lv => (
                     <LeaveRow key={lv.id} lv={lv} showActions={false} currentUser={currentUser} />
                   ))
-                  : <div className="text-[12px] text-muted text-center py-6">연차 이력이 없습니다.</div>
+                  : <div className="text-[14px] text-muted text-center py-10">연차 이력이 없습니다.</div>
               )}
             </div>
           </div>
 
           {/* Right: pending approval */}
+          {canApprove && (
           <div className="w-[340px] shrink-0 bg-white border border-line rounded-[10px] flex flex-col overflow-hidden">
             <div className="px-5 py-[15px] border-b border-line flex items-center gap-2">
               <span className="text-[14px] font-semibold text-text-primary">승인 대기</span>
               <span className="text-[11px] bg-[#f59e0b]/10 text-[#f59e0b] font-bold px-1.5 py-0.5 rounded-full">{pendingAll.length}</span>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5">
               {pendingAll.length > 0 ? (
                 pendingAll.map(lv => (
-                  <div key={lv.id} className="border border-line rounded-lg p-3 flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[12px] font-medium text-text-primary">{lv.applicantName}</span>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${TYPE_CLS[lv.type] || ''}`}>{lv.type}</span>
+                  <div key={lv.id} className="border border-line rounded-[10px] p-[14px_16px] flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span className="text-[14px] font-semibold text-text-primary">{lv.applicantName}</span>
+                        <span className={`text-[11px] font-medium px-2 py-[2px] rounded-[20px] ${TYPE_CLS[lv.type] || ''}`}>{lv.type}</span>
+                      </div>
+                      <div className="text-[12px] text-muted mb-1">
+                        신청일 {lv.startDate}{lv.endDate !== lv.startDate ? ` ~ ${lv.endDate}` : ''}
+                      </div>
+                      {lv.reason && <div className="text-[12px] text-text-sub">{lv.reason}</div>}
                     </div>
-                    <div className="text-[11px] text-muted">
-                      {lv.startDate}{lv.endDate !== lv.startDate ? ` ~ ${lv.endDate}` : ''}
-                    </div>
-                    {lv.reason && <div className="text-[11px] text-text-sub">{lv.reason}</div>}
-                    <div className="flex gap-1.5">
+                    <div className="flex flex-col gap-1.5 shrink-0">
                       <button onClick={() => handleApprove(lv.id)}
-                        className="flex-1 h-8 rounded-[7px] bg-blue text-white text-[12px] font-medium cursor-pointer hover:bg-blue/90">
+                        className="px-3 py-[5px] rounded-[6px] bg-text-primary text-white text-[12px] font-medium cursor-pointer hover:opacity-90 whitespace-nowrap border border-text-primary">
                         승인
                       </button>
                       <button onClick={() => handleReject(lv.id)}
-                        className="flex-1 h-8 rounded-[7px] border border-line text-[12px] font-medium text-muted hover:text-text-sub cursor-pointer hover:bg-bg">
+                        className="px-3 py-[5px] rounded-[6px] bg-white text-red text-[12px] font-medium cursor-pointer hover:opacity-90 whitespace-nowrap border border-red/30">
                         반려
                       </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-[12px] text-muted text-center py-6">승인 대기 중인 요청이 없습니다.</div>
+                <div className="text-[14px] text-muted text-center py-10">승인 대기 중인 요청이 없습니다.</div>
               )}
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>

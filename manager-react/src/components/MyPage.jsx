@@ -113,120 +113,118 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <h2 className="text-[16px] font-bold text-text-primary mb-4 shrink-0">My Page</h2>
 
-      <div className="flex-1 min-h-0 grid grid-cols-3 gap-4 overflow-y-auto pb-4">
+      <div className="flex-1 min-h-0 grid grid-cols-3 gap-2.5 overflow-y-auto pb-4">
         {/* Left column: Profile + Charts */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2.5">
           {/* Profile */}
-          <div className="bg-white border border-line rounded-[10px] p-5 flex flex-col items-center gap-3">
+          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col items-center gap-2.5">
             <div className="w-14 h-14 rounded-full bg-blue flex items-center justify-center text-white text-[20px] font-bold">
               {currentUser?.name?.charAt(0)}
             </div>
-            <div className="text-[15px] font-bold text-text-primary">{currentUser?.name}</div>
-            <div className="text-[12px] text-muted">{currentUser?.role}</div>
-            <div className="w-full h-px bg-line" />
-            <div className="w-full flex flex-col gap-2 text-[12px]">
-              <div className="flex justify-between"><span className="text-muted">팀</span><span className="text-text-sub">{currentUser?.team}</span></div>
-              <div className="flex justify-between"><span className="text-muted">권한</span><span className="text-text-sub">{currentUser?.role}</span></div>
-              <div className="flex justify-between"><span className="text-muted">입사일</span><span className="text-text-sub">{currentUser?.joinDate}</span></div>
+            <div className="text-[14px] font-bold text-text-primary">{currentUser?.name}</div>
+            <div className="text-[11px] text-text-sub">{currentUser?.role}</div>
+            <div className="w-full h-px bg-line my-1" />
+            <div className="w-full flex flex-col gap-1.5 text-[11px]">
+              <div className="flex justify-between"><span className="text-text-sub">팀</span><span className="text-text-primary font-medium">{currentUser?.team}</span></div>
+              <div className="flex justify-between"><span className="text-text-sub">권한</span><span className="text-text-primary font-medium">{currentUser?.role}</span></div>
+              <div className="flex justify-between"><span className="text-text-sub">입사일</span><span className="text-text-primary font-medium">{currentUser?.joinDate}</span></div>
             </div>
           </div>
 
           {/* Category Chart */}
-          <div className="bg-white border border-line rounded-[10px] p-5 flex flex-col gap-3">
+          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col gap-2.5">
             <div className="text-[13px] font-semibold text-text-primary">카테고리별 작업시간</div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-[7px]">
               {catData.map(({ cat, mins, pct, color }) => (
-                <div key={cat} className="flex items-center gap-2 text-[12px]">
-                  <span className="w-12 shrink-0 text-muted">{cat}</span>
-                  <div className="flex-1 h-2 bg-line rounded-full overflow-hidden">
+                <div key={cat} className="grid items-center gap-2 text-[11px]" style={{ gridTemplateColumns: '48px 1fr 34px 52px' }}>
+                  <span className="text-text-sub">{cat}</span>
+                  <div className="h-1.5 bg-surface-muted rounded-full overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
                   </div>
-                  <span className="w-8 text-right text-muted">{pct}%</span>
-                  <span className="w-14 text-right text-text-sub font-mono text-[11px]">{fmtDuration(mins)}</span>
+                  <span className="text-right text-text-sub">{pct}%</span>
+                  <span className="text-right text-text-primary font-medium">{fmtDuration(mins)}</span>
                 </div>
               ))}
-              {catData.length === 0 && <span className="text-[11px] text-muted">데이터 없음</span>}
+              {catData.length === 0 && <span className="text-[11px] text-text-sub">데이터 없음</span>}
             </div>
           </div>
         </div>
 
         {/* Center column: AI + Meetings */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2.5">
           {/* AI Insights */}
-          <div className="bg-white border border-line rounded-[10px] p-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
+          <div className="bg-white border border-line rounded-[12px] p-[14px_18px] flex flex-col flex-1 min-h-0 overflow-y-auto">
+            <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold bg-gradient-to-r from-blue to-purple text-white px-1.5 py-0.5 rounded">AI</span>
-              <span className="text-[13px] font-semibold text-text-primary">{now.getFullYear()}년 {MONTHS[now.getMonth()]} 업무 패턴 요약</span>
-              <span className="text-[11px] text-muted ml-auto">{insights.count}건 · {fmtDuration(insights.totalMins)}</span>
+              <span className="text-[13px] font-semibold text-text-primary flex-1">{now.getFullYear()}년 {MONTHS[now.getMonth()]} 업무 패턴 요약</span>
+              <span className="text-[11px] text-text-sub">{insights.count}건 · {fmtDuration(insights.totalMins)}</span>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {insights.items.map((item, i) => (
-                <div key={i} className="flex items-start gap-2 text-[12px]">
-                  <span className="shrink-0">{item.icon}</span>
-                  <span className="text-muted shrink-0 w-[140px]">{item.label}</span>
-                  <span className="text-text-sub font-medium">{item.value}</span>
+                <div key={i} className="flex flex-col gap-[3px] bg-surface-muted rounded-lg p-[8px_10px]">
+                  <span className="text-[14px]">{item.icon}</span>
+                  <span className="text-[11px] text-text-sub">{item.label}</span>
+                  <span className="text-[12px] text-text-primary font-semibold">{item.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Meetings */}
-          <div className="bg-white border border-line rounded-[10px] flex flex-col overflow-hidden">
-            <div className="px-5 py-[15px] border-b border-line flex items-center gap-2">
+          <div className="bg-white border border-line rounded-[10px] flex flex-col flex-1 min-h-0 overflow-hidden p-3.5">
+            <div className="flex items-center justify-between mb-2.5 shrink-0">
               <span className="text-[13px] font-semibold text-text-primary">참여한 회의</span>
-              <span className="text-[11px] text-muted">{myMeetings.length}건</span>
+              <span className="text-[11px] text-blue font-semibold">{myMeetings.length}건</span>
             </div>
-            <div className="flex flex-col gap-2 p-4 max-h-[400px] overflow-y-auto">
+            <div className="flex flex-col gap-1.5 flex-1 overflow-y-auto min-h-0">
               {myMeetings.length > 0 ? myMeetings.map(m => {
                 const color = TYPE_COLOR[m.type] || '#6b7280'
                 const myActions = (m.actionItems || []).filter(a => a.assignee === myName)
                 return (
-                  <div key={m.id} className="border border-line rounded-lg p-3 flex flex-col gap-2 cursor-pointer hover:bg-bg/50 transition-colors">
-                    <div className="flex items-center gap-2 flex-wrap">
+                  <div key={m.id} className="border border-line rounded-lg p-2.5 flex flex-col gap-1.5 cursor-pointer hover:bg-surface-muted transition-colors">
+                    <div className="flex items-center gap-[7px] flex-wrap">
                       <span className="text-[10px] font-semibold text-white px-1.5 py-0.5 rounded" style={{ background: color }}>{m.type}</span>
                       <span className="text-[12px] font-medium text-text-primary flex-1 truncate">{m.title}</span>
                       {myActions.length > 0 && (
                         <span className="text-[10px] font-semibold bg-blue/10 text-blue px-1.5 py-0.5 rounded">{myActions.length} 액션</span>
                       )}
                     </div>
-                    <div className="text-[11px] text-muted line-clamp-2">{m.summary}</div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex -space-x-1">
+                    <div className="text-[11px] text-text-sub line-clamp-2">{m.summary}</div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex items-center gap-0.5 flex-1">
                         {(m.attendeeNames || []).slice(0, 4).map(name => (
-                          <span key={name} className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold border border-white ${name === myName ? 'bg-blue text-white' : 'bg-[#e5e7eb] text-muted'}`}>
+                          <span key={name} className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold ${name === myName ? 'bg-blue/20 text-blue' : 'bg-[#e5e7eb] text-muted'}`}>
                             {name.slice(0, 1)}
                           </span>
                         ))}
                         {(m.attendeeNames || []).length > 4 && (
-                          <span className="w-5 h-5 rounded-full flex items-center justify-center bg-[#e5e7eb] text-[8px] font-semibold text-muted border border-white">
-                            +{m.attendeeNames.length - 4}
-                          </span>
+                          <span className="text-[10px] text-muted ml-0.5">+{m.attendeeNames.length - 4}</span>
                         )}
                       </div>
-                      <span className="text-[10px] text-muted ml-auto">{m.date}</span>
-                      <span className="text-[10px] text-muted">{m.duration}</span>
+                      <span className="text-[11px] text-text-sub">{m.date}</span>
+                      <span className="text-[11px] text-text-sub">{m.duration}</span>
                     </div>
                   </div>
                 )
               }) : (
-                <div className="text-[12px] text-muted text-center py-6">참여한 회의가 없습니다.</div>
+                <div className="text-[12px] text-text-sub text-center py-3">참여한 회의가 없습니다.</div>
               )}
             </div>
           </div>
         </div>
 
         {/* Right column: Calendar panel */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2.5">
           {/* Mini Calendar */}
-          <div className="bg-white border border-line rounded-[10px] p-5 flex flex-col gap-3">
+          <div className="bg-white border border-line rounded-[10px] p-3 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-muted cursor-pointer text-muted">‹</button>
-              <span className="text-[13px] font-medium text-text-primary">{calYear}년 {MONTHS[calMonth]}</span>
+              <span className="text-[13px] font-semibold text-text-primary">{calYear}년 {MONTHS[calMonth]}</span>
               <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-muted cursor-pointer text-muted">›</button>
             </div>
-            <div className="grid grid-cols-7 gap-0.5 text-center">
+            <div className="grid grid-cols-7 gap-[3px] text-center">
               {['일','월','화','수','목','금','토'].map(d => (
-                <div key={d} className="text-[10px] text-muted py-1">{d}</div>
+                <div key={d} className="text-[11px] font-semibold text-text-sub py-1">{d}</div>
               ))}
               {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
               {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -239,8 +237,8 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
                 return (
                   <button key={d} onClick={() => setSelectedDate(ds)}
                     className={`relative w-full aspect-square flex flex-col items-center justify-center rounded-lg text-[12px] cursor-pointer transition-colors
-                      ${isToday ? 'bg-blue text-white font-bold' : isSel ? 'bg-blue/10 text-blue font-semibold' : 'hover:bg-bg text-text-sub'}
-                      ${isLeave ? 'ring-1 ring-[#f59e0b]' : ''}`}>
+                      ${isSel ? 'bg-blue/10 border border-blue' : isLeave ? 'bg-[#ff9f43]/[0.08]' : 'hover:bg-surface-muted'}
+                      ${isToday ? 'text-blue font-bold' : 'text-text-primary'}`}>
                     {d}
                     {(isLeave || hasSession) && (
                       <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${isLeave ? 'bg-[#f59e0b]' : 'bg-blue'}`} />
@@ -249,21 +247,21 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
                 )
               })}
             </div>
-            <div className="flex gap-4 text-[10px] text-muted">
-              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue" />작업세션</span>
-              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b]" />연차</span>
+            <div className="flex gap-3 text-[10px] text-text-sub mt-1">
+              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-blue inline-block" />작업세션</span>
+              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#f59e0b] inline-block" />연차</span>
             </div>
           </div>
 
           {/* Session list */}
-          <div className="bg-white border border-line rounded-[10px] p-5 flex flex-col gap-3">
-            <div className="text-[13px] font-semibold text-text-primary">
+          <div className="bg-white border border-line rounded-[10px] p-[10px_12px] flex flex-col gap-[7px]">
+            <div className="text-[11px] font-semibold text-text-sub tracking-[0.3px]">
               {selectedDate || '날짜 미선택'} 작업세션
             </div>
             {!selectedDate ? (
-              <div className="text-[12px] text-muted">날짜를 선택하세요</div>
+              <div className="text-[12px] text-text-sub text-center py-3.5">날짜를 선택하세요</div>
             ) : selectedSessions.length === 0 ? (
-              <div className="text-[12px] text-muted">{selectedDate} 세션 없음</div>
+              <div className="text-[12px] text-text-sub text-center py-3.5">{selectedDate} 세션 없음</div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {selectedSessions.map(s => {
@@ -271,11 +269,11 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
                   const dur = m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? m % 60 + 'm' : ''}` : `${m}m`
                   return (
                     <div key={s.id} className="flex items-center gap-2 text-[12px]">
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: (CAT_COLORS[s.category] || '#A29BFE') + '1a', color: CAT_COLORS[s.category] || '#A29BFE' }}>
+                      <span className="text-[10px] font-semibold px-1 py-[1px] rounded-[3px]" style={{ background: (CAT_COLORS[s.category] || '#A29BFE') + '1a', color: CAT_COLORS[s.category] || '#A29BFE' }}>
                         {s.category}
                       </span>
-                      <span className="flex-1 text-text-sub truncate">{s.title}</span>
-                      {m > 0 && <span className="text-[10px] text-muted font-mono">{dur}</span>}
+                      <span className="flex-1 text-text-primary truncate">{s.title}</span>
+                      {m > 0 && <span className="text-[12px] text-blue font-semibold text-right">{dur}</span>}
                     </div>
                   )
                 })}
