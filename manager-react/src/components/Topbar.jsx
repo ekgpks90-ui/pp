@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { MONDAY_ISO, addDays } from '../data/helpers'
+import { ROLE_LABELS, ROLE_ORDER } from '../data/roles'
 
 export default function Topbar({
+  role, onRoleChange,
   weekOffset, onPrevWeek, onNextWeek, onGoCurrentWeek,
   searchQuery, onSearchChange,
   notifications, onMarkNotifRead, onMarkAllNotifsRead,
@@ -80,10 +82,25 @@ export default function Topbar({
           )}
         </button>
 
+        {/* Role switcher (개발/검증용 — 직원/팀장/대표 화면 전환) */}
+        <select
+          value={role}
+          onChange={e => onRoleChange(e.target.value)}
+          title="역할 전환 (개발용)"
+          className="h-8 px-2 text-[12px] font-medium text-text-sub bg-surface-muted border border-line rounded-lg outline-none cursor-pointer focus:border-blue"
+        >
+          {ROLE_ORDER.map(r => (
+            <option key={r} value={r}>{ROLE_LABELS[r]}</option>
+          ))}
+        </select>
+
         {/* Profile */}
         <div className="flex items-center gap-2 pl-1">
           <div className="w-8 h-8 rounded-full bg-blue flex items-center justify-center text-white text-[11px] font-semibold">J</div>
-          <span className="text-xs font-medium text-text-sub">Jihye</span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-xs font-medium text-text-sub">Jihye</span>
+            <span className="text-[10px] text-muted">{ROLE_LABELS[role]}</span>
+          </div>
         </div>
       </div>
 

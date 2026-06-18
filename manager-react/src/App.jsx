@@ -2,18 +2,39 @@ import { useState, useCallback } from 'react'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import HomePage from './components/HomePage'
-import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications } from './data/state'
+import MeetingRoomPage from './components/MeetingRoomPage'
+import CalendarPage from './components/CalendarPage'
+import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, teamMembers } from './data/state'
+import { ROLES, canViewPage } from './data/roles'
 
 export default function App() {
+  const [role, setRole] = useState(ROLES.MANAGER)
   const [currentPage, setCurrentPage] = useState('home')
   const [weekOffset, setWeekOffset] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
+
+  // 현재 역할이 볼 수 없는 페이지면 home으로 대체 (렌더 시 파생 — effect 불필요)
+  const activePage = canViewPage(role, currentPage) ? currentPage : 'home'
 
   // Mutable state
   const [workItems, setWorkItems] = useState(initialWorkItems)
   const [sessions, setSessions] = useState(initialSessions)
   const [requests, setRequests] = useState(initialRequests)
   const [notifs, setNotifs] = useState(initialNotifications)
+  const [meetings, setMeetings] = useState(initialMeetings)
+
+  // --- Meeting handlers ---
+  const addMeeting = useCallback((meeting) => {
+    setMeetings(prev => [meeting, ...prev])
+  }, [])
+
+  const deleteMeeting = useCallback((id) => {
+    setMeetings(prev => prev.filter(m => m.id !== id))
+  }, [])
+
+  const updateMeeting = useCallback((id, updater) => {
+    setMeetings(prev => prev.map(m => m.id === id ? (typeof updater === 'function' ? updater(m) : { ...m, ...updater }) : m))
+  }, [])
 
   // --- Session handlers ---
   const toggleSession = useCallback((id) => {
@@ -97,9 +118,11 @@ export default function App() {
 
   return (
     <div className="h-screen grid grid-cols-[224px_minmax(0,1fr)] overflow-hidden font-sans">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} />
+      <Sidebar role={role} currentPage={activePage} onNavigate={setCurrentPage} />
       <main className="flex flex-col overflow-hidden">
         <Topbar
+          role={role}
+          onRoleChange={setRole}
           weekOffset={weekOffset}
           onPrevWeek={() => setWeekOffset(w => w - 1)}
           onNextWeek={() => setWeekOffset(w => w + 1)}
@@ -110,8 +133,9 @@ export default function App() {
           onMarkNotifRead={markNotifRead}
           onMarkAllNotifsRead={markAllNotifsRead}
         />
-        {currentPage === 'home' && (
+        {activePage ==='home' && (
           <HomePage
+            role={role}
             weekOffset={weekOffset}
             searchQuery={searchQuery}
             workItems={workItems}
@@ -130,7 +154,28 @@ export default function App() {
             onNavigate={setCurrentPage}
           />
         )}
-        {currentPage !== 'home' && (
+        {activePage ==='meeting-room' && (
+          <MeetingRoomPage
+            role={role}
+            meetings={meetings}
+            teamMembers={teamMembers}
+            workItems={workItems}
+            onUpdateMeeting={updateMeeting}
+            onDeleteMeeting={deleteMeeting}
+            onAddMeeting={addMeeting}
+            onAddWorkItem={addWorkItem}
+            onAddNotification={addNotification}
+            searchQuery={searchQuery}
+          />
+        )}
+        {activePage ==='calendar' && (
+          <CalendarPage
+            role={role}
+            workItems={workItems}
+            sessions={sessions}
+          />
+        )}
+        {activePage !== 'home' && activePage !== 'meeting-room' && activePage !== 'calendar' && (
           <div className="flex-1 flex items-center justify-center text-muted text-sm">
             {currentPage} 페이지 (준비 중)
           </div>

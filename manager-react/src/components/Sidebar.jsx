@@ -1,3 +1,5 @@
+import { canViewPage } from '../data/roles'
+
 const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/> },
   { id: 'calendar', label: 'Calendar', icon: <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/> },
@@ -8,7 +10,10 @@ const NAV_ITEMS = [
   { id: 'my-page', label: 'My Page', icon: <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/> },
 ]
 
-export default function Sidebar({ currentPage, onNavigate }) {
+export default function Sidebar({ role, currentPage, onNavigate }) {
+  // 역할에 따라 보이는 메뉴만 노출 (예: Process Management는 팀장만)
+  const navItems = NAV_ITEMS.filter(item => canViewPage(role, item.id))
+
   return (
     <aside className="bg-sidebar-bg border-r border-sidebar-border py-[22px] px-[14px] flex flex-col gap-8 overflow-auto">
       {/* Brand */}
@@ -21,7 +26,7 @@ export default function Sidebar({ currentPage, onNavigate }) {
 
       {/* Navigation */}
       <nav className="flex flex-col gap-[1px]">
-        {NAV_ITEMS.map(item => {
+        {navItems.map(item => {
           const isActive = currentPage === item.id
           return (
             <button
