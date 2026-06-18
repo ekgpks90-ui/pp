@@ -17,6 +17,7 @@ const _mondayISO  = _localISO(_mondayDate);
 const state = {
   selectedTaskId: 'wi-5',
   selectedRequestId: null,
+  selectedActionItem: null,
   pendingDeleteSessionId: null,
   pendingDeleteWorkItemId: null,
   editingSessionId: null,
@@ -513,171 +514,171 @@ const state = {
     { id: 'n-1', title: '업무요청 도착', body: '마케팅팀에서 SNS 배너 제작을 요청했습니다.', requestTitle: '신제품 론칭 SNS 배너', unread: true },
     { id: 'n-2', title: '업무요청 도착', body: '기획팀에서 인트로 모션 그래픽을 요청했습니다.', requestTitle: '신규 서비스 인트로 모션', unread: true },
     { id: 'n-3', title: '연차 승인', body: '박민준 님의 오후 반차(06/10) 신청이 승인되었습니다.', unread: false },
-    { id: 'n-4', title: '회의 등록 완료', body: '"스프린트 회고 #12" 회의가 등록되었습니다. (참석자 4명)', unread: false },
+    { id: 'n-4', title: '회의 등록 완료', body: '"모아커머스 앱 리뉴얼 스프린트 회고" 회의가 등록되었습니다. (참석자 4명)', unread: false },
     { id: 'n-5', title: '회의 등록 완료', body: '"디자인 QA 체크포인트" 회의에 참여자로 등록되었습니다. (참석자 5명)', unread: true },
   ],
 
   meetings: [
-    { id: 'mr-1', team: '디자인팀', type: '회고', title: '스프린트 회고 #12',
-    summary: '디자인 시스템 컴포넌트 23개 완성 및 API 연동 90% 달성 확인. 디자인-개발 스펙 공유 지연 이슈가 식별되었으며 Slack 연동 자동 알림 도입이 제안되었습니다.',
-    aiPoints: ['디자인 시스템 컴포넌트 23개 완성 (목표 대비 115%)', 'API 연동 90% 달성, 잔여 10% 다음 스프린트로 이월', '디자인-개발 스펙 공유 지연 이슈 식별 및 개선안 논의', 'Figma Slack 연동 자동 알림 도입 제안 → 다음 주까지 설정 완료 예정'],
-    discussions: ['스펙 공유 지연의 원인으로 비동기 문서화 프로세스 부재 지목', '컴포넌트 라이브러리 버전 관리 방식 개선 필요성 공감', 'AI 기반 디자인 검토 도구 도입 가능성 검토 결정'],
+    { id: 'mr-1', team: '디자인팀', type: '회고', title: '모아커머스 앱 리뉴얼 스프린트 회고',
+    summary: '모아커머스 커머스 앱 리뉴얼 2차 스프린트 회고. 온보딩·상품 상세 화면 디자인 완성도와 디자인-개발 협업 이슈를 점검했습니다.',
+    aiPoints: ['모아커머스 온보딩·상품 상세 화면 디자인 100% 완료', '인터랙션 가이드 문서화 90% 진행, 잔여분 다음 스프린트 이월', '디자인-개발 스펙 공유 지연 이슈 식별 → Figma Dev Mode 도입 합의', '다음 스프린트: 마이페이지·결제 플로우 디자인 착수'],
+    discussions: ['스펙 공유 지연 원인으로 비동기 문서화 프로세스 부재 지목', '컴포넌트 변경 이력 관리 방식 개선 필요성 공감', '클라이언트 피드백 반영 사이클 단축 방안 논의'],
     script: [
-      { time: '00:01', speaker: '김민준', text: '안녕하세요, 스프린트 회고 시작하겠습니다. 이번 스프린트 성과부터 공유해 주세요.' },
-      { time: '00:38', speaker: '이수진', text: '디자인 시스템 컴포넌트 목표 20개 대비 23개 완성했습니다. Figma 라이브러리도 정리됐어요.' },
-      { time: '01:52', speaker: '박민준', text: 'API 연동은 90% 완료했고, 잔여 결제 모듈은 다음 스프린트로 이월했습니다.' },
-      { time: '03:10', speaker: '김민준', text: '스펙 공유 지연 이슈가 있었는데, 원인이 뭔가요?' },
-      { time: '03:45', speaker: '이수진', text: '디자인 확정 전에 개발이 먼저 시작되는 경우가 있었습니다. 비동기 프로세스가 없어서 생긴 문제예요.' },
-      { time: '05:20', speaker: '박민준', text: 'Figma Slack 알림 설정하면 컴포넌트 업데이트 시 자동으로 개발팀에 공유할 수 있을 것 같아요.' },
-      { time: '06:40', speaker: '김민준', text: '좋아요. 이수진님이 다음 주까지 Figma Slack 알림 설정해 주시고, AI 학습 일정도 공유해 주세요.' },
+      { time: '00:01', speaker: '장준혁', text: '안녕하세요, 모아커머스 리뉴얼 회고 시작하겠습니다. 이번 스프린트 성과부터 공유해 주세요.' },
+      { time: '00:38', speaker: '최유진', text: '온보딩과 상품 상세 화면 디자인 100% 완료했습니다. Figma 인터랙션 가이드도 정리 중이에요.' },
+      { time: '01:52', speaker: '박서연', text: '인터랙션 가이드 문서화는 90% 완료했고, 잔여분은 다음 스프린트로 이월했습니다.' },
+      { time: '03:10', speaker: '장준혁', text: '디자인-개발 스펙 공유 지연 이슈가 있었는데, 원인이 뭔가요?' },
+      { time: '03:45', speaker: 'Jihye', text: '디자인 확정 전에 개발이 먼저 시작되는 경우가 있었습니다. 비동기 문서화 프로세스가 없어서 생긴 문제예요.' },
+      { time: '05:20', speaker: '박서연', text: 'Figma Dev Mode를 도입하면 개발팀이 스펙을 바로 확인할 수 있어서 공유 지연이 줄 것 같아요.' },
+      { time: '06:40', speaker: '장준혁', text: '좋아요. 박서연님이 다음 주까지 Dev Mode 가이드 정리해 주시고, 최유진님은 마이페이지 와이어프레임 착수해 주세요.' },
     ],
     actionItems: [
-      { id: 'act-mr1-1', text: 'Figma Slack 알림 설정', dueDate: '2026-06-10', assignee: '이수진', done: false, addedToWeekly: false },
-      { id: 'act-mr1-2', text: 'AI 디자인 검토 도구 조사 및 보고', dueDate: '2026-06-13', assignee: '박민준', done: false, addedToWeekly: false },
+      { id: 'act-mr1-1', text: 'Figma Dev Mode 가이드 작성 및 개발팀 공유', dueDate: '2026-06-10', assignee: '박서연', done: false, addedToWeekly: false },
+      { id: 'act-mr1-2', text: '모아커머스 마이페이지 와이어프레임 착수', dueDate: '2026-06-13', assignee: '최유진', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-03', startTime: '10:00', author: '김민준', duration: '42:18', attendees: 4, attendeeNames: ['김민준', '이수진', '박민준', 'Jihye'] },
-    { id: 'mr-2', team: '디자인팀', type: '클라이언트 미팅', title: '클라이언트 A사 중간 보고',
-    summary: '클라이언트 요구사항 변경 사항 정리 및 일정 재조정. 추가 화면 설계 요청이 접수되었으며 다음 회의까지 시안 완성 일정을 확정하였습니다.',
-    aiPoints: ['클라이언트 요구사항 3건 변경 확인 및 문서화 완료', '추가 화면 2종(마이페이지·알림센터) 설계 요청 접수', '다음 회의 전까지 시안 초안 완성 일정 6/10으로 확정', '일정 지연 리스크 대비 버퍼 1주 확보 합의'],
-    discussions: ['클라이언트 측 내부 검토 프로세스 변경으로 피드백 사이클 지연 우려', '화면 추가로 인한 개발 일정 영향도 재산정 필요', '다음 미팅은 시안 리뷰 목적으로 6/12 예정'],
+    date: '2026-06-03', startTime: '10:00', author: '장준혁', duration: '42:18', attendees: 4, attendeeNames: ['장준혁', '최유진', '박서연', 'Jihye'] },
+    { id: 'mr-2', team: '디자인팀', type: '클라이언트 미팅', title: '모아커머스 2차 시안 클라이언트 보고',
+    summary: '모아커머스 측에 리뉴얼 2차 시안 발표 및 피드백 수렴. 추가 화면 설계 요청이 접수되었으며 다음 시안 리뷰 일정을 확정하였습니다.',
+    aiPoints: ['모아커머스 핵심 화면 5종 시안 발표 완료', '마이페이지·알림센터 화면 2종 추가 설계 요청 접수', '다음 시안 리뷰 전까지 초안 완성 일정 6/10으로 확정', '일정 지연 리스크 대비 버퍼 1주 확보 합의'],
+    discussions: ['클라이언트 내부 검토 프로세스 변경으로 피드백 사이클 지연 우려', '화면 추가로 인한 개발 핸드오프 일정 영향도 재산정 필요', '다음 미팅은 시안 리뷰 목적으로 6/12 예정'],
     script: [
-      { time: '00:02', speaker: '김민준', text: '안녕하세요, 중간 보고 시작하겠습니다. 먼저 변경된 요구사항부터 공유드릴게요.' },
+      { time: '00:02', speaker: '장준혁', text: '안녕하세요, 모아커머스 2차 시안 보고 시작하겠습니다. 먼저 변경된 요구사항부터 공유드릴게요.' },
       { time: '01:15', speaker: 'Jihye', text: '마이페이지 디자인 방향을 대시보드 형태로 변경 요청이 들어왔습니다. 이나경님과 초안 작업 중입니다.' },
       { time: '03:40', speaker: '이나경', text: '알림센터 화면도 추가 요청이 들어왔어요. 기존 일정에서 약 3일 추가 소요될 것 같습니다.' },
-      { time: '06:20', speaker: '김민준', text: '일정 버퍼를 1주 확보하는 방향으로 클라이언트와 협의하겠습니다. 6/10까지 초안 준비 부탁드립니다.' },
+      { time: '06:20', speaker: '장준혁', text: '일정 버퍼를 1주 확보하는 방향으로 클라이언트와 협의하겠습니다. 6/10까지 초안 준비 부탁드립니다.' },
       { time: '08:50', speaker: 'Jihye', text: '네, 6/10 마감으로 진행하겠습니다. 중간 점검은 6/7에 내부적으로 진행할게요.' },
     ],
     actionItems: [
       { id: 'act-mr2-1', text: '마이페이지 대시보드 시안 초안 작성', dueDate: '2026-06-10', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr2-2', text: '알림센터 화면 설계 및 시안 작성', dueDate: '2026-06-10', assignee: '이나경', done: false, addedToWeekly: false },
-      { id: 'act-mr2-3', text: '변경된 요구사항 문서 업데이트 및 공유', dueDate: '2026-06-05', assignee: '김민준', done: false, addedToWeekly: false },
+      { id: 'act-mr2-3', text: '변경된 요구사항 문서 업데이트 및 공유', dueDate: '2026-06-05', assignee: '장준혁', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-03', startTime: '14:00', author: '김민준', duration: '38:54', attendees: 3, attendeeNames: ['김민준', 'Jihye', '이나경'] },
-    { id: 'mr-3', team: '디자인팀', type: '타팀 협업회의', title: '타팀 협업 킥오프',
-    summary: '디자인-개발팀 간 협업 프로세스 정립 회의. 주요 업무 연결 포인트 확인 및 공유 채널 설정에 대한 합의가 이루어졌습니다.',
-    aiPoints: ['디자인-개발 협업 채널 Slack #design-dev 신설 합의', '스펙 변경 시 48시간 전 사전 공지 원칙 수립', 'Figma 링크 공유 → 개발 착수 프로세스 공식화', '주 1회 싱크업 미팅 정례화 (매주 화요일 오전 10시)'],
+    date: '2026-06-03', startTime: '14:00', author: '장준혁', duration: '38:54', attendees: 3, attendeeNames: ['장준혁', 'Jihye', '이나경'] },
+    { id: 'mr-3', team: '디자인팀', type: '타팀 협업회의', title: '모아커머스 디자인-개발 핸드오프 킥오프',
+    summary: '모아커머스 앱 리뉴얼 디자인-개발 핸드오프 프로세스 정립 회의. 협업 채널과 스펙 변경 공지 원칙에 대한 합의가 이루어졌습니다.',
+    aiPoints: ['디자인-개발 협업 채널 Slack #moa-design-dev 신설 합의', '스펙 변경 시 48시간 전 사전 공지 원칙 수립', 'Figma 링크 공유 → 개발 착수 프로세스 공식화', '주 1회 핸드오프 싱크 정례화 (매주 화요일 오전 10시)'],
     discussions: ['이전 스프린트에서 디자인 변경이 개발에 사전 공유 없이 반영된 사례 복기', '개발팀 요청: 컴포넌트 변경 시 영향 범위 명시 필요', '디자인팀 요청: 개발 완료 화면 캡처 공유로 검수 프로세스 개선'],
     script: [
-      { time: '00:03', speaker: '이수진', text: '킥오프 시작합니다. 이번 회의 목적은 협업 프로세스 명확화입니다.' },
-      { time: '02:10', speaker: '김도현', text: '지난번에 디자인 변경사항이 늦게 공유돼서 재작업이 발생했어요. 사전 공지 프로세스가 필요합니다.' },
+      { time: '00:03', speaker: '장준혁', text: '킥오프 시작합니다. 이번 회의 목적은 모아커머스 디자인-개발 핸드오프 프로세스 명확화입니다.' },
+      { time: '02:10', speaker: '박민준', text: '지난번에 디자인 변경사항이 늦게 공유돼서 재작업이 발생했어요. 사전 공지 프로세스가 필요합니다.' },
       { time: '05:30', speaker: 'Jihye', text: '스펙 변경 시 48시간 전 공지를 원칙으로 하고, Slack 채널을 만들어서 공유하는 게 좋을 것 같아요.' },
-      { time: '08:45', speaker: '박서연', text: '싱크업 미팅도 주 1회 정례화하면 실시간 이슈를 빠르게 처리할 수 있을 것 같습니다.' },
-      { time: '11:20', speaker: '이수진', text: '화요일 오전 10시로 고정하겠습니다. 이수진이 퍼실리테이터 맡을게요.' },
+      { time: '08:45', speaker: '박서연', text: '핸드오프 싱크도 주 1회 정례화하면 실시간 이슈를 빠르게 처리할 수 있을 것 같습니다.' },
+      { time: '11:20', speaker: '박민준', text: '화요일 오전 10시로 고정하겠습니다. 채널 개설은 제가 맡을게요.' },
     ],
     actionItems: [
-      { id: 'act-mr3-1', text: 'Slack #design-dev 채널 생성 및 멤버 초대', dueDate: '2026-06-03', assignee: '이수진', done: true, addedToWeekly: false },
-      { id: 'act-mr3-2', text: '협업 프로세스 문서화 및 팀 공유', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
-      { id: 'act-mr3-3', text: '주간 싱크업 캘린더 초대 발송', dueDate: '2026-06-03', assignee: '최유진', done: true, addedToWeekly: false },
+      { id: 'act-mr3-1', text: 'Slack #moa-design-dev 채널 생성 및 멤버 초대', dueDate: '2026-06-03', assignee: '박민준', done: true, addedToWeekly: false },
+      { id: 'act-mr3-2', text: '핸드오프 프로세스 문서화 및 팀 공유', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
+      { id: 'act-mr3-3', text: '주간 핸드오프 싱크 캘린더 초대 발송', dueDate: '2026-06-03', assignee: '박서연', done: true, addedToWeekly: false },
     ],
-    date: '2026-06-02', startTime: '11:00', author: '이수진', duration: '35:42', attendees: 6, attendeeNames: ['이수진', 'Jihye', '김도현', '박서연', '최유진', '정하은'] },
-    { id: 'mr-4', team: '개발팀', type: '스프린트 기획', title: '2분기 스프린트 계획 수립',
-    summary: '2분기 주요 마일스톤 설정 및 업무 분배. 우선순위 조정 및 리소스 할당에 대한 논의가 완료되었습니다.',
-    aiPoints: ['2분기 핵심 목표: 신규 서비스 UI 3종 완성', '스프린트 1(6월): 와이어프레임·IA 확정', '스프린트 2(7월): 시각 디자인 + 프로토타입', '스프린트 3(8월): 개발 핸드오프 + QA 지원', '리소스 부족으로 외부 프리랜서 1명 추가 검토'],
-    discussions: ['6월 집중 업무 과부하 우려 — 우선순위 상위 3개 업무 집중, 나머지 7월로 이월', '디자인 시스템 업데이트 병행 진행 여부 논의 → 스프린트 2 이후로 연기 결정', '주간 진척 리포트 양식 통일 필요'],
+    date: '2026-06-02', startTime: '11:00', author: '장준혁', duration: '35:42', attendees: 5, attendeeNames: ['장준혁', '박민준', 'Jihye', '박서연', '이수진'] },
+    { id: 'mr-4', team: '기획팀', type: '스프린트 기획', title: '2분기 클라이언트 프로젝트 로드맵 수립',
+    summary: '2분기 클라이언트 프로젝트 일정·리소스 배분 수립. 모아커머스·블루밍헬스·하이브뷰티 우선순위 조정 및 리소스 할당 논의가 완료되었습니다.',
+    aiPoints: ['2분기 핵심 프로젝트: 모아커머스 리뉴얼 / 블루밍헬스 리브랜딩 / 하이브뷰티 카탈로그', '6월: 모아커머스 집중, 7월: 블루밍헬스 착수', '디자인 리소스 부족 구간 외부 프리랜서 1명 추가 검토', '클라이언트별 주간 진척 리포트 양식 통일 필요'],
+    discussions: ['6월 디자인팀 과부하 우려 — 우선순위 상위 3개 프로젝트 집중, 나머지 이월', '하이브뷰티 카탈로그는 스프린트 여건상 8월로 이월 검토', '클라이언트별 마일스톤 가시화 필요'],
     script: [
-      { time: '00:05', speaker: '박민준', text: '2분기 계획 수립 시작합니다. 먼저 1분기 회고 요약부터 공유할게요.' },
-      { time: '04:30', speaker: '이수진', text: '신규 서비스 UI가 가장 우선순위가 높습니다. 3종 완성을 2분기 핵심 목표로 잡으면 어떨까요?' },
-      { time: '10:15', speaker: '김도현', text: '리소스가 조금 부족할 것 같아요. 6월은 기존 업무 병행이 많아서요.' },
-      { time: '15:40', speaker: '박민준', text: '프리랜서 1명 추가를 검토해 볼게요. 일단 우선순위 상위 3개에 집중하고 나머지는 7월로 이월합시다.' },
-      { time: '22:00', speaker: '최유진', text: '디자인 시스템 업데이트는 스프린트 2 이후로 미루는 게 현실적일 것 같습니다.' },
+      { time: '00:05', speaker: '최지영', text: '2분기 프로젝트 로드맵 수립 시작합니다. 먼저 1분기 회고 요약부터 공유할게요.' },
+      { time: '04:30', speaker: '강지훈', text: '모아커머스 리뉴얼이 가장 우선순위가 높습니다. 6월 집중으로 잡으면 어떨까요?' },
+      { time: '10:15', speaker: '장준혁', text: '디자인 리소스가 조금 부족할 것 같아요. 6월은 모아커머스 병행 업무가 많아서요.' },
+      { time: '15:40', speaker: '최지영', text: '프리랜서 1명 추가를 검토해 볼게요. 일단 상위 3개 프로젝트에 집중하고 하이브뷰티는 8월로 이월합시다.' },
+      { time: '22:00', speaker: 'Jihye', text: '블루밍헬스 리브랜딩은 모아커머스 마무리 후 7월 착수가 현실적일 것 같습니다.' },
     ],
     actionItems: [
-      { id: 'act-mr4-1', text: '2분기 스프린트 로드맵 문서 작성', dueDate: '2026-06-05', assignee: '박민준', done: false, addedToWeekly: false },
-      { id: 'act-mr4-2', text: '프리랜서 채용 요건 정리 및 공고 준비', dueDate: '2026-06-08', assignee: '이수진', done: false, addedToWeekly: false },
-      { id: 'act-mr4-3', text: '주간 진척 리포트 양식 초안 작성', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
+      { id: 'act-mr4-1', text: '2분기 클라이언트 프로젝트 로드맵 문서 작성', dueDate: '2026-06-05', assignee: '최지영', done: false, addedToWeekly: false },
+      { id: 'act-mr4-2', text: '프리랜서 채용 요건 정리 및 공고 준비', dueDate: '2026-06-08', assignee: '강지훈', done: false, addedToWeekly: false },
+      { id: 'act-mr4-3', text: '클라이언트별 주간 진척 리포트 양식 초안 작성', dueDate: '2026-06-06', assignee: '장준혁', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-01', startTime: '15:00', author: '박민준', duration: '58:20', attendees: 5, attendeeNames: ['박민준', '이수진', '김도현', '최유진', 'Jihye'] },
-    { id: 'mr-5', team: '개발팀', type: '주간 회의', title: '주간 진행상황 공유 #24',
-    summary: '이번 주 완료된 작업 현황 공유 및 다음 주 계획 확인. 블로커 이슈 3건이 확인되었으며 관련 담당자 지정이 완료되었습니다.',
-    aiPoints: ['이번 주 완료 업무 7건, 진행 중 4건, 미착수 2건', '블로커 3건: 에셋 미수령 / 리뷰 지연 / 외부 API 미확정', '다음 주 우선순위: 랜딩 페이지 디자인 완료 + 내부 리뷰'],
-    discussions: ['에셋 미수령 건은 마케팅팀에 재요청 예정 (정하은 담당)', '외부 API 확정 지연으로 관련 화면 목업으로 대체 진행 결정', '이번 주 완료율 63% — 목표 80% 대비 저조, 다음 주 만회 계획 필요'],
+    date: '2026-06-01', startTime: '15:00', author: '최지영', duration: '58:20', attendees: 4, attendeeNames: ['최지영', '강지훈', '장준혁', 'Jihye'] },
+    { id: 'mr-5', team: '개발팀', type: '주간 회의', title: '테크스타트 SaaS 개발 주간 공유 #24',
+    summary: '테크스타트 SaaS 서비스 개발 주간 현황 공유 및 다음 주 계획 확인. 블로커 이슈 3건이 확인되었으며 디자인 연동 일정이 정리되었습니다.',
+    aiPoints: ['이번 주 완료 업무 7건, 진행 중 4건, 미착수 2건', '블로커 3건: 디자인 에셋 미수령 / API 미확정 / 리뷰 지연', '다음 주 우선순위: 메인 대시보드 퍼블리싱 + 내부 QA'],
+    discussions: ['에셋 미수령 건은 디자인팀에 재요청 예정 (최유진 담당)', '외부 API 확정 지연으로 관련 화면 목업으로 대체 진행 결정', '이번 주 완료율 63% — 목표 80% 대비 저조, 다음 주 만회 계획 필요'],
     script: [
-      { time: '00:02', speaker: '박민준', text: '주간 공유 시작합니다. 이번 주 완료 건부터 돌아가며 공유해 주세요.' },
-      { time: '03:20', speaker: '이나경', text: '브랜드 가이드 업데이트 완료했습니다. 에셋 파일은 마케팅팀에서 아직 못 받았어요.' },
-      { time: '07:10', speaker: '정하은', text: '제가 마케팅팀에 다시 연락해볼게요. 이번 주 안에 받을 수 있을 것 같습니다.' },
-      { time: '12:45', speaker: 'Jihye', text: '외부 API가 아직 확정이 안 됐는데, 관련 화면은 목업으로 먼저 진행하는 게 좋을 것 같아요.' },
-      { time: '18:30', speaker: '박민준', text: '완료율이 63%라 다음 주에 좀 더 속도를 내야 할 것 같습니다. 각자 블로커 빠르게 해소 부탁드립니다.' },
+      { time: '00:02', speaker: '박민준', text: '테크스타트 개발 주간 공유 시작합니다. 이번 주 완료 건부터 돌아가며 공유해 주세요.' },
+      { time: '03:20', speaker: '이수진', text: '대시보드 API 연동 완료했습니다. 다만 디자인 에셋 파일은 디자인팀에서 아직 못 받았어요.' },
+      { time: '07:10', speaker: '최유진', text: '제가 디자인팀에서 에셋 정리해서 오늘 안에 전달드릴게요. 시안 확정본 기준으로 내보내겠습니다.' },
+      { time: '12:45', speaker: '박민준', text: '외부 API가 아직 확정이 안 됐는데, 관련 화면은 목업으로 먼저 진행하는 게 좋을 것 같아요.' },
+      { time: '18:30', speaker: '이수진', text: '완료율이 63%라 다음 주에 좀 더 속도를 내야 할 것 같습니다. 각자 블로커 빠르게 해소 부탁드립니다.' },
     ],
     actionItems: [
-      { id: 'act-mr5-1', text: '마케팅팀 에셋 재요청 및 수령', dueDate: '2026-05-31', assignee: '정하은', done: true, addedToWeekly: false },
-      { id: 'act-mr5-2', text: '외부 API 대체 목업 화면 작성', dueDate: '2026-06-02', assignee: 'Jihye', done: false, addedToWeekly: false },
+      { id: 'act-mr5-1', text: '디자인팀 에셋 재요청 및 수령', dueDate: '2026-05-31', assignee: '최유진', done: true, addedToWeekly: false },
+      { id: 'act-mr5-2', text: '외부 API 대체 목업 연동', dueDate: '2026-06-02', assignee: '이수진', done: false, addedToWeekly: false },
       { id: 'act-mr5-3', text: '다음 주 완료율 80% 달성 계획 공유', dueDate: '2026-06-01', assignee: '박민준', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-29', startTime: '10:00', author: '박민준', duration: '25:10', attendees: 4, attendeeNames: ['박민준', '이나경', '정하은', 'Jihye'] },
-    { id: 'mr-6', team: 'PM팀', type: '워크샵', title: 'UX 리서치 워크샵',
-    summary: '사용자 인터뷰 결과 공유 및 페르소나 재정립. 주요 사용자 니즈 기반 개선 방향성 설정 합의가 이루어졌습니다.',
-    aiPoints: ['사용자 인터뷰 18건 분석 완료 — 주요 페인포인트 5가지 도출', '기존 페르소나 3종 → 4종으로 재정립 (신규: 중간관리자형 추가)', '개선 우선순위: 온보딩 플로우 간소화 > 알림 설정 > 검색 기능', '다음 분기 리서치 주제: 모바일 사용 패턴 분석'],
+    date: '2026-05-29', startTime: '10:00', author: '박민준', duration: '25:10', attendees: 3, attendeeNames: ['박민준', '이수진', '최유진'] },
+    { id: 'mr-6', team: '디자인팀', type: '워크샵', title: '스카이벤처스 UX 리서치 워크샵',
+    summary: '스카이벤처스 서비스 사용자 인터뷰 결과 공유 및 페르소나 재정립. 주요 사용자 니즈 기반 개선 방향성 설정 합의가 이루어졌습니다.',
+    aiPoints: ['스카이벤처스 사용자 인터뷰 18건 분석 완료 — 주요 페인포인트 5가지 도출', '기존 페르소나 3종 → 4종으로 재정립 (신규: 중간관리자형 추가)', '개선 우선순위: 온보딩 플로우 간소화 > 알림 설정 > 검색 기능', '다음 분기 리서치 주제: 모바일 사용 패턴 분석'],
     discussions: ['인터뷰 참여자 중 70%가 온보딩 복잡성을 가장 큰 불편으로 꼽음', '페르소나 4번째 유형(중간관리자) 추가는 전원 합의', 'B2B 고객과 개인 사용자 간 니즈 차이 명확히 구분 필요'],
     script: [
-      { time: '00:05', speaker: '최지영', text: '워크샵 시작합니다. 먼저 김도현님이 인터뷰 결과 요약을 공유해 주세요.' },
+      { time: '00:05', speaker: '장준혁', text: '워크샵 시작합니다. 먼저 김도현님이 스카이벤처스 인터뷰 결과 요약을 공유해 주세요.' },
       { time: '05:30', speaker: '김도현', text: '18건 인터뷰 분석 결과, 가장 많이 나온 페인포인트는 온보딩이었습니다. 전체 70%가 언급했어요.' },
       { time: '18:20', speaker: '박서연', text: '기존 페르소나 3종에서 중간관리자 유형이 빠져 있었는데, 이번에 추가하는 게 좋겠어요.' },
       { time: '35:00', speaker: 'Jihye', text: '개선 우선순위는 온보딩 간소화를 1순위로 하고, 알림 설정과 검색을 그다음으로 잡으면 어떨까요?' },
-      { time: '52:40', speaker: '이수진', text: '다음 분기 리서치는 모바일 사용 패턴으로 하면 제품 방향성 잡는 데 도움이 될 것 같습니다.' },
+      { time: '52:40', speaker: '최유진', text: '다음 분기 리서치는 모바일 사용 패턴으로 하면 서비스 방향성 잡는 데 도움이 될 것 같습니다.' },
     ],
     actionItems: [
       { id: 'act-mr6-1', text: '페르소나 4종 문서 업데이트 및 팀 배포', dueDate: '2026-06-06', assignee: '김도현', done: false, addedToWeekly: false },
       { id: 'act-mr6-2', text: '온보딩 플로우 개선안 초안 작성', dueDate: '2026-06-10', assignee: 'Jihye', done: false, addedToWeekly: false },
-      { id: 'act-mr6-3', text: '다음 분기 리서치 계획서 작성', dueDate: '2026-06-13', assignee: '최지영', done: false, addedToWeekly: false },
+      { id: 'act-mr6-3', text: '다음 분기 리서치 계획서 작성', dueDate: '2026-06-13', assignee: '김도현', done: false, addedToWeekly: false },
     ],
-    startDate: '2026-05-30', endDate: '2026-05-30', author: '최지영', duration: '1:24:15', attendees: 8, attendeeNames: ['최지영', '김도현', '박서연', '이수진', 'Jihye', '최유진', '정하은', '이나경'] },
-    { id: 'mr-7', team: '디자인팀 04', type: '업무 보고', title: '월간 성과 보고 — 5월',
-    summary: '5월 주요 달성 지표 및 미달성 항목 리뷰. 6월 집중 개선 과제 3가지 합의 및 담당자 배정이 완료되었습니다.',
-    aiPoints: ['5월 완료율 78% (목표 85% 대비 -7%)', '미달성 원인: 외부 의존성 지연 2건, 요구사항 변경 1건', '6월 개선 과제 3가지: 리뷰 사이클 단축 / 스펙 동결 기준 수립 / 일정 버퍼 확보', '팀 전반 번아웃 징후 감지 — 업무량 조정 검토 필요'],
-    discussions: ['목표 대비 7% 부족한 원인이 외부 요인인지 내부 프로세스 문제인지 분석 필요', '리뷰 사이클이 길어지는 구간(개발 핸드오프 이후)에 병목 집중', '6월에는 스펙 동결 기준을 착수 3일 전으로 명확히 설정하기로 합의'],
+    startDate: '2026-05-30', endDate: '2026-05-30', author: '김도현', duration: '1:24:15', attendees: 6, attendeeNames: ['김도현', '장준혁', '박서연', 'Jihye', '최유진', '정하은'] },
+    { id: 'mr-7', team: '마케팅팀', type: '업무 보고', title: '5월 마케팅 캠페인 성과 보고',
+    summary: '그린푸드·핏라이프 5월 캠페인 성과 리뷰 및 6월 개선 과제 합의. 디자인-마케팅 콘텐츠 제작 협업 프로세스를 점검했습니다.',
+    aiPoints: ['5월 캠페인 노출 목표 대비 92% 달성', '그린푸드 프로모션 배너 CTR 3.4%로 목표 상회', '핏라이프 랜딩 전환율 개선 필요 (현재 1.2%)', '6월 과제: 콘텐츠 제작 리드타임 단축 / 에셋 전달 프로세스 개선'],
+    discussions: ['배너 제작 리드타임이 캠페인 일정 압박', '디자인-마케팅 간 에셋 전달 프로세스 개선 필요', '핏라이프 랜딩 A/B 테스트 도입 제안'],
     script: [
-      { time: '00:04', speaker: '강지훈', text: '5월 성과 보고 시작합니다. 완료율 78%로 목표에 7% 미달했습니다.' },
-      { time: '08:15', speaker: '이수진', text: '외부 의존성 지연이 주된 원인이었어요. 특히 데이터 API 확정이 2주 지연됐습니다.' },
-      { time: '15:30', speaker: 'Jihye', text: '리뷰 사이클을 줄이면 도움이 될 것 같아요. 핸드오프 이후 구간에서 병목이 심한 것 같습니다.' },
-      { time: '28:00', speaker: '강지훈', text: '6월은 스펙 동결 기준을 착수 3일 전으로 잡겠습니다. 변경 요청은 그 이전에만 수용합니다.' },
-      { time: '38:45', speaker: '최유진', text: '팀원들이 좀 지쳐 있는 것 같아요. 6월에는 업무량 조정을 함께 고려해 주시면 좋겠습니다.' },
+      { time: '00:04', speaker: '송예린', text: '5월 캠페인 성과 보고 시작합니다. 전체 노출은 목표 대비 92% 달성했습니다.' },
+      { time: '08:15', speaker: '정하은', text: '그린푸드 배너는 CTR 3.4%로 목표를 넘었어요. 다만 제작 리드타임이 빠듯했습니다.' },
+      { time: '15:30', speaker: 'Jihye', text: '핏라이프 랜딩 전환율이 1.2%로 아쉬운데, A/B 테스트로 헤드라인·CTA를 검증해보면 좋겠어요.' },
+      { time: '28:00', speaker: '송예린', text: '6월은 콘텐츠 제작 리드타임을 단축하는 데 집중하겠습니다. 에셋 전달 시점을 앞당겨 주시면 좋겠어요.' },
+      { time: '38:45', speaker: '정하은', text: '에셋 전달 프로세스를 정리해서 캠페인 착수 5일 전에 1차본 공유하는 방향으로 잡을게요.' },
     ],
     actionItems: [
-      { id: 'act-mr7-1', text: '리뷰 사이클 단축 방안 문서화', dueDate: '2026-06-03', assignee: '이수진', done: false, addedToWeekly: false },
-      { id: 'act-mr7-2', text: '스펙 동결 기준 가이드라인 작성 및 공유', dueDate: '2026-06-03', assignee: '강지훈', done: false, addedToWeekly: false },
-      { id: 'act-mr7-3', text: '6월 업무량 조정 계획 제출', dueDate: '2026-06-05', assignee: 'Jihye', done: false, addedToWeekly: false },
+      { id: 'act-mr7-1', text: '콘텐츠 제작 리드타임 단축 방안 문서화', dueDate: '2026-06-03', assignee: '송예린', done: false, addedToWeekly: false },
+      { id: 'act-mr7-2', text: '핏라이프 랜딩 A/B 테스트 시안 제작', dueDate: '2026-06-05', assignee: '정하은', done: false, addedToWeekly: false },
+      { id: 'act-mr7-3', text: '6월 캠페인 에셋 전달 일정 공유', dueDate: '2026-06-04', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-28', startTime: '14:00', author: '강지훈', duration: '47:33', attendees: 7, attendeeNames: ['강지훈', 'Jihye', '이수진', '박서연', '김도현', '최유진', '이나경'] },
-    { id: 'mr-8', team: '디자인팀', type: '기술 공유', title: 'Figma 컴포넌트 최적화 세션',
-    summary: '팀 내 Figma 라이브러리 구조 개선 방안 공유. 재사용 가능한 컴포넌트 설계 패턴 정립 및 스타일 토큰 일원화 논의가 진행되었습니다.',
+    date: '2026-05-28', startTime: '14:00', author: '송예린', duration: '47:33', attendees: 5, attendeeNames: ['송예린', 'Jihye', '정하은', '이나경', '박서연'] },
+    { id: 'mr-8', team: '디자인팀', type: '기술 공유', title: 'Figma 컴포넌트 라이브러리 최적화 세션',
+    summary: '팀 내 Figma 라이브러리 구조 개선 방안 공유. 클라이언트 프로젝트 전반에 재사용 가능한 컴포넌트 설계 패턴 정립 및 스타일 토큰 일원화 논의가 진행되었습니다.',
     aiPoints: ['현재 Figma 라이브러리 컴포넌트 수 214개 → 중복·미사용 47개 정리 예정', '스타일 토큰 체계 Color/Spacing/Typography 3계층으로 일원화', 'Auto Layout 미적용 컴포넌트 32개 일괄 전환 계획', 'Figma Variables 활용한 다크모드 지원 방안 논의'],
-    discussions: ['컴포넌트 네이밍 컨벤션 불일치로 검색 효율 저하 — 네이밍 가이드 수립 필요', '스타일 토큰 일원화 후 기존 화면에 일괄 적용하는 방법론 합의 필요', '다크모드 지원은 현 시점 우선순위에서 제외, 토큰 구조만 준비'],
+    discussions: ['컴포넌트 네이밍 컨벤션 불일치로 검색 효율 저하 — 네이밍 가이드 수립 필요', '스타일 토큰 일원화 후 기존 프로젝트 화면에 일괄 적용하는 방법론 합의 필요', '다크모드 지원은 현 시점 우선순위에서 제외, 토큰 구조만 준비'],
     script: [
-      { time: '00:03', speaker: '윤소영', text: '오늘은 Figma 라이브러리 최적화 방법을 공유할게요. 현재 214개 컴포넌트 중 47개가 중복이에요.' },
-      { time: '10:20', speaker: 'Jihye', text: '네이밍이 팀마다 달라서 검색이 너무 힘들어요. 컨벤션 가이드가 꼭 필요할 것 같습니다.' },
+      { time: '00:03', speaker: '윤소이', text: '오늘은 Figma 라이브러리 최적화 방법을 공유할게요. 현재 214개 컴포넌트 중 47개가 중복이에요.' },
+      { time: '10:20', speaker: 'Jihye', text: '네이밍이 프로젝트마다 달라서 검색이 너무 힘들어요. 컨벤션 가이드가 꼭 필요할 것 같습니다.' },
       { time: '22:00', speaker: '정하은', text: '스타일 토큰을 Color·Spacing·Typography로 나누면 관리가 훨씬 쉬워질 것 같아요.' },
       { time: '35:10', speaker: '박서연', text: 'Auto Layout 안 된 컴포넌트 32개는 제가 순차적으로 전환 작업할게요.' },
-      { time: '44:30', speaker: '윤소영', text: '다크모드는 지금 당장은 우선순위에서 빼고, 토큰 구조만 미리 잡아두는 방향으로 합시다.' },
+      { time: '44:30', speaker: '윤소이', text: '다크모드는 지금 당장은 우선순위에서 빼고, 토큰 구조만 미리 잡아두는 방향으로 합시다.' },
     ],
     actionItems: [
-      { id: 'act-mr8-1', text: '컴포넌트 네이밍 컨벤션 가이드 작성', dueDate: '2026-06-03', assignee: '윤소영', done: false, addedToWeekly: false },
+      { id: 'act-mr8-1', text: '컴포넌트 네이밍 컨벤션 가이드 작성', dueDate: '2026-06-03', assignee: '윤소이', done: false, addedToWeekly: false },
       { id: 'act-mr8-2', text: 'Auto Layout 미적용 컴포넌트 전환', dueDate: '2026-06-10', assignee: '박서연', done: false, addedToWeekly: false },
       { id: 'act-mr8-3', text: '스타일 토큰 일원화 작업 착수', dueDate: '2026-06-07', assignee: '정하은', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-27', startTime: '09:30', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', 'Jihye', '정하은', '박서연', '최유진'] },
+    date: '2026-05-27', startTime: '09:30', author: '윤소이', duration: '52:41', attendees: 5, attendeeNames: ['윤소이', 'Jihye', '정하은', '박서연', '최유진'] },
     { id: 'mr-9', team: '디자인팀', type: '주간 회의', title: '디자인팀 주간 싱크 #22',
-    summary: '이번 주 진행 업무 공유 및 우선순위 재조정. 온보딩 수정 일정과 배너 제작 현황을 점검했습니다.',
-    aiPoints: ['온보딩 화면 수정 3건 이번 주 내 완료 예정', '배너 시안 검토 일정 목요일로 확정', '고객사 A 컬러 시스템 시안 다음 주 공유'],
-    discussions: ['온보딩 수정 범위 추가 가능성 검토 필요', '배너 사이즈 스펙 마케팅팀과 재확인'],
+    summary: '이번 주 진행 업무 공유 및 우선순위 재조정. 모아커머스 온보딩 수정과 그린푸드 배너 제작 현황을 점검했습니다.',
+    aiPoints: ['모아커머스 온보딩 화면 수정 3건 이번 주 내 완료 예정', '그린푸드 배너 시안 검토 일정 목요일로 확정', '블루밍헬스 컬러 시스템 시안 다음 주 공유'],
+    discussions: ['모아커머스 온보딩 수정 범위 추가 가능성 검토 필요', '그린푸드 배너 사이즈 스펙 마케팅팀과 재확인'],
     script: [],
     actionItems: [],
     date: '2026-06-09', startTime: '10:30', author: 'Jihye', duration: '28:15', attendees: 4, attendeeNames: ['Jihye', '이나경', '정하은', '박서연'] },
-    { id: 'mr-10', team: '디자인팀', type: '클라이언트 미팅', title: '고객사 A 1차 시안 발표',
-    summary: '로고 1차 시안 3종 발표 및 클라이언트 피드백 수렴. 컬러 방향성은 긍정적이나 서체 변경 요청이 있었습니다.',
+    { id: 'mr-10', team: '디자인팀', type: '클라이언트 미팅', title: '블루밍헬스 리브랜딩 1차 시안 발표',
+    summary: '블루밍헬스 리브랜딩 로고 1차 시안 3종 발표 및 클라이언트 피드백 수렴. 컬러 방향성은 긍정적이나 서체 변경 요청이 있었습니다.',
     aiPoints: ['로고 시안 B안 방향으로 진행 확정', '서체: 현재 Pretendard → Noto Serif 검토 요청', '다음 미팅 일정: 6월 18일'],
     discussions: ['서체 변경 시 전체 BI 일관성 검토 필요'],
     script: [],
     actionItems: [
       { id: 'act-mr10-1', text: '서체 대안 2종 추가 시안 제작', dueDate: '2026-06-16', assignee: '이나경', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-11', startTime: '14:00', author: 'Jihye', duration: '45:00', attendees: 3, attendeeNames: ['Jihye', '이나경', '최유진'] },
-    { id: 'mr-11', team: '전체', type: '긴급 회의', title: '앱 출시 전 최종 QA 점검',
-    summary: 'QA 기간 중 발견된 온보딩 버그 현황 공유 및 수정 우선순위 합의. 출시 일정은 예정대로 유지하기로 결정.',
-    aiPoints: ['온보딩 버그 총 7건 — 이번 주 내 5건 수정 목표', '나머지 2건은 출시 후 핫픽스로 처리', '출시 일정 6월 20일 유지'],
+    date: '2026-06-11', startTime: '14:00', author: '이나경', duration: '45:00', attendees: 3, attendeeNames: ['이나경', 'Jihye', '정하은'] },
+    { id: 'mr-11', team: '디자인팀', type: '긴급 회의', title: '핏라이프 앱 출시 전 최종 QA 점검',
+    summary: '핏라이프 모바일 앱 출시 전 디자인 QA 이슈 현황 공유 및 수정 우선순위 합의. 출시 일정은 예정대로 유지하기로 결정.',
+    aiPoints: ['핏라이프 디자인 QA 이슈 총 7건 — 이번 주 내 5건 수정 목표', '나머지 2건은 출시 후 핫픽스로 처리', '출시 일정 6월 20일 유지'],
     discussions: ['출시 일정 연기 여부 논의 — 현행 유지로 합의', '핫픽스 대응 담당자 Jihye·최유진으로 확정'],
     script: [],
     actionItems: [
-      { id: 'act-mr11-1', text: '온보딩 버그 5건 수정 완료', dueDate: '2026-06-17', assignee: 'Jihye', done: false, addedToWeekly: false },
+      { id: 'act-mr11-1', text: '핏라이프 QA 이슈 5건 수정 완료', dueDate: '2026-06-17', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
     date: '2026-06-17', startTime: '11:00', author: '최유진', duration: '32:00', attendees: 5, attendeeNames: ['Jihye', '최유진', '박서연', '정하은', '이나경'] },
     { id: 'mr-12', team: '디자인팀', type: '디자인 리뷰', title: '디자인 QA 체크포인트',
@@ -1000,6 +1001,8 @@ function renderDetailPanel() {
   if (item.type === '회의') {
     const meeting = state.meetings.find(m => m.id === item.sourceMeetingId);
     const hasNotes = meeting && (meeting.summary || (meeting.aiPoints && meeting.aiPoints.length));
+    const meetingType = meeting ? meeting.type : (item.scheduled ? '예정' : '-');
+    const meetingRoom = (meeting && meeting.room) || item.room || null;
 
     let meetingHtml = `<div class="detail-form">
       <span class="badge-meeting" style="align-self:flex-start;background:var(--orange-soft, #fff3e0);color:var(--orange, #f57c00);font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px">회의</span>
@@ -1010,7 +1013,7 @@ function renderDetailPanel() {
 
       <div class="dw-field">
         <span>회의 유형</span>
-        <div style="font-size:14px;color:var(--text);padding:6px 0">${meeting ? escapeHtml(meeting.type) : '-'}</div>
+        <div style="font-size:14px;color:var(--text);padding:6px 0">${escapeHtml(meetingType)}</div>
       </div>
 
       <div class="dw-field-2col">
@@ -1023,6 +1026,10 @@ function renderDetailPanel() {
           <div style="font-size:14px;color:var(--text);padding:6px 0">${item.meetingTime || '-'}</div>
         </div>
       </div>
+      ${meetingRoom ? `<div class="dw-field">
+        <span>회의실</span>
+        <div style="font-size:14px;color:var(--text);padding:6px 0">📍 ${escapeHtml(meetingRoom)}</div>
+      </div>` : ''}
 
       <div class="dw-field">
         <span>참석자 (${item.participants.length}명)</span>
@@ -1031,15 +1038,18 @@ function renderDetailPanel() {
         </div>
       </div>`;
 
-    if (hasNotes) {
+    if (meeting && meeting.aiPoints && meeting.aiPoints.length) {
       meetingHtml += `
       <div class="dw-field" style="margin-top:8px">
         <span>AI 핵심 포인트</span>
         <ul style="font-size:13px;color:var(--text);padding:6px 0 6px 18px;margin:0;line-height:1.7">
           ${meeting.aiPoints.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
         </ul>
-      </div>
+      </div>`;
+    }
 
+    if (hasNotes) {
+      meetingHtml += `
       <button type="button" class="detail-meeting-link-btn" data-view-meeting-from-detail="${item.sourceMeetingId}">회의록 보기 →</button>`;
     }
 
@@ -2173,6 +2183,85 @@ function saveMeeting(e) {
   renderCalendarPage();
 }
 
+// ─── Schedule Meeting Modal (회의 등록) ─────────────────────────────────────────
+
+let _schedAttendees = []; // { id, name } 배열
+
+function openScheduleMeetingModal() {
+  _schedAttendees = [];
+  document.getElementById('schedMeetTitle').value = '';
+  document.getElementById('schedMeetDate').value = state.today;
+  document.getElementById('schedMeetTime').value = '';
+  document.getElementById('schedMeetRoom').selectedIndex = 0;
+  document.getElementById('schedAttendeeSearch').value = '';
+  document.getElementById('schedAttendeeChips').innerHTML = '';
+  document.getElementById('schedAttendeeDropdown').classList.add('hidden');
+  document.getElementById('scheduleMeetingModal').classList.remove('hidden');
+}
+
+function closeScheduleMeetingModal() {
+  document.getElementById('scheduleMeetingModal').classList.add('hidden');
+}
+
+function renderSchedAttendeeChips() {
+  const chips = document.getElementById('schedAttendeeChips');
+  if (!chips) return;
+  chips.innerHTML = _schedAttendees.map(m =>
+    `<span class="attendee-chip">${escapeHtml(m.name)}<button type="button" class="attendee-chip-remove" data-remove-sched-attendee="${m.id}">✕</button></span>`
+  ).join('');
+}
+
+function renderSchedAttendeeDropdown(query) {
+  const dropdown = document.getElementById('schedAttendeeDropdown');
+  if (!dropdown) return;
+  const q = (query || '').toLowerCase();
+  const selectedIds = new Set(_schedAttendees.map(m => m.id));
+  const matches = state.teamMembers.filter(m =>
+    !selectedIds.has(m.id) && (q === '' || m.name.toLowerCase().includes(q))
+  );
+  if (!matches.length) { dropdown.classList.add('hidden'); return; }
+  dropdown.innerHTML = matches.map(m =>
+    `<div class="attendee-option" data-select-sched-attendee="${m.id}" data-name="${escapeHtml(m.name)}">
+      <span class="attendee-option-avatar" style="background:${memberColor(m.name)}">${escapeHtml(m.name[0])}</span>
+      <div class="attendee-option-info">
+        <span class="attendee-option-name">${escapeHtml(m.name)}</span>
+        <span class="attendee-option-role">${escapeHtml(m.role)}</span>
+      </div>
+    </div>`
+  ).join('');
+  dropdown.classList.remove('hidden');
+}
+
+function saveScheduleMeeting(e) {
+  e.preventDefault();
+  const title = document.getElementById('schedMeetTitle').value.trim();
+  const date  = document.getElementById('schedMeetDate').value;
+  const time  = document.getElementById('schedMeetTime').value;
+  const room  = document.getElementById('schedMeetRoom').value;
+  if (!title || !date) return;
+
+  const attendeeNames = _schedAttendees.map(m => m.name);
+  const attendeeCount = attendeeNames.length || 1;
+
+  // 회의 등록은 "예정(요청)" 상태 — 녹음으로 진행된 회의가 아니므로
+  // 미팅룸 회의 목록(회의록)에는 추가하지 않는다.
+
+  // 1) 이번 주 업무항목에 예정 회의 자동 배치
+  state.workItems.push({
+    id: `wi-mtg-${Date.now()}`,
+    title, start: date, end: date, type: '회의',
+    meetingTime: time, room, scheduled: true,
+    participants: attendeeNames.length ? attendeeNames : [state.currentUser.name],
+  });
+
+  // 2) 참여자 알림 생성 (홈)
+  addNotification('중요', '회의 등록 완료', `"${title}" 회의가 등록되었습니다. (참석자 ${attendeeCount}명)`);
+
+  closeScheduleMeetingModal();
+  renderWeeklyTasks();
+  renderNotifications();
+}
+
 // ─── Meeting Detail Panel ──────────────────────────────────────────────────────
 
 function openMeetingDetail(id) {
@@ -2243,10 +2332,7 @@ function renderMeetingDetailPanel(m) {
         ? `<button class="action-add-btn" type="button" data-add-action="${a.id}" data-meeting-id="${m.id}">→ 추가</button>`
         : '';
       return `<div class="action-item-row${doneClass}">
-        <label class="action-check">
-          <input type="checkbox" ${a.done ? 'checked' : ''} data-toggle-action="${a.id}" data-meeting-id="${m.id}" />
-          <span class="action-item-text-label">${escapeHtml(a.text)}</span>
-        </label>
+        <span class="action-item-text-label">${escapeHtml(a.text)}</span>
         <span class="action-item-meta">${escapeHtml(a.assignee || '')}${a.dueDate ? ' · ' + a.dueDate : ''}</span>
         <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">${addedBadge}${addBtn}</div>
       </div>`;
@@ -2255,47 +2341,31 @@ function renderMeetingDetailPanel(m) {
   }
 }
 
-function toggleActionItemDone(actId, meetingId) {
-  const m = state.meetings.find(x => x.id === meetingId);
-  if (!m) return;
-  const a = (m.actionItems || []).find(x => x.id === actId);
-  if (!a) return;
-  a.done = !a.done;
-  renderMeetingDetailPanel(m);
-}
-
-function addActionItemToWeekly(actId, meetingId) {
+// 내 액션아이템 '추가' → 업무요청 수락과 동일한 모달(업무항목 추가) 오픈
+function openAcceptModalForAction(actId, meetingId) {
   const m = state.meetings.find(x => x.id === meetingId);
   if (!m) return;
   const a = (m.actionItems || []).find(x => x.id === actId);
   if (!a || a.addedToWeekly) return;
 
-  const today = state.today;
-  const dow = new Date(today + 'T00:00:00').getDay() || 1; // default Mon if Sun
-  const newItem = {
-    id: `wi-act-${Date.now()}`,
-    title: a.text,
-    description: `[${m.title}] 액션아이템`,
-    start: a.dueDate || today,
-    end: a.dueDate || today,
-    type: '일반',
-    participants: [state.currentUser.name],
-    sessions: [],
-  };
-  state.workItems.push(newItem);
-  a.addedToWeekly = true;
+  state.selectedRequestId = null;
+  state.selectedActionItem = { meetingId, actId };
 
-  renderMeetingDetailPanel(m);
-
-  // flash banner
-  const body = document.getElementById('meetingDetailContent');
-  if (body) {
-    const banner = document.createElement('div');
-    banner.className = 'action-added-banner';
-    banner.textContent = '"이번 주 업무"에 추가되었습니다';
-    body.prepend(banner);
-    setTimeout(() => banner.remove(), 2500);
+  $('#acceptTitleDisplay').textContent = a.text;
+  const typeEl = $('#acceptTypeDisplay');
+  typeEl.textContent = '일반';
+  typeEl.className = 'accept-info-type type-normal';
+  let periodText = state.today;
+  if (a.dueDate) {
+    const lo = a.dueDate < state.today ? a.dueDate : state.today;
+    const hi = a.dueDate < state.today ? state.today : a.dueDate;
+    periodText = `${lo} ~ ${hi}`;
   }
+  $('#acceptPeriodDisplay').textContent = periodText;
+  $('#acceptStepsDisplay').innerHTML = '<span style="color:var(--muted)">—</span>';
+  $('#acceptTodoDate').value = a.dueDate && a.dueDate >= state.today ? a.dueDate : state.today;
+
+  $('#acceptModal').classList.remove('hidden');
 }
 
 // ─── Monthly Calendar Page ────────────────────────────────────────────────────
@@ -3089,6 +3159,7 @@ function openAcceptModal(requestId) {
   const r = state.requests.find(x => x.id === requestId);
   if (!r) return;
   state.selectedRequestId = requestId;
+  state.selectedActionItem = null;
 
   // 업무항목명 & 유형 & 기간 표시
   $('#acceptTitleDisplay').textContent = r.title;
@@ -3119,6 +3190,41 @@ function closeAcceptModal() {
 
 function submitAcceptForm(e) {
   e.preventDefault();
+
+  // 회의 액션아이템 기반 추가
+  if (state.selectedActionItem) {
+    const { meetingId, actId } = state.selectedActionItem;
+    const m = state.meetings.find(x => x.id === meetingId);
+    const a = m && (m.actionItems || []).find(x => x.id === actId);
+    if (!a) { closeAcceptModal(); return; }
+
+    const todoDate = $('#acceptTodoDate').value || state.today;
+    const start = todoDate;
+    const end   = a.dueDate && a.dueDate > todoDate ? a.dueDate : todoDate;
+
+    state.workItems.push({
+      id: `wi-act-${Date.now()}`,
+      title: a.text,
+      description: `[${m.title}] 액션아이템`,
+      start, end,
+      type: '일반',
+      participants: [state.currentUser.name],
+      sourceMeetingId: meetingId,
+      sourceActionId: actId,
+    });
+    a.addedToWeekly = true;
+
+    const todayDiff = Math.floor((toDate(state.today) - toDate(BASE_WEEK_START)) / (1000 * 60 * 60 * 24));
+    state.weekOffset = Math.floor(todayDiff / 7);
+
+    addNotification('중요', '업무항목 추가', `"${a.text}" 업무항목이 이번 주 업무에 추가되었습니다.`, a.text);
+    state.selectedActionItem = null;
+    closeAcceptModal();
+    renderAll();
+    renderMeetingDetailPanel(m);
+    return;
+  }
+
   const r = state.requests.find(x => x.id === state.selectedRequestId);
   if (!r) return;
 
@@ -3869,11 +3975,41 @@ function bindEvents() {
       return;
     }
 
+    // Schedule-meeting attendee dropdown select
+    const schedAttendeeOpt = e.target.closest('[data-select-sched-attendee]');
+    if (schedAttendeeOpt) {
+      const id = schedAttendeeOpt.dataset.selectSchedAttendee;
+      const name = schedAttendeeOpt.dataset.name;
+      if (!_schedAttendees.find(m => m.id === id)) {
+        _schedAttendees.push({ id, name });
+        renderSchedAttendeeChips();
+        document.getElementById('schedAttendeeSearch').value = '';
+        document.getElementById('schedAttendeeDropdown').classList.add('hidden');
+      }
+      return;
+    }
+
+    // Schedule-meeting attendee chip remove
+    const removeSchedAttendee = e.target.closest('[data-remove-sched-attendee]');
+    if (removeSchedAttendee) {
+      const id = removeSchedAttendee.dataset.removeSchedAttendee;
+      _schedAttendees = _schedAttendees.filter(m => m.id !== id);
+      renderSchedAttendeeChips();
+      return;
+    }
+
     // Close attendee dropdown on outside click
     const picker = document.getElementById('attendeePicker');
     const dropdown = document.getElementById('attendeeDropdown');
     if (picker && dropdown && !picker.contains(e.target)) {
       dropdown.classList.add('hidden');
+    }
+
+    // Close schedule-meeting attendee dropdown on outside click
+    const schedPicker = document.getElementById('schedAttendeePicker');
+    const schedDropdown = document.getElementById('schedAttendeeDropdown');
+    if (schedPicker && schedDropdown && !schedPicker.contains(e.target)) {
+      schedDropdown.classList.add('hidden');
     }
 
     // Calendar: member filter tabs (전체/나)
@@ -4535,10 +4671,8 @@ function bindEvents() {
       if (m) renderMeetingDetailPanel(m);
       return;
     }
-    const toggleBtn = e.target.closest('[data-toggle-action]');
-    if (toggleBtn) { toggleActionItemDone(toggleBtn.dataset.toggleAction, toggleBtn.dataset.meetingId); return; }
     const addBtn = e.target.closest('[data-add-action]');
-    if (addBtn) { addActionItemToWeekly(addBtn.dataset.addAction, addBtn.dataset.meetingId); return; }
+    if (addBtn) { openAcceptModalForAction(addBtn.dataset.addAction, addBtn.dataset.meetingId); return; }
   });
 
   // Recorder
@@ -4590,6 +4724,18 @@ function bindEvents() {
   });
   document.getElementById('attendeeSearch')?.addEventListener('focus', e => {
     renderAttendeeDropdown(e.target.value);
+  });
+
+  // Schedule meeting modal (회의 등록)
+  document.getElementById('openScheduleMeetingBtn')?.addEventListener('click', openScheduleMeetingModal);
+  document.getElementById('closeScheduleMeetingModal')?.addEventListener('click', closeScheduleMeetingModal);
+  document.getElementById('cancelScheduleMeeting')?.addEventListener('click', closeScheduleMeetingModal);
+  document.getElementById('scheduleMeetingForm')?.addEventListener('submit', saveScheduleMeeting);
+  document.getElementById('schedAttendeeSearch')?.addEventListener('input', e => {
+    renderSchedAttendeeDropdown(e.target.value);
+  });
+  document.getElementById('schedAttendeeSearch')?.addEventListener('focus', e => {
+    renderSchedAttendeeDropdown(e.target.value);
   });
 
   // Assign modal

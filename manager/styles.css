@@ -1317,6 +1317,8 @@ h1, h2, h3, p { margin: 0; }
   background: rgba(8, 8, 20, 0.5);
   backdrop-filter: blur(2px);
 }
+/* 회의 상세 패널(z-index 200/201) 안에서 열리는 수락 모달은 그 위에 표시 */
+#acceptModal { z-index: 250; }
 
 .modal-card {
   width: min(520px, 100%);
@@ -1614,6 +1616,17 @@ h1, h2, h3, p { margin: 0; }
   outline: none;
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* 회의 등록 모달: 제목/날짜/회의실 입력칸을 활성 입력처럼 표시 (참석자 칸과 통일) */
+#scheduleMeetingModal .form-stack input,
+#scheduleMeetingModal .form-stack select {
+  background: #fff;
+  border-color: #d1d5db;
+}
+#scheduleMeetingModal .form-stack input:hover,
+#scheduleMeetingModal .form-stack select:hover {
+  border-color: #9ca3af;
+}
 
 .btn-row { display: flex; justify-content: flex-end; gap: 8px; }
 
@@ -4051,6 +4064,19 @@ h1, h2, h3, p { margin: 0; }
 
 .form-field textarea { resize: vertical; min-height: 80px; padding: 10px 12px; }
 
+/* 회의록 저장 모달: 제목/내용 등 입력칸을 활성 입력처럼 표시 (참석자 칸과 통일) */
+#meetingSaveModal .form-field input,
+#meetingSaveModal .form-field select,
+#meetingSaveModal .form-field textarea {
+  background: #fff;
+  border-color: #d1d5db;
+}
+#meetingSaveModal .form-field input:hover,
+#meetingSaveModal .form-field select:hover,
+#meetingSaveModal .form-field textarea:hover {
+  border-color: #9ca3af;
+}
+
 /* ─── Work Request Priority Radio ─── */
 .wr-team-display {
   font-size: 13px;
@@ -4633,12 +4659,8 @@ h1, h2, h3, p { margin: 0; }
   border: 1px solid #e5e7eb;
 }
 .action-item-row.done .action-item-text-label { text-decoration: line-through; color: #9ca3af; }
-.action-check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.action-item-text-label {
   flex: 1;
-  cursor: pointer;
   font-size: 13px;
   color: #111827;
 }
@@ -4739,9 +4761,9 @@ h1, h2, h3, p { margin: 0; }
 /* ─── Action Assignee Picker ────────────────────────────────────────────── */
 .action-assignee-picker {
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  background: #f9fafb;
+  background: #fff;
   padding: 0 10px;
   display: flex;
   align-items: center;
@@ -4751,6 +4773,7 @@ h1, h2, h3, p { margin: 0; }
   flex: 1;
   min-width: 0;
 }
+.action-assignee-picker:hover { border-color: #9ca3af; }
 .action-assignee-picker:focus-within { border-color: #111827; background: #fff; }
 
 .form-field .action-assignee-search,
@@ -4785,9 +4808,9 @@ h1, h2, h3, p { margin: 0; }
 /* ─── Attendee Picker ────────────────────────────────────────────────────── */
 .attendee-picker {
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  background: #f9fafb;
+  background: #fff;
   padding: 0 12px;
   display: flex;
   align-items: center;
@@ -4795,6 +4818,7 @@ h1, h2, h3, p { margin: 0; }
   cursor: text;
   transition: border-color 0.15s, background 0.15s;
 }
+.attendee-picker:hover { border-color: #9ca3af; }
 .attendee-picker:focus-within { border-color: #111827; background: #fff; }
 
 /* override .form-field input rule that would add inner border */
@@ -4813,7 +4837,7 @@ h1, h2, h3, p { margin: 0; }
 .attendee-search::placeholder { color: #9ca3af; }
 
 .attendee-chevron {
-  color: #9ca3af;
+  color: #6b7280;
   flex-shrink: 0;
   pointer-events: none;
 }
