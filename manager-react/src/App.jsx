@@ -188,9 +188,9 @@ export default function App() {
             role={role}
             assignmentRequests={assignmentRequests}
             teamMembers={teamMembers}
-            workItems={workItems}
-            sessions={sessions}
             currentUser={currentUser}
+            processes={processes}
+            onUpdateAssignmentRequests={setAssignmentRequests}
           />
         )}
         {activePage === 'process' && (

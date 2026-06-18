@@ -6,13 +6,55 @@ export const currentUser = {
 };
 
 export const teamMembers = [
-  { id: 'u-1', name: 'Jihye', role: 'UI/UX Designer', team: '디자인팀', onLeave: false, leaveType: null },
-  { id: 'u-2', name: '이나경', role: 'Brand Designer', team: '디자인팀', onLeave: false, leaveType: null },
-  { id: 'u-3', name: '박서연', role: 'Motion Designer', team: '디자인팀', onLeave: false, leaveType: null },
-  { id: 'u-4', name: '김도현', role: 'UX Researcher', team: '디자인팀', onLeave: true, leaveType: '오전 반차' },
-  { id: 'u-5', name: '최유진', role: 'Product Designer', team: '디자인팀', onLeave: false, leaveType: null },
-  { id: 'u-6', name: '정하은', role: 'Visual Designer', team: '디자인팀', onLeave: false, leaveType: null },
-  { id: 'u-7', name: '장준혁', role: 'Design Lead', team: '디자인팀', onLeave: false, leaveType: null },
+  { id: 'u-1', name: 'Jihye', role: 'UI/UX Designer', team: '디자인팀', onLeave: false, leaveType: null,
+    weekWorkItems: [
+      { title: '앱 온보딩 화면 긴급 수정', type: '긴급', done: true },
+      { title: '이벤트 배너 긴급 제작', type: '긴급', done: true },
+      { title: '메인 홈 리디자인', type: '일반', done: false },
+      { title: '디자인 리뷰 미팅', type: '고정', done: true },
+    ]},
+  { id: 'u-2', name: '이나경', role: 'Brand Designer', team: '디자인팀', onLeave: false, leaveType: null,
+    weekWorkItems: [
+      { title: '브랜드 가이드라인 갱신', type: '일반', done: true },
+      { title: '로고 변형안 시안 제작', type: '일반', done: true },
+      { title: '컬러 팔레트 정리', type: '고정', done: false },
+    ]},
+  { id: 'u-3', name: '박서연', role: 'Motion Designer', team: '디자인팀', onLeave: false, leaveType: null,
+    weekWorkItems: [
+      { title: '앱 전환 애니메이션 제작', type: '긴급', done: false },
+      { title: '로딩 인터랙션 개선', type: '일반', done: false },
+    ]},
+  { id: 'u-4', name: '김도현', role: 'UX Researcher', team: '디자인팀', onLeave: true, leaveType: '오전 반차',
+    weekWorkItems: [
+      { title: '사용자 인터뷰 분석', type: '고정', done: true },
+      { title: '경쟁사 UX 리서치', type: '일반', done: false },
+    ]},
+  { id: 'u-5', name: '최유진', role: 'Product Designer', team: '디자인팀', onLeave: false, leaveType: null,
+    weekWorkItems: [
+      { title: '신규 서비스 와이어프레임', type: '일반', done: true },
+      { title: '프로토타입 사용성 검토', type: '일반', done: true },
+      { title: '플로우 차트 정리', type: '일반', done: true },
+      { title: '화면 설계서 업데이트', type: '긴급', done: false },
+    ]},
+  { id: 'u-6', name: '정하은', role: 'Visual Designer', team: '디자인팀', onLeave: false, leaveType: null,
+    weekWorkItems: [
+      { title: 'SNS 카드뉴스 시리즈 제작', type: '일반', done: true },
+      { title: '이벤트 페이지 비주얼', type: '일반', done: true },
+      { title: '일러스트 에셋 정리', type: '고정', done: true },
+      { title: '브로셔 최종 인쇄본 확인', type: '일반', done: true },
+    ]},
+  { id: 'u-7', name: '장준혁', role: 'Design Lead', team: '디자인팀', onLeave: false, leaveType: null,
+    weekWorkItems: [
+      { title: '주간 디자인 방향 조율', type: '고정', done: true },
+      { title: '디자인 QA 점검', type: '일반', done: false },
+      { title: '클라이언트 미팅 준비', type: '긴급', done: false },
+    ]},
+  { id: 'u-8', name: '윤소이', role: 'UI Designer', team: '디자인팀', onLeave: true, leaveType: '연차',
+    weekWorkItems: [
+      { title: '컴포넌트 라이브러리 업데이트', type: '고정', done: false },
+      { title: '다크모드 시안 작업', type: '일반', done: false },
+      { title: '아이콘 세트 리뉴얼', type: '일반', done: false },
+    ]},
 ];
 
 export const workItems = [
