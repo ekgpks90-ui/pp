@@ -1001,7 +1001,9 @@ function renderDetailPanel() {
   if (item.type === '회의') {
     const meeting = state.meetings.find(m => m.id === item.sourceMeetingId);
     const hasNotes = meeting && (meeting.summary || (meeting.aiPoints && meeting.aiPoints.length));
-    const meetingType = meeting ? meeting.type : (item.scheduled ? '예정' : '-');
+    const meetingType = meeting ? meeting.type
+      : (item.meetingType ? `${item.meetingType} · 예정`
+      : (item.scheduled ? '예정' : '-'));
     const meetingRoom = (meeting && meeting.room) || item.room || null;
 
     let meetingHtml = `<div class="detail-form">
@@ -2192,6 +2194,7 @@ function openScheduleMeetingModal() {
   document.getElementById('schedMeetTitle').value = '';
   document.getElementById('schedMeetDate').value = state.today;
   document.getElementById('schedMeetTime').value = '';
+  document.getElementById('schedMeetType').selectedIndex = 0;
   document.getElementById('schedMeetRoom').selectedIndex = 0;
   document.getElementById('schedAttendeeSearch').value = '';
   document.getElementById('schedAttendeeChips').innerHTML = '';
@@ -2237,21 +2240,24 @@ function saveScheduleMeeting(e) {
   const title = document.getElementById('schedMeetTitle').value.trim();
   const date  = document.getElementById('schedMeetDate').value;
   const time  = document.getElementById('schedMeetTime').value;
+  const type  = document.getElementById('schedMeetType').value;
   const room  = document.getElementById('schedMeetRoom').value;
   if (!title || !date) return;
 
   const attendeeNames = _schedAttendees.map(m => m.name);
   const attendeeCount = attendeeNames.length || 1;
+  // 참여자 = 등록자 + 선택한 참석자 (중복 제거)
+  const participants = [state.currentUser.name, ...attendeeNames.filter(n => n !== state.currentUser.name)];
 
   // 회의 등록은 "예정(요청)" 상태 — 녹음으로 진행된 회의가 아니므로
   // 미팅룸 회의 목록(회의록)에는 추가하지 않는다.
 
-  // 1) 이번 주 업무항목에 예정 회의 자동 배치
+  // 1) 참여자 이번 주 업무항목에 예정 회의 자동 배치
   state.workItems.push({
     id: `wi-mtg-${Date.now()}`,
     title, start: date, end: date, type: '회의',
-    meetingTime: time, room, scheduled: true,
-    participants: attendeeNames.length ? attendeeNames : [state.currentUser.name],
+    meetingType: type, meetingTime: time, room, scheduled: true,
+    participants,
   });
 
   // 2) 참여자 알림 생성 (홈)

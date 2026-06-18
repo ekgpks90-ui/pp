@@ -657,16 +657,32 @@
               <input type="time" id="schedMeetTime" />
             </label>
           </div>
-          <label>
-            <span>회의실</span>
-            <select id="schedMeetRoom">
-              <option value="대회의실 A">대회의실 A</option>
-              <option value="대회의실 B">대회의실 B</option>
-              <option value="소회의실 1">소회의실 1</option>
-              <option value="소회의실 2">소회의실 2</option>
-              <option value="화상회의">화상회의</option>
-            </select>
-          </label>
+          <div class="form-row">
+            <label>
+              <span>회의 유형</span>
+              <select id="schedMeetType">
+                <option>주간 회의</option>
+                <option>스프린트 기획</option>
+                <option>회고</option>
+                <option>클라이언트 미팅</option>
+                <option>타팀 협업회의</option>
+                <option>워크샵</option>
+                <option>업무 보고</option>
+                <option>기술 공유</option>
+                <option>기타</option>
+              </select>
+            </label>
+            <label>
+              <span>회의실</span>
+              <select id="schedMeetRoom">
+                <option value="대회의실 A">대회의실 A</option>
+                <option value="대회의실 B">대회의실 B</option>
+                <option value="소회의실 1">소회의실 1</option>
+                <option value="소회의실 2">소회의실 2</option>
+                <option value="화상회의">화상회의</option>
+              </select>
+            </label>
+          </div>
           <div>
             <span class="form-label-text">참석자</span>
             <div class="attendee-picker" id="schedAttendeePicker" style="margin-top:5px">
@@ -708,6 +724,6 @@
       <div class="meeting-detail-body" id="meetingDetailContent"></div>
     </div>
 
-    <script src="./app.js?v=27"></script>
+    <script src="./app.js?v=28"></script>
   </body>
 </html>
