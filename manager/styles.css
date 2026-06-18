@@ -486,6 +486,22 @@ h1, h2, h3, p { margin: 0; }
   letter-spacing: -0.02em;
 }
 
+/* Daily date picker */
+.daily-date-picker {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.daily-date-picker:hover { border-color: var(--soft); }
+.daily-date-picker:focus { border-color: var(--blue); }
+
 /* ─── Col 1: Weekly Tasks ─── */
 .weekly-list {
   flex: 1 1 auto;
@@ -562,7 +578,7 @@ h1, h2, h3, p { margin: 0; }
 .task-item:hover { background: rgba(0, 0, 0, 0.04); }
 .task-item.is-active { background: rgba(74,102,255,0.08); }
 
-.task-edit-btn {
+.task-add-session-btn {
   flex-shrink: 0;
   margin-left: auto;
   display: flex;
@@ -578,8 +594,8 @@ h1, h2, h3, p { margin: 0; }
   opacity: 0;
   transition: opacity 0.12s, background 0.12s, color 0.12s;
 }
-.task-item:hover .task-edit-btn { opacity: 1; }
-.task-edit-btn:hover { background: var(--line); color: var(--text); }
+.task-item:hover .task-add-session-btn { opacity: 1; }
+.task-add-session-btn:hover { background: var(--line); color: var(--text); }
 .task-del-btn {
   flex: 0 0 auto;
   width: 24px;
@@ -752,6 +768,46 @@ h1, h2, h3, p { margin: 0; }
   margin-left: 4px;
   letter-spacing: 0.01em;
 }
+.detail-meeting-link-btn {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px 0;
+  border: 1.5px solid var(--primary);
+  border-radius: 8px;
+  background: white;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+.detail-meeting-link-btn:hover {
+  background: white;
+  color: var(--primary);
+}
+.badge-delayed-sm {
+  display: inline-flex;
+  align-items: center;
+  height: 13px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 9px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.detail-step-row.is-delayed {
+  background: var(--red-soft);
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin: -4px -6px;
+}
+.detail-participant-chip.is-delayed {
+  border-color: var(--red-mid, #f5a6a6);
+}
 
 .empty-state {
   padding: 24px;
@@ -807,6 +863,16 @@ h1, h2, h3, p { margin: 0; }
 .check-btn.done { background: var(--blue); border-color: var(--blue); }
 
 .session-body { flex: 1 1 auto; min-width: 0; }
+
+.session-work-label {
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .session-cat {
   display: inline-flex;
@@ -865,6 +931,16 @@ h1, h2, h3, p { margin: 0; }
   outline: none;
 }
 .session-time-input:focus { border-color: var(--blue); background: var(--bg); }
+.session-time-input.time-readonly {
+  background: transparent;
+  color: var(--muted);
+  cursor: default;
+  border-color: transparent;
+}
+.session-time-input.time-readonly:not([value=""]):not(:placeholder-shown) {
+  color: var(--text);
+}
+.session-time-input.time-readonly::placeholder { color: var(--line); }
 .session-time-input::placeholder { color: var(--soft); }
 .time-error-tooltip {
   position: absolute;
@@ -897,6 +973,7 @@ h1, h2, h3, p { margin: 0; }
   color: var(--soft);
 }
 
+.session-add-btn,
 .session-del-btn {
   flex: 0 0 auto;
   opacity: 0;
@@ -912,9 +989,13 @@ h1, h2, h3, p { margin: 0; }
   white-space: nowrap;
   margin-top: 2px;
 }
+.session-add-btn { font-size: 14px; font-weight: 600; padding: 0 6px; }
+.session-add-btn:hover { color: var(--primary); border-color: var(--primary); }
 .session-del-btn:hover { color: var(--red); border-color: var(--red-mid); }
 
+.session-row:hover .session-add-btn,
 .session-row:hover .session-del-btn,
+.session-row:focus-within .session-add-btn,
 .session-row:focus-within .session-del-btn {
   opacity: 1;
   pointer-events: auto;
@@ -2064,6 +2145,61 @@ h1, h2, h3, p { margin: 0; }
   width: 22px;
   height: 22px;
   font-size: 10px;
+}
+
+.detail-steps-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 8px 0;
+}
+
+.detail-steps-toggle {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--blue);
+  cursor: pointer;
+}
+
+.detail-steps-toggle:hover {
+  text-decoration: underline;
+}
+
+.detail-step-assignees {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detail-step-name {
+  flex-shrink: 0;
+  min-width: 120px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.detail-step-name.is-mine {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.detail-step-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
 }
 
 .detail-session-list {

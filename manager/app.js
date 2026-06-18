@@ -22,12 +22,15 @@ const state = {
   pendingLeaveCancelId: null,
   editingSessionId: null,
   editingSessionOriginalTitle: null,
+  pendingNewSessionId: null,
+  pendingNewSessionSourceId: null,
   editingSessionTimeId: null,
   weekOffset: 0,
   drawerActiveDay: 0,
   drawerDayTasks: null,
   inlineAddItemId: null,
   today: _todayISO,
+  dailyViewDate: _todayISO,
   currentPage: 'home',
   calYear: _now.getFullYear(),
   calMonth: _now.getMonth(),
@@ -42,6 +45,7 @@ const state = {
   meetingDetailTab: 'ai', // 'ai' | 'script' | 'actions'
   detailPanelItemId: null,
   detailDraft: null, // { title, type, end, description } — tracks unsaved edits
+  detailShowAllSteps: false,
   currentUser: { id: 'u-1', name: 'Jihye', role: 'Member', team: '디자인팀', onLeave: false, joinDate: '2023-04-03' },
   myPageTab: 'history',
   myPageCalYear: _now.getFullYear(),
@@ -103,53 +107,65 @@ const state = {
   ],
 
   workItems: [
+    // 회의 업무항목
+    { id: 'wi-mtg-1', title: '디자인 QA 체크포인트', start: '2026-06-18', end: '2026-06-18', type: '회의', meetingTime: '14:30', participants: ['Jihye', '최유진', '박서연', '이나경', '장준혁'], sourceMeetingId: 'mr-12' },
     // 고정업무 — recurringDays: 1=월,2=화,3=수,4=목,5=금, end:null=무기한
     { id: 'wi-1',  title: '주간 디자인 싱크 미팅',  description: '매주 월요일 팀 전체 디자인 방향 및 이번 주 업무 우선순위를 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1],         participants: ['Jihye', '장준혁'] },
     { id: 'wi-2',  title: '일일 작업 기록',          description: '매일 작업 진행 상황을 Figma 및 노션에 기록하고 팀과 공유합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [1,2,3,4,5], participants: ['Jihye'] },
     { id: 'wi-3',  title: '디자인 리뷰 미팅',        description: '화요일·목요일 팀 내 디자인 산출물 리뷰 및 피드백 세션.', start: '2026-06-01', end: null, type: '고정', recurringDays: [2,4],       participants: ['Jihye'] },
     { id: 'wi-4',  title: 'Figma 라이브러리 정리',   description: '매주 금요일 Figma 컴포넌트 및 에셋 라이브러리를 정리·업데이트합니다.', start: '2026-06-01', end: null, type: '고정', recurringDays: [5],         participants: ['Jihye'] },
     // 긴급업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-5',  title: '(주)모아커머스 앱 리뉴얼',       description: '(주)모아커머스 커머스 앱 전면 리뉴얼. 온보딩 UX 개선 및 인터랙션 흐름 수정 포함.', start: '2026-06-11', end: '2026-06-18', type: '긴급', participants: ['Jihye', '최유진', '박서연'], sourceRequestId: 'wr-r1', processId: 'pc-1' },
+    { id: 'wi-5',  title: '(주)모아커머스 앱 리뉴얼',       description: '(주)모아커머스 커머스 앱 전면 리뉴얼. 온보딩 UX 개선 및 인터랙션 흐름 수정 포함.', start: '2026-06-11', end: '2026-06-18', type: '긴급', participants: ['Jihye', '최유진', '박서연', '장준혁'], sourceRequestId: 'wr-r1', processId: 'pc-1',
+      stepAssignees: { 'ps-1-01': ['Jihye', '장준혁'], 'ps-1-02': ['박서연'], 'ps-1-03': ['최유진'], 'ps-1-04': ['최유진'], 'ps-1-05': ['Jihye', '최유진', '박서연', '장준혁'], 'ps-1-06': ['최유진'], 'ps-1-07': ['최유진'], 'ps-1-08': ['Jihye', '최유진', '박서연', '장준혁'], 'ps-1-09': ['최유진'], 'ps-1-10': ['최유진'], 'ps-1-11': ['박서연', '최유진'], 'ps-1-12': ['Jihye', '최유진', '박서연', '장준혁'], 'ps-1-13': ['박서연'], 'ps-1-14': ['최유진', '장준혁'] } },
     // 긴급업무 (업무요청 수락) — 디지털 콘텐츠
-    { id: 'wi-6',  title: '(주)그린푸드 프로모션 배너',      description: '(주)그린푸드 여름 프로모션 SNS 배너 3종 제작. 인스타·페이스북·유튜브 썸네일.', start: '2026-06-12', end: '2026-06-17', type: '긴급', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-r2', processId: 'pc-3' },
+    { id: 'wi-6',  title: '(주)그린푸드 프로모션 배너',      description: '(주)그린푸드 여름 프로모션 SNS 배너 3종 제작. 인스타·페이스북·유튜브 썸네일.', start: '2026-06-12', end: '2026-06-17', type: '긴급', participants: ['Jihye', '정하은', '이나경'], sourceRequestId: 'wr-r2', processId: 'pc-3',
+      stepAssignees: { 'ps-3-01': ['Jihye'], 'ps-3-02': ['정하은', '이나경'], 'ps-3-03': ['정하은'], 'ps-3-04': ['정하은', '이나경'], 'ps-3-05': ['Jihye', '정하은', '이나경'], 'ps-3-06': ['정하은'], 'ps-3-07': ['Jihye', '정하은'], 'ps-3-08': ['정하은'] } },
     // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-7',  title: '테크스타트 서비스 UI/UX',        description: '테크스타트(주) SaaS 서비스 메인 화면 전면 리디자인. 정보 구조 개선 및 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진'], sourceRequestId: 'wr-r3', processId: 'pc-1' },
+    { id: 'wi-7',  title: '테크스타트 서비스 UI/UX',        description: '테크스타트(주) SaaS 서비스 메인 화면 전면 리디자인. 정보 구조 개선 및 비주얼 아이덴티티 적용.', start: '2026-06-09', end: '2026-06-20', type: '일반', participants: ['Jihye', '최유진', '김도현', '장준혁'], sourceRequestId: 'wr-r3', processId: 'pc-1',
+      stepAssignees: { 'ps-1-01': ['Jihye'], 'ps-1-02': ['최유진', '김도현'], 'ps-1-03': ['최유진'], 'ps-1-04': ['최유진'], 'ps-1-05': ['Jihye', '최유진', '김도현', '장준혁'], 'ps-1-06': ['최유진'], 'ps-1-07': ['최유진'], 'ps-1-08': ['Jihye', '최유진', '김도현', '장준혁'], 'ps-1-09': ['최유진'], 'ps-1-10': ['최유진'], 'ps-1-11': ['김도현', '최유진'], 'ps-1-12': ['Jihye', '최유진', '장준혁'], 'ps-1-13': ['최유진'], 'ps-1-14': ['최유진', '장준혁'] } },
     // 일반업무 (직접 추가)
     { id: 'wi-8',  title: '디자인 시스템 컴포넌트 정리', description: '버튼·폼·카드 등 핵심 컴포넌트 Figma 라이브러리 정리 및 스타일 토큰 일원화.', start: '2026-06-02', end: '2026-06-27', type: '일반', participants: ['Jihye'] },
     // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-9',  title: '스카이벤처스 UX 리서치',         description: '스카이벤처스 신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출.', start: '2026-06-10', end: '2026-06-20', type: '일반', participants: ['Jihye', '김도현'], sourceRequestId: 'wr-r4', processId: 'pc-1' },
+    { id: 'wi-9',  title: '스카이벤처스 UX 리서치',         description: '스카이벤처스 신규 서비스 출시 전 사용자 인터뷰 분석 및 페르소나 도출.', start: '2026-06-10', end: '2026-06-20', type: '일반', participants: ['Jihye', '김도현', '최유진', '장준혁'], sourceRequestId: 'wr-r4', processId: 'pc-1',
+      stepAssignees: { 'ps-1-01': ['Jihye'], 'ps-1-02': ['김도현'], 'ps-1-03': ['김도현', '최유진'], 'ps-1-04': ['김도현', '최유진'], 'ps-1-05': ['Jihye', '김도현', '최유진', '장준혁'], 'ps-1-06': ['김도현'], 'ps-1-07': ['김도현', '최유진'], 'ps-1-08': ['Jihye', '김도현', '최유진', '장준혁'], 'ps-1-09': ['김도현'], 'ps-1-10': ['김도현', '최유진'], 'ps-1-11': ['김도현'], 'ps-1-12': ['Jihye', '김도현', '장준혁'], 'ps-1-13': ['김도현'], 'ps-1-14': ['김도현', '장준혁'] } },
     // 일반업무 (업무요청 수락) — 브랜드 & 인쇄물
-    { id: 'wi-10', title: '블루밍헬스 리브랜딩',             description: '블루밍헬스 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-24', type: '일반', participants: ['Jihye', '이나경'], sourceRequestId: 'wr-r5', processId: 'pc-2' },
+    { id: 'wi-10', title: '블루밍헬스 리브랜딩',             description: '블루밍헬스 리브랜딩 프로젝트. 로고·컬러 시스템·타이포그래피 가이드 제작.', start: '2026-06-09', end: '2026-06-24', type: '일반', participants: ['Jihye', '이나경', '정하은', '장준혁'], sourceRequestId: 'wr-r5', processId: 'pc-2',
+      stepAssignees: { 'ps-2-01': ['Jihye'], 'ps-2-02': ['이나경'], 'ps-2-03': ['Jihye', '장준혁'], 'ps-2-04': ['이나경', '정하은'], 'ps-2-05': ['Jihye', '이나경', '정하은', '장준혁'], 'ps-2-06': ['이나경', '정하은'], 'ps-2-07': ['이나경', '정하은'], 'ps-2-08': ['Jihye', '이나경', '정하은', '장준혁'], 'ps-2-09': ['이나경'], 'ps-2-10': ['Jihye', '이나경', '장준혁'], 'ps-2-11': ['이나경'], 'ps-2-12': ['이나경'] } },
     // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-11', title: '핏라이프 모바일 앱',              description: '핏라이프 모바일 앱 주요 화면 UI 개선. 사용성 및 일관성 향상.', start: '2026-06-13', end: '2026-06-23', type: '일반', participants: ['Jihye'], sourceRequestId: 'wr-r6', processId: 'pc-1' },
+    { id: 'wi-11', title: '핏라이프 모바일 앱',              description: '핏라이프 모바일 앱 주요 화면 UI 개선. 사용성 및 일관성 향상.', start: '2026-06-13', end: '2026-06-23', type: '일반', participants: ['Jihye', '최유진', '김도현'], sourceRequestId: 'wr-r6', processId: 'pc-1',
+      stepAssignees: { 'ps-1-01': ['Jihye'], 'ps-1-03': ['Jihye', '최유진'], 'ps-1-05': ['Jihye', '최유진', '김도현'], 'ps-1-08': ['Jihye', '최유진', '김도현'], 'ps-1-12': ['Jihye', '최유진'] } },
     // 일반업무 (업무요청 수락) — 디지털 콘텐츠
-    { id: 'wi-12', title: '핏라이프 랜딩 페이지',            description: '핏라이프 신규 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-r7', processId: 'pc-3' },
+    { id: 'wi-12', title: '핏라이프 랜딩 페이지',            description: '핏라이프 신규 캠페인용 랜딩 페이지 디자인 시안 3종 제작.', start: '2026-06-16', end: '2026-06-24', type: '일반', participants: ['Jihye', '정하은', '이나경'], sourceRequestId: 'wr-r7', processId: 'pc-3',
+      stepAssignees: { 'ps-3-01': ['Jihye'], 'ps-3-02': ['Jihye', '이나경'], 'ps-3-03': ['정하은', '이나경'], 'ps-3-04': ['정하은', '이나경'], 'ps-3-05': ['Jihye', '정하은', '이나경'], 'ps-3-06': ['정하은'], 'ps-3-07': ['Jihye', '정하은'], 'ps-3-08': ['정하은'] } },
     // 일반업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-13', title: '(주)모아커머스 아이콘 세트',      description: '(주)모아커머스 앱 내 아이콘 세트 전면 리뉴얼. 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이'], sourceRequestId: 'wr-r8', processId: 'pc-1' },
+    { id: 'wi-13', title: '(주)모아커머스 아이콘 세트',      description: '(주)모아커머스 앱 내 아이콘 세트 전면 리뉴얼. 90개 아이콘 작업.', start: '2026-06-23', end: '2026-06-30', type: '일반', participants: ['Jihye', '윤소이', '정하은', '장준혁'], sourceRequestId: 'wr-r8', processId: 'pc-1',
+      stepAssignees: { 'ps-1-01': ['Jihye'], 'ps-1-02': ['윤소이'], 'ps-1-03': ['윤소이', '정하은'], 'ps-1-04': ['윤소이', '정하은'], 'ps-1-05': ['Jihye', '윤소이', '정하은', '장준혁'], 'ps-1-06': ['윤소이'], 'ps-1-07': ['윤소이', '정하은'], 'ps-1-08': ['Jihye', '윤소이', '정하은', '장준혁'], 'ps-1-09': ['윤소이'], 'ps-1-10': ['윤소이'], 'ps-1-11': ['윤소이'], 'ps-1-12': ['Jihye', '장준혁'], 'ps-1-13': ['윤소이'], 'ps-1-14': ['윤소이', '장준혁'] } },
     // 반복업무 (직접 추가)
     { id: 'wi-14', title: '주간 업무 보고서 작성',    description: '매주 금요일 팀 주간 업무 현황을 정리하여 보고서를 작성합니다.', start: '2026-06-01', end: null, type: '일반', recurringDays: [5], participants: ['Jihye'] },
     // 긴급 반복업무 (업무요청 수락) — UI/UX 디자인
-    { id: 'wi-15', title: '(주)모아커머스 QA 지원',          description: '(주)모아커머스 앱 출시 전 QA 기간 디자인 버그 긴급 처리.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진'], sourceRequestId: 'wr-r9', processId: 'pc-1' },
+    { id: 'wi-15', title: '(주)모아커머스 QA 지원',          description: '(주)모아커머스 앱 출시 전 QA 기간 디자인 버그 긴급 처리.', start: '2026-06-09', end: '2026-06-20', type: '긴급', recurringDays: [1,2,3,4,5], participants: ['Jihye', '최유진', '장준혁'], sourceRequestId: 'wr-r9', processId: 'pc-1',
+      stepAssignees: { 'ps-1-01': ['Jihye'], 'ps-1-02': ['최유진'], 'ps-1-03': ['최유진'], 'ps-1-04': ['최유진'], 'ps-1-05': ['Jihye', '최유진', '장준혁'], 'ps-1-06': ['최유진'], 'ps-1-07': ['최유진'], 'ps-1-08': ['Jihye', '최유진', '장준혁'], 'ps-1-09': ['최유진'], 'ps-1-10': ['최유진'], 'ps-1-11': ['최유진'], 'ps-1-12': ['Jihye', '최유진', '장준혁'], 'ps-1-13': ['최유진'], 'ps-1-14': ['최유진', '장준혁'] } },
     // 일반업무 (업무요청 수락) — 영상 & 모션
-    { id: 'wi-16', title: '넥스트에듀 서비스 소개 영상',     description: '넥스트에듀(주) 온라인 교육 플랫폼 서비스 소개 영상 60초. 스토리보드부터 최종 편집까지.', start: '2026-06-15', end: '2026-06-25', type: '일반', participants: ['Jihye', '박서연'], sourceRequestId: 'wr-r10', processId: 'pc-4' },
+    { id: 'wi-16', title: '넥스트에듀 서비스 소개 영상',     description: '넥스트에듀(주) 온라인 교육 플랫폼 서비스 소개 영상 60초. 스토리보드부터 최종 편집까지.', start: '2026-06-15', end: '2026-06-25', type: '일반', participants: ['Jihye', '박서연', '정하은', '장준혁'], sourceRequestId: 'wr-r10', processId: 'pc-4',
+      stepAssignees: { 'ps-4-01': ['Jihye'], 'ps-4-02': ['박서연', '정하은'], 'ps-4-03': ['Jihye', '박서연', '정하은', '장준혁'], 'ps-4-04': ['박서연'], 'ps-4-05': ['박서연'], 'ps-4-06': ['박서연'], 'ps-4-07': ['Jihye', '박서연', '정하은', '장준혁'], 'ps-4-08': ['박서연'], 'ps-4-09': ['Jihye', '박서연', '장준혁'], 'ps-4-10': ['박서연'] } },
     // 일반업무 (업무요청 수락) — 브랜드 & 인쇄물
-    { id: 'wi-17', title: '하이브뷰티 제품 카탈로그',        description: '하이브뷰티 2026 S/S 제품 카탈로그 32p 디자인. 인쇄 및 PDF 납품.', start: '2026-06-12', end: '2026-06-20', type: '일반', participants: ['Jihye', '이나경', '정하은'], sourceRequestId: 'wr-r11', processId: 'pc-2' },
+    { id: 'wi-17', title: '하이브뷰티 제품 카탈로그',        description: '하이브뷰티 2026 S/S 제품 카탈로그 32p 디자인. 인쇄 및 PDF 납품.', start: '2026-06-12', end: '2026-06-20', type: '일반', participants: ['Jihye', '이나경', '정하은', '장준혁'], sourceRequestId: 'wr-r11', processId: 'pc-2',
+      stepAssignees: { 'ps-2-01': ['Jihye'], 'ps-2-02': ['이나경'], 'ps-2-03': ['Jihye', '장준혁'], 'ps-2-04': ['이나경', '정하은'], 'ps-2-05': ['Jihye', '이나경', '정하은', '장준혁'], 'ps-2-06': ['이나경', '정하은'], 'ps-2-07': ['이나경', '정하은'], 'ps-2-08': ['Jihye', '이나경', '정하은', '장준혁'], 'ps-2-09': ['정하은'], 'ps-2-10': ['Jihye', '장준혁'], 'ps-2-11': ['이나경'], 'ps-2-12': ['정하은'] } },
     // 5월 업무
     { id: 'wi-m1', title: '디자인 시스템 v2 구축',        description: '버튼·폼·카드·모달 등 핵심 컴포넌트 전면 개편. Figma 토큰 일원화 및 다크모드 대응 포함.', start: '2026-05-01', end: '2026-05-23', type: '일반', participants: ['Jihye', '윤소이', '이나경'] },
     { id: 'wi-m2', title: 'Q2 사용자 리서치',             description: '2분기 신규 서비스 출시 전 사용자 인터뷰 12건 진행 및 페르소나 재정립.', start: '2026-05-06', end: '2026-05-16', type: '일반', participants: ['Jihye', '김도현'] },
     { id: 'wi-m3', title: '모바일 앱 리뉴얼 1차 시안',    description: '기존 모바일 앱 전면 리뉴얼. 네비게이션 구조 개선 및 신규 비주얼 아이덴티티 적용 1차 시안 제작.', start: '2026-05-12', end: '2026-05-30', type: '일반', participants: ['Jihye', '최유진'] },
-    { id: 'wi-m4', title: '(주)그린푸드 캠페인 소재 제작',  description: '(주)그린푸드 5월 프로모션용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-m4', processId: 'pc-3' },
+    { id: 'wi-m4', title: '(주)그린푸드 캠페인 소재 제작',  description: '(주)그린푸드 5월 프로모션용 SNS 배너·썸네일·스토리 소재 긴급 제작.', start: '2026-05-19', end: '2026-05-23', type: '긴급', participants: ['Jihye', '정하은'], sourceRequestId: 'wr-m4', processId: 'pc-3',
+      stepAssignees: { 'ps-3-01': ['Jihye'], 'ps-3-02': ['Jihye'], 'ps-3-03': ['정하은'], 'ps-3-04': ['정하은'], 'ps-3-05': ['Jihye', '정하은'], 'ps-3-06': ['정하은'], 'ps-3-07': ['Jihye'], 'ps-3-08': ['정하은'] } },
     { id: 'wi-m5', title: '신규 온보딩 플로우 설계',      description: '신규 가입자 온보딩 UX 개선. 단계 축소 및 인터랙션 개선안 설계.', start: '2026-05-26', end: '2026-06-06', type: '일반', participants: ['Jihye', '최유진'] },
   ],
 
   sessions: [
     // ── 오늘(동적) Jihye 세션 ──────────────────────────────────────────────
-    { id: 'ws-1', workItemId: 'wi-7',  stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: '2차 피드백 반영 정리',     startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-2', workItemId: 'wi-6',  stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: '배너 최종 시안 확정',       startTime: '', endTime: '', done: false },
-    { id: 'ws-3', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '콘셉트 확정',               startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-4', workItemId: 'wi-16', stepId: 'ps-4-02', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '스토리보드 초안 작성',       startTime: '13:00', endTime: '15:00', done: false },
-    { id: 'ws-5', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: '카탈로그 1차 수정 반영',     startTime: '15:30', endTime: '17:30', done: false },
-    { id: 'ws-6', workItemId: 'wi-15', stepId: 'ps-1-14', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '디자인', title: 'QA 버그 수정',               startTime: '', endTime: '', done: false },
+    { id: 'ws-1', workItemId: 'wi-9',  stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '최종 디자인 확정',     startTime: '', endTime: '', done: false },
+    { id: 'ws-2', workItemId: 'wi-5',  stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '최종 디자인 확정',           startTime: '', endTime: '', done: false },
+    { id: 'ws-3', workItemId: 'wi-16', stepId: 'ps-4-03', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '1차 피드백',            startTime: '', endTime: '', done: false },
+    { id: 'ws-4', workItemId: 'wi-15', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: _todayISO, category: '기획',   title: '1차 피드백',             startTime: '', endTime: '', done: false },
     // ── 과거 세션 — 히스토리 캘린더용 ──────────────────────────────────────
     // 06/02 (월)
     { id: 'ws-h1',  workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-02', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
@@ -166,35 +182,42 @@ const state = {
     { id: 'ws-h8',  workItemId: 'wi-2',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-06', category: '기획',   title: '일일 작업 기록',            startTime: '17:00', endTime: '17:30', done: true },
     // 06/09 (월)
     { id: 'ws-h9',  workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h10', workItemId: 'wi-7',  stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '테크스타트 킥오프 브리핑',   startTime: '10:30', endTime: '12:30', done: true },
-    { id: 'ws-h11', workItemId: 'wi-10', stepId: 'ps-2-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '블루밍헬스 브리핑 & 계약',   startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-h10', workItemId: 'wi-7',  stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '브리핑 & 계약',   startTime: '10:30', endTime: '12:30', done: true },
+    { id: 'ws-h11', workItemId: 'wi-10', stepId: 'ps-2-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-09', category: '기획',   title: '브리핑 & 계약',   startTime: '14:00', endTime: '17:00', done: true },
     // 06/10 (화)
     { id: 'ws-h12', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '디자인', title: '디자인 리뷰 — 컴포넌트',    startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h13', workItemId: 'wi-9',  stepId: 'ps-1-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '리서치', title: '사용자 인터뷰 녹취 분석',   startTime: '09:00', endTime: '11:30', done: true },
-    { id: 'ws-h14', workItemId: 'wi-7',  stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '기획',   title: 'IA 설계 초안 작업',          startTime: '13:00', endTime: '16:00', done: true },
+    { id: 'ws-h13', workItemId: 'wi-9',  stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '기획',   title: '브리핑 & 계약', startTime: '09:00', endTime: '11:30', done: true },
+    { id: 'ws-h14', workItemId: 'wi-7',  stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-10', category: '기획',   title: '1차 피드백',       startTime: '12:00', endTime: '14:00', done: true },
     // 06/11 (수)
-    { id: 'ws-h15', workItemId: 'wi-5',  stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '와이어프레임 제작',          startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-h16', workItemId: 'wi-5',  stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '수정 범위 정리 및 공유',    startTime: '11:30', endTime: '13:00', done: true },
-    { id: 'ws-h17', workItemId: 'wi-10', stepId: 'ps-2-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '브랜드 콘셉트 기획',         startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-h15', workItemId: 'wi-5',  stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '1차 피드백',            startTime: '09:00', endTime: '10:30', done: true },
+    { id: 'ws-h16', workItemId: 'wi-5',  stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '브리핑 & 계약',    startTime: '12:00', endTime: '13:00', done: true },
+    { id: 'ws-h17', workItemId: 'wi-10', stepId: 'ps-2-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '콘셉트 기획',         startTime: '14:00', endTime: '17:00', done: true },
     // 06/12 (목)
+    { id: 'ws-h17a', workItemId: 'wi-6', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '기획',   title: '브리핑 & 계약',         startTime: '08:00', endTime: '09:00', done: true },
     { id: 'ws-h18', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '디자인 리뷰 — 앱·브랜딩',   startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h19', workItemId: 'wi-6',  stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '배너 초안 3종 제작',        startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-h20', workItemId: 'wi-9',  stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '리서치', title: '페르소나 초안 작성',        startTime: '16:00', endTime: '17:30', done: true },
+    { id: 'ws-h19', workItemId: 'wi-6',  stepId: 'ps-3-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '기획',   title: '1차 피드백',      startTime: '09:00', endTime: '10:00', done: true },
+    { id: 'ws-h20', workItemId: 'wi-9',  stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '기획',   title: '1차 피드백',      startTime: '15:30', endTime: '16:30', done: true },
+    { id: 'ws-h20a', workItemId: 'wi-17', stepId: 'ps-2-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '기획',   title: '브리핑 & 계약',    startTime: '13:00', endTime: '14:00', done: true },
     // 06/13 (금)
-    { id: 'ws-h21', workItemId: 'wi-5', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '1차 UI 디자인 작업',        startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-h22', workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '카탈로그 표지 시안 제작',    startTime: '13:00', endTime: '16:00', done: true },
-    { id: 'ws-h23', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '핏라이프 IA 설계',           startTime: '16:30', endTime: '18:00', done: true },
+    { id: 'ws-h21', workItemId: 'wi-5', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '2차 피드백',            startTime: '09:00', endTime: '10:30', done: true },
+    { id: 'ws-h22', workItemId: 'wi-17', stepId: 'ps-2-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '콘셉트 기획',       startTime: '13:00', endTime: '14:00', done: true },
+    { id: 'ws-h23', workItemId: 'wi-11', stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '브리핑 & 계약',     startTime: '17:00', endTime: '18:00', done: true },
     // 06/15 (월 — 이번 주)
     { id: 'ws-h24', workItemId: 'wi-1',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '주간 디자인 싱크 진행',     startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h25', workItemId: 'wi-7',  stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '1차 UI 디자인 계속',        startTime: '10:00', endTime: '13:00', done: true },
-    { id: 'ws-h26', workItemId: 'wi-16', stepId: 'ps-4-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '넥스트에듀 킥오프 브리핑',   startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h27', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '로고 시안 1차 제작',        startTime: '16:00', endTime: '18:00', done: true },
+    { id: 'ws-h25', workItemId: 'wi-7',  stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '2차 피드백',            startTime: '10:00', endTime: '11:30', done: true },
+    { id: 'ws-h26', workItemId: 'wi-16', stepId: 'ps-4-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '브리핑 & 계약',   startTime: '14:30', endTime: '15:30', done: true },
+    { id: 'ws-h27', workItemId: 'wi-10', stepId: 'ps-2-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '1차 피드백',          startTime: '16:30', endTime: '18:00', done: true },
     // 06/16 (화)
-    { id: 'ws-h28', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '디자인 리뷰 — UI·카탈로그',  startTime: '14:00', endTime: '15:30', done: true },
-    { id: 'ws-h29', workItemId: 'wi-12', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '핏라이프 랜딩 브리핑',       startTime: '09:00', endTime: '10:00', done: true },
-    { id: 'ws-h30', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '콘셉트 기획',               startTime: '10:00', endTime: '12:00', done: true },
-    { id: 'ws-h31', workItemId: 'wi-5',  stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '2차 피드백 반영 정리',      startTime: '16:00', endTime: '18:00', done: true },
-    { id: 'ws-h32', workItemId: 'wi-17', stepId: 'ps-2-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '카탈로그 1차 피드백 수집',   startTime: '13:00', endTime: '14:00', done: true },
+    { id: 'ws-h28', workItemId: 'wi-3',  authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '디자인 리뷰 — UI·카탈로그',  startTime: '14:00', endTime: '15:00', done: true },
+    { id: 'ws-h29', workItemId: 'wi-12', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '브리핑 & 계약',       startTime: '09:00', endTime: '09:30', done: true },
+    { id: 'ws-h30', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '콘셉트 기획',               startTime: '12:00', endTime: '13:00', done: true },
+    { id: 'ws-h31', workItemId: 'wi-5',  stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '2차 피드백',      startTime: '17:00', endTime: '18:00', done: true },
+    { id: 'ws-h32', workItemId: 'wi-17', stepId: 'ps-2-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '1차 피드백',   startTime: '13:30', endTime: '14:00', done: true },
+    // 06/17 (수)
+    { id: 'ws-h33', workItemId: 'wi-6',  stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '디자인', title: '최종 디자인 확정',        startTime: '09:00', endTime: '10:00', done: true },
+    { id: 'ws-h34', workItemId: 'wi-15', stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '브리핑 & 계약',           startTime: '12:00', endTime: '13:00', done: true },
+    { id: 'ws-h35', workItemId: 'wi-15', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '2차 피드백',          startTime: '14:30', endTime: '16:00', done: true },
+    { id: 'ws-h36', workItemId: 'wi-15', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '최종 디자인 확정',           startTime: '16:00', endTime: '17:00', done: true },
     // 5월 세션
     // 05-01 (금)
     { id: 'ws-m01', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-01', category: '디자인', title: '디자인 시스템 현황 분석 및 개선 방향 정리', startTime: '09:30', endTime: '12:00', done: true },
@@ -225,17 +248,17 @@ const state = {
     { id: 'ws-m18', workItemId: 'wi-m2', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-15', category: '리서치', title: '페르소나 3종 도출 및 공유',                startTime: '10:00', endTime: '12:30', done: true },
     { id: 'ws-m19', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-15', category: '디자인', title: '마이페이지 화면 시안 제작',                startTime: '14:00', endTime: '17:00', done: true },
     // 05-19 (월)
-    { id: 'ws-m20', workItemId: 'wi-m4', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '기획',   title: '캠페인 소재 컨셉 기획',                    startTime: '09:00', endTime: '10:30', done: true },
-    { id: 'ws-m21', workItemId: 'wi-m4', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: 'SNS 배너 1차 시안 3종 제작',               startTime: '11:00', endTime: '14:00', done: true },
+    { id: 'ws-m20', workItemId: 'wi-m4', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '기획',   title: '브리핑 & 계약',                    startTime: '09:00', endTime: '10:30', done: true },
+    { id: 'ws-m21', workItemId: 'wi-m4', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: '콘셉트 기획',               startTime: '11:00', endTime: '14:00', done: true },
     { id: 'ws-m22', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-19', category: '디자인', title: '온보딩 화면 시안 수정',                    startTime: '15:00', endTime: '17:00', done: true },
     // 05-20 (화)
-    { id: 'ws-m23', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '디자인', title: '배너 피드백 반영 및 2차 수정',             startTime: '09:30', endTime: '12:00', done: true },
+    { id: 'ws-m23', workItemId: 'wi-m4', stepId: 'ps-3-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '기획',   title: '1차 피드백',                    startTime: '09:30', endTime: '12:00', done: true },
     { id: 'ws-m24', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-20', category: '디자인', title: '디자인 시스템 QA 검토',                    startTime: '14:00', endTime: '17:00', done: true },
     // 05-21 (수)
-    { id: 'ws-m25', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '디자인', title: '스토리·썸네일 소재 제작',                  startTime: '09:00', endTime: '12:30', done: true },
+    { id: 'ws-m25', workItemId: 'wi-m4', stepId: 'ps-3-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '기획',   title: '1차 피드백',                    startTime: '09:00', endTime: '12:30', done: true },
     { id: 'ws-m26', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-21', category: '기획',   title: '앱 화면 흐름도 최종 정리',                startTime: '14:00', endTime: '16:00', done: true },
     // 05-22 (목)
-    { id: 'ws-m27', workItemId: 'wi-m4', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '캠페인 소재 최종 납품',                    startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-m27', workItemId: 'wi-m4', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '최종 디자인 확정',                    startTime: '09:00', endTime: '11:00', done: true },
     { id: 'ws-m28', workItemId: 'wi-m1', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-22', category: '디자인', title: '디자인 시스템 Figma 배포',                 startTime: '13:00', endTime: '16:00', done: true },
     // 05-23 (금)
     { id: 'ws-m29', workItemId: 'wi-m3', authorId: 'u-1', authorName: 'Jihye', date: '2026-05-23', category: '디자인', title: '모바일 앱 시안 내부 리뷰',                 startTime: '14:00', endTime: '16:00', done: true },
@@ -257,135 +280,132 @@ const state = {
 
     // ─── 팀원 세션 (간트 캘린더용) ─────────────────────────────────────
     // wi-5 (주)모아커머스 앱 리뉴얼 — 최유진, 박서연
-    { id: 'ws-t01', workItemId: 'wi-5', stepId: 'ps-1-11', authorId: 'u-3', authorName: '최유진', date: '2026-06-12', category: '리서치', title: '사용성 테스트 진행',        startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t02', workItemId: 'wi-5', stepId: 'ps-1-14', authorId: 'u-3', authorName: '최유진', date: '2026-06-14', category: '디자인', title: '디자인 QA 검수',             startTime: '10:00', endTime: '13:00', done: true },
-    { id: 'ws-t03', workItemId: 'wi-5', stepId: 'ps-1-12', authorId: 'u-4', authorName: '박서연', date: '2026-06-13', category: '디자인', title: '최종 디자인 확정 참여',      startTime: '14:00', endTime: '17:00', done: false },
+    { id: 'ws-t01', workItemId: 'wi-5', stepId: 'ps-1-11', authorId: 'u-5', authorName: '최유진', date: '2026-06-12', category: '리서치', title: '사용성 테스트',        startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t02', workItemId: 'wi-5', stepId: 'ps-1-14', authorId: 'u-5', authorName: '최유진', date: '2026-06-14', category: '디자인', title: '디자인 QA',             startTime: '10:00', endTime: '13:00', done: true },
+    { id: 'ws-t03', workItemId: 'wi-5', stepId: 'ps-1-12', authorId: 'u-3', authorName: '박서연', date: '2026-06-13', category: '디자인', title: '최종 디자인 확정',      startTime: '14:00', endTime: '17:00', done: false },
     // wi-5 Jihye 추가 (06/12, 06/14 커버)
-    { id: 'ws-t04', workItemId: 'wi-5', stepId: 'ps-1-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '프로토타입 수정',             startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t05', workItemId: 'wi-5', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '개발 핸드오프 준비',          startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t04', workItemId: 'wi-5', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '기획',   title: '2차 피드백',             startTime: '10:00', endTime: '11:00', done: true },
+    { id: 'ws-t05', workItemId: 'wi-5', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '기획',   title: '최종 디자인 확정',            startTime: '09:00', endTime: '10:30', done: true },
 
     // wi-6 (주)그린푸드 프로모션 배너 — 정하은
-    { id: 'ws-t06', workItemId: 'wi-6', stepId: 'ps-3-07', authorId: 'u-5', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '배너 최종 확인',             startTime: '10:00', endTime: '12:00', done: false },
-    { id: 'ws-t07', workItemId: 'wi-6', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '파일 납품 정리',             startTime: '14:00', endTime: '16:00', done: false },
+    { id: 'ws-t06', workItemId: 'wi-6', stepId: 'ps-3-07', authorId: 'u-6', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '최종 디자인 확정',             startTime: '10:00', endTime: '12:00', done: false },
+    { id: 'ws-t07', workItemId: 'wi-6', stepId: 'ps-3-08', authorId: 'u-6', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '파일 납품',             startTime: '14:00', endTime: '16:00', done: false },
 
     // wi-7 테크스타트 서비스 UI/UX — 최유진 + Jihye 추가
-    { id: 'ws-t08', workItemId: 'wi-7', stepId: 'ps-1-02', authorId: 'u-3', authorName: '최유진', date: '2026-06-09', category: '리서치', title: '경쟁사 UI 분석',             startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t09', workItemId: 'wi-7', stepId: 'ps-1-02', authorId: 'u-3', authorName: '최유진', date: '2026-06-10', category: '리서치', title: '사용자 리서치 정리',         startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t10', workItemId: 'wi-7', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '디자인', title: '메인 와이어프레임 작업',     startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t11', workItemId: 'wi-7', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '서브 와이어프레임 작업',     startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t12', workItemId: 'wi-7', stepId: 'ps-1-05', authorId: 'u-3', authorName: '최유진', date: '2026-06-12', category: '기획',   title: '1차 피드백 정리',             startTime: '14:00', endTime: '16:00', done: true },
-    { id: 'ws-t13', workItemId: 'wi-7', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '1차 수정 반영',               startTime: '16:00', endTime: '18:00', done: true },
-    { id: 'ws-t14', workItemId: 'wi-7', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '1차 수정 마무리',             startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-t15', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '1차 UI 디자인 시작',          startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t16', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '1차 UI 디자인 계속',          startTime: '10:00', endTime: '16:00', done: false },
-    { id: 'ws-t17', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-3', authorName: '최유진', date: '2026-06-14', category: '디자인', title: '서브 페이지 UI 작업',         startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t18', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-3', authorName: '최유진', date: '2026-06-16', category: '디자인', title: '서브 페이지 UI 마무리',       startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t19', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-3', authorName: '최유진', date: '2026-06-16', category: '기획',   title: '2차 피드백 정리',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t20', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-3', authorName: '최유진', date: '2026-06-17', category: '기획',   title: '2차 피드백 반영 정리',        startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t21', workItemId: 'wi-7', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '디자인', title: '2차 수정 반영',               startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t22', workItemId: 'wi-7', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '2차 수정 마무리',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t23', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '최종 디자인 확정',            startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t24', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-3', authorName: '최유진', date: '2026-06-19', category: '디자인', title: '최종 디자인 검토',            startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t25', workItemId: 'wi-7', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '개발 핸드오프',               startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t26', workItemId: 'wi-7', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '핸드오프 마무리',             startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t08', workItemId: 'wi-7', stepId: 'ps-1-02', authorId: 'u-5', authorName: '최유진', date: '2026-06-09', category: '리서치', title: '리서치 (사용자/경쟁사)',             startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t09', workItemId: 'wi-7', stepId: 'ps-1-02', authorId: 'u-5', authorName: '최유진', date: '2026-06-10', category: '리서치', title: '리서치 (사용자/경쟁사)',         startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t10', workItemId: 'wi-7', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-11', category: '기획',   title: '1차 피드백',       startTime: '10:30', endTime: '12:00', done: true },
+    { id: 'ws-t11', workItemId: 'wi-7', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '기획',   title: '1차 피드백',             startTime: '11:00', endTime: '12:00', done: true },
+    { id: 'ws-t12', workItemId: 'wi-7', stepId: 'ps-1-05', authorId: 'u-5', authorName: '최유진', date: '2026-06-12', category: '기획',   title: '1차 피드백',             startTime: '14:00', endTime: '16:00', done: true },
+    { id: 'ws-t14', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '2차 피드백',             startTime: '10:30', endTime: '11:00', done: false },
+    { id: 'ws-t17', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-5', authorName: '최유진', date: '2026-06-14', category: '디자인', title: '1차 UI 디자인',         startTime: '09:00', endTime: '17:00', done: false },
+    { id: 'ws-t18', workItemId: 'wi-7', stepId: 'ps-1-07', authorId: 'u-5', authorName: '최유진', date: '2026-06-16', category: '디자인', title: '1차 UI 디자인',       startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t19', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-5', authorName: '최유진', date: '2026-06-16', category: '기획',   title: '2차 피드백',             startTime: '14:00', endTime: '17:00', done: false },
+    { id: 'ws-t20', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-5', authorName: '최유진', date: '2026-06-17', category: '기획',   title: '2차 피드백',        startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t21', workItemId: 'wi-7', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '2차 피드백',       startTime: '13:00', endTime: '14:30', done: false },
+    { id: 'ws-t22', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '기획',   title: '최종 디자인 확정',      startTime: '', endTime: '', done: false },
+    { id: 'ws-t24', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-5', authorName: '최유진', date: '2026-06-19', category: '디자인', title: '최종 디자인 확정',            startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t25', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '기획',   title: '최종 디자인 확정',  startTime: '14:00', endTime: '15:00', done: false },
+    { id: 'ws-t26', workItemId: 'wi-7', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '기획',   title: '최종 디자인 확정', startTime: '09:00', endTime: '10:00', done: false },
 
     // wi-9 스카이벤처스 UX 리서치 — 김도현 + Jihye 추가
-    { id: 'ws-t27', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-6', authorName: '김도현', date: '2026-06-10', category: '리서치', title: '사용자 인터뷰 1차',          startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t28', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-6', authorName: '김도현', date: '2026-06-11', category: '리서치', title: '사용자 인터뷰 2차',          startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t29', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-6', authorName: '김도현', date: '2026-06-12', category: '리서치', title: '인터뷰 결과 분석',           startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t30', workItemId: 'wi-9', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '디자인', title: '페르소나 기반 와이어프레임',  startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t31', workItemId: 'wi-9', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '와이어프레임 정리',           startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t32', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-6', authorName: '김도현', date: '2026-06-14', category: '기획',   title: '1차 피드백 수집',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t33', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-6', authorName: '김도현', date: '2026-06-15', category: '기획',   title: '1차 피드백 정리',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t34', workItemId: 'wi-9', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '피드백 반영 수정',            startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t35', workItemId: 'wi-9', stepId: 'ps-1-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '디자인', title: '수정 마무리 및 공유',         startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t27', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-4', authorName: '김도현', date: '2026-06-10', category: '리서치', title: '리서치 (사용자/경쟁사)',          startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t28', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-4', authorName: '김도현', date: '2026-06-11', category: '리서치', title: '리서치 (사용자/경쟁사)',          startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t29', workItemId: 'wi-9', stepId: 'ps-1-02', authorId: 'u-4', authorName: '김도현', date: '2026-06-12', category: '리서치', title: '리서치 (사용자/경쟁사)',           startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t30', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '1차 피드백',       startTime: '15:00', endTime: '16:00', done: false },
+    { id: 'ws-t31', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '기획',   title: '1차 피드백',             startTime: '14:30', endTime: '16:00', done: false },
+    { id: 'ws-t32', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-4', authorName: '김도현', date: '2026-06-14', category: '기획',   title: '1차 피드백',             startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t33', workItemId: 'wi-9', stepId: 'ps-1-05', authorId: 'u-4', authorName: '김도현', date: '2026-06-15', category: '기획',   title: '1차 피드백',             startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t34', workItemId: 'wi-9', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '2차 피드백',             startTime: '13:30', endTime: '14:30', done: false },
+    { id: 'ws-t35', workItemId: 'wi-9', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '2차 피드백',    startTime: '11:00', endTime: '12:00', done: false },
+    { id: 'ws-t35a', workItemId: 'wi-9', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '기획',   title: '최종 디자인 확정',      startTime: '09:00', endTime: '10:00', done: false },
+    { id: 'ws-t35c', workItemId: 'wi-9', stepId: 'ps-1-12', authorId: 'u-4', authorName: '김도현', date: '2026-06-20', category: '기획',   title: '최종 디자인 확정',              startTime: '09:00', endTime: '12:00', done: false },
 
     // wi-10 블루밍헬스 리브랜딩 — 이나경 + Jihye 추가
-    { id: 'ws-t36', workItemId: 'wi-10', stepId: 'ps-2-02', authorId: 'u-7', authorName: '이나경', date: '2026-06-09', category: '리서치', title: '브랜드 시장 리서치',         startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t37', workItemId: 'wi-10', stepId: 'ps-2-02', authorId: 'u-7', authorName: '이나경', date: '2026-06-11', category: '리서치', title: '경쟁사 브랜드 분석',         startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t38', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '디자인', title: '로고 시안 제작',              startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t39', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-7', authorName: '이나경', date: '2026-06-12', category: '디자인', title: '서브 시안 제작',             startTime: '13:00', endTime: '17:00', done: true },
-    { id: 'ws-t40', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '시안 수정',                  startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t41', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-7', authorName: '이나경', date: '2026-06-14', category: '디자인', title: '서브 시안 수정',             startTime: '13:00', endTime: '17:00', done: true },
-    { id: 'ws-t42', workItemId: 'wi-10', stepId: 'ps-2-05', authorId: 'u-7', authorName: '이나경', date: '2026-06-15', category: '기획',   title: '1차 피드백 정리',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t43', workItemId: 'wi-10', stepId: 'ps-2-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '디자인', title: '피드백 반영 수정',            startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t44', workItemId: 'wi-10', stepId: 'ps-2-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '수정 마무리',                startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t45', workItemId: 'wi-10', stepId: 'ps-2-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '2차 시안 시작',              startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t46', workItemId: 'wi-10', stepId: 'ps-2-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '2차 시안 완료',              startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t47', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-7', authorName: '이나경', date: '2026-06-18', category: '기획',   title: '2차 피드백 정리',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t48', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-7', authorName: '이나경', date: '2026-06-19', category: '기획',   title: '2차 피드백 반영 정리',        startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t49', workItemId: 'wi-10', stepId: 'ps-2-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '2차 수정 반영',              startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t50', workItemId: 'wi-10', stepId: 'ps-2-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '2차 수정 완료',              startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t51', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '최종 확정 작업',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t52', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-7', authorName: '이나경', date: '2026-06-21', category: '디자인', title: '최종 확정 검토',             startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t36', workItemId: 'wi-10', stepId: 'ps-2-02', authorId: 'u-2', authorName: '이나경', date: '2026-06-09', category: '리서치', title: '리서치 (시장/경쟁사)',         startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t37', workItemId: 'wi-10', stepId: 'ps-2-02', authorId: 'u-2', authorName: '이나경', date: '2026-06-11', category: '리서치', title: '리서치 (시장/경쟁사)',         startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t38', workItemId: 'wi-10', stepId: 'ps-2-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-12', category: '기획',   title: '1차 피드백',       startTime: '12:00', endTime: '13:00', done: true },
+    { id: 'ws-t39', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-2', authorName: '이나경', date: '2026-06-12', category: '디자인', title: '시안 제작',             startTime: '13:00', endTime: '17:00', done: true },
+    { id: 'ws-t40', workItemId: 'wi-10', stepId: 'ps-2-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '기획',   title: '1차 피드백',            startTime: '10:30', endTime: '12:00', done: true },
+    { id: 'ws-t41', workItemId: 'wi-10', stepId: 'ps-2-04', authorId: 'u-2', authorName: '이나경', date: '2026-06-14', category: '디자인', title: '시안 제작',             startTime: '13:00', endTime: '17:00', done: true },
+    { id: 'ws-t42', workItemId: 'wi-10', stepId: 'ps-2-05', authorId: 'u-2', authorName: '이나경', date: '2026-06-15', category: '기획',   title: '1차 피드백',             startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t43', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-15', category: '기획',   title: '2차 피드백',            startTime: '15:30', endTime: '16:30', done: false },
+    { id: 'ws-t44', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '2차 피드백',       startTime: '10:00', endTime: '11:00', done: false },
+    { id: 'ws-t46', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '기획',   title: '최종 디자인 확정',             startTime: '', endTime: '', done: false },
+    { id: 'ws-t47', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-2', authorName: '이나경', date: '2026-06-18', category: '기획',   title: '2차 피드백',             startTime: '', endTime: '', done: false },
+    { id: 'ws-t48', workItemId: 'wi-10', stepId: 'ps-2-08', authorId: 'u-2', authorName: '이나경', date: '2026-06-19', category: '기획',   title: '2차 피드백',        startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t49', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '기획',   title: '최종 디자인 확정',       startTime: '15:00', endTime: '16:00', done: false },
+    { id: 'ws-t50', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '기획',   title: '최종 디자인 확정',           startTime: '10:00', endTime: '11:00', done: false },
+    { id: 'ws-t52', workItemId: 'wi-10', stepId: 'ps-2-10', authorId: 'u-2', authorName: '이나경', date: '2026-06-21', category: '디자인', title: '최종 디자인 확정',             startTime: '09:00', endTime: '12:00', done: false },
 
     // wi-11 핏라이프 모바일 앱 — Jihye 추가
-    { id: 'ws-t53', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: 'IA 설계 초안',                startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t54', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '기획',   title: 'IA 설계 마무리',              startTime: '13:00', endTime: '16:00', done: false },
-    { id: 'ws-t55', workItemId: 'wi-11', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '디자인', title: '와이어프레임 시작',           startTime: '16:00', endTime: '18:00', done: false },
-    { id: 'ws-t56', workItemId: 'wi-11', stepId: 'ps-1-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: '와이어프레임 완료',           startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t57', workItemId: 'wi-11', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '디자인', title: 'UI 디자인 시작',             startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t58', workItemId: 'wi-11', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: 'UI 디자인 완료',             startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t59', workItemId: 'wi-11', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '최종 확정 시작',             startTime: '18:00', endTime: '19:00', done: false },
-    { id: 'ws-t60', workItemId: 'wi-11', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '최종 확정 완료',             startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t61', workItemId: 'wi-11', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '개발 핸드오프 시작',          startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t62', workItemId: 'wi-11', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '개발 핸드오프 마무리',        startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t53', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-13', category: '기획',   title: '정보구조도(IA) 설계',                startTime: '16:00', endTime: '17:00', done: false },
+    { id: 'ws-t54', workItemId: 'wi-11', stepId: 'ps-1-03', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '기획',   title: '정보구조도(IA) 설계',              startTime: '13:00', endTime: '14:30', done: false },
+    { id: 'ws-t55', workItemId: 'wi-11', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-14', category: '기획',   title: '1차 피드백',             startTime: '16:00', endTime: '18:00', done: false },
+    { id: 'ws-t56', workItemId: 'wi-11', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '1차 피드백',             startTime: '11:00', endTime: '12:00', done: false },
+    { id: 'ws-t57', workItemId: 'wi-11', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '2차 피드백',             startTime: '16:00', endTime: '17:00', done: false },
+    { id: 'ws-t58', workItemId: 'wi-11', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '기획',   title: '2차 피드백',             startTime: '', endTime: '', done: false },
+    { id: 'ws-t59', workItemId: 'wi-11', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '최종 디자인 확정',             startTime: '', endTime: '', done: false },
+    { id: 'ws-t60', workItemId: 'wi-11', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '디자인', title: '최종 디자인 확정',             startTime: '10:00', endTime: '11:00', done: false },
+    { id: 'ws-t62', workItemId: 'wi-11', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '기획',   title: '최종 디자인 확정',            startTime: '11:00', endTime: '12:00', done: false },
 
     // wi-12 핏라이프 랜딩 페이지 — 정하은 + Jihye
-    { id: 'ws-t63', workItemId: 'wi-12', stepId: 'ps-3-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '브리핑 정리',                  startTime: '09:00', endTime: '10:00', done: false },
-    { id: 'ws-t64', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-16', category: '기획',   title: '콘셉트 기획',                  startTime: '10:00', endTime: '12:00', done: false },
-    { id: 'ws-t65', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '콘셉트 확정',                  startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-t66', workItemId: 'wi-12', stepId: 'ps-3-03', authorId: 'u-5', authorName: '정하은', date: '2026-06-17', category: '기획',   title: '카피 & 구성안 작성',            startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t67', workItemId: 'wi-12', stepId: 'ps-3-03', authorId: 'u-5', authorName: '정하은', date: '2026-06-18', category: '기획',   title: '구성안 확정',                   startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t68', workItemId: 'wi-12', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '시안 제작 시작',               startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t69', workItemId: 'wi-12', stepId: 'ps-3-04', authorId: 'u-5', authorName: '정하은', date: '2026-06-19', category: '디자인', title: '서브 시안 작업',              startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t70', workItemId: 'wi-12', stepId: 'ps-3-04', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '디자인', title: '시안 마무리',                startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t71', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-5', authorName: '정하은', date: '2026-06-20', category: '기획',   title: '1차 피드백 수집',              startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t72', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-5', authorName: '정하은', date: '2026-06-21', category: '기획',   title: '1차 피드백 정리',              startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t73', workItemId: 'wi-12', stepId: 'ps-3-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-21', category: '디자인', title: '수정 반영',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t74', workItemId: 'wi-12', stepId: 'ps-3-06', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-22', category: '디자인', title: '수정 완료',                   startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t75', workItemId: 'wi-12', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-22', category: '디자인', title: '최종 확정',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t76', workItemId: 'wi-12', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '디자인', title: '최종 확인',                   startTime: '09:00', endTime: '11:00', done: false },
-    { id: 'ws-t77', workItemId: 'wi-12', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-06-23', category: '디자인', title: '파일 납품 준비',              startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t78', workItemId: 'wi-12', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-06-24', category: '디자인', title: '파일 납품',                  startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t65', workItemId: 'wi-12', stepId: 'ps-3-02', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-17', category: '기획',   title: '콘셉트 기획',                  startTime: '10:00', endTime: '11:00', done: false },
+    { id: 'ws-t66', workItemId: 'wi-12', stepId: 'ps-3-03', authorId: 'u-6', authorName: '정하은', date: '2026-06-17', category: '기획',   title: '카피 & 구성안 작성',            startTime: '13:00', endTime: '17:00', done: false },
+    { id: 'ws-t67', workItemId: 'wi-12', stepId: 'ps-3-03', authorId: 'u-6', authorName: '정하은', date: '2026-06-18', category: '기획',   title: '카피 & 구성안 작성',                   startTime: '', endTime: '', done: false },
+    { id: 'ws-t68', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '기획',   title: '1차 피드백',              startTime: '', endTime: '', done: false },
+    { id: 'ws-t69', workItemId: 'wi-12', stepId: 'ps-3-04', authorId: 'u-6', authorName: '정하은', date: '2026-06-19', category: '디자인', title: '시안 제작',              startTime: '09:00', endTime: '17:00', done: false },
+    { id: 'ws-t70', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-20', category: '기획',   title: '1차 피드백',       startTime: '13:00', endTime: '14:00', done: false },
+    { id: 'ws-t71', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-6', authorName: '정하은', date: '2026-06-20', category: '기획',   title: '1차 피드백',              startTime: '14:00', endTime: '17:00', done: false },
+    { id: 'ws-t72', workItemId: 'wi-12', stepId: 'ps-3-05', authorId: 'u-6', authorName: '정하은', date: '2026-06-21', category: '기획',   title: '1차 피드백',              startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t73', workItemId: 'wi-12', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-21', category: '기획',   title: '최종 디자인 확정',              startTime: '14:00', endTime: '15:30', done: false },
+    { id: 'ws-t74', workItemId: 'wi-12', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-22', category: '기획',   title: '최종 디자인 확정',        startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t76', workItemId: 'wi-12', stepId: 'ps-3-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '디자인', title: '최종 디자인 확정',                   startTime: '09:00', endTime: '10:00', done: false },
+    { id: 'ws-t77', workItemId: 'wi-12', stepId: 'ps-3-08', authorId: 'u-6', authorName: '정하은', date: '2026-06-23', category: '디자인', title: '파일 납품',              startTime: '13:00', endTime: '17:00', done: false },
+    { id: 'ws-t78', workItemId: 'wi-12', stepId: 'ps-3-08', authorId: 'u-6', authorName: '정하은', date: '2026-06-24', category: '디자인', title: '파일 납품',                  startTime: '09:00', endTime: '12:00', done: false },
 
     // wi-13 (주)모아커머스 아이콘 세트 — 윤소이 + Jihye
-    { id: 'ws-t79', workItemId: 'wi-13', stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '기획',   title: '킥오프 브리핑',                startTime: '09:00', endTime: '10:00', done: false },
-    { id: 'ws-t80', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '디자인', title: '아이콘 디자인 시작',           startTime: '10:00', endTime: '17:00', done: false },
-    { id: 'ws-t81', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-8', authorName: '윤소이', date: '2026-06-24', category: '디자인', title: '아이콘 서브세트 작업',         startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t82', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-25', category: '디자인', title: '아이콘 디자인 계속',           startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t83', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-8', authorName: '윤소이', date: '2026-06-26', category: '디자인', title: '아이콘 작업 마무리',           startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t84', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-8', authorName: '윤소이', date: '2026-06-26', category: '기획',   title: '피드백 정리',                  startTime: '17:00', endTime: '18:00', done: false },
-    { id: 'ws-t85', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-8', authorName: '윤소이', date: '2026-06-27', category: '기획',   title: '피드백 반영',                  startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t86', workItemId: 'wi-13', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-27', category: '디자인', title: '수정 반영',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t87', workItemId: 'wi-13', stepId: 'ps-1-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-28', category: '디자인', title: '수정 완료',                   startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t88', workItemId: 'wi-13', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-28', category: '디자인', title: '최종 확정',                   startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t89', workItemId: 'wi-13', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-29', category: '디자인', title: '최종 QA',                     startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t90', workItemId: 'wi-13', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-29', category: '디자인', title: '핸드오프 시작',               startTime: '14:00', endTime: '17:00', done: false },
-    { id: 'ws-t91', workItemId: 'wi-13', stepId: 'ps-1-13', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-30', category: '디자인', title: '핸드오프 완료',               startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t79', workItemId: 'wi-13', stepId: 'ps-1-01', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '기획',   title: '브리핑 & 계약',                startTime: '10:00', endTime: '10:30', done: false },
+    { id: 'ws-t80', workItemId: 'wi-13', stepId: 'ps-1-05', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '기획',   title: '1차 피드백',     startTime: '13:00', endTime: '15:00', done: false },
+    { id: 'ws-t81', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-8', authorName: '윤소이', date: '2026-06-24', category: '디자인', title: '1차 UI 디자인',         startTime: '09:00', endTime: '17:00', done: false },
+    { id: 'ws-t82', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-25', category: '기획',   title: '2차 피드백',     startTime: '09:00', endTime: '17:00', done: false },
+    { id: 'ws-t83', workItemId: 'wi-13', stepId: 'ps-1-07', authorId: 'u-8', authorName: '윤소이', date: '2026-06-26', category: '디자인', title: '1차 UI 디자인',           startTime: '09:00', endTime: '17:00', done: false },
+    { id: 'ws-t84', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-8', authorName: '윤소이', date: '2026-06-26', category: '기획',   title: '2차 피드백',                  startTime: '17:00', endTime: '18:00', done: false },
+    { id: 'ws-t85', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-8', authorName: '윤소이', date: '2026-06-27', category: '기획',   title: '2차 피드백',                  startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t86', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-27', category: '기획',   title: '2차 피드백',       startTime: '14:00', endTime: '17:00', done: false },
+    { id: 'ws-t87', workItemId: 'wi-13', stepId: 'ps-1-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-28', category: '기획',   title: '2차 피드백',          startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t88', workItemId: 'wi-13', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-28', category: '디자인', title: '최종 디자인 확정',                   startTime: '14:00', endTime: '17:00', done: false },
+    { id: 'ws-t89', workItemId: 'wi-13', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-29', category: '디자인', title: '최종 디자인 확정',                     startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t91', workItemId: 'wi-13', stepId: 'ps-1-12', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-30', category: '기획',   title: '최종 디자인 확정', startTime: '09:00', endTime: '12:00', done: false },
 
     // wi-16 넥스트에듀 서비스 소개 영상 — 박서연 (영상 & 모션)
-    { id: 'ws-t92', workItemId: 'wi-16', stepId: 'ps-4-02', authorId: 'u-4', authorName: '박서연', date: '2026-06-16', category: '기획',   title: '스토리보드 공동 작업',          startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t93', workItemId: 'wi-16', stepId: 'ps-4-05', authorId: 'u-4', authorName: '박서연', date: '2026-06-18', category: '제작',   title: '보이스 녹음 진행',              startTime: '10:00', endTime: '13:00', done: false },
-    { id: 'ws-t94', workItemId: 'wi-16', stepId: 'ps-4-06', authorId: 'u-4', authorName: '박서연', date: '2026-06-19', category: '제작',   title: '1차 편집 시작',                 startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t95', workItemId: 'wi-16', stepId: 'ps-4-06', authorId: 'u-4', authorName: '박서연', date: '2026-06-20', category: '제작',   title: '1차 편집 마무리',               startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t96', workItemId: 'wi-16', stepId: 'ps-4-08', authorId: 'u-4', authorName: '박서연', date: '2026-06-22', category: '제작',   title: '2차 수정',                      startTime: '09:00', endTime: '17:00', done: false },
-    { id: 'ws-t97', workItemId: 'wi-16', stepId: 'ps-4-10', authorId: 'u-4', authorName: '박서연', date: '2026-06-25', category: '제작',   title: '파일 납품',                     startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t92', workItemId: 'wi-16', stepId: 'ps-4-02', authorId: 'u-3', authorName: '박서연', date: '2026-06-16', category: '기획',   title: '스토리보드 작성',          startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t93', workItemId: 'wi-16', stepId: 'ps-4-05', authorId: 'u-3', authorName: '박서연', date: '2026-06-18', category: '제작',   title: '스크립트 & 보이스 녹음',              startTime: '', endTime: '', done: false },
+    { id: 'ws-t94', workItemId: 'wi-16', stepId: 'ps-4-06', authorId: 'u-3', authorName: '박서연', date: '2026-06-19', category: '제작',   title: '1차 편집',                 startTime: '09:00', endTime: '17:00', done: false },
+    { id: 'ws-t95', workItemId: 'wi-16', stepId: 'ps-4-06', authorId: 'u-3', authorName: '박서연', date: '2026-06-20', category: '제작',   title: '1차 편집',               startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t96', workItemId: 'wi-16', stepId: 'ps-4-08', authorId: 'u-3', authorName: '박서연', date: '2026-06-22', category: '제작',   title: '2차 수정',                      startTime: '09:00', endTime: '17:00', done: false },
+    { id: 'ws-t97', workItemId: 'wi-16', stepId: 'ps-4-10', authorId: 'u-3', authorName: '박서연', date: '2026-06-25', category: '제작',   title: '파일 납품',                     startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t97a', workItemId: 'wi-16', stepId: 'ps-4-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-21', category: '기획',   title: '2차 피드백',              startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t97c', workItemId: 'wi-16', stepId: 'ps-4-07', authorId: 'u-3', authorName: '박서연', date: '2026-06-21', category: '제작',   title: '2차 피드백',              startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t97d', workItemId: 'wi-16', stepId: 'ps-4-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-23', category: '기획',   title: '최종 확정',               startTime: '10:30', endTime: '12:00', done: false },
+    { id: 'ws-t97e', workItemId: 'wi-16', stepId: 'ps-4-09', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-24', category: '기획',   title: '최종 확정',                     startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t97f', workItemId: 'wi-16', stepId: 'ps-4-09', authorId: 'u-3', authorName: '박서연', date: '2026-06-24', category: '제작',   title: '최종 확정',               startTime: '14:00', endTime: '17:00', done: false },
 
     // wi-17 하이브뷰티 제품 카탈로그 — 이나경, 정하은 (브랜드 & 인쇄물)
-    { id: 'ws-t98',  workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-7', authorName: '이나경', date: '2026-06-13', category: '디자인', title: '카탈로그 레이아웃 시안',        startTime: '09:00', endTime: '13:00', done: true },
-    { id: 'ws-t99',  workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-5', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '제품 비주얼 작업',              startTime: '14:00', endTime: '17:00', done: true },
-    { id: 'ws-t100', workItemId: 'wi-17', stepId: 'ps-2-05', authorId: 'u-7', authorName: '이나경', date: '2026-06-16', category: '기획',   title: '1차 피드백 수집',               startTime: '09:00', endTime: '11:00', done: true },
-    { id: 'ws-t101', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-7', authorName: '이나경', date: '2026-06-17', category: '디자인', title: '카탈로그 수정 작업',            startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t102', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-5', authorName: '정하은', date: '2026-06-17', category: '디자인', title: '제품 페이지 수정',              startTime: '13:00', endTime: '17:00', done: false },
-    { id: 'ws-t103', workItemId: 'wi-17', stepId: 'ps-2-07', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '디자인', title: '2차 시안 제작',                startTime: '09:00', endTime: '12:00', done: false },
-    { id: 'ws-t104', workItemId: 'wi-17', stepId: 'ps-2-11', authorId: 'u-7', authorName: '이나경', date: '2026-06-19', category: '제작',   title: '인쇄 사양 확인',               startTime: '14:00', endTime: '16:00', done: false },
-    { id: 'ws-t105', workItemId: 'wi-17', stepId: 'ps-2-12', authorId: 'u-5', authorName: '정하은', date: '2026-06-20', category: '제작',   title: '파일 납품',                    startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t98',  workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-2', authorName: '이나경', date: '2026-06-13', category: '디자인', title: '시안 제작',        startTime: '09:00', endTime: '13:00', done: true },
+    { id: 'ws-t99',  workItemId: 'wi-17', stepId: 'ps-2-04', authorId: 'u-6', authorName: '정하은', date: '2026-06-13', category: '디자인', title: '시안 제작',              startTime: '14:00', endTime: '17:00', done: true },
+    { id: 'ws-t100', workItemId: 'wi-17', stepId: 'ps-2-05', authorId: 'u-2', authorName: '이나경', date: '2026-06-16', category: '기획',   title: '1차 피드백',               startTime: '09:00', endTime: '11:00', done: true },
+    { id: 'ws-t101', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-2', authorName: '이나경', date: '2026-06-17', category: '디자인', title: '1차 수정',            startTime: '09:00', endTime: '12:00', done: false },
+    { id: 'ws-t102', workItemId: 'wi-17', stepId: 'ps-2-06', authorId: 'u-6', authorName: '정하은', date: '2026-06-17', category: '디자인', title: '1차 수정',              startTime: '13:00', endTime: '17:00', done: false },
+    { id: 'ws-t103', workItemId: 'wi-17', stepId: 'ps-2-08', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-18', category: '기획',   title: '2차 피드백',             startTime: '', endTime: '', done: false },
+    { id: 'ws-t103a', workItemId: 'wi-17', stepId: 'ps-2-10', authorId: 'u-1', authorName: 'Jihye', date: '2026-06-19', category: '기획',   title: '최종 디자인 확정',            startTime: '11:00', endTime: '12:00', done: false },
+    { id: 'ws-t104', workItemId: 'wi-17', stepId: 'ps-2-11', authorId: 'u-2', authorName: '이나경', date: '2026-06-19', category: '제작',   title: '인쇄 사양 확인',               startTime: '14:00', endTime: '16:00', done: false },
+    { id: 'ws-t105', workItemId: 'wi-17', stepId: 'ps-2-12', authorId: 'u-6', authorName: '정하은', date: '2026-06-20', category: '제작',   title: '파일 납품',                    startTime: '09:00', endTime: '12:00', done: false },
 
     // wi-m4 (주)그린푸드 캠페인 소재 — 정하은
-    { id: 'ws-t106', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-5', authorName: '정하은', date: '2026-05-20', category: '디자인', title: '배너 서브 시안 작업',         startTime: '09:00', endTime: '17:00', done: true },
-    { id: 'ws-t107', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-5', authorName: '정하은', date: '2026-05-22', category: '디자인', title: '소재 정리',                   startTime: '09:00', endTime: '12:00', done: true },
-    { id: 'ws-t108', workItemId: 'wi-m4', stepId: 'ps-3-08', authorId: 'u-5', authorName: '정하은', date: '2026-05-23', category: '디자인', title: '파일 납품',                   startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t106', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-6', authorName: '정하은', date: '2026-05-20', category: '디자인', title: '시안 제작',         startTime: '09:00', endTime: '17:00', done: true },
+    { id: 'ws-t107', workItemId: 'wi-m4', stepId: 'ps-3-04', authorId: 'u-6', authorName: '정하은', date: '2026-05-22', category: '디자인', title: '시안 제작',                   startTime: '09:00', endTime: '12:00', done: true },
+    { id: 'ws-t108', workItemId: 'wi-m4', stepId: 'ps-3-08', authorId: 'u-6', authorName: '정하은', date: '2026-05-23', category: '디자인', title: '파일 납품',                   startTime: '09:00', endTime: '12:00', done: true },
   ],
 
 
@@ -427,6 +447,7 @@ const state = {
     { id: 'n-2', title: '업무요청 도착', body: '기획팀에서 인트로 모션 그래픽을 요청했습니다.', requestTitle: '신규 서비스 인트로 모션', unread: true },
     { id: 'n-3', title: '연차 승인', body: '박민준 님의 오후 반차(06/10) 신청이 승인되었습니다.', unread: false },
     { id: 'n-4', title: '회의 등록 완료', body: '"스프린트 회고 #12" 회의가 등록되었습니다. (참석자 4명)', unread: false },
+    { id: 'n-5', title: '회의 등록 완료', body: '"디자인 QA 체크포인트" 회의에 참여자로 등록되었습니다. (참석자 5명)', unread: true },
   ],
 
   meetings: [
@@ -447,7 +468,7 @@ const state = {
       { id: 'act-mr1-1', text: 'Figma Slack 알림 설정', dueDate: '2026-06-10', assignee: '이수진', done: false, addedToWeekly: false },
       { id: 'act-mr1-2', text: 'AI 디자인 검토 도구 조사 및 보고', dueDate: '2026-06-13', assignee: '박민준', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-03', author: '김민준', duration: '42:18', attendees: 4, attendeeNames: ['김민준', '이수진', '박민준', 'Jihye'] },
+    date: '2026-06-03', startTime: '10:00', author: '김민준', duration: '42:18', attendees: 4, attendeeNames: ['김민준', '이수진', '박민준', 'Jihye'] },
     { id: 'mr-2', team: '디자인팀', type: '클라이언트 미팅', title: '클라이언트 A사 중간 보고',
     summary: '클라이언트 요구사항 변경 사항 정리 및 일정 재조정. 추가 화면 설계 요청이 접수되었으며 다음 회의까지 시안 완성 일정을 확정하였습니다.',
     aiPoints: ['클라이언트 요구사항 3건 변경 확인 및 문서화 완료', '추가 화면 2종(마이페이지·알림센터) 설계 요청 접수', '다음 회의 전까지 시안 초안 완성 일정 6/10으로 확정', '일정 지연 리스크 대비 버퍼 1주 확보 합의'],
@@ -464,7 +485,7 @@ const state = {
       { id: 'act-mr2-2', text: '알림센터 화면 설계 및 시안 작성', dueDate: '2026-06-10', assignee: '이나경', done: false, addedToWeekly: false },
       { id: 'act-mr2-3', text: '변경된 요구사항 문서 업데이트 및 공유', dueDate: '2026-06-05', assignee: '김민준', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-03', author: '김민준', duration: '38:54', attendees: 3, attendeeNames: ['김민준', 'Jihye', '이나경'] },
+    date: '2026-06-03', startTime: '14:00', author: '김민준', duration: '38:54', attendees: 3, attendeeNames: ['김민준', 'Jihye', '이나경'] },
     { id: 'mr-3', team: '디자인팀', type: '타팀 협업회의', title: '타팀 협업 킥오프',
     summary: '디자인-개발팀 간 협업 프로세스 정립 회의. 주요 업무 연결 포인트 확인 및 공유 채널 설정에 대한 합의가 이루어졌습니다.',
     aiPoints: ['디자인-개발 협업 채널 Slack #design-dev 신설 합의', '스펙 변경 시 48시간 전 사전 공지 원칙 수립', 'Figma 링크 공유 → 개발 착수 프로세스 공식화', '주 1회 싱크업 미팅 정례화 (매주 화요일 오전 10시)'],
@@ -481,7 +502,7 @@ const state = {
       { id: 'act-mr3-2', text: '협업 프로세스 문서화 및 팀 공유', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr3-3', text: '주간 싱크업 캘린더 초대 발송', dueDate: '2026-06-03', assignee: '최유진', done: true, addedToWeekly: false },
     ],
-    date: '2026-06-02', author: '이수진', duration: '35:42', attendees: 6, attendeeNames: ['이수진', 'Jihye', '김도현', '박서연', '최유진', '정하은'] },
+    date: '2026-06-02', startTime: '11:00', author: '이수진', duration: '35:42', attendees: 6, attendeeNames: ['이수진', 'Jihye', '김도현', '박서연', '최유진', '정하은'] },
     { id: 'mr-4', team: '개발팀', type: '스프린트 기획', title: '2분기 스프린트 계획 수립',
     summary: '2분기 주요 마일스톤 설정 및 업무 분배. 우선순위 조정 및 리소스 할당에 대한 논의가 완료되었습니다.',
     aiPoints: ['2분기 핵심 목표: 신규 서비스 UI 3종 완성', '스프린트 1(6월): 와이어프레임·IA 확정', '스프린트 2(7월): 시각 디자인 + 프로토타입', '스프린트 3(8월): 개발 핸드오프 + QA 지원', '리소스 부족으로 외부 프리랜서 1명 추가 검토'],
@@ -498,7 +519,7 @@ const state = {
       { id: 'act-mr4-2', text: '프리랜서 채용 요건 정리 및 공고 준비', dueDate: '2026-06-08', assignee: '이수진', done: false, addedToWeekly: false },
       { id: 'act-mr4-3', text: '주간 진척 리포트 양식 초안 작성', dueDate: '2026-06-06', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-01', author: '박민준', duration: '58:20', attendees: 5, attendeeNames: ['박민준', '이수진', '김도현', '최유진', 'Jihye'] },
+    date: '2026-06-01', startTime: '15:00', author: '박민준', duration: '58:20', attendees: 5, attendeeNames: ['박민준', '이수진', '김도현', '최유진', 'Jihye'] },
     { id: 'mr-5', team: '개발팀', type: '주간 회의', title: '주간 진행상황 공유 #24',
     summary: '이번 주 완료된 작업 현황 공유 및 다음 주 계획 확인. 블로커 이슈 3건이 확인되었으며 관련 담당자 지정이 완료되었습니다.',
     aiPoints: ['이번 주 완료 업무 7건, 진행 중 4건, 미착수 2건', '블로커 3건: 에셋 미수령 / 리뷰 지연 / 외부 API 미확정', '다음 주 우선순위: 랜딩 페이지 디자인 완료 + 내부 리뷰'],
@@ -515,7 +536,7 @@ const state = {
       { id: 'act-mr5-2', text: '외부 API 대체 목업 화면 작성', dueDate: '2026-06-02', assignee: 'Jihye', done: false, addedToWeekly: false },
       { id: 'act-mr5-3', text: '다음 주 완료율 80% 달성 계획 공유', dueDate: '2026-06-01', assignee: '박민준', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-29', author: '박민준', duration: '25:10', attendees: 4, attendeeNames: ['박민준', '이나경', '정하은', 'Jihye'] },
+    date: '2026-05-29', startTime: '10:00', author: '박민준', duration: '25:10', attendees: 4, attendeeNames: ['박민준', '이나경', '정하은', 'Jihye'] },
     { id: 'mr-6', team: 'PM팀', type: '워크샵', title: 'UX 리서치 워크샵',
     summary: '사용자 인터뷰 결과 공유 및 페르소나 재정립. 주요 사용자 니즈 기반 개선 방향성 설정 합의가 이루어졌습니다.',
     aiPoints: ['사용자 인터뷰 18건 분석 완료 — 주요 페인포인트 5가지 도출', '기존 페르소나 3종 → 4종으로 재정립 (신규: 중간관리자형 추가)', '개선 우선순위: 온보딩 플로우 간소화 > 알림 설정 > 검색 기능', '다음 분기 리서치 주제: 모바일 사용 패턴 분석'],
@@ -549,7 +570,7 @@ const state = {
       { id: 'act-mr7-2', text: '스펙 동결 기준 가이드라인 작성 및 공유', dueDate: '2026-06-03', assignee: '강지훈', done: false, addedToWeekly: false },
       { id: 'act-mr7-3', text: '6월 업무량 조정 계획 제출', dueDate: '2026-06-05', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-28', author: '강지훈', duration: '47:33', attendees: 7, attendeeNames: ['강지훈', 'Jihye', '이수진', '박서연', '김도현', '최유진', '이나경'] },
+    date: '2026-05-28', startTime: '14:00', author: '강지훈', duration: '47:33', attendees: 7, attendeeNames: ['강지훈', 'Jihye', '이수진', '박서연', '김도현', '최유진', '이나경'] },
     { id: 'mr-8', team: '디자인팀', type: '기술 공유', title: 'Figma 컴포넌트 최적화 세션',
     summary: '팀 내 Figma 라이브러리 구조 개선 방안 공유. 재사용 가능한 컴포넌트 설계 패턴 정립 및 스타일 토큰 일원화 논의가 진행되었습니다.',
     aiPoints: ['현재 Figma 라이브러리 컴포넌트 수 214개 → 중복·미사용 47개 정리 예정', '스타일 토큰 체계 Color/Spacing/Typography 3계층으로 일원화', 'Auto Layout 미적용 컴포넌트 32개 일괄 전환 계획', 'Figma Variables 활용한 다크모드 지원 방안 논의'],
@@ -566,14 +587,14 @@ const state = {
       { id: 'act-mr8-2', text: 'Auto Layout 미적용 컴포넌트 전환', dueDate: '2026-06-10', assignee: '박서연', done: false, addedToWeekly: false },
       { id: 'act-mr8-3', text: '스타일 토큰 일원화 작업 착수', dueDate: '2026-06-07', assignee: '정하은', done: false, addedToWeekly: false },
     ],
-    date: '2026-05-27', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', 'Jihye', '정하은', '박서연', '최유진'] },
+    date: '2026-05-27', startTime: '09:30', author: '윤소영', duration: '52:41', attendees: 5, attendeeNames: ['윤소영', 'Jihye', '정하은', '박서연', '최유진'] },
     { id: 'mr-9', team: '디자인팀', type: '주간 회의', title: '디자인팀 주간 싱크 #22',
     summary: '이번 주 진행 업무 공유 및 우선순위 재조정. 온보딩 수정 일정과 배너 제작 현황을 점검했습니다.',
     aiPoints: ['온보딩 화면 수정 3건 이번 주 내 완료 예정', '배너 시안 검토 일정 목요일로 확정', '고객사 A 컬러 시스템 시안 다음 주 공유'],
     discussions: ['온보딩 수정 범위 추가 가능성 검토 필요', '배너 사이즈 스펙 마케팅팀과 재확인'],
     script: [],
     actionItems: [],
-    date: '2026-06-09', author: 'Jihye', duration: '28:15', attendees: 4, attendeeNames: ['Jihye', '이나경', '정하은', '박서연'] },
+    date: '2026-06-09', startTime: '10:30', author: 'Jihye', duration: '28:15', attendees: 4, attendeeNames: ['Jihye', '이나경', '정하은', '박서연'] },
     { id: 'mr-10', team: '디자인팀', type: '클라이언트 미팅', title: '고객사 A 1차 시안 발표',
     summary: '로고 1차 시안 3종 발표 및 클라이언트 피드백 수렴. 컬러 방향성은 긍정적이나 서체 변경 요청이 있었습니다.',
     aiPoints: ['로고 시안 B안 방향으로 진행 확정', '서체: 현재 Pretendard → Noto Serif 검토 요청', '다음 미팅 일정: 6월 18일'],
@@ -582,7 +603,7 @@ const state = {
     actionItems: [
       { id: 'act-mr10-1', text: '서체 대안 2종 추가 시안 제작', dueDate: '2026-06-16', assignee: '이나경', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-11', author: 'Jihye', duration: '45:00', attendees: 3, attendeeNames: ['Jihye', '이나경', '최유진'] },
+    date: '2026-06-11', startTime: '14:00', author: 'Jihye', duration: '45:00', attendees: 3, attendeeNames: ['Jihye', '이나경', '최유진'] },
     { id: 'mr-11', team: '전체', type: '긴급 회의', title: '앱 출시 전 최종 QA 점검',
     summary: 'QA 기간 중 발견된 온보딩 버그 현황 공유 및 수정 우선순위 합의. 출시 일정은 예정대로 유지하기로 결정.',
     aiPoints: ['온보딩 버그 총 7건 — 이번 주 내 5건 수정 목표', '나머지 2건은 출시 후 핫픽스로 처리', '출시 일정 6월 20일 유지'],
@@ -591,7 +612,17 @@ const state = {
     actionItems: [
       { id: 'act-mr11-1', text: '온보딩 버그 5건 수정 완료', dueDate: '2026-06-17', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
-    date: '2026-06-17', author: '최유진', duration: '32:00', attendees: 5, attendeeNames: ['Jihye', '최유진', '박서연', '정하은', '이나경'] },
+    date: '2026-06-17', startTime: '11:00', author: '최유진', duration: '32:00', attendees: 5, attendeeNames: ['Jihye', '최유진', '박서연', '정하은', '이나경'] },
+    { id: 'mr-12', team: '디자인팀', type: '디자인 리뷰', title: '디자인 QA 체크포인트',
+    summary: '모아커머스 앱 리뉴얼 및 핏라이프 모바일 앱 디자인 QA 진행. 주요 화면별 디자인-개발 간 차이점을 확인하고 수정 사항을 정리하였습니다.',
+    aiPoints: ['모아커머스 온보딩 화면 간격·폰트 사이즈 불일치 3건 확인', '핏라이프 앱 탭바 아이콘 컬러 통일 필요', '수정 사항 Figma 코멘트로 전달 완료'],
+    discussions: ['디자인 QA 체크리스트 템플릿 도입 검토', 'Figma Dev Mode 활용도 향상 방안 논의'],
+    script: [],
+    actionItems: [
+      { id: 'act-mr12-1', text: '모아커머스 간격·폰트 수정 반영', dueDate: '2026-06-19', assignee: '최유진', done: false, addedToWeekly: false },
+      { id: 'act-mr12-2', text: '핏라이프 탭바 아이콘 컬러 수정', dueDate: '2026-06-19', assignee: 'Jihye', done: false, addedToWeekly: false },
+    ],
+    date: '2026-06-18', startTime: '14:30', author: 'Jihye', duration: '28:15', attendees: 5, attendeeNames: ['Jihye', '최유진', '박서연', '이나경', '장준혁'] },
   ],
 
   // 연차 데이터 — id, applicantId, applicantName, applicantRole, type, date, reason, status, approverId, approverName, rejectedReason, requestedAt
@@ -868,6 +899,8 @@ function renderWeeklyTasks() {
     if (item.type === '고정') {
       const rd = item.recurringDays || [1,2,3,4,5];
       period = `매주 ${rd.map(d => DAY_SHORTS[d - 1]).join('·')}`;
+    } else if (item.type === '회의') {
+      period = `${item.start.slice(5).replace('-', '.')}${item.meetingTime ? ' · ' + item.meetingTime : ''}`;
     } else {
       period = `${item.start.slice(5).replace('-', '.')} ~ ${item.end.slice(5).replace('-', '.')}`;
     }
@@ -882,9 +915,9 @@ function renderWeeklyTasks() {
           <span class="task-name">${escapeHtml(item.title)}</span>
           <span class="task-period">${calIcon}${period}${delayed ? '<span class="badge-delayed">지연중</span>' : ''}</span>
         </span>
-        <button type="button" class="task-edit-btn" data-edit-task-id="${item.id}" title="업무 수정">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+        <button type="button" class="task-add-session-btn" data-add-session-task-id="${item.id}" title="작업세션 추가">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
           </svg>
         </button>
         <button type="button" class="task-del-btn" data-delete-task-id="${item.id}" title="업무 삭제">
@@ -919,7 +952,7 @@ function renderWeeklyTasks() {
       <div class="day-card ${isToday ? 'is-today' : ''}">
         <div class="day-card-header">
           <span class="day-label">${day.label}</span>
-          <span class="day-date">${day.date.slice(5).replace('-', '/')}</span>
+          <span class="day-date" data-switch-daily-date="${day.date}" role="button" tabindex="0" style="cursor:pointer">${day.date.slice(5).replace('-', '/')}</span>
         </div>
         <div class="day-items">${innerHtml}</div>
       </div>
@@ -942,6 +975,7 @@ function openDetailPanel(itemId) {
   const item = state.workItems.find(w => w.id === itemId);
   if (!item) return;
   state.detailPanelItemId = itemId;
+  state.detailShowAllSteps = false;
   state.detailDraft = { title: item.title, type: item.type, end: item.end || '', description: item.description || '', recurringDays: item.recurringDays ? [...item.recurringDays] : [1] };
   renderDetailPanel();
   const overlay = document.getElementById('detailOverlay');
@@ -965,9 +999,9 @@ function renderDetailPanel() {
 
   const draft = state.detailDraft;
   const delayed = isDelayed(item);
-  const sessions = visibleSessions().filter(s => s.workItemId === item.id && s.date === state.today);
   const isFixed = draft.type === '고정';
   const rd = draft.recurringDays || [1];
+  const isFromRequest = !!item.sourceRequestId;
   const DAY_LABELS = ['월', '화', '수', '목', '금'];
 
   const isDirty = draft.title !== item.title
@@ -976,13 +1010,15 @@ function renderDetailPanel() {
     || draft.description !== (item.description || '')
     || JSON.stringify(rd) !== JSON.stringify(item.recurringDays || []);
 
+  const disabledAttr = isFromRequest ? 'disabled style="opacity:0.5;cursor:default"' : '';
+
   const dateRowHtml = isFixed
     ? `<div class="dw-field-2col">
         <label class="dw-field"><span>시작일</span>
-          <input type="date" value="${item.start}" disabled style="opacity:0.5;cursor:default" />
+          <input type="date" value="${item.start}" ${disabledAttr} />
         </label>
         <label class="dw-field"><span>종료일 <span class="dw-field-optional">미입력 시 무기한</span></span>
-          <input type="date" id="detailEndDate" value="${draft.end}" />
+          <input type="date" id="detailEndDate" value="${draft.end}" ${disabledAttr} />
         </label>
       </div>
       <div class="dw-field">
@@ -996,38 +1032,80 @@ function renderDetailPanel() {
       </div>`
     : `<div class="dw-field-2col">
         <label class="dw-field"><span>시작일</span>
-          <input type="date" value="${item.start}" disabled style="opacity:0.5;cursor:default" />
+          <input type="date" value="${item.start}" ${disabledAttr} />
         </label>
         <label class="dw-field"><span>마감일</span>
-          <input type="date" id="detailEndDate" value="${draft.end}" />
+          <input type="date" id="detailEndDate" value="${draft.end}" ${disabledAttr} />
         </label>
       </div>`;
 
-  const sessionsHtml = sessions.length
-    ? sessions.map(s => {
-        const cat = CAT_COLORS[s.category] || { bg: '#f3f4f6', color: '#6b7280' };
-        return `
-          <div class="detail-session-item">
-            <span class="detail-session-dot ${s.done ? 'done' : 'pending'}"></span>
-            <span class="detail-session-name">${escapeHtml(s.title)}</span>
-            <span class="detail-session-cat" style="background:${cat.bg};color:${cat.color}">${escapeHtml(s.category)}</span>
-            <span class="detail-session-time">${s.startTime}~${s.endTime}</span>
-          </div>`;
-      }).join('')
-    : '<p style="font-size:12px;color:var(--muted)">등록된 작업세션이 없습니다.</p>';
+
+  // 회의 타입 전용 상세 패널
+  if (item.type === '회의') {
+    const meeting = state.meetings.find(m => m.id === item.sourceMeetingId);
+    const hasNotes = meeting && (meeting.summary || (meeting.aiPoints && meeting.aiPoints.length));
+
+    let meetingHtml = `<div class="detail-form">
+      <span class="badge-meeting" style="align-self:flex-start;background:var(--orange-soft, #fff3e0);color:var(--orange, #f57c00);font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px">회의</span>
+
+      <div class="dw-field" style="margin-top:4px">
+        <span style="font-size:18px;font-weight:700">${escapeHtml(item.title)}</span>
+      </div>
+
+      <div class="dw-field">
+        <span>회의 유형</span>
+        <div style="font-size:14px;color:var(--text);padding:6px 0">${meeting ? escapeHtml(meeting.type) : '-'}</div>
+      </div>
+
+      <div class="dw-field-2col">
+        <div class="dw-field">
+          <span>날짜</span>
+          <div style="font-size:14px;color:var(--text);padding:6px 0">${item.start}</div>
+        </div>
+        <div class="dw-field">
+          <span>시간</span>
+          <div style="font-size:14px;color:var(--text);padding:6px 0">${item.meetingTime || '-'}</div>
+        </div>
+      </div>
+
+      <div class="dw-field">
+        <span>참석자 (${item.participants.length}명)</span>
+        <div class="detail-step-chips" style="padding:6px 0">
+          ${item.participants.map(name => `<div class="detail-participant-chip"><div class="avatar">${name[0]}</div><span>${escapeHtml(name)}</span></div>`).join('')}
+        </div>
+      </div>`;
+
+    if (hasNotes) {
+      meetingHtml += `
+      <div class="dw-field" style="margin-top:8px">
+        <span>AI 핵심 포인트</span>
+        <ul style="font-size:13px;color:var(--text);padding:6px 0 6px 18px;margin:0;line-height:1.7">
+          ${meeting.aiPoints.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+        </ul>
+      </div>
+
+      <button type="button" class="detail-meeting-link-btn" data-view-meeting-from-detail="${item.sourceMeetingId}">회의록 보기 →</button>`;
+    }
+
+    meetingHtml += `</div>`;
+    document.getElementById('detailPanelBody').innerHTML = meetingHtml;
+    return;
+  }
 
   document.getElementById('detailPanelBody').innerHTML = `
     <div class="detail-form">
       ${delayed ? '<span class="badge-delayed" style="align-self:flex-start">지연중</span>' : ''}
 
+      ${isFromRequest ? '<span class="badge-request" style="align-self:flex-start;background:var(--blue-soft);color:var(--blue);font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px">업무요청</span>' : ''}
+
       <label class="dw-field">
         <span>업무명</span>
-        <input id="detailTitle" value="${escapeHtml(draft.title)}" placeholder="업무명을 입력하세요" style="font-weight:600" />
+        <input id="detailTitle" value="${escapeHtml(draft.title)}" placeholder="업무명을 입력하세요" style="font-weight:600${isFromRequest ? ';opacity:0.5;cursor:default' : ''}" ${isFromRequest ? 'disabled' : ''} />
       </label>
 
       <label class="dw-field">
         <span>업무유형</span>
-        <select id="detailType">
+        <select id="detailType" ${isFromRequest ? 'disabled style="opacity:0.5;cursor:default"' : ''}>
           <option value="일반" ${draft.type === '일반' ? 'selected' : ''}>일반</option>
           <option value="긴급" ${draft.type === '긴급' ? 'selected' : ''}>긴급</option>
           <option value="고정" ${draft.type === '고정' ? 'selected' : ''}>고정</option>
@@ -1041,21 +1119,49 @@ function renderDetailPanel() {
         <textarea id="detailDescription" placeholder="업무 설명을 입력하세요" rows="4">${escapeHtml(draft.description)}</textarea>
       </label>
 
-      <div>
-        <p class="detail-section-title">참여자</p>
-        <div class="detail-participants">
-          ${(item.participants || []).map(name => `
-            <div class="detail-participant-chip">
-              <div class="avatar">${name[0]}</div>
-              <span>${escapeHtml(name)}</span>
-            </div>`).join('')}
-        </div>
-      </div>
+      ${isFromRequest && item.processId ? (() => {
+        const proc = state.processes.find(p => p.id === item.processId);
+        if (!proc) return '';
+        const sa = item.stepAssignees || {};
+        const myName = state.currentUser.name;
+        const mySteps = proc.steps.filter(s => (sa[s.id] || []).includes(myName));
+        const showAll = state.detailShowAllSteps;
+        const stepsToRender = showAll ? proc.steps : mySteps;
 
-      <div>
-        <p class="detail-section-title">오늘 작업세션 (${sessions.length}개)</p>
-        <div class="detail-session-list">${sessionsHtml}</div>
-      </div>
+        const allSessions = visibleSessions().filter(s => s.workItemId === item.id);
+        const renderRow = (step) => {
+          const assignees = sa[step.id] || [];
+          const isMyStep = assignees.includes(myName);
+          const stepDelayed = delayed && assignees.some(name => {
+            const member = state.teamMembers.find(m => m.name === name);
+            return member && allSessions.some(s => s.stepId === step.id && s.authorId === member.id && !s.done);
+          });
+          return `<div class="detail-step-row${stepDelayed ? ' is-delayed' : ''}">
+            <span class="detail-step-name${isMyStep ? ' is-mine' : ''}">${escapeHtml(step.title)}${stepDelayed ? '<span class="badge-delayed" style="margin-left:6px;font-size:10px;vertical-align:middle">지연중</span>' : ''}</span>
+            <div class="detail-step-chips">
+              ${assignees.length
+                ? assignees.map(name => {
+                    const member = state.teamMembers.find(m => m.name === name);
+                    const personDelayed = delayed && member && allSessions.some(s => s.stepId === step.id && s.authorId === member.id && !s.done);
+                    return `<div class="detail-participant-chip${personDelayed ? ' is-delayed' : ''}"><div class="avatar">${name[0]}</div><span>${escapeHtml(name)}</span>${personDelayed ? '<span class="badge-delayed-sm">지연</span>' : ''}</div>`;
+                  }).join('')
+                : '<span style="font-size:12px;color:var(--muted)">미배정</span>'}
+            </div>
+          </div>`;
+        };
+
+        return `<div>
+          <p class="detail-section-title">참여자</p>
+          <p class="detail-steps-group-label">${showAll ? `▼ 전체 ${proc.steps.length}개 단계` : `▼ 내 담당 (${mySteps.length}개)`}</p>
+          <div class="detail-step-assignees">
+            ${stepsToRender.map(renderRow).join('')}
+          </div>
+          <button type="button" class="detail-steps-toggle" data-toggle-all-steps>
+            ${showAll ? '▲ 내 담당만 보기' : `▶ 전체 ${proc.steps.length}개 단계 보기`}
+          </button>
+        </div>`;
+      })() : ''}
+
     </div>
 
     <button class="dw-save detail-save-btn" id="detailSaveBtn" ${isDirty ? '' : 'disabled'}>저장하기</button>
@@ -1081,10 +1187,8 @@ function saveDetailDraft() {
   item.end   = draft.end || (draft.type === '고정' ? null : item.end);
   item.description = draft.description;
   if (draft.type === '고정') item.recurringDays = draft.recurringDays && draft.recurringDays.length ? [...draft.recurringDays] : item.recurringDays;
-  // Reset draft to match saved
-  state.detailDraft = { ...draft, title: item.title, recurringDays: item.recurringDays ? [...item.recurringDays] : [1] };
   renderAll();
-  renderDetailPanel();
+  closeDetailPanel();
 }
 
 function renderDetailPanelIfOpen() {
@@ -1092,24 +1196,51 @@ function renderDetailPanelIfOpen() {
 }
 
 function renderDailyTodo() {
-  const today = state.today;
-  const todayWeekday = new Date(today).getDay(); // 1=월~5=금 (JS getDay matches our system for Mon-Fri)
+  const viewDate = state.dailyViewDate || state.today;
+  const viewWeekday = new Date(viewDate).getDay();
 
-  const todayItems = state.workItems.filter(item => {
+  // 헤더 라벨 업데이트
+  const titleEl = $('#dailyTodoTitle');
+  if (titleEl) {
+    if (viewDate === state.today) {
+      titleEl.textContent = '오늘 할 일';
+    } else {
+      const d = new Date(viewDate);
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+      titleEl.textContent = `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} (${dayNames[d.getDay()]}) 할 일`;
+    }
+  }
+
+  // 날짜 피커 동기화
+  const picker = $('#dailyTodoDatePicker');
+  if (picker) picker.value = viewDate;
+
+  const viewItems = state.workItems.filter(item => {
     if (item.type === '고정') {
       const rd = item.recurringDays || [1,2,3,4,5];
-      return rd.includes(todayWeekday) && item.start <= today && (item.end === null || item.end >= today);
+      return rd.includes(viewWeekday) && item.start <= viewDate && (item.end === null || item.end >= viewDate);
     }
-    return item.start <= today && item.end >= today;
+    return item.start <= viewDate && item.end >= viewDate;
   });
 
-  if (!todayItems.length) {
-    $('#sessionList').innerHTML = '<div class="empty-state">오늘 해당하는 업무가 없습니다.</div>';
+  // 지연된 업무: 종료일이 지났지만 미완료 세션이 있는 업무항목 추가
+  if (viewDate === state.today) {
+    state.workItems.forEach(item => {
+      if (item.type === '고정') return;
+      if (viewItems.some(v => v.id === item.id)) return;
+      if (item.end >= state.today) return;
+      const hasUndone = visibleSessions().some(s => s.workItemId === item.id && s.authorId === state.currentUser.id && !s.done);
+      if (hasUndone) viewItems.push(item);
+    });
+  }
+
+  if (!viewItems.length) {
+    $('#sessionList').innerHTML = '<div class="empty-state">해당하는 업무가 없습니다.</div>';
     $('#progressWrap').style.display = 'none';
     return;
   }
 
-  // 인라인 입력창 — 오늘 할 일 최상단에 고정
+  // 인라인 입력창 — 최상단에 고정
   let inlineTopHtml = '';
   if (state.inlineAddItemId) {
     const inlineItem = state.workItems.find(w => w.id === state.inlineAddItemId);
@@ -1117,10 +1248,6 @@ function renderDailyTodo() {
       <div class="task-inline-add task-inline-top" data-inline-wrap="${state.inlineAddItemId}">
         <span class="task-inline-label">${escapeHtml(inlineItem?.title || '')}</span>
         <div class="task-inline-fields">
-          <select class="task-inline-cat" data-inline-cat="${state.inlineAddItemId}">
-            <option value="">카테고리</option>
-            ${Object.keys(CAT_COLORS).map(c => `<option value="${c}">${c}</option>`).join('')}
-          </select>
           <input class="task-inline-input" type="text"
             placeholder="세부 업무항목 입력 후 Enter"
             data-inline-item="${state.inlineAddItemId}" autocomplete="off" />
@@ -1128,19 +1255,41 @@ function renderDailyTodo() {
       </div>`;
   }
 
-  // 오늘 세션 전체 수집 후 시작시간 오름차순 정렬 (시간 없는 것은 맨 아래)
+  // 세션 수집 후 시작시간 오름차순 정렬 (시간 없는 것은 맨 아래)
   let allSessions = [];
-  todayItems.forEach(item => {
-    const sessions = sessionsByItem(item.id).filter(s => s.date === today);
-    allSessions.push(...sessions);
+  viewItems.forEach(item => {
+    const delayed = item.type !== '고정' && item.end < state.today;
+    if (delayed && viewDate === state.today) {
+      // 지연 업무: 미완료 세션만 표시
+      const sessions = sessionsByItem(item.id).filter(s => s.authorId === state.currentUser.id && !s.done);
+      allSessions.push(...sessions);
+    } else {
+      const sessions = sessionsByItem(item.id).filter(s => s.date === viewDate && s.authorId === state.currentUser.id);
+      allSessions.push(...sessions);
+    }
   });
   allSessions.sort((a, b) => {
     const hasA = !!a.startTime, hasB = !!b.startTime;
-    if (!hasA && !hasB) return 0;
+    if (!hasA && !hasB) {
+      if (a._cloned && !b._cloned) return 1;
+      if (!a._cloned && b._cloned) return -1;
+      return 0;
+    }
     if (!hasA) return 1;
     if (!hasB) return -1;
     return a.startTime.localeCompare(b.startTime);
   });
+
+  // 편집 중인 새 세션은 원본 바로 아래 배치
+  if (state.pendingNewSessionId && state.pendingNewSessionSourceId) {
+    const newIdx = allSessions.findIndex(s => s.id === state.pendingNewSessionId);
+    const srcIdx = allSessions.findIndex(s => s.id === state.pendingNewSessionSourceId);
+    if (newIdx !== -1 && srcIdx !== -1 && newIdx !== srcIdx + 1) {
+      const [moved] = allSessions.splice(newIdx, 1);
+      const insertAt = allSessions.findIndex(s => s.id === state.pendingNewSessionSourceId) + 1;
+      allSessions.splice(insertAt, 0, moved);
+    }
+  }
 
   const html = allSessions.map(s => renderSessionRow(s)).join('');
   $('#sessionList').innerHTML = inlineTopHtml + html;
@@ -1165,13 +1314,16 @@ function renderDailyTodo() {
 function renderSessionRow(s) {
   const catClass = CAT_CLASS[s.category] || 'cat-default';
   const isEditing = state.editingSessionId === s.id;
+  const wi = state.workItems.find(w => w.id === s.workItemId);
+  const delayed = wi && wi.type !== '고정' && wi.end < state.today;
+  const wiLabel = wi ? `<span class="session-work-label">${escapeHtml(wi.title)}${delayed ? '<span class="badge-delayed" style="margin-left:6px;font-size:10px;vertical-align:middle">지연중</span>' : ''}</span>` : '';
   const timeMarkup = `
     <div class="session-time-inputs">
-      <input type="text" class="session-time-input" placeholder="09:00"
-        value="${s.startTime || ''}" data-time-start="${s.id}" />
+      <input type="text" class="session-time-input time-readonly" placeholder="00:00"
+        value="${s.startTime || ''}" data-time-start="${s.id}" readonly />
       <span class="time-sep">~</span>
-      <input type="text" class="session-time-input" placeholder="18:00"
-        value="${s.endTime || ''}" data-time-end="${s.id}" />
+      <input type="text" class="session-time-input time-readonly" placeholder="00:00"
+        value="${s.endTime || ''}" data-time-end="${s.id}" readonly />
     </div>`;
   const titleHtml = isEditing
     ? `<input class="session-title-edit" type="text" value="${escapeHtml(s.title)}" data-edit-session-title="${s.id}" />`
@@ -1183,9 +1335,11 @@ function renderSessionRow(s) {
         ${s.done ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
       </button>
       <div class="session-body">
+        ${wiLabel}
         ${titleHtml}
         ${timeMarkup}
       </div>
+      <button class="session-add-btn" type="button" data-clone-session="${s.id}">+</button>
       <button class="session-del-btn" type="button" data-delete-session="${s.id}">삭제</button>
     </div>
   `;
@@ -1203,10 +1357,10 @@ function renderKpis() {
   });
   let daySessions = [];
   viewItems.forEach(item => {
-    daySessions.push(...sessionsByItem(item.id).filter(s => s.date === viewDate));
+    daySessions.push(...sessionsByItem(item.id).filter(s => s.date === viewDate && s.authorId === state.currentUser.id));
   });
 
-  const todayMin = daySessions.reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
+  const todayMin = daySessions.filter(s => s.done).reduce((sum, s) => sum + calcMinutes(s.startTime, s.endTime), 0);
   const done     = daySessions.filter(s => s.done).length;
   const remaining= daySessions.filter(s => !s.done).length;
 
@@ -2811,6 +2965,8 @@ function submitAcceptForm(e) {
   const start = todoDate < r.start ? todoDate : r.start;
   const end   = todoDate > r.end ? todoDate : r.end;
 
+  const arItem = state.assignmentRequests.find(a => a.processId === r.processId && a.title.includes(r.title.split(' ')[0]));
+
   const newItem = {
     id: `wi-${Date.now()}`,
     title,
@@ -2820,6 +2976,7 @@ function submitAcceptForm(e) {
     participants: [state.currentUser.name],
     sourceRequestId: r.id,
     processId: r.processId || null,
+    stepAssignees: arItem ? { ...arItem.stepAssignees } : {},
   };
 
   state.workItems.push(newItem);
@@ -3829,14 +3986,23 @@ function bindEvents() {
     // Detail save
     if (e.target.id === 'detailSaveBtn') { saveDetailDraft(); return; }
 
+    if (e.target.closest('[data-toggle-all-steps]')) {
+      state.detailShowAllSteps = !state.detailShowAllSteps;
+      renderDetailPanel();
+      return;
+    }
+
     // Task delete button
     const delTaskBtn = e.target.closest('[data-delete-task-id]');
     if (delTaskBtn) { requestDeleteWorkItem(delTaskBtn.dataset.deleteTaskId); return; }
 
-    // Task edit button → open detail panel
-    const editBtn = e.target.closest('[data-edit-task-id]');
-    if (editBtn) {
-      openDetailPanel(editBtn.dataset.editTaskId);
+    // Task add session button → open inline input
+    const addSessionBtn = e.target.closest('[data-add-session-task-id]');
+    if (addSessionBtn) {
+      const id = addSessionBtn.dataset.addSessionTaskId;
+      state.selectedTaskId = id;
+      state.inlineAddItemId = state.inlineAddItemId === id ? null : id;
+      renderAll();
       return;
     }
 
@@ -3850,13 +4016,10 @@ function bindEvents() {
       renderAll();
     }
 
-    // Task item → open inline input (show sessions in 오늘 할 일 only)
+    // Task item → open detail panel
     const taskBtn = e.target.closest('[data-task-id]');
-    if (taskBtn && !e.target.closest('[data-edit-task-id]') && !e.target.closest('[data-delete-task-id]') && !e.target.closest('[data-inline-wrap]')) {
-      const id = taskBtn.dataset.taskId;
-      state.selectedTaskId = id;
-      state.inlineAddItemId = state.inlineAddItemId === id ? null : id;
-      renderAll();
+    if (taskBtn && !e.target.closest('[data-add-session-task-id]') && !e.target.closest('[data-delete-task-id]') && !e.target.closest('[data-inline-wrap]')) {
+      openDetailPanel(taskBtn.dataset.taskId);
       return;
     }
 
@@ -3904,6 +4067,39 @@ function bindEvents() {
     const toggle = e.target.closest('[data-toggle-session]');
     if (toggle) { toggleSession(toggle.dataset.toggleSession); return; }
 
+    // Clone session (+ button)
+    const clone = e.target.closest('[data-clone-session]');
+    if (clone) {
+      const src = state.sessions.find(x => x.id === clone.dataset.cloneSession);
+      if (src) {
+        const newId = `ws-${Date.now()}`;
+        state.sessions.push({
+          id: newId,
+          workItemId: src.workItemId,
+          stepId: src.stepId,
+          authorId: src.authorId,
+          authorName: src.authorName,
+          date: src.date,
+          category: src.category,
+          title: src.title,
+          startTime: '',
+          endTime: '',
+          done: false,
+          _cloned: true,
+        });
+        state.pendingNewSessionId = newId;
+        state.pendingNewSessionSourceId = src.id;
+        state.editingSessionId = newId;
+        state.editingSessionOriginalTitle = src.title;
+        renderDailyTodo();
+        requestAnimationFrame(() => {
+          const inp = document.querySelector(`[data-edit-session-title="${newId}"]`);
+          if (inp) { inp.focus(); inp.select(); }
+        });
+      }
+      return;
+    }
+
     // Delete session
     const del = e.target.closest('[data-delete-session]');
     if (del) { requestDelete(del.dataset.deleteSession); return; }
@@ -3938,6 +4134,15 @@ function bindEvents() {
     // Calendar: delete meeting
     const deleteMeetingBtn = e.target.closest('[data-delete-meeting]');
     if (deleteMeetingBtn) { openDeleteMeetingConfirm(deleteMeetingBtn.dataset.deleteMeeting); return; }
+
+    // Detail panel: view meeting from detail
+    const viewMeetingFromDetail = e.target.closest('[data-view-meeting-from-detail]');
+    if (viewMeetingFromDetail) {
+      closeDetailPanel();
+      switchPage('meeting-room');
+      setTimeout(() => openMeetingDetail(viewMeetingFromDetail.dataset.viewMeetingFromDetail), 100);
+      return;
+    }
 
     // Calendar: view meeting detail
     const viewMeeting = e.target.closest('[data-view-meeting]');
@@ -4300,16 +4505,14 @@ function bindEvents() {
       const itemId = inp.dataset.inlineItem;
       const title = inp.value.trim();
       if (!title) return;
-      const catSel = document.querySelector(`[data-inline-cat="${itemId}"]`);
-      const category = catSel ? catSel.value : '';
       state.sessions.push({
         id: `ws-${Date.now()}`,
         workItemId: itemId,
         authorId: state.currentUser.id,
         authorName: state.currentUser.name,
-        category,
+        category: '',
         title,
-        date: state.today,
+        date: state.dailyViewDate || state.today,
         startTime: '',
         endTime: '',
         done: false
@@ -4341,8 +4544,14 @@ function bindEvents() {
     if (!inp) return;
     if (e.key === 'Escape') {
       e.preventDefault();
-      const s = state.sessions.find(x => x.id === inp.dataset.editSessionTitle);
-      if (s && state.editingSessionOriginalTitle !== null) s.title = state.editingSessionOriginalTitle;
+      const sid = inp.dataset.editSessionTitle;
+      if (state.pendingNewSessionId === sid) {
+        state.sessions = state.sessions.filter(x => x.id !== sid);
+        state.pendingNewSessionId = null; state.pendingNewSessionSourceId = null;
+      } else {
+        const s = state.sessions.find(x => x.id === sid);
+        if (s && state.editingSessionOriginalTitle !== null) s.title = state.editingSessionOriginalTitle;
+      }
       state.editingSessionId = null;
       state.editingSessionOriginalTitle = null;
       renderDailyTodo();
@@ -4350,20 +4559,28 @@ function bindEvents() {
     }
     if (e.key === 'Enter') {
       e.preventDefault();
-      const s = state.sessions.find(x => x.id === inp.dataset.editSessionTitle);
+      const sid = inp.dataset.editSessionTitle;
+      const s = state.sessions.find(x => x.id === sid);
       if (s) { const v = inp.value.trim(); if (v) s.title = v; }
+      state.pendingNewSessionId = null; state.pendingNewSessionSourceId = null;
       state.editingSessionId = null;
       state.editingSessionOriginalTitle = null;
       renderDailyTodo();
+      renderKpis();
     }
   });
 
   document.addEventListener('focusout', e => {
     const inp = e.target.closest('[data-edit-session-title]');
     if (!inp) return;
-    // cancel on blur (revert)
-    const s = state.sessions.find(x => x.id === inp.dataset.editSessionTitle);
-    if (s && state.editingSessionOriginalTitle !== null) s.title = state.editingSessionOriginalTitle;
+    const sid = inp.dataset.editSessionTitle;
+    if (state.pendingNewSessionId === sid) {
+      state.sessions = state.sessions.filter(x => x.id !== sid);
+      state.pendingNewSessionId = null; state.pendingNewSessionSourceId = null;
+    } else {
+      const s = state.sessions.find(x => x.id === sid);
+      if (s && state.editingSessionOriginalTitle !== null) s.title = state.editingSessionOriginalTitle;
+    }
     state.editingSessionId = null;
     state.editingSessionOriginalTitle = null;
     renderDailyTodo();
@@ -4486,6 +4703,20 @@ function bindEvents() {
     inp.setSelectionRange(newPos, newPos);
   }
 
+  // 더블클릭으로 시간 입력 활성화
+  document.addEventListener('dblclick', e => {
+    const timeInp = e.target.closest('[data-time-start], [data-time-end]');
+    if (!timeInp) return;
+    if (timeInp.readOnly) {
+      timeInp.readOnly = false;
+      timeInp.classList.remove('time-readonly');
+      // 원래 값 저장 (Esc 복원용)
+      timeInp.dataset.originalValue = timeInp.value;
+      timeInp.focus();
+      timeInp.select();
+    }
+  });
+
   document.addEventListener('input', e => {
     const timeInp = e.target.closest('[data-time-start], [data-time-end]');
     if (!timeInp) return;
@@ -4500,11 +4731,31 @@ function bindEvents() {
     }
   });
 
-  // Enter: 저장 + 재정렬 / Escape: 취소 / Tab: 저장만 (재정렬 없이)
+  // 시간 입력 readonly 복원 헬퍼
+  function restoreTimeReadonly(inp) {
+    inp.readOnly = true;
+    inp.classList.add('time-readonly');
+    delete inp.dataset.originalValue;
+  }
+
+  // Enter: 저장 + 재정렬 / Escape: 취소
   document.addEventListener('keydown', e => {
     const timeInp = e.target.closest('[data-time-start], [data-time-end]');
     if (!timeInp) return;
-    if (e.key === 'Enter') {
+    if (e.key === 'Tab' && !e.shiftKey && timeInp.dataset.timeStart) {
+      e.preventDefault();
+      const id = timeInp.dataset.timeStart;
+      saveTimeInput(timeInp, false);
+      restoreTimeReadonly(timeInp);
+      const endInp = document.querySelector(`[data-time-end="${id}"]`);
+      if (endInp) {
+        endInp.readOnly = false;
+        endInp.classList.remove('time-readonly');
+        endInp.dataset.originalValue = endInp.value;
+        endInp.focus();
+        endInp.select();
+      }
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       saveTimeInput(timeInp, true);
       timeInp.blur();
@@ -4516,14 +4767,19 @@ function bindEvents() {
       if (s) timeInp.value = (isStart ? s.startTime : s.endTime) || '';
       timeInp.blur();
     }
-    // Tab은 기본 동작(포커스 이동) 허용 — keydown을 막지 않음
   });
 
-  // blur(Tab 포함): 저장하되 재정렬 없음
-  document.addEventListener('change', e => {
+  // blur: 저장 + readonly 복원
+  document.addEventListener('focusout', e => {
     const timeInp = e.target.closest('[data-time-start], [data-time-end]');
-    if (timeInp) saveTimeInput(timeInp, false);
+    if (!timeInp) return;
+    // change 이벤트 대신 focusout에서 저장 처리
+    saveTimeInput(timeInp, false);
+    restoreTimeReadonly(timeInp);
   });
+
+  // change 이벤트 제거 — focusout에서 처리
+  // (기존 change 리스너는 삭제)
 
   // Bundle input changes + detail panel inputs
   document.addEventListener('input', e => {
@@ -4651,6 +4907,22 @@ function bindEvents() {
   });
 
   $('#searchInput')?.addEventListener('input', renderWeeklyTasks);
+
+  // Daily view date picker
+  $('#dailyTodoDatePicker')?.addEventListener('change', e => {
+    state.dailyViewDate = e.target.value;
+    renderDailyTodo();
+    renderKpis();
+  });
+
+  // Weekly card date click → switch daily view
+  document.addEventListener('click', e => {
+    const dateEl = e.target.closest('[data-switch-daily-date]');
+    if (!dateEl) return;
+    state.dailyViewDate = dateEl.dataset.switchDailyDate;
+    renderDailyTodo();
+    renderKpis();
+  });
 
   // Week navigation
   $('#prevWeek').addEventListener('click', () => { state.weekOffset -= 1; renderAll(); });
