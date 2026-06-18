@@ -4,7 +4,11 @@ import Topbar from './components/Topbar'
 import HomePage from './components/HomePage'
 import MeetingRoomPage from './components/MeetingRoomPage'
 import CalendarPage from './components/CalendarPage'
-import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, teamMembers } from './data/state'
+import TeamStatusPage from './components/TeamStatusPage'
+import ProcessPage from './components/ProcessPage'
+import LeavePage from './components/LeavePage'
+import MyPage from './components/MyPage'
+import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, assignmentRequests as initialAssignmentRequests, processes as initialProcesses, leaves as initialLeaves, totalLeave, teamMembers, currentUser } from './data/state'
 import { ROLES, canViewPage } from './data/roles'
 
 export default function App() {
@@ -22,6 +26,9 @@ export default function App() {
   const [requests, setRequests] = useState(initialRequests)
   const [notifs, setNotifs] = useState(initialNotifications)
   const [meetings, setMeetings] = useState(initialMeetings)
+  const [assignmentRequests, setAssignmentRequests] = useState(initialAssignmentRequests)
+  const [processes, setProcesses] = useState(initialProcesses)
+  const [leavesState, setLeaves] = useState(initialLeaves)
 
   // --- Meeting handlers ---
   const addMeeting = useCallback((meeting) => {
@@ -157,6 +164,7 @@ export default function App() {
         {activePage ==='meeting-room' && (
           <MeetingRoomPage
             role={role}
+            currentUser={currentUser}
             meetings={meetings}
             teamMembers={teamMembers}
             workItems={workItems}
@@ -175,10 +183,40 @@ export default function App() {
             sessions={sessions}
           />
         )}
-        {activePage !== 'home' && activePage !== 'meeting-room' && activePage !== 'calendar' && (
-          <div className="flex-1 flex items-center justify-center text-muted text-sm">
-            {currentPage} 페이지 (준비 중)
-          </div>
+        {activePage === 'team-status' && (
+          <TeamStatusPage
+            role={role}
+            assignmentRequests={assignmentRequests}
+            teamMembers={teamMembers}
+            workItems={workItems}
+            sessions={sessions}
+            currentUser={currentUser}
+          />
+        )}
+        {activePage === 'process' && (
+          <ProcessPage
+            processes={processes}
+            onUpdateProcesses={setProcesses}
+          />
+        )}
+        {activePage === 'leave' && (
+          <LeavePage
+            role={role}
+            currentUser={currentUser}
+            leaves={leavesState}
+            totalLeave={totalLeave}
+            teamMembers={teamMembers}
+            onUpdateLeaves={setLeaves}
+          />
+        )}
+        {activePage === 'my-page' && (
+          <MyPage
+            currentUser={currentUser}
+            sessions={sessions}
+            workItems={workItems}
+            meetings={meetings}
+            leaves={leavesState}
+          />
         )}
       </main>
     </div>

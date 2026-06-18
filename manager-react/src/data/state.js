@@ -247,6 +247,74 @@ export const requests = [
   { id: 'wr-3', title: '신규 서비스 인트로 모션', detail: '앱 첫 진입 시 재생되는 15초 인트로 모션 그래픽이 필요합니다.', requester: '이준호', start: '2026-06-19', end: '2026-06-27', priority: '일반', status: '수락 대기' },
 ];
 
+export const assignmentRequests = [
+  { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작', team: '마케팅팀', hours: 12, deadline: '2026-06-23', priority: '긴급', status: '수락대기중', assignees: ['Jihye', '최유진'], processId: 'pc-3', stepAssignees: { 'ps-3-02': ['Jihye'], 'ps-3-04': ['Jihye', '최유진'], 'ps-3-07': ['최유진'] } },
+  { id: 'ar-2', title: '채용 공고 포스터 디자인', team: 'HR팀', hours: 6, deadline: '2026-06-24', priority: '일반', status: '수락대기중', assignees: ['Jihye'], processId: 'pc-2', stepAssignees: { 'ps-2-04': ['Jihye'], 'ps-2-10': ['Jihye'], 'ps-2-12': ['정하은'] } },
+  { id: 'ar-3', title: '신규 서비스 인트로 모션', team: '기획팀', hours: 16, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['Jihye', '박서연'], processId: 'pc-4', stepAssignees: { 'ps-4-02': ['Jihye'], 'ps-4-05': ['박서연'], 'ps-4-06': ['박서연'] } },
+  { id: 'ar-4', title: '서비스 소개 브로셔 리디자인', team: '기획팀', hours: 8, deadline: '2026-06-25', priority: '일반', status: '재배정', assignees: [], processId: 'pc-2', stepAssignees: {} },
+  { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트', team: '기획팀', hours: 4, deadline: '2026-06-20', priority: '일반', status: '신규요청', assignees: [], processId: 'pc-3', stepAssignees: {} },
+  { id: 'ar-6', title: '브랜드 소개 영상 30초', team: '마케팅팀', hours: 20, deadline: '2026-06-30', priority: '일반', status: '신규요청', assignees: [], processId: 'pc-4', stepAssignees: {} },
+  { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼', team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
+  { id: 'ar-8', title: '분기 성과 인포그래픽 제작', team: '경영팀', hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
+  { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼', team: '기획팀', hours: 14, deadline: '2026-06-30', priority: '일반', status: '배정완료', assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: {} },
+]
+
+export const processes = [
+  {
+    id: 'pc-1', category: 'UI/UX 디자인',
+    steps: [
+      { id: 'ps-1-01', title: '브리핑 & 계약' }, { id: 'ps-1-02', title: '리서치 (사용자/경쟁사)' },
+      { id: 'ps-1-03', title: '정보구조도(IA) 설계' }, { id: 'ps-1-04', title: '와이어프레임 제작' },
+      { id: 'ps-1-05', title: '와이어프레임 피드백' }, { id: 'ps-1-06', title: '1차 UI 디자인' },
+      { id: 'ps-1-07', title: '1차 수정' }, { id: 'ps-1-08', title: '2차 UI 디자인' },
+      { id: 'ps-1-09', title: '2차 수정' }, { id: 'ps-1-10', title: '프로토타입 제작' },
+      { id: 'ps-1-11', title: '사용성 테스트' }, { id: 'ps-1-12', title: '최종 디자인 확정' },
+      { id: 'ps-1-13', title: '개발 핸드오프' }, { id: 'ps-1-14', title: '디자인 QA' },
+    ],
+  },
+  {
+    id: 'pc-2', category: '브랜드 & 인쇄물',
+    steps: [
+      { id: 'ps-2-01', title: '브리핑 & 계약' }, { id: 'ps-2-02', title: '리서치 (시장/경쟁사)' },
+      { id: 'ps-2-03', title: '콘셉트 기획' }, { id: 'ps-2-04', title: '시안 제작' },
+      { id: 'ps-2-05', title: '1차 피드백' }, { id: 'ps-2-06', title: '1차 수정' },
+      { id: 'ps-2-07', title: '2차 시안 제작' }, { id: 'ps-2-08', title: '2차 피드백' },
+      { id: 'ps-2-09', title: '2차 수정' }, { id: 'ps-2-10', title: '최종 디자인 확정' },
+      { id: 'ps-2-11', title: '인쇄 사양 확인' }, { id: 'ps-2-12', title: '파일 납품' },
+    ],
+  },
+  {
+    id: 'pc-3', category: '디지털 콘텐츠',
+    steps: [
+      { id: 'ps-3-01', title: '브리핑 & 계약' }, { id: 'ps-3-02', title: '콘셉트 기획' },
+      { id: 'ps-3-03', title: '카피 & 구성안 작성' }, { id: 'ps-3-04', title: '시안 제작' },
+      { id: 'ps-3-05', title: '1차 피드백' }, { id: 'ps-3-06', title: '1차 수정' },
+      { id: 'ps-3-07', title: '최종 디자인 확정' }, { id: 'ps-3-08', title: '파일 납품' },
+    ],
+  },
+  {
+    id: 'pc-4', category: '영상 & 모션',
+    steps: [
+      { id: 'ps-4-01', title: '브리핑 & 계약' }, { id: 'ps-4-02', title: '스토리보드 작성' },
+      { id: 'ps-4-03', title: '스토리보드 피드백' }, { id: 'ps-4-04', title: '스크립트 & 보이스 녹음' },
+      { id: 'ps-4-05', title: '1차 편집' }, { id: 'ps-4-06', title: '1차 피드백' },
+      { id: 'ps-4-07', title: '1차 수정' }, { id: 'ps-4-08', title: '최종 편집' },
+      { id: 'ps-4-09', title: '최종 디자인 확정' }, { id: 'ps-4-10', title: '파일 납품' },
+    ],
+  },
+]
+
+export const leaves = [
+  { id: 'lv-1', applicantId: 'u-2', applicantName: '김민준', applicantRole: 'Member', type: '종일 연차', startDate: '2026-06-16', endDate: '2026-06-16', reason: '개인 사정으로 휴가 신청드립니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-10' },
+  { id: 'lv-2', applicantId: 'u-3', applicantName: '이수진', applicantRole: 'Member', type: '오전 반차', startDate: '2026-06-13', endDate: '2026-06-13', reason: '병원 예약이 있어 오전 반차 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-11' },
+  { id: 'lv-3', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '종일 연차', startDate: '2026-06-20', endDate: '2026-06-22', reason: '연차 소진 목적으로 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-09' },
+  { id: 'lv-4', applicantId: 'u-4', applicantName: '박민준', applicantRole: 'Member', type: '오후 반차', startDate: '2026-06-10', endDate: '2026-06-10', reason: '개인 일정이 있습니다.', status: '승인 완료', approverId: 'u-1', approverName: 'Jihye', rejectedReason: null, requestedAt: '2026-06-07' },
+  { id: 'lv-5', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '오전 반차', startDate: '2026-05-30', endDate: '2026-05-30', reason: '개인 사정.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-05-28' },
+  { id: 'lv-6', applicantId: 'u-2', applicantName: '김민준', applicantRole: 'Member', type: '종일 연차', startDate: '2026-05-22', endDate: '2026-05-24', reason: '여행 계획이 있습니다.', status: '반려', approverId: 'u-1', approverName: 'Jihye', rejectedReason: '해당 날짜 주요 납품 일정이 있어 반려합니다.', requestedAt: '2026-05-19' },
+]
+
+export const totalLeave = 15
+
 export const notifications = [
   { id: 'n-1', title: '업무 요청', requestTitle: '신제품 론칭 SNS 배너', body: '김지수님이 디자인팀에 업무를 요청했습니다.', unread: true },
   { id: 'n-2', title: '업무 요청', requestTitle: '채용 공고 포스터 디자인', body: '박소현님이 디자인팀에 업무를 요청했습니다.', unread: true },

@@ -40,3 +40,43 @@ export function canViewPage(role, pageId) {
   const pages = ROLE_VISIBLE_PAGES[role] ?? ROLE_VISIBLE_PAGES[ROLES.MANAGER]
   return pages.includes(pageId)
 }
+
+// ─── 회의(Meeting Room) 권한 — rules/role-permission.md 기준 ──────────────────
+// 회의 생성: Owner/Manager/Member 모두 가능 (분기 불필요).
+// 회의록 조회: 전체 회의록 조회는 Owner만. Manager/Member는 소속 팀 회의만 본다.
+
+/**
+ * 모든 팀의 회의를 볼 수 있는지 (Owner만 전체, 나머지는 소속 팀만).
+ * @param {string} role
+ * @returns {boolean}
+ */
+export function canViewAllMeetings(role) {
+  return role === ROLES.OWNER
+}
+
+// 참여자 추가/제거: Owner/Manager 가능, Member 불가 (단, 본인이 만든 회의는 생성자로서 가능).
+// → 현재 React 미팅룸에 참여자 관리 UI가 없어 적용 보류. UI 추가 시 이 함수로 분기할 것.
+/**
+ * @param {string} role
+ * @param {{ author?: string }} [meeting]
+ * @param {{ name?: string }} [currentUser]
+ * @returns {boolean}
+ */
+export function canManageParticipants(role, meeting, currentUser) {
+  if (role === ROLES.OWNER || role === ROLES.MANAGER) return true
+  return Boolean(meeting && currentUser && meeting.author === currentUser.name)
+}
+
+// ─── 캘린더(Calendar) 권한 — rules/role-permission.md 기준 ────────────────────
+// Team(전체)/My 필터 조회: 모든 역할 가능 (분기 불필요).
+// Team 일정 수정/삭제: Owner/Manager만, Member 불가.
+// → 현재 React 캘린더는 조회 전용(수정/삭제 UI 없음)이라 적용 보류.
+//    편집/삭제 UI 추가 시 이 함수로 분기할 것.
+/**
+ * 캘린더 일정을 수정/삭제할 수 있는지 (Member는 불가).
+ * @param {string} role
+ * @returns {boolean}
+ */
+export function canEditCalendar(role) {
+  return role === ROLES.OWNER || role === ROLES.MANAGER
+}

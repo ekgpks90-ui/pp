@@ -4,6 +4,7 @@ import MeetingDetailPanel from './MeetingDetailPanel'
 import MeetingSaveModal from './MeetingSaveModal'
 import ScheduleMeetingModal from './ScheduleMeetingModal'
 import ConfirmModal from './ConfirmModal'
+import { canViewAllMeetings } from '../data/roles'
 
 const TEAM_TAG_COLORS = {
   '디자인팀': { bg: '#dbeafe', text: '#1d4ed8' },
@@ -26,6 +27,7 @@ function recFmtTime(s) {
 }
 
 export default function MeetingRoomPage({
+  role, currentUser,
   meetings, teamMembers, workItems,
   onUpdateMeeting, onDeleteMeeting, onAddMeeting,
   onAddWorkItem, onAddNotification,
@@ -63,12 +65,17 @@ export default function MeetingRoomPage({
     setShowSaveModal(true)
   }, [recSeconds])
 
+  // 역할별 노출 범위: 대표(Owner)는 전체 회의, 팀장·직원은 소속 팀 회의만.
+  const scopedMeetings = canViewAllMeetings(role)
+    ? meetings
+    : meetings.filter(m => m.team === currentUser?.team)
+
   // Team tabs
-  const teams = ['전체', ...new Set(meetings.map(m => m.team))]
+  const teams = ['전체', ...new Set(scopedMeetings.map(m => m.team))]
 
   // Filtered meetings
   const q = (searchQuery || '').toLowerCase()
-  const filtered = meetings.filter(m => {
+  const filtered = scopedMeetings.filter(m => {
     if (teamFilter !== '전체' && m.team !== teamFilter) return false
     if (q) {
       const haystack = `${m.title} ${m.type} ${m.summary || ''}`.toLowerCase()
