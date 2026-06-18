@@ -1301,7 +1301,7 @@ function renderKpis() {
   const done     = daySessions.filter(s => s.done).length;
   const remaining= daySessions.filter(s => !s.done).length;
 
-  const total = today.length;
+  const total = daySessions.length;
   const cells = [
     { val: fmtDuration(todayMin),      lbl: '오늘 작업시간', color: '#2563eb' },
     { val: `${done}/${total}`,          lbl: '완료 세션',     color: '#10b981' },
