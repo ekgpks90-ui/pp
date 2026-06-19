@@ -5495,6 +5495,35 @@ h1, h2, h3, p { margin: 0; }
 .proc-step-row.is-dragging { opacity: .4; cursor: grabbing; }
 .proc-step-row.drag-over { border-top: 2px solid var(--blue); }
 
+/* ── Process: edit modal ──────────────────────────────────────────────── */
+.proc-edit-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  background: white;
+}
+.proc-edit-input:focus { border-color: var(--blue); }
+.proc-modal-save-btn {
+  height: 34px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--blue);
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.proc-modal-save-btn:hover { opacity: 0.88; }
+
 /* ── Process: assign layout ───────────────────────────────────────────── */
 .proc-assign-layout {
   display: flex;
