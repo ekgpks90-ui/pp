@@ -5354,9 +5354,10 @@ h1, h2, h3, p { margin: 0; }
   display: flex;
   gap: 2px;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.13s;
 }
-.proc-card:hover .proc-card-actions { opacity: 1; }
+.proc-card:hover .proc-card-actions { opacity: 1; pointer-events: auto; }
 
 .proc-icon-btn {
   display: grid;
