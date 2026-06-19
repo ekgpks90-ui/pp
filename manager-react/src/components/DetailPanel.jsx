@@ -4,7 +4,7 @@ import { isDelayed, TODAY_ISO } from '../data/helpers'
 
 const DAY_LABELS = ['월', '화', '수', '목', '금']
 
-export default function DetailPanel({ item, sessions = [], meetings = [], onClose, onSave, onNavigate }) {
+export default function DetailPanel({ item, sessions = [], meetings = [], canEdit = true, canEditAssignees = false, lockRequestFields = true, onUpdateAssignees, onNotify, onClose, onSave, onNavigate }) {
   const [draft, setDraft] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
   const [showAllSteps, setShowAllSteps] = useState(false)
@@ -22,6 +22,7 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
       setDraft({
         title: item.title,
         type: item.type,
+        start: item.start || '',
         end: item.end || '',
         description: item.description || '',
         recurringDays: item.recurringDays ? [...item.recurringDays] : [1],
@@ -36,11 +37,14 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
   if (!item || !draft) return null
 
   const isFromRequest = !!item.sourceRequestId
+  // 업무요청 기반 필드 잠금: 홈은 잠금(기본), 캘린더의 팀장·대표는 해제
+  const requestLocked = isFromRequest && lockRequestFields
   const isFixed = draft.type === '고정'
   const isMeeting = item.type === '회의'
 
   const isDirty = draft.title !== item.title
     || draft.type !== item.type
+    || draft.start !== (item.start || '')
     || draft.end !== (item.end || '')
     || draft.description !== (item.description || '')
     || JSON.stringify(draft.recurringDays) !== JSON.stringify(item.recurringDays || [])
@@ -55,6 +59,7 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
     const updates = {
       title: draft.title.trim() || item.title,
       type: draft.type,
+      start: draft.start || item.start,
       end: draft.end || (draft.type === '고정' ? null : item.end),
       description: draft.description,
     }
@@ -62,6 +67,7 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
       updates.recurringDays = [...draft.recurringDays]
     }
     onSave(item.id, updates)
+    onNotify?.(`'${updates.title}' 업무 정보가 변경되었습니다. 담당자는 확인해 주세요.`)
     handleClose()
   }
 
@@ -158,7 +164,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
   const stepAssignees = item.stepAssignees || {}
   const myName = currentUser.name
   const mySteps = proc ? proc.steps.filter(s => (stepAssignees[s.id] || []).includes(myName)) : []
-  const stepsToRender = proc ? (showAllSteps ? proc.steps : mySteps) : []
+  // 담당자 배치 수정 가능하면 전체 단계를 보여준다(어느 단계든 배정 가능해야 하므로)
+  const stepsToRender = proc ? ((showAllSteps || canEditAssignees) ? proc.steps : mySteps) : []
   const itemDelayed = isDelayed(item, TODAY_ISO, sessions)
   const itemSessions = sessions.filter(s => s.workItemId === item.id)
   const isPersonDelayed = (stepId, name) => {
@@ -167,13 +174,34 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
     return !!member && itemSessions.some(s => s.stepId === stepId && s.authorId === member.id && !s.done)
   }
 
+  // 담당자 배치 수정 (팀장·대표만) — 즉시 상위로 반영
+  const stepTitle = (stepId) => proc?.steps.find(s => s.id === stepId)?.title || ''
+  const addAssignee = (stepId, name) => {
+    if (!onUpdateAssignees || !name) return
+    const cur = stepAssignees[stepId] || []
+    if (cur.includes(name)) return
+    onUpdateAssignees(item.id, { ...stepAssignees, [stepId]: [...cur, name] })
+    onNotify?.(`${name}님이 '${item.title}' - ${stepTitle(stepId)} 단계에 배정되었습니다.`)
+  }
+  const removeAssignee = (stepId, name) => {
+    if (!onUpdateAssignees) return
+    const cur = stepAssignees[stepId] || []
+    onUpdateAssignees(item.id, { ...stepAssignees, [stepId]: cur.filter(n => n !== name) })
+    onNotify?.(`${name}님이 '${item.title}' - ${stepTitle(stepId)} 단계 배정에서 해제되었습니다.`)
+  }
+
   return (
     <div className={`fixed inset-0 z-50 flex justify-end transition-opacity duration-200 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
       <div className="absolute inset-0 bg-black/30" onClick={handleClose} />
       <div className={`relative bg-white w-[420px] h-full shadow-xl flex flex-col transition-transform duration-200 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-          <h3 className="text-[15px] font-semibold">업무 상세</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-[15px] font-semibold">업무 상세</h3>
+            {!canEdit && (
+              <span className="text-[11px] font-medium text-muted bg-surface-muted px-2 py-0.5 rounded">보기 전용</span>
+            )}
+          </div>
           <button onClick={handleClose} className="text-muted hover:text-text-primary cursor-pointer text-lg">&times;</button>
         </div>
 
@@ -192,8 +220,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
             <input
               value={draft.title}
               onChange={e => setDraft(prev => ({ ...prev, title: e.target.value }))}
-              disabled={isFromRequest}
-              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${isFromRequest ? 'opacity-50 cursor-default' : ''}`}
+              disabled={requestLocked || !canEdit}
+              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${(requestLocked || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
             />
           </label>
 
@@ -203,8 +231,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
             <select
               value={draft.type}
               onChange={e => setDraft(prev => ({ ...prev, type: e.target.value }))}
-              disabled={isFromRequest}
-              className={`h-9 px-3 text-[14px] border border-line rounded-lg outline-none focus:border-blue bg-white ${isFromRequest ? 'opacity-50 cursor-default' : ''}`}
+              disabled={requestLocked || !canEdit}
+              className={`h-9 px-3 text-[14px] border border-line rounded-lg outline-none focus:border-blue bg-white ${(requestLocked || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
             >
               <option value="일반">일반</option>
               <option value="긴급">긴급</option>
@@ -215,8 +243,14 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1">
-              <span className="text-[12px] text-muted font-medium">{isFixed ? '시작일' : '시작일'}</span>
-              <input type="date" value={item.start} disabled className="h-9 px-3 text-[13px] border border-line rounded-lg outline-none opacity-50 cursor-default" />
+              <span className="text-[12px] text-muted font-medium">시작일</span>
+              <input
+                type="date"
+                value={draft.start}
+                onChange={e => setDraft(prev => ({ ...prev, start: e.target.value }))}
+                disabled={requestLocked || !canEdit}
+                className={`h-9 px-3 text-[13px] border border-line rounded-lg outline-none focus:border-blue ${(requestLocked || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
+              />
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-[12px] text-muted font-medium">
@@ -227,8 +261,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
                 type="date"
                 value={draft.end}
                 onChange={e => setDraft(prev => ({ ...prev, end: e.target.value }))}
-                disabled={isFromRequest}
-                className={`h-9 px-3 text-[13px] border border-line rounded-lg outline-none focus:border-blue ${isFromRequest ? 'opacity-50 cursor-default' : ''}`}
+                disabled={requestLocked || !canEdit}
+                className={`h-9 px-3 text-[13px] border border-line rounded-lg outline-none focus:border-blue ${(requestLocked || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
               />
             </label>
           </div>
@@ -246,7 +280,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
                       key={dn}
                       type="button"
                       onClick={() => toggleDay(dn)}
-                      className={`w-8 h-8 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer
+                      disabled={!canEdit}
+                      className={`w-8 h-8 rounded-lg text-[12px] font-semibold transition-colors ${canEdit ? 'cursor-pointer' : 'cursor-default'}
                         ${active ? 'bg-blue text-white' : 'bg-surface-muted text-muted hover:bg-line'}`}
                     >
                       {lbl}
@@ -265,16 +300,19 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
               onChange={e => setDraft(prev => ({ ...prev, description: e.target.value }))}
               placeholder="업무 설명을 입력하세요"
               rows={4}
-              className="px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none leading-[1.6]"
+              disabled={!canEdit}
+              className={`px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none leading-[1.6] ${!canEdit ? 'opacity-50 cursor-default' : ''}`}
             />
           </label>
 
           {/* 프로세스 단계별 참여자 */}
           {proc && (
             <div className="flex flex-col gap-2">
-              <span className="text-[13px] font-semibold text-text-primary">참여자</span>
+              <span className="text-[13px] font-semibold text-text-primary">
+                참여자{canEditAssignees && <span className="text-[11px] font-normal text-blue ml-1.5">담당자 배치 수정 가능</span>}
+              </span>
               <span className="text-[11px] text-muted">
-                {showAllSteps ? `전체 ${proc.steps.length}개 단계` : `내 담당 (${mySteps.length}개)`}
+                {(showAllSteps || canEditAssignees) ? `전체 ${proc.steps.length}개 단계` : `내 담당 (${mySteps.length}개)`}
               </span>
               <div className="flex flex-col gap-1.5">
                 {stepsToRender.length === 0 ? (
@@ -292,19 +330,40 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
                         <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
                           {step.title}
                         </span>
-                        <div className="flex flex-wrap gap-1">
-                          {assignees.length === 0 ? (
+                        <div className="flex flex-wrap items-center gap-1">
+                          {assignees.length === 0 && !canEditAssignees && (
                             <span className="text-[11px] text-soft">미배정</span>
-                          ) : (
-                            assignees.map(name => {
-                              const personDelayed = isPersonDelayed(step.id, name)
-                              return (
-                                <div key={name} className={`flex items-center gap-1 pl-0.5 pr-1.5 py-0.5 rounded-full text-[11px] ${personDelayed ? 'bg-red-soft text-red' : 'bg-white border border-line text-text-sub'}`}>
-                                  <div className={`w-4 h-4 rounded-full flex items-center justify-center text-white text-[9px] font-semibold ${personDelayed ? 'bg-red' : 'bg-blue'}`}>{name[0]}</div>
-                                  <span>{name}</span>
-                                </div>
-                              )
-                            })
+                          )}
+                          {assignees.map(name => {
+                            const personDelayed = isPersonDelayed(step.id, name)
+                            return (
+                              <div key={name} className={`flex items-center gap-1 pl-0.5 pr-1.5 py-0.5 rounded-full text-[11px] ${personDelayed ? 'bg-red-soft text-red' : 'bg-white border border-line text-text-sub'}`}>
+                                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-white text-[9px] font-semibold ${personDelayed ? 'bg-red' : 'bg-blue'}`}>{name[0]}</div>
+                                <span>{name}</span>
+                                {canEditAssignees && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeAssignee(step.id, name)}
+                                    className="ml-0.5 text-soft hover:text-red cursor-pointer leading-none text-[13px]"
+                                    title="배치 해제"
+                                  >
+                                    ×
+                                  </button>
+                                )}
+                              </div>
+                            )
+                          })}
+                          {canEditAssignees && (
+                            <select
+                              value=""
+                              onChange={e => { addAssignee(step.id, e.target.value); e.target.value = '' }}
+                              className="text-[11px] border border-dashed border-blue/50 rounded-full px-2 py-0.5 bg-white text-blue cursor-pointer outline-none"
+                            >
+                              <option value="">+ 추가</option>
+                              {teamMembers.filter(m => !assignees.includes(m.name)).map(m => (
+                                <option key={m.id} value={m.name}>{m.name}</option>
+                              ))}
+                            </select>
                           )}
                         </div>
                       </div>
@@ -312,28 +371,32 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
                   })
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => setShowAllSteps(v => !v)}
-                className="self-start text-[12px] text-blue hover:underline cursor-pointer"
-              >
-                {showAllSteps ? '내 담당만 보기' : `전체 ${proc.steps.length}개 단계 보기`}
-              </button>
+              {!canEditAssignees && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllSteps(v => !v)}
+                  className="self-start text-[12px] text-blue hover:underline cursor-pointer"
+                >
+                  {showAllSteps ? '내 담당만 보기' : `전체 ${proc.steps.length}개 단계 보기`}
+                </button>
+              )}
             </div>
           )}
         </div>
 
-        {/* Save button */}
-        <div className="px-6 py-4 border-t border-line">
-          <button
-            onClick={handleSave}
-            disabled={!isDirty}
-            className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
-              ${isDirty ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}
-          >
-            저장하기
-          </button>
-        </div>
+        {/* Save button — 수정 권한 있을 때만 (직원은 조회 전용) */}
+        {canEdit && (
+          <div className="px-6 py-4 border-t border-line">
+            <button
+              onClick={handleSave}
+              disabled={!isDirty}
+              className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
+                ${isDirty ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}
+            >
+              저장하기
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

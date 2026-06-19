@@ -29,6 +29,7 @@ export default function App() {
   const [assignmentRequests, setAssignmentRequests] = useState(initialAssignmentRequests)
   const [processes, setProcesses] = useState(initialProcesses)
   const [leavesState, setLeaves] = useState(initialLeaves)
+  const [workItemResources, setWorkItemResources] = useState({})
 
   // --- Meeting handlers ---
   const addMeeting = useCallback((meeting) => {
@@ -91,6 +92,21 @@ export default function App() {
     }
     setSessions(prev => [...prev, newSession])
     return newId
+  }, [])
+
+  // --- 아웃풋/리소스 handlers (캘린더 업무 상세) ---
+  const addResource = useCallback((workItemId, resource) => {
+    setWorkItemResources(prev => ({
+      ...prev,
+      [workItemId]: [...(prev[workItemId] || []), resource],
+    }))
+  }, [])
+
+  const removeResource = useCallback((workItemId, resId) => {
+    setWorkItemResources(prev => ({
+      ...prev,
+      [workItemId]: (prev[workItemId] || []).filter(r => r.id !== resId),
+    }))
   }, [])
 
   // --- WorkItem handlers ---
@@ -188,6 +204,12 @@ export default function App() {
             role={role}
             workItems={workItems}
             sessions={sessions}
+            meetings={meetings}
+            workItemResources={workItemResources}
+            onAddResource={addResource}
+            onRemoveResource={removeResource}
+            onUpdateWorkItem={updateWorkItem}
+            onAddNotification={addNotification}
           />
         )}
         {activePage === 'team-status' && (
