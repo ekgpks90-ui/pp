@@ -205,19 +205,12 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                           <div className="text-[12px] text-muted mt-0.5">{member.role}</div>
                         </div>
                       </div>
-                      <div className="flex gap-2.5">
-                        <div className="flex-1 bg-[#f9fafb] border border-line rounded-[10px] px-3.5 py-3">
-                          <div className="text-[12px] text-muted">총 연차</div>
-                          <div className="text-[28px] font-bold leading-none text-text-primary mt-1.5">{totalLeave}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></div>
-                        </div>
-                        <div className="flex-1 bg-[#f9fafb] border border-line rounded-[10px] px-3.5 py-3">
-                          <div className="text-[12px] text-muted">사용</div>
-                          <div className="text-[28px] font-bold leading-none text-text-primary mt-1.5">{mUsed}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></div>
-                        </div>
-                        <div className="flex-1 bg-[#f9fafb] border border-line rounded-[10px] px-3.5 py-3">
-                          <div className="text-[12px] text-muted">잔여</div>
-                          <div className="text-[28px] font-bold leading-none text-text-primary mt-1.5">{mRemaining}<span className="text-[14px] font-medium text-muted ml-0.5">일</span></div>
-                        </div>
+                      <div className="flex items-center gap-4 text-[13px]">
+                        <span className="text-muted">총 연차 <span className="font-semibold text-text-primary">{totalLeave}일</span></span>
+                        <span className="text-line">·</span>
+                        <span className="text-muted">사용 <span className="font-semibold text-text-primary">{mUsed}일</span></span>
+                        <span className="text-line">·</span>
+                        <span className="text-muted">잔여 <span className="font-semibold text-text-primary">{mRemaining}일</span></span>
                       </div>
                       {memberLeaves.length > 0 ? (
                         <div className="flex flex-col gap-2">
