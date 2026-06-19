@@ -236,13 +236,15 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                   )
                 })
               )}
-              {tab === '이력' && (
-                myLeaves.filter(l => l.status === '승인 완료' || l.status === '반려').length > 0
-                  ? myLeaves.filter(l => l.status === '승인 완료' || l.status === '반려').sort((a, b) => b.startDate.localeCompare(a.startDate)).map(lv => (
-                    <LeaveRow key={lv.id} lv={lv} showActions={false} currentUser={currentUser} />
-                  ))
+              {tab === '이력' && (() => {
+                const historyLeaves = canApprove
+                  ? leaves.filter(l => l.status === '승인 완료' || l.status === '반려')
+                  : myLeaves.filter(l => l.status === '승인 완료' || l.status === '반려')
+                const sorted = [...historyLeaves].sort((a, b) => b.startDate.localeCompare(a.startDate))
+                return sorted.length > 0
+                  ? sorted.map(lv => <LeaveRow key={lv.id} lv={lv} showActions={false} currentUser={currentUser} />)
                   : <div className="text-[14px] text-muted text-center py-10">연차 이력이 없습니다.</div>
-              )}
+              })()}
             </div>
           </div>
 
