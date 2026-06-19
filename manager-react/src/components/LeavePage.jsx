@@ -1,6 +1,64 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 import { canApproveLeave, canViewTeamLeaves } from '../data/roles'
+
+function LeaveRejectModal({ leave, onClose, onSubmit }) {
+  const [reason, setReason] = useState('')
+
+  useEffect(() => {
+    if (!leave) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [leave, onClose])
+
+  if (!leave) return null
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!reason.trim()) return
+    onSubmit(leave.id, reason.trim())
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[400px] p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-[15px] font-semibold">연차 반려</h3>
+          <button onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg leading-none">&times;</button>
+        </div>
+        <div className="bg-[#f9fafb] rounded-lg p-3 mb-4">
+          <span className="text-[13px] font-semibold text-text-primary">{leave.applicantName}</span>
+          <span className="text-[12px] text-muted block mt-1">{leave.type} · {leave.startDate}{leave.endDate !== leave.startDate ? ` ~ ${leave.endDate}` : ''}</span>
+        </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <label className="flex flex-col gap-1">
+            <span className="text-[12px] text-muted font-medium">반려 사유 <span className="text-red">*</span></span>
+            <textarea
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+              placeholder="반려 사유를 입력하세요"
+              rows={3}
+              className="px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none"
+              autoFocus
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-2 mt-1">
+            <button type="button" onClick={onClose}
+              className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">
+              취소
+            </button>
+            <button type="submit" disabled={!reason.trim()}
+              className="h-9 text-[13px] font-medium text-white bg-red rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">
+              반려
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
 
 const TYPE_CLS = { '종일 연차': 'bg-[#1f2937] text-white', '오전 반차': 'bg-[#6b7280] text-white', '오후 반차': 'bg-[#e5e7eb] text-[#374151]' }
 const STATUS_CLS = { '승인 대기': 'bg-[#f59e0b]/10 text-[#f59e0b]', '승인 완료': 'bg-green/10 text-green', '반려': 'bg-red/10 text-red' }
@@ -45,6 +103,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const canViewTeam = canViewTeamLeaves(role)
   const [tab, setTab] = useState('내 연차')
   const TABS = canViewTeam ? ['내 연차', '팀 연차', '이력'] : ['내 연차', '이력']
+  const [rejectingLeave, setRejectingLeave] = useState(null)
 
   const myLeaves = useMemo(() => leaves.filter(l => l.applicantId === currentUser?.id), [leaves, currentUser])
   const usedDays = useMemo(() => myLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0), [myLeaves])
@@ -55,14 +114,17 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const handleApprove = (id) => {
     onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, status: '승인 완료', approverId: currentUser.id, approverName: currentUser.name } : l))
   }
-  const handleReject = (id) => {
-    onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, status: '반려', approverId: currentUser.id, approverName: currentUser.name, rejectedReason: '일정 조정이 필요합니다.' } : l))
+  const handleReject = (id, reason) => {
+    onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, status: '반려', approverId: currentUser.id, approverName: currentUser.name, rejectedReason: reason } : l))
+    setRejectingLeave(null)
   }
   const handleCancel = (id) => {
     onUpdateLeaves?.(prev => prev.filter(l => l.id !== id))
   }
 
   return (
+    <>
+    <LeaveRejectModal leave={rejectingLeave} onClose={() => setRejectingLeave(null)} onSubmit={handleReject} />
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <h2 className="text-[16px] font-bold text-text-primary">Leave Management</h2>
@@ -188,7 +250,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                         className="px-3 py-[5px] rounded-[6px] bg-text-primary text-white text-[12px] font-medium cursor-pointer hover:opacity-90 whitespace-nowrap border border-text-primary">
                         승인
                       </button>
-                      <button onClick={() => handleReject(lv.id)}
+                      <button onClick={() => setRejectingLeave(lv)}
                         className="px-3 py-[5px] rounded-[6px] bg-white text-red text-[12px] font-medium cursor-pointer hover:opacity-90 whitespace-nowrap border border-red/30">
                         반려
                       </button>
@@ -204,5 +266,6 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
         </div>
       </div>
     </div>
+    </>
   )
 }
