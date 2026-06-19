@@ -4128,14 +4128,26 @@ function bindEvents() {
       return;
     }
 
-    // Process: edit category name
+    // Process: edit category name (inline)
     const editCatBtn = e.target.closest('[data-edit-cat]');
     if (editCatBtn) {
       const cat = state.processes.find(c => c.id === editCatBtn.dataset.editCat);
       if (!cat) return;
-      openProcEditModal('카테고리 이름 수정', cat.category, (name) => {
-        cat.category = name;
-        renderProcessPage();
+      const card = document.querySelector(`.proc-card[data-cat="${cat.id}"]`);
+      if (!card) return;
+      const titleEl = card.querySelector('.proc-cat-title');
+      if (!titleEl || titleEl.querySelector('input')) return;
+      const inp = document.createElement('input');
+      inp.className = 'proc-inline-input';
+      inp.value = cat.category;
+      titleEl.textContent = '';
+      titleEl.appendChild(inp);
+      inp.focus(); inp.select();
+      const commit = () => { const v = inp.value.trim(); if (v) cat.category = v; renderProcessPage(); };
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter') { ev.preventDefault(); inp.removeEventListener('blur', commit); commit(); }
+        if (ev.key === 'Escape') { ev.preventDefault(); inp.removeEventListener('blur', commit); renderProcessPage(); }
       });
       return;
     }
@@ -4152,16 +4164,28 @@ function bindEvents() {
       return;
     }
 
-    // Process: edit step
+    // Process: edit step (inline)
     const editStepBtn = e.target.closest('[data-edit-step]');
     if (editStepBtn) {
       const cat = state.processes.find(c => c.id === editStepBtn.dataset.catId);
       if (!cat) return;
       const step = cat.steps.find(s => s.id === editStepBtn.dataset.editStep);
       if (!step) return;
-      openProcEditModal('단계 이름 수정', step.title, (name) => {
-        step.title = name;
-        renderProcessPage();
+      const row = document.querySelector(`[data-drag-step="${step.id}"]`);
+      if (!row) return;
+      const titleEl = row.querySelector('.proc-step-title');
+      if (!titleEl || titleEl.querySelector('input')) return;
+      const inp = document.createElement('input');
+      inp.className = 'proc-inline-input';
+      inp.value = step.title;
+      titleEl.textContent = '';
+      titleEl.appendChild(inp);
+      inp.focus(); inp.select();
+      const commit = () => { const v = inp.value.trim(); if (v) step.title = v; renderProcessPage(); };
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter') { ev.preventDefault(); inp.removeEventListener('blur', commit); commit(); }
+        if (ev.key === 'Escape') { ev.preventDefault(); inp.removeEventListener('blur', commit); renderProcessPage(); }
       });
       return;
     }
