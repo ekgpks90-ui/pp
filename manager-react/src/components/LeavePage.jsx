@@ -2,11 +2,16 @@ import { useState, useMemo, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 import { canApproveLeave, canViewTeamLeaves } from '../data/roles'
 
+const LEAVE_REJECT_REASONS = ['업무 일정 충돌', '인력 공백 우려', '잔여 연차 부족', '사전 협의 필요', '기타']
+
 function LeaveRejectModal({ leave, onClose, onSubmit }) {
-  const [reason, setReason] = useState('')
+  const [reason, setReason] = useState(LEAVE_REJECT_REASONS[0])
+  const [detail, setDetail] = useState('')
 
   useEffect(() => {
     if (!leave) return
+    setReason(LEAVE_REJECT_REASONS[0])
+    setDetail('')
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
@@ -16,8 +21,8 @@ function LeaveRejectModal({ leave, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!reason.trim()) return
-    onSubmit(leave.id, reason.trim())
+    if (reason === '기타' && !detail.trim()) return
+    onSubmit(leave.id, reason === '기타' ? detail.trim() : reason + (detail.trim() ? ` · ${detail.trim()}` : ''))
   }
 
   return (
@@ -33,15 +38,32 @@ function LeaveRejectModal({ leave, onClose, onSubmit }) {
           <span className="text-[12px] text-muted block mt-1">{leave.type} · {leave.startDate}{leave.endDate !== leave.startDate ? ` ~ ${leave.endDate}` : ''}</span>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-[12px] text-muted font-medium">반려 사유</span>
+            <div className="flex flex-col gap-2 mt-1">
+              {LEAVE_REJECT_REASONS.map(r => (
+                <label key={r} className="flex items-center gap-2 text-[13px] text-text-primary cursor-pointer">
+                  <input
+                    type="radio"
+                    name="leaveRejectReason"
+                    value={r}
+                    checked={reason === r}
+                    onChange={() => setReason(r)}
+                    className="accent-blue"
+                  />
+                  {r}
+                </label>
+              ))}
+            </div>
+          </div>
           <label className="flex flex-col gap-1">
-            <span className="text-[12px] text-muted font-medium">반려 사유 <span className="text-red">*</span></span>
+            <span className="text-[12px] text-muted font-medium">추가 설명 {reason === '기타' && <span className="text-red">*</span>}</span>
             <textarea
-              value={reason}
-              onChange={e => setReason(e.target.value)}
-              placeholder="반려 사유를 입력하세요"
+              value={detail}
+              onChange={e => setDetail(e.target.value)}
+              placeholder="반려 사유를 상세히 입력하세요"
               rows={3}
               className="px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none"
-              autoFocus
             />
           </label>
           <div className="grid grid-cols-2 gap-2 mt-1">
@@ -49,7 +71,7 @@ function LeaveRejectModal({ leave, onClose, onSubmit }) {
               className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">
               취소
             </button>
-            <button type="submit" disabled={!reason.trim()}
+            <button type="submit" disabled={reason === '기타' && !detail.trim()}
               className="h-9 text-[13px] font-medium text-white bg-red rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">
               반려
             </button>
