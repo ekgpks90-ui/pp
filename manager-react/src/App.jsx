@@ -204,9 +204,11 @@ export default function App() {
             role={role}
             workItems={workItems}
             sessions={sessions}
+            meetings={meetings}
             workItemResources={workItemResources}
             onAddResource={addResource}
             onRemoveResource={removeResource}
+            onUpdateWorkItem={updateWorkItem}
           />
         )}
         {activePage === 'team-status' && (

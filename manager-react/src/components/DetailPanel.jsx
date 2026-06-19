@@ -4,7 +4,7 @@ import { isDelayed, TODAY_ISO } from '../data/helpers'
 
 const DAY_LABELS = ['월', '화', '수', '목', '금']
 
-export default function DetailPanel({ item, sessions = [], meetings = [], onClose, onSave, onNavigate }) {
+export default function DetailPanel({ item, sessions = [], meetings = [], canEdit = true, onClose, onSave, onNavigate }) {
   const [draft, setDraft] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
   const [showAllSteps, setShowAllSteps] = useState(false)
@@ -173,7 +173,12 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
       <div className={`relative bg-white w-[420px] h-full shadow-xl flex flex-col transition-transform duration-200 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-          <h3 className="text-[15px] font-semibold">업무 상세</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-[15px] font-semibold">업무 상세</h3>
+            {!canEdit && (
+              <span className="text-[11px] font-medium text-muted bg-surface-muted px-2 py-0.5 rounded">보기 전용</span>
+            )}
+          </div>
           <button onClick={handleClose} className="text-muted hover:text-text-primary cursor-pointer text-lg">&times;</button>
         </div>
 
@@ -192,8 +197,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
             <input
               value={draft.title}
               onChange={e => setDraft(prev => ({ ...prev, title: e.target.value }))}
-              disabled={isFromRequest}
-              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${isFromRequest ? 'opacity-50 cursor-default' : ''}`}
+              disabled={isFromRequest || !canEdit}
+              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${(isFromRequest || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
             />
           </label>
 
@@ -203,8 +208,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
             <select
               value={draft.type}
               onChange={e => setDraft(prev => ({ ...prev, type: e.target.value }))}
-              disabled={isFromRequest}
-              className={`h-9 px-3 text-[14px] border border-line rounded-lg outline-none focus:border-blue bg-white ${isFromRequest ? 'opacity-50 cursor-default' : ''}`}
+              disabled={isFromRequest || !canEdit}
+              className={`h-9 px-3 text-[14px] border border-line rounded-lg outline-none focus:border-blue bg-white ${(isFromRequest || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
             >
               <option value="일반">일반</option>
               <option value="긴급">긴급</option>
@@ -227,8 +232,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
                 type="date"
                 value={draft.end}
                 onChange={e => setDraft(prev => ({ ...prev, end: e.target.value }))}
-                disabled={isFromRequest}
-                className={`h-9 px-3 text-[13px] border border-line rounded-lg outline-none focus:border-blue ${isFromRequest ? 'opacity-50 cursor-default' : ''}`}
+                disabled={isFromRequest || !canEdit}
+                className={`h-9 px-3 text-[13px] border border-line rounded-lg outline-none focus:border-blue ${(isFromRequest || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
               />
             </label>
           </div>
@@ -246,7 +251,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
                       key={dn}
                       type="button"
                       onClick={() => toggleDay(dn)}
-                      className={`w-8 h-8 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer
+                      disabled={!canEdit}
+                      className={`w-8 h-8 rounded-lg text-[12px] font-semibold transition-colors ${canEdit ? 'cursor-pointer' : 'cursor-default'}
                         ${active ? 'bg-blue text-white' : 'bg-surface-muted text-muted hover:bg-line'}`}
                     >
                       {lbl}
@@ -265,7 +271,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
               onChange={e => setDraft(prev => ({ ...prev, description: e.target.value }))}
               placeholder="업무 설명을 입력하세요"
               rows={4}
-              className="px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none leading-[1.6]"
+              disabled={!canEdit}
+              className={`px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none leading-[1.6] ${!canEdit ? 'opacity-50 cursor-default' : ''}`}
             />
           </label>
 
@@ -323,17 +330,19 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
           )}
         </div>
 
-        {/* Save button */}
-        <div className="px-6 py-4 border-t border-line">
-          <button
-            onClick={handleSave}
-            disabled={!isDirty}
-            className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
-              ${isDirty ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}
-          >
-            저장하기
-          </button>
-        </div>
+        {/* Save button — 수정 권한 있을 때만 (직원은 조회 전용) */}
+        {canEdit && (
+          <div className="px-6 py-4 border-t border-line">
+            <button
+              onClick={handleSave}
+              disabled={!isDirty}
+              className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
+                ${isDirty ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}
+            >
+              저장하기
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

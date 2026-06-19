@@ -9,22 +9,6 @@ const WORK_ITEM_TYPE_COLOR = {
   '회의': { bg: '#fef3c7', text: '#92400e' },
 }
 
-const CAT_COLORS = {
-  '디자인': 'bg-purple/10 text-purple',
-  '기획': 'bg-blue/10 text-blue',
-  '개발': 'bg-green/10 text-green',
-  '운영': 'bg-orange/10 text-orange',
-  '리서치': 'bg-[#8b5cf6]/10 text-[#8b5cf6]',
-  '퍼블리싱': 'bg-[#06b6d4]/10 text-[#06b6d4]',
-}
-
-function memberColor(name) {
-  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
-  let h = 0
-  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
-  return palette[h % palette.length]
-}
-
 // 업무항목은 "완료 상태"를 만들지 않는다(제품 규칙). 홈과 동일한 지연 판정.
 function getWorkItemStatus(wi, sessions) {
   if (wi.start > TODAY_ISO) return '시작 전'
@@ -34,7 +18,7 @@ function getWorkItemStatus(wi, sessions) {
 
 export default function CalendarDetailPanel({ item, sessions, resources = [], onAddResource, onRemoveResource, onClose }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [showAllSteps, setShowAllSteps] = useState(true)
+  const [showAllSteps, setShowAllSteps] = useState(false)
   const [linkInput, setLinkInput] = useState('')
   const fileInputRef = useRef(null)
 
@@ -65,18 +49,6 @@ export default function CalendarDetailPanel({ item, sessions, resources = [], on
   const recurStr = item.recurringDays
     ? '매주 ' + item.recurringDays.map(d => DAY_MAP[d] || '').join('·')
     : ''
-
-  // Group sessions by participant
-  const participants = item.participants || []
-  const groups = participants.map(name => ({
-    name,
-    sessions: sessions.filter(s => s.authorName === name),
-  }))
-  sessions.forEach(s => {
-    if (!participants.includes(s.authorName) && !groups.find(g => g.name === s.authorName)) {
-      groups.push({ name: s.authorName, sessions: sessions.filter(x => x.authorName === s.authorName) })
-    }
-  })
 
   // 프로세스 단계별 참여자 (홈 업무 상세의 '참여자' 섹션과 동일)
   const proc = item.processId ? processes.find(p => p.id === item.processId) : null
@@ -172,12 +144,10 @@ export default function CalendarDetailPanel({ item, sessions, resources = [], on
           {/* 프로세스 단계별 참여자 (홈 업무 상세와 동일) */}
           {proc && (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-semibold text-text-primary">참여자</span>
-                <span className="text-[11px] text-muted">
-                  {showAllSteps ? `전체 ${proc.steps.length}개 단계` : `내 담당 (${mySteps.length}개)`}
-                </span>
-              </div>
+              <span className="text-[13px] font-semibold text-text-primary">참여자</span>
+              <span className="text-[11px] text-muted">
+                {showAllSteps ? `전체 ${proc.steps.length}개 단계` : `내 담당 (${mySteps.length}개)`}
+              </span>
               <div className="flex flex-col gap-1.5">
                 {stepsToRender.length === 0 ? (
                   <span className="text-[12px] text-soft py-1">담당한 단계가 없습니다.</span>
@@ -214,62 +184,15 @@ export default function CalendarDetailPanel({ item, sessions, resources = [], on
                   })
                 )}
               </div>
-              {mySteps.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllSteps(v => !v)}
-                  className="self-start text-[12px] text-blue hover:underline cursor-pointer"
-                >
-                  {showAllSteps ? '내 담당만 보기' : `전체 ${proc.steps.length}개 단계 보기`}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowAllSteps(v => !v)}
+                className="self-start text-[12px] text-blue hover:underline cursor-pointer"
+              >
+                {showAllSteps ? '내 담당만 보기' : `전체 ${proc.steps.length}개 단계 보기`}
+              </button>
             </div>
           )}
-
-          {/* Sessions grouped by participant */}
-          <div>
-            <div className="text-[13px] font-semibold text-text-primary mb-2">
-              작업세션 <span className="text-muted font-normal">{done}/{total}</span>
-            </div>
-            {groups.length === 0 ? (
-              <p className="text-[12px] text-muted">세션 없음</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {groups.map(({ name, sessions: grpSessions }) => (
-                  <div key={name}>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-semibold"
-                        style={{ background: memberColor(name) }}>
-                        {name[0]}
-                      </span>
-                      <span className="text-[12px] font-medium text-text-primary">{name}</span>
-                      <span className="text-[10px] text-soft">{grpSessions.length}개</span>
-                    </div>
-                    {grpSessions.length === 0 ? (
-                      <p className="text-[11px] text-muted ml-7">작업 내역 없음</p>
-                    ) : (
-                      <div className="flex flex-col gap-1 ml-7">
-                        {grpSessions.map(s => (
-                          <div key={s.id} className="flex items-center gap-2 text-[12px]">
-                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.done ? 'bg-green' : 'bg-line'}`} />
-                            <span className={`flex-1 ${s.done ? 'line-through text-muted' : 'text-text-sub'}`}>{s.title}</span>
-                            {s.category && (
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${CAT_COLORS[s.category] || 'bg-surface-muted text-muted'}`}>
-                                {s.category}
-                              </span>
-                            )}
-                            {s.startTime && (
-                              <span className="text-[10px] text-soft font-mono">{s.startTime}~{s.endTime}</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* 아웃풋 / 리소스 */}
           <div>
