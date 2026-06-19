@@ -1,4 +1,31 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+
+function EditableText({ value, onCommit, onCancel, className }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.focus()
+    const range = document.createRange()
+    range.selectNodeContents(el)
+    window.getSelection()?.removeAllRanges()
+    window.getSelection()?.addRange(range)
+  }, [])
+  return (
+    <span
+      ref={ref}
+      contentEditable
+      suppressContentEditableWarning
+      className={className}
+      onClick={e => e.stopPropagation()}
+      onBlur={e => onCommit(e.currentTarget.innerText.trim())}
+      onKeyDown={e => {
+        if (e.key === 'Enter') { e.preventDefault(); onCommit(e.currentTarget.innerText.trim()) }
+        if (e.key === 'Escape') { e.preventDefault(); onCancel() }
+      }}
+    >{value}</span>
+  )
+}
 
 const EDIT_SVG = (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -214,9 +241,25 @@ function DeleteModal({ message, onConfirm, onClose }) {
 export default function ProcessPage({ processes, onUpdateProcesses }) {
   const [openCats, setOpenCats] = useState(new Set())
   const [dropInfo, setDropInfo] = useState(null)
-  const [modal, setModal] = useState(null) // { type: 'editCat'|'editStep'|'addCat'|'addStep'|'deleteCat'|'deleteStep', catId?, stepId? }
+  const [modal, setModal] = useState(null) // { type: 'addCat'|'addStep'|'deleteCat'|'deleteStep', catId?, stepId? }
+  const [editingInline, setEditingInline] = useState(null) // { type:'cat'|'step', catId, stepId? }
 
   const closeModal = useCallback(() => setModal(null), [])
+
+  const commitInlineEdit = useCallback((val, type, catId, stepId) => {
+    const v = val.trim()
+    if (v) {
+      if (type === 'cat') {
+        onUpdateProcesses(prev => prev.map(c => c.id === catId ? { ...c, category: v } : c))
+      } else {
+        onUpdateProcesses(prev => prev.map(c => c.id === catId
+          ? { ...c, steps: c.steps.map(s => s.id === stepId ? { ...s, title: v } : s) }
+          : c
+        ))
+      }
+    }
+    setEditingInline(null)
+  }, [onUpdateProcesses])
 
   const toggleCat = useCallback((catId) => {
     setOpenCats(prev => {
@@ -281,18 +324,6 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
         />
       )
     }
-    if (modal.type === 'editCat') {
-      const cat = processes.find(c => c.id === modal.catId)
-      if (!cat) return null
-      return (
-        <EditModal
-          title="카테고리 이름 수정"
-          defaultValue={cat.category}
-          onSave={name => onUpdateProcesses(prev => prev.map(c => c.id === modal.catId ? { ...c, category: name } : c))}
-          onClose={closeModal}
-        />
-      )
-    }
     if (modal.type === 'deleteCat') {
       const cat = processes.find(c => c.id === modal.catId)
       if (!cat) return null
@@ -311,21 +342,6 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
           defaultValue=""
           onSave={name => onUpdateProcesses(prev => prev.map(c =>
             c.id === modal.catId ? { ...c, steps: [...c.steps, { id: `ps-${modal.catId}-${Date.now()}`, title: name }] } : c
-          ))}
-          onClose={closeModal}
-        />
-      )
-    }
-    if (modal.type === 'editStep') {
-      const cat = processes.find(c => c.id === modal.catId)
-      const step = cat?.steps.find(s => s.id === modal.stepId)
-      if (!step) return null
-      return (
-        <EditModal
-          title="단계 이름 수정"
-          defaultValue={step.title}
-          onSave={name => onUpdateProcesses(prev => prev.map(c =>
-            c.id === modal.catId ? { ...c, steps: c.steps.map(s => s.id === modal.stepId ? { ...s, title: name } : s) } : c
           ))}
           onClose={closeModal}
         />
@@ -379,14 +395,23 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
                     className="w-full flex items-center gap-2 px-3.5 py-[13px] cursor-pointer hover:bg-surface-muted transition-colors"
                     onClick={() => toggleCat(cat.id)}
                   >
-                    <span className="text-[16px] font-bold text-blue shrink-0 max-w-[120px] truncate">{cat.category}</span>
+                    {editingInline?.type === 'cat' && editingInline?.catId === cat.id ? (
+                      <EditableText
+                        value={cat.category}
+                        onCommit={v => commitInlineEdit(v, 'cat', cat.id)}
+                        onCancel={() => setEditingInline(null)}
+                        className="text-[16px] font-bold text-blue shrink-0 outline-none border-b border-blue min-w-[60px] max-w-[160px]"
+                      />
+                    ) : (
+                      <span className="text-[16px] font-bold text-blue shrink-0 max-w-[120px] truncate">{cat.category}</span>
+                    )}
                     <span className="text-[11px] font-bold text-muted bg-surface-muted min-w-[22px] h-[22px] px-1.5 rounded-full inline-flex items-center justify-center shrink-0">{cat.steps.length}</span>
                     <span className="flex-1" />
                     <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-surface-muted hover:text-text-primary cursor-pointer"
                         title="수정"
-                        onClick={e => { e.stopPropagation(); setModal({ type: 'editCat', catId: cat.id }) }}
+                        onClick={e => { e.stopPropagation(); setEditingInline({ type: 'cat', catId: cat.id }) }}
                       >{EDIT_SVG}</button>
                       <button
                         className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-red/5 hover:text-red cursor-pointer"
@@ -423,12 +448,21 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
                                 <span className="text-[14px] text-muted font-mono w-[18px] text-right shrink-0">
                                   {String(idx + 1).padStart(2, '0')}.
                                 </span>
-                                <span className="text-[14px] text-text-primary flex-1">{step.title}</span>
+                                {editingInline?.type === 'step' && editingInline?.catId === cat.id && editingInline?.stepId === step.id ? (
+                                  <EditableText
+                                    value={step.title}
+                                    onCommit={v => commitInlineEdit(v, 'step', cat.id, step.id)}
+                                    onCancel={() => setEditingInline(null)}
+                                    className="text-[14px] text-text-primary flex-1 outline-none border-b border-text-primary"
+                                  />
+                                ) : (
+                                  <span className="text-[14px] text-text-primary flex-1">{step.title}</span>
+                                )}
                                 <div className="flex gap-0.5 opacity-0 group-hover/step:opacity-100 transition-opacity">
                                   <button
                                     className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-surface-muted hover:text-text-primary cursor-pointer"
                                     title="수정"
-                                    onClick={() => setModal({ type: 'editStep', catId: cat.id, stepId: step.id })}
+                                    onClick={() => setEditingInline({ type: 'step', catId: cat.id, stepId: step.id })}
                                   >{EDIT_SVG}</button>
                                   <button
                                     className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-red/5 hover:text-red cursor-pointer"
