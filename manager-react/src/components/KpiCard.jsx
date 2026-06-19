@@ -2,8 +2,7 @@ import { useMemo } from 'react'
 import { TODAY_ISO, calcMinutes, fmtDuration } from '../data/helpers'
 import { currentUser } from '../data/state'
 
-export default function KpiCard({ workItems, sessions }) {
-  const viewDate = TODAY_ISO
+export default function KpiCard({ workItems, sessions, viewDate = TODAY_ISO }) {
   const viewWeekday = new Date(viewDate + 'T00:00:00').getDay()
 
   const stats = useMemo(() => {
@@ -33,7 +32,9 @@ export default function KpiCard({ workItems, sessions }) {
   return (
     <div className="bg-surface border border-line rounded-[14px] overflow-hidden shadow-sm">
       <div className="px-5 py-[15px] pb-[13px] border-b border-line-soft">
-        <h2 className="text-[14px] font-semibold text-text-primary tracking-[-0.02em]">오늘의 현황</h2>
+        <h2 className="text-[14px] font-semibold text-text-primary tracking-[-0.02em]">
+          {viewDate === TODAY_ISO ? '오늘의 현황' : `${viewDate.slice(5).replace('-', '/')} 현황`}
+        </h2>
       </div>
       <div className="grid grid-cols-2 gap-2 p-[12px_14px_14px]">
         {stats.map((s, i) => (

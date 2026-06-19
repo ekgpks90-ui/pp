@@ -3716,6 +3716,8 @@ function submitAssign() {
 let _procOpenCats = new Set();
 let _procDragId   = null;
 let _procDragCatId = null;
+let _procEditCallback = null;
+let _procDeleteCallback = null;
 
 const PROC_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
 function procMemberAvatar(name) {
@@ -3724,13 +3726,40 @@ function procMemberAvatar(name) {
   return `<span class="proc-avatar" style="background:${bg}" title="${escapeHtml(name)}">${name[0]}</span>`;
 }
 
+function openProcEditModal(title, value, onSave) {
+  const modal = document.getElementById('procEditModal');
+  const input = document.getElementById('procEditInput');
+  const titleEl = document.getElementById('procEditModalTitle');
+  if (!modal) return;
+  titleEl.textContent = title;
+  input.value = value || '';
+  _procEditCallback = onSave;
+  modal.classList.remove('hidden');
+  setTimeout(() => { input.focus(); input.select(); }, 50);
+}
+function closeProcEditModal() {
+  document.getElementById('procEditModal')?.classList.add('hidden');
+  _procEditCallback = null;
+}
+function openProcDeleteModal(desc, onConfirm) {
+  const modal = document.getElementById('procDeleteModal');
+  if (!modal) return;
+  document.getElementById('procDeleteModalDesc').textContent = desc;
+  _procDeleteCallback = onConfirm;
+  modal.classList.remove('hidden');
+}
+function closeProcDeleteModal() {
+  document.getElementById('procDeleteModal')?.classList.add('hidden');
+  _procDeleteCallback = null;
+}
+
 function renderProcessPage() {
   const body = document.getElementById('processBody');
   if (!body) return;
 
   const tabBarEl = document.getElementById('procTabBar');
   if (tabBarEl) {
-    tabBarEl.innerHTML = `<button class="proc-tab active" type="button">+ 프로세스 등록</button>`;
+    tabBarEl.innerHTML = `<button class="proc-tab active" type="button" data-proc-add-cat>+ 프로세스 등록</button>`;
   }
 
   if (!state.processes.length) {
@@ -4089,13 +4118,37 @@ function bindEvents() {
       return;
     }
 
-    // Process: edit category name
+    // Process: add category
+    const procAddCatBtn = e.target.closest('[data-proc-add-cat]');
+    if (procAddCatBtn) {
+      openProcEditModal('프로세스 등록', '', (name) => {
+        state.processes.push({ id: `pc-${Date.now()}`, category: name, steps: [] });
+        renderProcessPage();
+      });
+      return;
+    }
+
+    // Process: edit category name (inline)
     const editCatBtn = e.target.closest('[data-edit-cat]');
     if (editCatBtn) {
       const cat = state.processes.find(c => c.id === editCatBtn.dataset.editCat);
       if (!cat) return;
-      const name = prompt('카테고리 이름 수정', cat.category);
-      if (name && name.trim()) { cat.category = name.trim(); renderProcessPage(); }
+      const card = document.querySelector(`.proc-card[data-cat="${cat.id}"]`);
+      if (!card) return;
+      const titleEl = card.querySelector('.proc-cat-title');
+      if (!titleEl || titleEl.querySelector('input')) return;
+      const inp = document.createElement('input');
+      inp.className = 'proc-inline-input';
+      inp.value = cat.category;
+      titleEl.textContent = '';
+      titleEl.appendChild(inp);
+      inp.focus(); inp.select();
+      const commit = () => { const v = inp.value.trim(); if (v) cat.category = v; renderProcessPage(); };
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter') { ev.preventDefault(); inp.removeEventListener('blur', commit); commit(); }
+        if (ev.key === 'Escape') { ev.preventDefault(); inp.removeEventListener('blur', commit); renderProcessPage(); }
+      });
       return;
     }
 
@@ -4104,21 +4157,36 @@ function bindEvents() {
     if (deleteCatBtn) {
       const cat = state.processes.find(c => c.id === deleteCatBtn.dataset.deleteCat);
       if (!cat) return;
-      if (!confirm(`'${cat.category}' 카테고리를 삭제할까요?`)) return;
-      state.processes = state.processes.filter(c => c.id !== deleteCatBtn.dataset.deleteCat);
-      renderProcessPage();
+      openProcDeleteModal(`'${cat.category}' 카테고리를 삭제하면 복구할 수 없습니다.`, () => {
+        state.processes = state.processes.filter(c => c.id !== cat.id);
+        renderProcessPage();
+      });
       return;
     }
 
-    // Process: edit step
+    // Process: edit step (inline)
     const editStepBtn = e.target.closest('[data-edit-step]');
     if (editStepBtn) {
       const cat = state.processes.find(c => c.id === editStepBtn.dataset.catId);
       if (!cat) return;
       const step = cat.steps.find(s => s.id === editStepBtn.dataset.editStep);
       if (!step) return;
-      const name = prompt('프로세스 이름 수정', step.title);
-      if (name && name.trim()) { step.title = name.trim(); renderProcessPage(); }
+      const row = document.querySelector(`[data-drag-step="${step.id}"]`);
+      if (!row) return;
+      const titleEl = row.querySelector('.proc-step-title');
+      if (!titleEl || titleEl.querySelector('input')) return;
+      const inp = document.createElement('input');
+      inp.className = 'proc-inline-input';
+      inp.value = step.title;
+      titleEl.textContent = '';
+      titleEl.appendChild(inp);
+      inp.focus(); inp.select();
+      const commit = () => { const v = inp.value.trim(); if (v) step.title = v; renderProcessPage(); };
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter') { ev.preventDefault(); inp.removeEventListener('blur', commit); commit(); }
+        if (ev.key === 'Escape') { ev.preventDefault(); inp.removeEventListener('blur', commit); renderProcessPage(); }
+      });
       return;
     }
 
@@ -4129,9 +4197,10 @@ function bindEvents() {
       if (!cat) return;
       const step = cat.steps.find(s => s.id === deleteStepBtn.dataset.deleteStep);
       if (!step) return;
-      if (!confirm(`'${step.title}' 프로세스를 삭제할까요?`)) return;
-      cat.steps = cat.steps.filter(s => s.id !== deleteStepBtn.dataset.deleteStep);
-      renderProcessPage();
+      openProcDeleteModal(`'${step.title}' 단계를 삭제하면 복구할 수 없습니다.`, () => {
+        cat.steps = cat.steps.filter(s => s.id !== step.id);
+        renderProcessPage();
+      });
       return;
     }
 
@@ -4140,11 +4209,10 @@ function bindEvents() {
     if (addStepBtn) {
       const cat = state.processes.find(c => c.id === addStepBtn.dataset.addStep);
       if (!cat) return;
-      const name = prompt('새 프로세스 이름을 입력하세요');
-      if (!name || !name.trim()) return;
-      const newId = `ps-${cat.id}-${Date.now()}`;
-      cat.steps.push({ id: newId, title: name.trim() });
-      renderProcessPage();
+      openProcEditModal('단계 추가', '', (name) => {
+        cat.steps.push({ id: `ps-${cat.id}-${Date.now()}`, title: name });
+        renderProcessPage();
+      });
       return;
     }
 
@@ -4610,6 +4678,34 @@ function bindEvents() {
   $('#cancelReject').addEventListener('click', closeRejectModal);
   $('#cancelDelete').addEventListener('click', () => $('#deleteModal').classList.add('hidden'));
   $('#confirmDelete').addEventListener('click', confirmDelete);
+
+  // Process edit modal
+  document.getElementById('procEditCancel')?.addEventListener('click', closeProcEditModal);
+  document.getElementById('procEditSave')?.addEventListener('click', () => {
+    const val = document.getElementById('procEditInput')?.value.trim();
+    if (val && _procEditCallback) { _procEditCallback(val); closeProcEditModal(); }
+  });
+  document.getElementById('procEditInput')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const val = e.target.value.trim();
+      if (val && _procEditCallback) { _procEditCallback(val); closeProcEditModal(); }
+    } else if (e.key === 'Escape') {
+      closeProcEditModal();
+    }
+  });
+  document.getElementById('procEditModal')?.addEventListener('click', e => {
+    if (e.target.id === 'procEditModal') closeProcEditModal();
+  });
+
+  // Process delete modal
+  document.getElementById('procDeleteCancel')?.addEventListener('click', closeProcDeleteModal);
+  document.getElementById('procDeleteConfirm')?.addEventListener('click', () => {
+    if (_procDeleteCallback) _procDeleteCallback();
+    closeProcDeleteModal();
+  });
+  document.getElementById('procDeleteModal')?.addEventListener('click', e => {
+    if (e.target.id === 'procDeleteModal') closeProcDeleteModal();
+  });
 
   // Notifications
   $('#notificationToggle').addEventListener('click', () => {

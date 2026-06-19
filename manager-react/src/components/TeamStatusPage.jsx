@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { canEditOthersData } from '../data/roles'
 import NewRequestModal from './NewRequestModal'
+import AssignModal from './AssignModal'
 
 const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
 
@@ -18,6 +19,7 @@ const REQ_GROUPS = [
 export default function TeamStatusPage({ role, assignmentRequests, teamMembers, currentUser, processes, onUpdateAssignmentRequests }) {
   const canEditOthers = canEditOthersData(role)
   const [showNewReqModal, setShowNewReqModal] = useState(false)
+  const [assignTarget, setAssignTarget] = useState(null)
   const today = new Date()
   const dateStr = `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`
 
@@ -104,7 +106,9 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
                       </span>
                       <span className="flex justify-end">
                         {group.showBtn && canEditOthers ? (
-                          <button className={`text-[11px] font-semibold px-2.5 py-[3px] rounded border cursor-pointer hover:opacity-75 whitespace-nowrap ${group.btnCls}`}>
+                          <button
+                            onClick={() => setAssignTarget(r)}
+                            className={`text-[11px] font-semibold px-2.5 py-[3px] rounded border cursor-pointer hover:opacity-75 whitespace-nowrap ${group.btnCls}`}>
                             담당자 배정
                           </button>
                         ) : (
@@ -194,10 +198,26 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
         </div>
       </div>
 
+      {assignTarget && (
+        <AssignModal
+          request={assignTarget}
+          teamMembers={teamMembers}
+          processes={processes}
+          onClose={() => setAssignTarget(null)}
+          onSubmit={({ requestId, processId, assignees, stepAssignees }) => {
+            onUpdateAssignmentRequests?.(prev =>
+              prev.map(r => r.id === requestId ? { ...r, processId, assignees, stepAssignees, status: '수락대기중' } : r)
+            )
+            setAssignTarget(null)
+          }}
+        />
+      )}
+
       {showNewReqModal && (
         <NewRequestModal
           processes={processes || []}
           teamMembers={teamMembers}
+          currentUser={currentUser}
           onSubmit={(newReq) => {
             onUpdateAssignmentRequests?.(prev => [...prev, newReq])
           }}
