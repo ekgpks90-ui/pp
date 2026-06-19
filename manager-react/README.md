@@ -43,13 +43,20 @@ npm run lint     # ESLint 검사
 
 | 페이지 | 컴포넌트 | 설명 |
 |--------|----------|------|
-| 홈 | `HomePage` | 주간 업무항목·작업세션, KPI, 업무요청 |
-| 캘린더 | `CalendarPage` | 업무항목 간트 타임라인, 단계별 참여자·아웃풋/리소스 (회의·연차 제외). 프로젝트명 클릭 시 업무 상세 패널 — 직원은 조회 전용(`canEditCalendar`), 팀장·대표는 수정 가능 |
-| 팀원 현황 | `TeamStatusPage` | 팀원별 주간 업무 현황, 담당자 배정 |
-| 프로세스 | `ProcessPage` | 프로세스 템플릿 조회 (팀장·대표만) |
-| 미팅룸 | `MeetingRoomPage` | 회의록 등록·조회, 액션아이템 |
+| 홈 | `HomePage` / `CeoDashboard`(대표) | 직원·팀장은 주간 업무항목·작업세션·KPI·업무요청. 대표는 경영 대시보드(진행/지연/납기 요약·Project Status·KPI·AI Brief·Approval) |
+| 캘린더 | `CalendarPage` | **전체 보기**(모든 프로젝트 간트) ↔ **프로젝트별**(단계·담당자 타임라인) 토글, 아웃풋/리소스 (회의·연차 제외). 프로젝트명 클릭 시 업무 상세 패널 — 직원은 조회 전용(`canEditCalendar`), 팀장·대표는 수정 가능 |
+| 팀원 현황 | `TeamStatusPage` / `CeoCompanyStatus`(대표) | 직원·팀장은 팀원별 주간 업무·담당자 배정. 대표는 Team KPI·리소스·업무 편중·신규 요청 |
+| 프로세스 | `ProcessPage` / `CeoProcessPage`(대표) | 직원 외 조회. 대표는 프로세스 개요·병목 분석·AI 개선 제안 |
+| 미팅룸 | `MeetingRoomPage` | 회의록 등록·조회, AI 요약(카드 노출), 액션아이템, 팀 탭 + 검색(회의명·참석자·AI요약). 대표는 전체 회의 조회 |
 | 연차 | `LeavePage` | 연차 신청·조회·승인 |
-| 마이페이지 | `MyPage` | 본인 작업 히스토리 |
+| 리포트 센터 | `CeoReportCenter` | **대표 전용 메뉴.** 매출(예시)·프로젝트·인력·연차·Export 5개 탭 |
+| 마이페이지 | `MyPage` | 본인 작업 히스토리 (개인 페이지, 역할 무관) |
+
+> **대표(owner) 전용 화면**: Home·팀원 현황·프로세스는 화면 성격이 완전히 달라 owner일 때
+> 별도 컴포넌트(`CeoDashboard`/`CeoCompanyStatus`/`CeoProcessPage`)로 교체되고, Report Center는
+> owner에게만 노출됩니다. 데이터는 한 벌(`state.js`)을 공유하며, 카드/섹션 UI는 `CeoUI.jsx`에
+> 모았습니다. 기획 규칙상 "완료" 상태는 만들지 않으므로 모든 지표는 진행 중·지연으로 표현하고,
+> 매출 등 데이터 없는 항목은 "예시"로 표기합니다.
 
 ## 폴더 구조
 
