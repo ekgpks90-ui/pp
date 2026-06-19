@@ -4,6 +4,7 @@ import MeetingDetailPanel from './MeetingDetailPanel'
 import MeetingSaveModal from './MeetingSaveModal'
 import ScheduleMeetingModal from './ScheduleMeetingModal'
 import ConfirmModal from './ConfirmModal'
+import AcceptModal from './AcceptModal'
 import { canViewAllMeetings } from '../data/roles'
 
 const TEAM_TAG_COLORS = {
@@ -20,6 +21,9 @@ function memberColor(name) {
   return palette[h % palette.length]
 }
 
+// 파형 막대 높이(px) — 렌더마다 흔들리지 않도록 고정값 사용. 움직임은 animate-pulse가 담당.
+const WAVEFORM_HEIGHTS = [10, 18, 13, 22, 11, 20, 15, 24, 12, 19, 14, 21]
+
 function recFmtTime(s) {
   const m = Math.floor(s / 60).toString().padStart(2, '0')
   const sec = (s % 60).toString().padStart(2, '0')
@@ -28,17 +32,19 @@ function recFmtTime(s) {
 
 export default function MeetingRoomPage({
   role, currentUser,
-  meetings, teamMembers, workItems,
+  meetings, teamMembers,
   onUpdateMeeting, onDeleteMeeting, onAddMeeting,
   onAddWorkItem, onAddNotification,
   searchQuery,
 }) {
   const [teamFilter, setTeamFilter] = useState('전체')
-  const [detailMeeting, setDetailMeeting] = useState(null)
+  const [detailMeetingId, setDetailMeetingId] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [showSaveModal, setShowSaveModal] = useState(false)
   const [saveDuration, setSaveDuration] = useState('00:00')
   const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [acceptingAction, setAcceptingAction] = useState(null) // { meetingId, actionItem }
+  const [editingMeeting, setEditingMeeting] = useState(null)
 
   // Recorder state
   const [recStatus, setRecStatus] = useState('idle') // 'idle' | 'recording'
@@ -84,6 +90,11 @@ export default function MeetingRoomPage({
     return true
   })
 
+  // detailMeetingId로 meetings에서 최신 객체를 조회 → updateMeeting 후에도 패널이 즉시 갱신됨.
+  const detailMeeting = detailMeetingId != null
+    ? meetings.find(m => m.id === detailMeetingId)
+    : null
+
   const handleDeleteConfirm = () => {
     if (deleteConfirm) {
       onDeleteMeeting(deleteConfirm.id)
@@ -94,6 +105,12 @@ export default function MeetingRoomPage({
   const handleSaveMeeting = (newMeeting) => {
     onAddMeeting(newMeeting)
     setShowSaveModal(false)
+  }
+
+  // 회의록 수정: 저장 모달과 동일한 폼으로 기존 회의를 갱신
+  const handleUpdateMeeting = (updated) => {
+    onUpdateMeeting(updated.id, updated)
+    setEditingMeeting(null)
   }
 
   const handleScheduleMeeting = ({ title, date, time, room, attendeeNames }) => {
@@ -108,24 +125,46 @@ export default function MeetingRoomPage({
     setShowScheduleModal(false)
   }
 
+  // 액션아이템 "→ 추가" 클릭: 업무요청 수락과 동일한 폼(AcceptModal)을 띄운다.
   const handleAddAction = (meetingId, actionItem) => {
+    setAcceptingAction({ meetingId, actionItem })
+  }
+
+  // 액션아이템을 AcceptModal이 이해하는 request 형태로 변환 (제목·기간·타입).
+  const actionAsRequest = acceptingAction
+    ? {
+        id: acceptingAction.actionItem.id,
+        title: acceptingAction.actionItem.text,
+        start: acceptingAction.actionItem.dueDate && acceptingAction.actionItem.dueDate < TODAY_ISO
+          ? acceptingAction.actionItem.dueDate : TODAY_ISO,
+        end: acceptingAction.actionItem.dueDate && acceptingAction.actionItem.dueDate > TODAY_ISO
+          ? acceptingAction.actionItem.dueDate : TODAY_ISO,
+        priority: '일반',
+      }
+    : null
+
+  // 모달 확인: 이번 주 업무항목 추가 + 액션아이템 "추가됨" 표시 + 알림.
+  const handleSubmitAction = ({ newItem }) => {
+    if (!acceptingAction) return
+    const { meetingId, actionItem } = acceptingAction
+    onAddWorkItem({
+      id: newItem.id,
+      title: newItem.title,
+      start: newItem.start,
+      end: newItem.end,
+      type: newItem.type,
+      participants: newItem.participants,
+      sourceMeetingId: meetingId,
+      sourceActionId: actionItem.id,
+    })
     onUpdateMeeting(meetingId, (m) => ({
       ...m,
       actionItems: m.actionItems.map(a =>
         a.id === actionItem.id ? { ...a, addedToWeekly: true } : a
       ),
     }))
-    // Add as work item
-    const dueDate = actionItem.dueDate || TODAY_ISO
-    onAddWorkItem({
-      id: `wi-act-${Date.now()}`,
-      title: actionItem.text,
-      start: dueDate < TODAY_ISO ? dueDate : TODAY_ISO,
-      end: dueDate < TODAY_ISO ? TODAY_ISO : dueDate,
-      type: '일반',
-      participants: ['Jihye'],
-    })
-    onAddNotification('업무항목 추가', `"${actionItem.text}" 업무항목이 이번 주 업무에 추가되었습니다.`)
+    onAddNotification('업무항목 추가', `"${actionItem.text}" 업무항목이 이번 주 업무에 추가되었습니다.`, actionItem.text)
+    setAcceptingAction(null)
   }
 
   return (
@@ -170,7 +209,8 @@ export default function MeetingRoomPage({
                 <MeetingCard
                   key={m.id}
                   meeting={m}
-                  onView={() => setDetailMeeting(m)}
+                  onView={() => setDetailMeetingId(m.id)}
+                  onEdit={() => setEditingMeeting(m)}
                   onDelete={() => setDeleteConfirm(m)}
                 />
               ))}
@@ -193,7 +233,8 @@ export default function MeetingRoomPage({
       {detailMeeting && (
         <MeetingDetailPanel
           meeting={detailMeeting}
-          onClose={() => setDetailMeeting(null)}
+          currentUserName={currentUser?.name}
+          onClose={() => setDetailMeetingId(null)}
           onAddAction={handleAddAction}
         />
       )}
@@ -226,31 +267,63 @@ export default function MeetingRoomPage({
           onSave={handleScheduleMeeting}
         />
       )}
+
+      {/* 회의록 수정 — 저장 모달과 동일한 폼 */}
+      {editingMeeting && (
+        <MeetingSaveModal
+          meeting={editingMeeting}
+          teamMembers={teamMembers}
+          onClose={() => setEditingMeeting(null)}
+          onSave={handleUpdateMeeting}
+        />
+      )}
+
+      {/* 액션아이템 추가 — 업무요청 수락과 동일한 폼 */}
+      {acceptingAction && (
+        <AcceptModal
+          request={actionAsRequest}
+          onClose={() => setAcceptingAction(null)}
+          onSubmit={handleSubmitAction}
+        />
+      )}
     </div>
   )
 }
 
 // ─── MeetingCard ────────────────────────────────────────────────────────────────
 
-function MeetingCard({ meeting: m, onView, onDelete }) {
+function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
   const tc = TEAM_TAG_COLORS[m.team] || { bg: '#f3f4f6', text: '#374151' }
   const date = (m.date || m.startDate || '').replace(/-/g, '.')
   const actionCount = (m.actionItems || []).length
 
   return (
     <div className="group relative bg-white border border-line rounded-xl p-4 hover:shadow-sm transition-shadow">
-      {/* Delete button */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onDelete() }}
-        className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-md text-muted hover:text-red hover:bg-red-soft opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6l-1 14H6L5 6"/>
-          <path d="M10 11v6M14 11v6"/>
-          <path d="M9 6V4h6v2"/>
-        </svg>
-      </button>
+      {/* Edit + Delete buttons */}
+      <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => { e.stopPropagation(); onEdit() }}
+          className="w-7 h-7 flex items-center justify-center rounded-md text-muted hover:text-blue hover:bg-blue-soft cursor-pointer"
+          title="회의록 수정"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete() }}
+          className="w-7 h-7 flex items-center justify-center rounded-md text-muted hover:text-red hover:bg-red-soft cursor-pointer"
+          title="회의록 삭제"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
+      </div>
 
       {/* Top row: tags + meta */}
       <div className="flex items-center justify-between mb-2">
@@ -269,7 +342,7 @@ function MeetingCard({ meeting: m, onView, onDelete }) {
       </div>
 
       {/* Title */}
-      <div className="text-[14px] font-semibold text-text-primary mb-1.5 pr-6">{m.title}</div>
+      <div className="text-[14px] font-semibold text-text-primary mb-1.5 pr-14">{m.title}</div>
 
       {/* Summary */}
       <div className="text-[12.5px] text-text-sub leading-[1.6] mb-3 line-clamp-2">{m.summary}</div>
@@ -327,11 +400,11 @@ function RecorderWidget({ status, seconds, onStart, onStop }) {
       {/* Waveform placeholder */}
       {isRecording && (
         <div className="flex items-center gap-[3px] h-6">
-          {[...Array(12)].map((_, i) => (
+          {WAVEFORM_HEIGHTS.map((h, i) => (
             <div
               key={i}
               className="w-[3px] bg-red/60 rounded-full animate-pulse"
-              style={{ height: `${8 + Math.random() * 16}px`, animationDelay: `${i * 0.1}s` }}
+              style={{ height: `${h}px`, animationDelay: `${i * 0.1}s` }}
             />
           ))}
         </div>

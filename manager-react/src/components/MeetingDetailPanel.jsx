@@ -1,20 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
-export default function MeetingDetailPanel({ meeting: m, onClose, onAddAction }) {
+function memberColor(name) {
+  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  let h = 0
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
+  return palette[h % palette.length]
+}
+
+export default function MeetingDetailPanel({ meeting: m, currentUserName, onClose, onAddAction }) {
   const [activeTab, setActiveTab] = useState('ai')
   const [isOpen, setIsOpen] = useState(false)
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false)
+    setTimeout(onClose, 200)
+  }, [onClose])
 
   useEffect(() => {
     requestAnimationFrame(() => setIsOpen(true))
     const onKey = (e) => { if (e.key === 'Escape') handleClose() }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [])
-
-  const handleClose = () => {
-    setIsOpen(false)
-    setTimeout(onClose, 200)
-  }
+  }, [handleClose])
 
   const tabs = [
     { key: 'ai', label: 'AI 분석' },
@@ -37,14 +44,46 @@ export default function MeetingDetailPanel({ meeting: m, onClose, onAddAction })
             <span className="px-2 py-0.5 rounded bg-blue-soft text-blue text-[11px] font-semibold">{m.team}</span>
             <span className="px-2 py-0.5 rounded bg-surface-muted text-muted text-[11px] font-medium">{m.type}</span>
           </div>
-          <div className="text-[16px] font-bold text-text-primary mb-1">{m.title}</div>
-          <div className="flex items-center gap-3 text-[11.5px] text-soft">
+          <div className="text-[16px] font-bold text-text-primary mb-2">{m.title}</div>
+          <div className="flex items-center gap-3 text-[11.5px] text-soft mb-3">
             <span>{(m.date || '').replace(/-/g, '.')}</span>
             <span>{m.author}</span>
             <span>⏱ {m.duration}</span>
-            <span>👥 {m.attendees}명</span>
+          </div>
+          {/* 참여자 — 이름으로 상세 표시 */}
+          <div className="flex items-start gap-2">
+            <span className="text-[11.5px] text-muted shrink-0 mt-1">
+              참여자 {(m.attendeeNames || []).length}명
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {(m.attendeeNames || []).map(name => (
+                <span
+                  key={name}
+                  className="flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-full bg-surface-muted text-[11.5px] text-text-sub font-medium"
+                >
+                  <span
+                    className="w-4 h-4 rounded-full flex items-center justify-center text-white text-[9px] font-semibold"
+                    style={{ background: memberColor(name) }}
+                  >
+                    {name[0]}
+                  </span>
+                  {name}
+                </span>
+              ))}
+              {!(m.attendeeNames || []).length && (
+                <span className="text-[11.5px] text-muted mt-0.5">참여자 정보 없음</span>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* 회의 내용 — 탭과 무관하게 항상 표시되는 공통 영역 */}
+        {m.summary && (
+          <div className="px-6 py-4 border-b border-line">
+            <div className="text-[12px] font-semibold text-muted mb-1.5">회의 내용</div>
+            <p className="text-[13px] text-text-sub leading-[1.7] whitespace-pre-line">{m.summary}</p>
+          </div>
+        )}
 
         {/* Tab bar */}
         <div className="flex border-b border-line px-6">
@@ -66,7 +105,7 @@ export default function MeetingDetailPanel({ meeting: m, onClose, onAddAction })
         <div className="flex-1 overflow-y-auto p-6">
           {activeTab === 'ai' && <AiTab meeting={m} />}
           {activeTab === 'script' && <ScriptTab meeting={m} />}
-          {activeTab === 'actions' && <ActionsTab meeting={m} onAddAction={onAddAction} />}
+          {activeTab === 'actions' && <ActionsTab meeting={m} currentUserName={currentUserName} onAddAction={onAddAction} />}
         </div>
       </div>
     </div>
@@ -131,19 +170,17 @@ function ScriptTab({ meeting: m }) {
   )
 }
 
-function ActionsTab({ meeting: m, onAddAction }) {
+function ActionsTab({ meeting: m, currentUserName, onAddAction }) {
   const items = m.actionItems || []
 
   if (!items.length) {
     return <p className="text-[13px] text-muted">액션아이템 없음</p>
   }
 
-  const currentUser = 'Jihye'
-
   return (
     <div className="flex flex-col gap-2">
       {items.map(a => {
-        const isMyTask = a.assignee === currentUser
+        const isMyTask = a.assignee === currentUserName
         return (
           <div key={a.id} className={`flex items-start gap-3 p-3 rounded-lg border border-line ${a.done ? 'opacity-50' : ''}`}>
             <div className="flex-1 min-w-0">

@@ -175,7 +175,6 @@ export default function App() {
             currentUser={currentUser}
             meetings={meetings}
             teamMembers={teamMembers}
-            workItems={workItems}
             onUpdateMeeting={updateMeeting}
             onDeleteMeeting={deleteMeeting}
             onAddMeeting={addMeeting}
