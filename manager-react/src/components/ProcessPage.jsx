@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 
 export default function ProcessPage({ processes, onUpdateProcesses }) {
   const [openCats, setOpenCats] = useState(new Set())
+  const [dropInfo, setDropInfo] = useState(null) // { stepId, catId, position: 'before'|'after' }
 
   const toggleCat = useCallback((catId) => {
     setOpenCats(prev => {
@@ -18,21 +19,38 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
     e.dataTransfer.effectAllowed = 'move'
   }
 
+  const handleDragOver = (e, stepId, catId) => {
+    e.preventDefault()
+    const rect = e.currentTarget.getBoundingClientRect()
+    const position = e.clientY < rect.top + rect.height / 2 ? 'before' : 'after'
+    setDropInfo(prev =>
+      prev?.stepId === stepId && prev?.position === position ? prev : { stepId, catId, position }
+    )
+  }
+
+  const handleDragLeave = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) setDropInfo(null)
+  }
+
   const handleDrop = (e, toStepId, toCatId) => {
     e.preventDefault()
     const fromStepId = e.dataTransfer.getData('stepId')
     const fromCatId = e.dataTransfer.getData('catId')
+    setDropInfo(null)
     if (!fromStepId || fromStepId === toStepId || fromCatId !== toCatId) return
     if (!onUpdateProcesses) return
+
+    const position = dropInfo?.position || 'after'
 
     onUpdateProcesses(prev => prev.map(cat => {
       if (cat.id !== toCatId) return cat
       const steps = [...cat.steps]
       const fi = steps.findIndex(s => s.id === fromStepId)
-      const ti = steps.findIndex(s => s.id === toStepId)
+      let ti = steps.findIndex(s => s.id === toStepId)
       if (fi === -1 || ti === -1) return cat
       const [moved] = steps.splice(fi, 1)
-      steps.splice(ti, 0, moved)
+      ti = steps.findIndex(s => s.id === toStepId)
+      steps.splice(position === 'before' ? ti : ti + 1, 0, moved)
       return { ...cat, steps }
     }))
   }
@@ -82,33 +100,45 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
                   {isOpen && (
                     <div className="border-t border-line flex flex-col" style={{ height: 280, overflowY: 'auto' }}>
                       <div className="flex flex-col">
-                        {cat.steps.map((step, idx) => (
-                          <div
-                            key={step.id}
-                            className="flex items-center gap-2.5 px-3.5 py-[9px] border-b border-line/50 last:border-b-0 hover:bg-surface-muted cursor-grab active:cursor-grabbing group/step"
-                            draggable
-                            onDragStart={e => handleDragStart(e, step.id, cat.id)}
-                            onDragOver={e => e.preventDefault()}
-                            onDrop={e => handleDrop(e, step.id, cat.id)}
-                          >
-                            <span className="text-[14px] text-muted font-mono w-[18px] text-right shrink-0">
-                              {String(idx + 1).padStart(2, '0')}.
-                            </span>
-                            <span className="text-[14px] text-text-primary flex-1">{step.title}</span>
-                            <div className="flex gap-0.5 opacity-0 group-hover/step:opacity-100 transition-opacity">
-                              <button className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-surface-muted hover:text-text-primary cursor-pointer" title="수정">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                </svg>
-                              </button>
-                              <button className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-red/5 hover:text-red cursor-pointer" title="삭제">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                                </svg>
-                              </button>
+                        {cat.steps.map((step, idx) => {
+                          const isBefore = dropInfo?.stepId === step.id && dropInfo?.catId === cat.id && dropInfo?.position === 'before'
+                          const isAfter  = dropInfo?.stepId === step.id && dropInfo?.catId === cat.id && dropInfo?.position === 'after'
+                          return (
+                            <div key={step.id} className="relative">
+                              {isBefore && (
+                                <div className="absolute top-0 left-2 right-2 h-[2px] bg-blue rounded-full z-10 pointer-events-none" />
+                              )}
+                              <div
+                                className="flex items-center gap-2.5 px-3.5 py-[9px] border-b border-line/50 last:border-b-0 hover:bg-surface-muted cursor-grab active:cursor-grabbing group/step"
+                                draggable
+                                onDragStart={e => handleDragStart(e, step.id, cat.id)}
+                                onDragOver={e => handleDragOver(e, step.id, cat.id)}
+                                onDragLeave={handleDragLeave}
+                                onDrop={e => handleDrop(e, step.id, cat.id)}
+                              >
+                                <span className="text-[14px] text-muted font-mono w-[18px] text-right shrink-0">
+                                  {String(idx + 1).padStart(2, '0')}.
+                                </span>
+                                <span className="text-[14px] text-text-primary flex-1">{step.title}</span>
+                                <div className="flex gap-0.5 opacity-0 group-hover/step:opacity-100 transition-opacity">
+                                  <button className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-surface-muted hover:text-text-primary cursor-pointer" title="수정">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                  </button>
+                                  <button className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-red/5 hover:text-red cursor-pointer" title="삭제">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                              {isAfter && (
+                                <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue rounded-full z-10 pointer-events-none" />
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                       <button className="flex items-center gap-1.5 px-3.5 h-[42px] text-[14px] text-blue w-full cursor-pointer hover:bg-blue/5 transition-colors shrink-0 mt-auto border-t border-dashed border-line">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
