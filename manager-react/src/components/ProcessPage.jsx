@@ -106,7 +106,7 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
                           return (
                             <div key={step.id} className="relative">
                               {isBefore && (
-                                <div className="absolute top-0 left-2 right-2 h-[2px] bg-blue rounded-full z-10 pointer-events-none" />
+                                <div className="absolute top-0 left-2 right-2 h-[2px] bg-[#9ca3af] rounded-full z-10 pointer-events-none" />
                               )}
                               <div
                                 className="flex items-center gap-2.5 px-3.5 py-[9px] border-b border-line/50 last:border-b-0 hover:bg-surface-muted cursor-grab active:cursor-grabbing group/step"
@@ -134,7 +134,7 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
                                 </div>
                               </div>
                               {isAfter && (
-                                <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue rounded-full z-10 pointer-events-none" />
+                                <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#9ca3af] rounded-full z-10 pointer-events-none" />
                               )}
                             </div>
                           )
