@@ -49,7 +49,7 @@ function LeaveRejectModal({ leave, onClose, onSubmit }) {
                     value={r}
                     checked={reason === r}
                     onChange={() => setReason(r)}
-                    className="accent-blue"
+                    className="accent-red"
                   />
                   {r}
                 </label>
