@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
+import { processes, currentUser, teamMembers } from '../data/state'
+import { isDelayed, TODAY_ISO } from '../data/helpers'
 
 const DAY_LABELS = ['월', '화', '수', '목', '금']
 
-export default function DetailPanel({ item, onClose, onSave, onNavigate }) {
+export default function DetailPanel({ item, sessions = [], meetings = [], onClose, onSave, onNavigate }) {
   const [draft, setDraft] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [showAllSteps, setShowAllSteps] = useState(false)
 
   // Escape key
   useEffect(() => {
@@ -23,6 +26,7 @@ export default function DetailPanel({ item, onClose, onSave, onNavigate }) {
         description: item.description || '',
         recurringDays: item.recurringDays ? [...item.recurringDays] : [1],
       })
+      setShowAllSteps(false)
       requestAnimationFrame(() => setIsOpen(true))
     } else {
       setIsOpen(false)
@@ -74,6 +78,14 @@ export default function DetailPanel({ item, onClose, onSave, onNavigate }) {
 
   // Meeting type: read-only detail
   if (isMeeting) {
+    const meeting = meetings.find(m => m.id === item.sourceMeetingId)
+    const hasNotes = !!(meeting && (meeting.summary || (meeting.aiPoints && meeting.aiPoints.length)))
+    const meetingType = meeting
+      ? meeting.type
+      : (item.meetingType ? `${item.meetingType} · 예정` : (item.scheduled ? '예정' : '-'))
+    const meetingRoom = (meeting && meeting.room) || item.room || null
+    const aiPoints = (meeting && meeting.aiPoints) || []
+
     return (
       <div className={`fixed inset-0 z-50 flex justify-end transition-opacity duration-200 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 bg-black/30" onClick={handleClose} />
@@ -86,13 +98,23 @@ export default function DetailPanel({ item, onClose, onSave, onNavigate }) {
             <span className="text-[12px] font-semibold text-orange bg-orange-soft px-2 py-0.5 rounded self-start">회의</span>
             <div className="text-[18px] font-bold text-text-primary">{item.title}</div>
             <div>
-              <span className="text-[12px] text-muted block mb-1">날짜</span>
-              <span className="text-[14px] text-text-primary">{item.start}</span>
+              <span className="text-[12px] text-muted block mb-1">회의 유형</span>
+              <span className="text-[14px] text-text-primary">{meetingType}</span>
             </div>
-            {item.meetingTime && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <span className="text-[12px] text-muted block mb-1">날짜</span>
+                <span className="text-[14px] text-text-primary">{item.start}</span>
+              </div>
               <div>
                 <span className="text-[12px] text-muted block mb-1">시간</span>
-                <span className="text-[14px] text-text-primary">{item.meetingTime}</span>
+                <span className="text-[14px] text-text-primary">{item.meetingTime || '-'}</span>
+              </div>
+            </div>
+            {meetingRoom && (
+              <div>
+                <span className="text-[12px] text-muted block mb-1">회의실</span>
+                <span className="text-[14px] text-text-primary">📍 {meetingRoom}</span>
               </div>
             )}
             {item.participants && (
@@ -108,17 +130,41 @@ export default function DetailPanel({ item, onClose, onSave, onNavigate }) {
                 </div>
               </div>
             )}
+            {aiPoints.length > 0 && (
+              <div>
+                <span className="text-[12px] text-muted block mb-1">AI 핵심 포인트</span>
+                <ul className="text-[13px] text-text-primary leading-[1.7] list-disc pl-[18px]">
+                  {aiPoints.map((p, i) => <li key={i}>{p}</li>)}
+                </ul>
+              </div>
+            )}
 
-            <button
-              onClick={() => { handleClose(); onNavigate?.('meeting-room') }}
-              className="mt-2 w-full h-9 text-[13px] font-medium text-blue border border-blue rounded-lg hover:bg-blue-soft transition-colors cursor-pointer"
-            >
-              회의록 보기 →
-            </button>
+            {hasNotes && (
+              <button
+                onClick={() => { handleClose(); onNavigate?.('meeting-room') }}
+                className="mt-2 w-full h-9 text-[13px] font-medium text-blue border border-blue rounded-lg hover:bg-blue-soft transition-colors cursor-pointer"
+              >
+                회의록 보기 →
+              </button>
+            )}
           </div>
         </div>
       </div>
     )
+  }
+
+  // 업무요청 기반 업무의 프로세스 단계별 참여자 (원본 detail panel '참여자' 섹션)
+  const proc = isFromRequest && item.processId ? processes.find(p => p.id === item.processId) : null
+  const stepAssignees = item.stepAssignees || {}
+  const myName = currentUser.name
+  const mySteps = proc ? proc.steps.filter(s => (stepAssignees[s.id] || []).includes(myName)) : []
+  const stepsToRender = proc ? (showAllSteps ? proc.steps : mySteps) : []
+  const itemDelayed = isDelayed(item, TODAY_ISO, sessions)
+  const itemSessions = sessions.filter(s => s.workItemId === item.id)
+  const isPersonDelayed = (stepId, name) => {
+    if (!itemDelayed) return false
+    const member = teamMembers.find(m => m.name === name)
+    return !!member && itemSessions.some(s => s.stepId === stepId && s.authorId === member.id && !s.done)
   }
 
   return (
@@ -133,6 +179,9 @@ export default function DetailPanel({ item, onClose, onSave, onNavigate }) {
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+          {itemDelayed && (
+            <span className="text-[12px] font-semibold text-red bg-red-soft px-2 py-0.5 rounded self-start">지연중</span>
+          )}
           {isFromRequest && (
             <span className="text-[12px] font-semibold text-blue bg-blue-soft px-2 py-0.5 rounded self-start">업무요청</span>
           )}
@@ -219,6 +268,60 @@ export default function DetailPanel({ item, onClose, onSave, onNavigate }) {
               className="px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none leading-[1.6]"
             />
           </label>
+
+          {/* 프로세스 단계별 참여자 */}
+          {proc && (
+            <div className="flex flex-col gap-2">
+              <span className="text-[13px] font-semibold text-text-primary">참여자</span>
+              <span className="text-[11px] text-muted">
+                {showAllSteps ? `전체 ${proc.steps.length}개 단계` : `내 담당 (${mySteps.length}개)`}
+              </span>
+              <div className="flex flex-col gap-1.5">
+                {stepsToRender.length === 0 ? (
+                  <span className="text-[12px] text-soft py-1">담당한 단계가 없습니다.</span>
+                ) : (
+                  stepsToRender.map(step => {
+                    const assignees = stepAssignees[step.id] || []
+                    const isMyStep = assignees.includes(myName)
+                    const stepDelayed = assignees.some(name => isPersonDelayed(step.id, name))
+                    return (
+                      <div
+                        key={step.id}
+                        className={`flex flex-col gap-1 px-2.5 py-2 rounded-lg border ${stepDelayed ? 'border-red/40 bg-red-soft/30' : 'border-line-soft bg-surface-muted'}`}
+                      >
+                        <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
+                          {step.title}
+                          {stepDelayed && <span className="inline-flex items-center h-[14px] px-[4px] rounded bg-red-soft text-red text-[9px] font-semibold ml-1.5 align-middle">지연중</span>}
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {assignees.length === 0 ? (
+                            <span className="text-[11px] text-soft">미배정</span>
+                          ) : (
+                            assignees.map(name => {
+                              const personDelayed = isPersonDelayed(step.id, name)
+                              return (
+                                <div key={name} className={`flex items-center gap-1 pl-0.5 pr-1.5 py-0.5 rounded-full text-[11px] ${personDelayed ? 'bg-red-soft text-red' : 'bg-white border border-line text-text-sub'}`}>
+                                  <div className={`w-4 h-4 rounded-full flex items-center justify-center text-white text-[9px] font-semibold ${personDelayed ? 'bg-red' : 'bg-blue'}`}>{name[0]}</div>
+                                  <span>{name}</span>
+                                </div>
+                              )
+                            })
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAllSteps(v => !v)}
+                className="self-start text-[12px] text-blue hover:underline cursor-pointer"
+              >
+                {showAllSteps ? '내 담당만 보기' : `전체 ${proc.steps.length}개 단계 보기`}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Save button */}

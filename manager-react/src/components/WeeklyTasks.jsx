@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { MONDAY_ISO, TODAY_ISO, DAY_SHORTS, addDays, sortByType, isDelayed } from '../data/helpers'
 
-export default function WeeklyTasks({ weekOffset, searchQuery, workItems, onDateClick, onAddSession, onDeleteWorkItem, onOpenDetail, onOpenTaskDrawer }) {
+export default function WeeklyTasks({ weekOffset, searchQuery, workItems, sessions = [], onDateClick, onAddSession, onDeleteWorkItem, onOpenDetail, onOpenTaskDrawer }) {
   const weekStart = addDays(MONDAY_ISO, weekOffset * 7)
 
   const days = useMemo(() => {
@@ -67,7 +67,7 @@ export default function WeeklyTasks({ weekOffset, searchQuery, workItems, onDate
                   <span className="text-[12px] text-soft pl-4 pb-1 block">업무 없음</span>
                 ) : (
                   day.items.map((item, idx) => {
-                    const delayed = isDelayed(item, TODAY_ISO)
+                    const delayed = isDelayed(item, TODAY_ISO, sessions)
                     const isLastFixed = idx === lastFixedIdx && idx < day.items.length - 1
                     const period = item.type === '고정'
                       ? `매주 ${(item.recurringDays || [1,2,3,4,5]).map(d => DAY_SHORTS[d - 1]).join('·')}`
