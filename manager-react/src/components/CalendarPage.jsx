@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { TODAY_ISO, isDelayed } from '../data/helpers'
 import { processes } from '../data/state'
-import { canEditCalendar } from '../data/roles'
+import { canEditCalendar, ROLES } from '../data/roles'
 import CalendarDetailPanel from './CalendarDetailPanel'
 import DetailPanel from './DetailPanel'
 
@@ -126,6 +126,9 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
   const [detailItem, setDetailItem] = useState(null)
   const [editItemId, setEditItemId] = useState(null)
   const [viewMode, setViewMode] = useState('all') // 'all'(전체 보기) | 'project'(프로젝트별)
+  // 전체 보기는 대표(owner) 전용. 직원·팀장은 기존처럼 프로젝트별만 사용.
+  const isOwner = role === ROLES.OWNER
+  const showAll = isOwner && viewMode === 'all'
   // 수정 시 workItems가 갱신되면 패널도 즉시 반영되도록 id로 실시간 참조
   const editItem = editItemId ? workItems.find(w => w.id === editItemId) : null
 
@@ -249,24 +252,30 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           {/* Topbar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-line shrink-0">
             <div className="flex items-center gap-3">
-              <div className="flex gap-1 bg-surface-muted rounded-lg p-0.5">
-                <button onClick={() => setViewMode('all')}
-                  className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors cursor-pointer ${viewMode === 'all' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'}`}>
-                  전체 보기
-                </button>
-                <button onClick={() => selectedProject && setViewMode('project')} disabled={!selectedProject}
-                  className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors ${viewMode === 'project' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'} ${!selectedProject ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
-                  프로젝트별
-                </button>
-              </div>
-              {viewMode === 'project' && selectedProject && (
-                <button
-                  onClick={() => setEditItemId(selectedProject.id)}
-                  className="text-[13px] font-semibold text-text-primary hover:text-blue hover:underline cursor-pointer"
-                  title="업무 상세 보기"
-                >
-                  {selectedProject.title}
-                </button>
+              {isOwner && (
+                <div className="flex gap-1 bg-surface-muted rounded-lg p-0.5">
+                  <button onClick={() => setViewMode('all')}
+                    className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors cursor-pointer ${viewMode === 'all' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'}`}>
+                    전체 보기
+                  </button>
+                  <button onClick={() => selectedProject && setViewMode('project')} disabled={!selectedProject}
+                    className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors ${viewMode === 'project' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'} ${!selectedProject ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
+                    프로젝트별
+                  </button>
+                </div>
+              )}
+              {!showAll && (
+                selectedProject ? (
+                  <button
+                    onClick={() => setEditItemId(selectedProject.id)}
+                    className="text-[13px] font-semibold text-text-primary hover:text-blue hover:underline cursor-pointer"
+                    title="업무 상세 보기"
+                  >
+                    {selectedProject.title}
+                  </button>
+                ) : (
+                  <span className="text-[13px] font-semibold text-muted">← 프로젝트 선택</span>
+                )
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -282,7 +291,7 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
 
           {/* Timeline body */}
           <div className="flex-1 min-h-0 overflow-auto">
-            {viewMode === 'all' ? (
+            {showAll ? (
               <AllProjectsTimeline
                 projects={projects}
                 days={days}

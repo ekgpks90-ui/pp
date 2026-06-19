@@ -5,7 +5,7 @@ import MeetingSaveModal from './MeetingSaveModal'
 import ScheduleMeetingModal from './ScheduleMeetingModal'
 import ConfirmModal from './ConfirmModal'
 import AcceptModal from './AcceptModal'
-import { canViewAllMeetings } from '../data/roles'
+import { canViewAllMeetings, ROLES } from '../data/roles'
 
 const TEAM_TAG_COLORS = {
   '디자인팀': { bg: '#dbeafe', text: '#1d4ed8' },
@@ -71,6 +71,9 @@ export default function MeetingRoomPage({
     setShowSaveModal(true)
   }, [recSeconds])
 
+  // 검색 확장·AI 요약 카드 노출은 대표(owner) 전용. 직원·팀장은 기존 화면 그대로.
+  const isOwner = role === ROLES.OWNER
+
   // 역할별 노출 범위: 대표(Owner)는 전체 회의, 팀장·직원은 소속 팀 회의만.
   const scopedMeetings = canViewAllMeetings(role)
     ? meetings
@@ -84,12 +87,11 @@ export default function MeetingRoomPage({
   const filtered = scopedMeetings.filter(m => {
     if (teamFilter !== '전체' && m.team !== teamFilter) return false
     if (q) {
-      // 검색 기준: 회의명·유형·요약 + 참석자 + AI 요약 포인트
-      const haystack = [
-        m.title, m.type, m.summary || '',
-        (m.attendeeNames || []).join(' '),
-        (m.aiPoints || []).join(' '),
-      ].join(' ').toLowerCase()
+      // 기본 검색: 회의명·유형·요약. 대표만 참석자·AI 요약 포인트까지 확장.
+      const base = `${m.title} ${m.type} ${m.summary || ''}`
+      const haystack = (isOwner
+        ? `${base} ${(m.attendeeNames || []).join(' ')} ${(m.aiPoints || []).join(' ')}`
+        : base).toLowerCase()
       if (!haystack.includes(q)) return false
     }
     return true
@@ -214,6 +216,7 @@ export default function MeetingRoomPage({
                 <MeetingCard
                   key={m.id}
                   meeting={m}
+                  showAi={isOwner}
                   onView={() => setDetailMeetingId(m.id)}
                   onEdit={() => setEditingMeeting(m)}
                   onDelete={() => setDeleteConfirm(m)}
@@ -297,7 +300,7 @@ export default function MeetingRoomPage({
 
 // ─── MeetingCard ────────────────────────────────────────────────────────────────
 
-function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
+function MeetingCard({ meeting: m, onView, onEdit, onDelete, showAi = false }) {
   const tc = TEAM_TAG_COLORS[m.team] || { bg: '#f3f4f6', text: '#374151' }
   const date = (m.date || m.startDate || '').replace(/-/g, '.')
   const actionCount = (m.actionItems || []).length
@@ -350,10 +353,10 @@ function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
       <div className="text-[14px] font-semibold text-text-primary mb-1.5 pr-14">{m.title}</div>
 
       {/* Summary */}
-      <div className="text-[12.5px] text-text-sub leading-[1.6] mb-2 line-clamp-2">{m.summary}</div>
+      <div className={`text-[12.5px] text-text-sub leading-[1.6] line-clamp-2 ${showAi && (m.aiPoints || []).length > 0 ? 'mb-2' : 'mb-3'}`}>{m.summary}</div>
 
-      {/* AI 요약 미리보기 (첫 핵심 포인트) */}
-      {(m.aiPoints || []).length > 0 && (
+      {/* AI 요약 미리보기 (첫 핵심 포인트) — 대표 전용 */}
+      {showAi && (m.aiPoints || []).length > 0 && (
         <div className="flex items-start gap-1.5 mb-3 px-2.5 py-1.5 rounded-md bg-purple-soft/50">
           <span className="text-[11px] shrink-0 leading-snug">✨</span>
           <span className="text-[11.5px] text-purple leading-snug line-clamp-1">{m.aiPoints[0]}</span>
