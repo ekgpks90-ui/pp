@@ -5340,8 +5340,8 @@ h1, h2, h3, p { margin: 0; }
   height: 22px;
   padding: 0 6px;
   border-radius: 99px;
-  background: var(--blue);
-  color: #fff;
+  background: var(--surface-muted);
+  color: var(--muted);
   font-size: 11px;
   font-weight: 700;
 }
