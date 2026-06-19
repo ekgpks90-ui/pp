@@ -61,6 +61,128 @@ function EditModal({ title, defaultValue = '', onSave, onClose }) {
   )
 }
 
+function AddProcessModal({ onSave, onClose }) {
+  const [category, setCategory] = useState('')
+  const [steps, setSteps] = useState([''])
+  const catRef = useRef(null)
+
+  useEffect(() => { catRef.current?.focus() }, [])
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const addStep = () => setSteps(prev => [...prev, ''])
+
+  const updateStep = (i, val) => setSteps(prev => prev.map((s, idx) => idx === i ? val : s))
+
+  const removeStep = (i) => setSteps(prev => prev.filter((_, idx) => idx !== i))
+
+  const handleSave = () => {
+    const catName = category.trim()
+    if (!catName) return
+    const filteredSteps = steps.map(s => s.trim()).filter(Boolean)
+    onSave(catName, filteredSteps)
+    onClose()
+  }
+
+  const canSave = category.trim().length > 0
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[480px] max-h-[88vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-line flex items-center justify-between shrink-0">
+          <h3 className="text-[15px] font-semibold text-text-primary">프로세스 등록</h3>
+          <button onClick={onClose} className="w-7 h-7 grid place-items-center rounded-full hover:bg-surface-muted text-muted cursor-pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5">
+          {/* 카테고리명 */}
+          <div>
+            <label className="text-[12px] font-medium text-text-sub mb-1.5 block">프로세스 이름 *</label>
+            <input
+              ref={catRef}
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addStep() } }}
+              placeholder="예) UI/UX 디자인"
+              className="w-full h-9 px-3 text-[13px] border border-line rounded-[8px] bg-white text-text-primary outline-none focus:border-blue transition-colors"
+            />
+          </div>
+
+          {/* 단계 목록 */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[12px] font-medium text-text-sub">단계</label>
+              <span className="text-[11px] text-muted">{steps.filter(s => s.trim()).length}개</span>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {steps.map((step, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="text-[12px] text-muted font-mono w-5 text-right shrink-0">{String(i + 1).padStart(2, '0')}.</span>
+                  <input
+                    value={step}
+                    onChange={e => updateStep(i, e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { e.preventDefault(); addStep() }
+                      if (e.key === 'Backspace' && !step && steps.length > 1) { e.preventDefault(); removeStep(i) }
+                    }}
+                    placeholder="단계 이름"
+                    className="flex-1 h-9 px-3 text-[13px] border border-line rounded-[8px] bg-white text-text-primary outline-none focus:border-blue transition-colors"
+                  />
+                  {steps.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeStep(i)}
+                      className="w-7 h-7 grid place-items-center rounded text-muted hover:bg-red/5 hover:text-red transition-colors cursor-pointer shrink-0"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={addStep}
+              className="mt-2 flex items-center gap-1.5 text-[12px] text-blue hover:opacity-75 transition-opacity cursor-pointer"
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              단계 추가
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-line grid grid-cols-2 gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer"
+          >취소</button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!canSave}
+            className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >등록</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function DeleteModal({ message, onConfirm, onClose }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
@@ -149,10 +271,12 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
     if (!modal) return null
     if (modal.type === 'addCat') {
       return (
-        <EditModal
-          title="프로세스 등록"
-          defaultValue=""
-          onSave={name => onUpdateProcesses(prev => [...prev, { id: `pc-${Date.now()}`, category: name, steps: [] }])}
+        <AddProcessModal
+          onSave={(name, stepTitles) => onUpdateProcesses(prev => [...prev, {
+            id: `pc-${Date.now()}`,
+            category: name,
+            steps: stepTitles.map((t, i) => ({ id: `ps-${Date.now()}-${i}`, title: t }))
+          }])}
           onClose={closeModal}
         />
       )
