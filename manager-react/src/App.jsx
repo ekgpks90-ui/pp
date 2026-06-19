@@ -12,7 +12,7 @@ import TeamStatusPage from './components/TeamStatusPage'
 import ProcessPage from './components/ProcessPage'
 import LeavePage from './components/LeavePage'
 import MyPage from './components/MyPage'
-import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, assignmentRequests as initialAssignmentRequests, processes as initialProcesses, leaves as initialLeaves, totalLeave, teamMembers, currentUser } from './data/state'
+import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, assignmentRequests as initialAssignmentRequests, processes as initialProcesses, leaves as initialLeaves, totalLeave, teamMembers, currentUser, approvalItems as initialApprovalItems, gradeRates } from './data/state'
 import { ROLES, canViewPage } from './data/roles'
 
 export default function App() {
@@ -33,6 +33,7 @@ export default function App() {
   const [assignmentRequests, setAssignmentRequests] = useState(initialAssignmentRequests)
   const [processes, setProcesses] = useState(initialProcesses)
   const [leavesState, setLeaves] = useState(initialLeaves)
+  const [approvalItems, setApprovalItems] = useState(initialApprovalItems)
   const [workItemResources, setWorkItemResources] = useState({})
 
   // --- Meeting handlers ---
@@ -148,6 +149,23 @@ export default function App() {
     ])
   }, [])
 
+  // --- 대표 결재함(Approval Item) handlers ---
+  const approveItem = useCallback((id) => {
+    setApprovalItems(prev => prev.map(a => {
+      if (a.id !== id) return a
+      addNotification('결재 승인', `${a.title} 안건이 승인되었습니다.`)
+      return { ...a, status: '승인' }
+    }))
+  }, [addNotification])
+
+  const rejectItem = useCallback((id, reason) => {
+    setApprovalItems(prev => prev.map(a => {
+      if (a.id !== id) return a
+      addNotification('결재 반려', `${a.title} 안건이 반려되었습니다.`)
+      return { ...a, status: '반려', rejectReason: reason || null }
+    }))
+  }, [addNotification])
+
   return (
     <div className="h-screen grid grid-cols-[224px_minmax(0,1fr)] overflow-hidden font-sans">
       <Sidebar role={role} currentPage={activePage} onNavigate={setCurrentPage} />
@@ -169,11 +187,12 @@ export default function App() {
           <CeoDashboard
             workItems={workItems}
             sessions={sessions}
-            requests={requests}
-            leaves={leavesState}
             teamMembers={teamMembers}
             processes={processes}
-            onNavigate={setCurrentPage}
+            approvalItems={approvalItems}
+            gradeRates={gradeRates}
+            onApproveItem={approveItem}
+            onRejectItem={rejectItem}
           />
         )}
         {activePage ==='home' && role !== ROLES.OWNER && (

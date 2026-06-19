@@ -43,7 +43,7 @@ npm run lint     # ESLint 검사
 
 | 페이지 | 컴포넌트 | 설명 |
 |--------|----------|------|
-| 홈 | `HomePage` / `CeoDashboard`(대표) | 직원·팀장은 주간 업무항목·작업세션·KPI·업무요청. 대표는 경영 대시보드(진행/지연/납기 요약·Project Status·KPI·AI Brief·Approval) |
+| 홈 | `HomePage` / `CeoDashboard`(대표) | 직원·팀장은 주간 업무항목·작업세션·KPI·업무요청. 대표는 경영 대시보드 3칸: **Project Status**(탭 전체·진행 중·지연·이번 주 납기 + 프로젝트별 진행률·투입 인원·공수·투자금액, 금액 ON/OFF 토글) · **KPI**(평균 가동률·과부하·여유·총투입)+**AI Brief**(농땡이·과부하·지연·납기 경고) · **Approval=대표 결재함**(계약·예산·프로젝트 착수/종료 결재 안건 승인/반려) |
 | 캘린더 | `CalendarPage` | **전체 보기**(모든 프로젝트 간트) ↔ **프로젝트별**(단계·담당자 타임라인) 토글, 아웃풋/리소스 (회의·연차 제외). 프로젝트명 클릭 시 업무 상세 패널 — 직원은 조회 전용(`canEditCalendar`), 팀장·대표는 수정 가능 |
 | 팀원 현황 | `TeamStatusPage` / `CeoCompanyStatus`(대표) | 직원·팀장은 팀원별 주간 업무·담당자 배정. 대표는 Team KPI·리소스·업무 편중·신규 요청 |
 | 프로세스 | `ProcessPage` / `CeoProcessPage`(대표) | 직원 외 조회. 대표는 프로세스 개요·병목 분석·AI 개선 제안 |
@@ -57,6 +57,12 @@ npm run lint     # ESLint 검사
 > owner에게만 노출됩니다. 데이터는 한 벌(`state.js`)을 공유하며, 카드/섹션 UI는 `CeoUI.jsx`에
 > 모았습니다. 기획 규칙상 "완료" 상태는 만들지 않으므로 모든 지표는 진행 중·지연으로 표현하고,
 > 매출 등 데이터 없는 항목은 "예시"로 표기합니다.
+>
+> 대표 홈의 **프로젝트 투자(투입 비용)**는 개인 월급이 아니라 **직급별 단가**(`state.js`의
+> `gradeRates`, 팀원의 `grade` 필드)로 계산합니다(`helpers.js`의 `projectCost`·`dailyRateSum` 등).
+> **대표 결재함**은 신규 데이터 `approvalItems`(계약·예산·프로젝트 착수/종료 4종)를 쓰며, 승인/반려는
+> `App.jsx`의 `approveItem`·`rejectItem` 핸들러가 처리합니다. **연차는 홈에 두지 않고** 리포트 연차
+> 탭에서 전담합니다. (상세 기획: `../context/ceo-experience.md`)
 
 ## 폴더 구조
 
