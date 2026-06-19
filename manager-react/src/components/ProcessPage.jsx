@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 const EDIT_SVG = (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -6,7 +6,6 @@ const EDIT_SVG = (
     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
   </svg>
 )
-
 const DEL_SVG = (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
@@ -14,109 +13,97 @@ const DEL_SVG = (
   </svg>
 )
 
-const PLUS_SVG = (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-  </svg>
-)
+function EditModal({ title, defaultValue = '', onSave, onClose }) {
+  const [value, setValue] = useState(defaultValue)
+  const inputRef = useRef(null)
 
-function AutoFocusInput({ value, onChange, onCommit, onCancel, className }) {
-  const ref = useRef(null)
-  useEffect(() => { ref.current?.focus(); ref.current?.select() }, [])
+  useEffect(() => {
+    inputRef.current?.focus()
+    inputRef.current?.select()
+  }, [])
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const handleSave = () => {
+    const v = value.trim()
+    if (v) { onSave(v); onClose() }
+  }
+
   return (
-    <input
-      ref={ref}
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      onBlur={onCommit}
-      onKeyDown={e => {
-        if (e.key === 'Enter') { e.preventDefault(); onCommit() }
-        if (e.key === 'Escape') { e.preventDefault(); onCancel() }
-      }}
-      className={className}
-    />
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[360px] p-6" onClick={e => e.stopPropagation()}>
+        <h3 className="text-[15px] font-semibold text-text-primary mb-3">{title}</h3>
+        <input
+          ref={inputRef}
+          className="w-full h-[38px] px-3 border-[1.5px] border-line rounded-[8px] text-[14px] text-text-primary outline-none focus:border-blue transition-colors"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') handleSave() }}
+          placeholder="이름을 입력하세요"
+        />
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            onClick={onClose}
+            className="h-9 px-4 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] hover:text-text-sub transition-colors cursor-pointer"
+          >취소</button>
+          <button
+            onClick={handleSave}
+            className="h-9 px-4 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer"
+          >저장</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DeleteModal({ message, onConfirm, onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[360px] p-6" onClick={e => e.stopPropagation()}>
+        <h3 className="text-[15px] font-semibold text-text-primary mb-2">삭제하시겠습니까?</h3>
+        <p className="text-[13px] text-muted leading-[1.5] mb-5">{message}</p>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="h-9 px-4 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] hover:text-text-sub transition-colors cursor-pointer"
+          >취소</button>
+          <button
+            onClick={() => { onConfirm(); onClose() }}
+            className="h-9 px-4 text-[13px] font-medium text-white bg-red rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer"
+          >삭제</button>
+        </div>
+      </div>
+    </div>
   )
 }
 
 export default function ProcessPage({ processes, onUpdateProcesses }) {
   const [openCats, setOpenCats] = useState(new Set())
   const [dropInfo, setDropInfo] = useState(null)
+  const [modal, setModal] = useState(null) // { type: 'editCat'|'editStep'|'addCat'|'addStep'|'deleteCat'|'deleteStep', catId?, stepId? }
 
-  // editingId: null | 'new-cat' | 'cat:{catId}' | 'new-step:{catId}' | 'step:{catId}:{stepId}'
-  const [editingId, setEditingId] = useState(null)
-  const [editingVal, setEditingVal] = useState('')
+  const closeModal = useCallback(() => setModal(null), [])
 
-  // deleteTarget: null | { type:'cat'|'step', catId, stepId?, label }
-  const [deleteTarget, setDeleteTarget] = useState(null)
-
-  const startEdit = (id, currentVal) => {
-    setEditingId(id)
-    setEditingVal(currentVal)
-  }
-
-  const commitEdit = () => {
-    const val = editingVal.trim()
-    if (val && editingId) {
-      if (editingId === 'new-cat') {
-        onUpdateProcesses(prev => [
-          ...prev,
-          { id: `pc-${Date.now()}`, category: val, steps: [] }
-        ])
-      } else if (editingId.startsWith('cat:')) {
-        const catId = editingId.slice(4)
-        onUpdateProcesses(prev =>
-          prev.map(c => c.id === catId ? { ...c, category: val } : c)
-        )
-      } else if (editingId.startsWith('new-step:')) {
-        const catId = editingId.slice(9)
-        onUpdateProcesses(prev =>
-          prev.map(c => c.id === catId
-            ? { ...c, steps: [...c.steps, { id: `ps-${catId}-${Date.now()}`, title: val }] }
-            : c
-          )
-        )
-      } else if (editingId.startsWith('step:')) {
-        const [, catId, stepId] = editingId.split(':')
-        onUpdateProcesses(prev =>
-          prev.map(c => c.id === catId
-            ? { ...c, steps: c.steps.map(s => s.id === stepId ? { ...s, title: val } : s) }
-            : c
-          )
-        )
-      }
-    }
-    setEditingId(null)
-    setEditingVal('')
-  }
-
-  const cancelEdit = () => {
-    setEditingId(null)
-    setEditingVal('')
-  }
-
-  const handleDelete = () => {
-    if (!deleteTarget) return
-    if (deleteTarget.type === 'cat') {
-      onUpdateProcesses(prev => prev.filter(c => c.id !== deleteTarget.catId))
-    } else {
-      onUpdateProcesses(prev =>
-        prev.map(c => c.id === deleteTarget.catId
-          ? { ...c, steps: c.steps.filter(s => s.id !== deleteTarget.stepId) }
-          : c
-        )
-      )
-    }
-    setDeleteTarget(null)
-  }
-
-  const toggleCat = (catId) => {
+  const toggleCat = useCallback((catId) => {
     setOpenCats(prev => {
       const next = new Set(prev)
       if (next.has(catId)) next.delete(catId)
       else next.add(catId)
       return next
     })
-  }
+  }, [])
 
   const handleDragStart = (e, stepId, catId) => {
     e.dataTransfer.setData('stepId', stepId)
@@ -158,31 +145,102 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
     }))
   }
 
+  const getModal = () => {
+    if (!modal) return null
+    if (modal.type === 'addCat') {
+      return (
+        <EditModal
+          title="프로세스 등록"
+          defaultValue=""
+          onSave={name => onUpdateProcesses(prev => [...prev, { id: `pc-${Date.now()}`, category: name, steps: [] }])}
+          onClose={closeModal}
+        />
+      )
+    }
+    if (modal.type === 'editCat') {
+      const cat = processes.find(c => c.id === modal.catId)
+      if (!cat) return null
+      return (
+        <EditModal
+          title="카테고리 이름 수정"
+          defaultValue={cat.category}
+          onSave={name => onUpdateProcesses(prev => prev.map(c => c.id === modal.catId ? { ...c, category: name } : c))}
+          onClose={closeModal}
+        />
+      )
+    }
+    if (modal.type === 'deleteCat') {
+      const cat = processes.find(c => c.id === modal.catId)
+      if (!cat) return null
+      return (
+        <DeleteModal
+          message={`'${cat.category}' 카테고리를 삭제하면 복구할 수 없습니다.`}
+          onConfirm={() => onUpdateProcesses(prev => prev.filter(c => c.id !== modal.catId))}
+          onClose={closeModal}
+        />
+      )
+    }
+    if (modal.type === 'addStep') {
+      return (
+        <EditModal
+          title="단계 추가"
+          defaultValue=""
+          onSave={name => onUpdateProcesses(prev => prev.map(c =>
+            c.id === modal.catId ? { ...c, steps: [...c.steps, { id: `ps-${modal.catId}-${Date.now()}`, title: name }] } : c
+          ))}
+          onClose={closeModal}
+        />
+      )
+    }
+    if (modal.type === 'editStep') {
+      const cat = processes.find(c => c.id === modal.catId)
+      const step = cat?.steps.find(s => s.id === modal.stepId)
+      if (!step) return null
+      return (
+        <EditModal
+          title="단계 이름 수정"
+          defaultValue={step.title}
+          onSave={name => onUpdateProcesses(prev => prev.map(c =>
+            c.id === modal.catId ? { ...c, steps: c.steps.map(s => s.id === modal.stepId ? { ...s, title: name } : s) } : c
+          ))}
+          onClose={closeModal}
+        />
+      )
+    }
+    if (modal.type === 'deleteStep') {
+      const cat = processes.find(c => c.id === modal.catId)
+      const step = cat?.steps.find(s => s.id === modal.stepId)
+      if (!step) return null
+      return (
+        <DeleteModal
+          message={`'${step.title}' 단계를 삭제하면 복구할 수 없습니다.`}
+          onConfirm={() => onUpdateProcesses(prev => prev.map(c =>
+            c.id === modal.catId ? { ...c, steps: c.steps.filter(s => s.id !== modal.stepId) } : c
+          ))}
+          onClose={closeModal}
+        />
+      )
+    }
+    return null
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
-      {/* Header */}
+      {getModal()}
+
       <div className="flex items-center justify-between mb-4 shrink-0">
         <h2 className="text-[16px] font-bold text-text-primary">프로세스 관리</h2>
-        {editingId === 'new-cat' ? (
-          <AutoFocusInput
-            value={editingVal}
-            onChange={setEditingVal}
-            onCommit={commitEdit}
-            onCancel={cancelEdit}
-            className="h-8 px-3 rounded-[7px] border border-blue text-[13px] outline-none w-48 bg-white"
-          />
-        ) : (
-          <button
-            onClick={() => startEdit('new-cat', '')}
-            className="h-8 px-3.5 rounded-[7px] bg-text-primary text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5"
-          >
-            {PLUS_SVG}
-            프로세스 추가
-          </button>
-        )}
+        <button
+          onClick={() => setModal({ type: 'addCat' })}
+          className="h-8 px-3.5 rounded-[7px] bg-text-primary text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          프로세스 추가
+        </button>
       </div>
 
-      {/* List */}
       <div className="flex-1 overflow-y-auto pb-4">
         {processes.length === 0 ? (
           <div className="text-[14px] text-muted text-center py-[60px]">등록된 프로세스가 없습니다.</div>
@@ -190,129 +248,85 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
           <div className="grid grid-cols-3 gap-3.5 items-start">
             {processes.map(cat => {
               const isOpen = openCats.has(cat.id)
-              const isEditingCat = editingId === `cat:${cat.id}`
               return (
-                <div key={cat.id} className={`bg-white border-[1.5px] border-line rounded-[10px] overflow-hidden transition-shadow ${isOpen ? 'shadow-lg' : 'shadow-sm'}`}>
-                  {/* Category header */}
-                  <div
-                    className="w-full flex items-center gap-2 px-3.5 py-[13px] cursor-pointer hover:bg-surface-muted transition-colors group"
-                    onClick={() => { if (!isEditingCat) toggleCat(cat.id) }}
+                <div key={cat.id} className={`bg-white border-[1.5px] border-line rounded-[10px] overflow-hidden transition-shadow group ${isOpen ? 'shadow-lg' : 'shadow-sm'}`}>
+                  {/* Header */}
+                  <button
+                    className="w-full flex items-center gap-2 px-3.5 py-[13px] cursor-pointer hover:bg-surface-muted transition-colors"
+                    onClick={() => toggleCat(cat.id)}
                   >
-                    {isEditingCat ? (
-                      <AutoFocusInput
-                        value={editingVal}
-                        onChange={setEditingVal}
-                        onCommit={commitEdit}
-                        onCancel={cancelEdit}
-                        className="text-[15px] font-bold text-blue bg-transparent border-b border-blue outline-none w-[130px] px-0.5"
-                      />
-                    ) : (
-                      <span className="text-[16px] font-bold text-blue shrink-0 max-w-[120px] truncate">{cat.category}</span>
-                    )}
-                    <span className="text-[11px] font-bold text-white bg-blue min-w-[22px] h-[22px] px-1.5 rounded-full inline-flex items-center justify-center shrink-0">{cat.steps.length}</span>
+                    <span className="text-[16px] font-bold text-blue shrink-0 max-w-[120px] truncate">{cat.category}</span>
+                    <span className="text-[11px] font-bold text-muted bg-surface-muted min-w-[22px] h-[22px] px-1.5 rounded-full inline-flex items-center justify-center shrink-0">{cat.steps.length}</span>
                     <span className="flex-1" />
-                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-surface-muted hover:text-text-primary cursor-pointer"
                         title="수정"
-                        onClick={() => startEdit(`cat:${cat.id}`, cat.category)}
-                      >
-                        {EDIT_SVG}
-                      </button>
+                        onClick={e => { e.stopPropagation(); setModal({ type: 'editCat', catId: cat.id }) }}
+                      >{EDIT_SVG}</button>
                       <button
                         className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-red/5 hover:text-red cursor-pointer"
                         title="삭제"
-                        onClick={() => setDeleteTarget({ type: 'cat', catId: cat.id, label: cat.category })}
-                      >
-                        {DEL_SVG}
-                      </button>
+                        onClick={e => { e.stopPropagation(); setModal({ type: 'deleteCat', catId: cat.id }) }}
+                      >{DEL_SVG}</button>
                     </div>
-                    <svg
-                      className={`w-4 h-4 text-muted transition-transform shrink-0 ml-0.5 ${isOpen ? 'rotate-180' : ''}`}
-                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                    >
+                    <svg className={`w-4 h-4 text-muted transition-transform shrink-0 ml-0.5 ${isOpen ? 'rotate-180' : ''}`}
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="6 9 12 15 18 9" />
                     </svg>
-                  </div>
+                  </button>
 
-                  {/* Category body */}
+                  {/* Body */}
                   {isOpen && (
-                    <div className="border-t border-line flex flex-col" style={{ maxHeight: 280, overflowY: 'auto' }}>
+                    <div className="border-t border-line flex flex-col" style={{ height: 280, overflowY: 'auto' }}>
                       <div className="flex flex-col">
                         {cat.steps.map((step, idx) => {
                           const isBefore = dropInfo?.stepId === step.id && dropInfo?.catId === cat.id && dropInfo?.position === 'before'
                           const isAfter  = dropInfo?.stepId === step.id && dropInfo?.catId === cat.id && dropInfo?.position === 'after'
-                          const isEditingStep = editingId === `step:${cat.id}:${step.id}`
                           return (
                             <div key={step.id} className="relative">
-                              {isBefore && <div className="absolute top-0 left-2 right-2 h-[2px] bg-blue/40 rounded-full z-10 pointer-events-none" />}
+                              {isBefore && (
+                                <div className="absolute top-0 left-2 right-2 h-[2px] bg-blue/50 rounded-full z-10 pointer-events-none" />
+                              )}
                               <div
                                 className="flex items-center gap-2.5 px-3.5 py-[9px] border-b border-line/50 last:border-b-0 hover:bg-surface-muted cursor-grab active:cursor-grabbing group/step"
-                                draggable={!isEditingStep}
+                                draggable
                                 onDragStart={e => handleDragStart(e, step.id, cat.id)}
                                 onDragOver={e => handleDragOver(e, step.id, cat.id)}
                                 onDragLeave={handleDragLeave}
                                 onDrop={e => handleDrop(e, step.id, cat.id)}
                               >
-                                <span className="text-[13px] text-muted font-mono w-[18px] text-right shrink-0">
+                                <span className="text-[14px] text-muted font-mono w-[18px] text-right shrink-0">
                                   {String(idx + 1).padStart(2, '0')}.
                                 </span>
-                                {isEditingStep ? (
-                                  <AutoFocusInput
-                                    value={editingVal}
-                                    onChange={setEditingVal}
-                                    onCommit={commitEdit}
-                                    onCancel={cancelEdit}
-                                    className="text-[14px] text-text-primary bg-transparent border-b border-text-primary outline-none flex-1 px-0.5"
-                                  />
-                                ) : (
-                                  <span className="text-[14px] text-text-primary flex-1">{step.title}</span>
-                                )}
+                                <span className="text-[14px] text-text-primary flex-1">{step.title}</span>
                                 <div className="flex gap-0.5 opacity-0 group-hover/step:opacity-100 transition-opacity">
                                   <button
                                     className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-surface-muted hover:text-text-primary cursor-pointer"
                                     title="수정"
-                                    onClick={() => startEdit(`step:${cat.id}:${step.id}`, step.title)}
-                                  >
-                                    {EDIT_SVG}
-                                  </button>
+                                    onClick={() => setModal({ type: 'editStep', catId: cat.id, stepId: step.id })}
+                                  >{EDIT_SVG}</button>
                                   <button
                                     className="w-[26px] h-[26px] grid place-items-center rounded text-muted hover:bg-red/5 hover:text-red cursor-pointer"
                                     title="삭제"
-                                    onClick={() => setDeleteTarget({ type: 'step', catId: cat.id, stepId: step.id, label: step.title })}
-                                  >
-                                    {DEL_SVG}
-                                  </button>
+                                    onClick={() => setModal({ type: 'deleteStep', catId: cat.id, stepId: step.id })}
+                                  >{DEL_SVG}</button>
                                 </div>
                               </div>
-                              {isAfter && <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue/40 rounded-full z-10 pointer-events-none" />}
+                              {isAfter && (
+                                <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue/50 rounded-full z-10 pointer-events-none" />
+                              )}
                             </div>
                           )
                         })}
-
-                        {/* Inline new step input */}
-                        {editingId === `new-step:${cat.id}` && (
-                          <div className="flex items-center gap-2.5 px-3.5 py-[9px] border-b border-line/50 bg-blue/5">
-                            <span className="text-[13px] text-muted font-mono w-[18px] text-right shrink-0">
-                              {String(cat.steps.length + 1).padStart(2, '0')}.
-                            </span>
-                            <AutoFocusInput
-                              value={editingVal}
-                              onChange={setEditingVal}
-                              onCommit={commitEdit}
-                              onCancel={cancelEdit}
-                              className="text-[14px] text-text-primary bg-transparent border-b border-blue outline-none flex-1 px-0.5"
-                            />
-                          </div>
-                        )}
                       </div>
-
-                      {/* Add step button */}
                       <button
                         className="flex items-center gap-1.5 px-3.5 h-[42px] text-[14px] text-blue w-full cursor-pointer hover:bg-blue/5 transition-colors shrink-0 mt-auto border-t border-dashed border-line"
-                        onClick={() => startEdit(`new-step:${cat.id}`, '')}
+                        onClick={() => setModal({ type: 'addStep', catId: cat.id })}
                       >
-                        {PLUS_SVG}
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
                         단계 추가
                       </button>
                     </div>
@@ -323,32 +337,6 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
           </div>
         )}
       </div>
-
-      {/* Delete confirm modal */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 grid place-items-center p-5 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-[12px] border border-line shadow-xl w-[340px] p-6">
-            <h3 className="text-[15px] font-semibold text-text-primary mb-2">삭제하시겠습니까?</h3>
-            <p className="text-[13px] text-muted mb-5">
-              '{deleteTarget.label}'을(를) 삭제하면 복구할 수 없습니다.
-            </p>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="h-9 px-4 rounded-[7px] border border-line text-[13px] text-text-primary hover:bg-surface-muted cursor-pointer"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleDelete}
-                className="h-9 px-4 rounded-[7px] bg-red text-white text-[13px] font-semibold hover:opacity-88 cursor-pointer"
-              >
-                삭제
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
