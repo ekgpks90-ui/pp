@@ -95,6 +95,7 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate()
   const monthStr = String(calMonth + 1).padStart(2, '0')
   const sessionDates = useMemo(() => new Set(allSessions.map(s => s.date)), [allSessions])
+  const meetingDates = useMemo(() => new Set(myMeetings.map(m => m.date)), [myMeetings])
   const leaveSet = useMemo(() => {
     const approved = (leaves || []).filter(l => l.applicantId === uid && l.status === '승인 완료')
     return new Set(approved.map(l => l.startDate))
@@ -103,6 +104,10 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
   const selectedSessions = useMemo(() =>
     selectedDate ? allSessions.filter(s => s.date === selectedDate) : [],
   [selectedDate, allSessions])
+
+  const selectedMeetings = useMemo(() =>
+    selectedDate ? myMeetings.filter(m => m.date === selectedDate) : [],
+  [selectedDate, myMeetings])
 
   const prevMonth = () => { if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11) } else setCalMonth(m => m - 1) }
   const nextMonth = () => { if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0) } else setCalMonth(m => m + 1) }
@@ -234,14 +239,20 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
                 const isSel = ds === selectedDate
                 const isLeave = leaveSet.has(ds)
                 const hasSession = sessionDates.has(ds)
+                const hasMeeting = meetingDates.has(ds)
+                const dotCount = [hasSession, hasMeeting, isLeave].filter(Boolean).length
                 return (
                   <button key={d} onClick={() => setSelectedDate(ds)}
                     className={`relative w-full aspect-square flex flex-col items-center justify-center rounded-lg text-[12px] cursor-pointer transition-colors
                       ${isSel ? 'bg-blue/10 border border-blue' : isLeave ? 'bg-[#ff9f43]/[0.08]' : 'hover:bg-surface-muted'}
                       ${isToday ? 'text-blue font-bold' : 'text-text-primary'}`}>
                     {d}
-                    {(isLeave || hasSession) && (
-                      <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${isLeave ? 'bg-[#f59e0b]' : 'bg-blue'}`} />
+                    {dotCount > 0 && (
+                      <div className="absolute bottom-0.5 flex gap-[2px] items-center justify-center">
+                        {hasSession && <span className="w-1 h-1 rounded-full bg-blue" />}
+                        {hasMeeting && <span className="w-1 h-1 rounded-full bg-[#8b5cf6]" />}
+                        {isLeave && <span className="w-1 h-1 rounded-full bg-[#f59e0b]" />}
+                      </div>
                     )}
                   </button>
                 )
@@ -249,6 +260,7 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
             </div>
             <div className="flex gap-3 text-[10px] text-text-sub mt-1">
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-blue inline-block" />작업세션</span>
+              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#8b5cf6] inline-block" />회의</span>
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#f59e0b] inline-block" />연차</span>
             </div>
           </div>
@@ -274,6 +286,49 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
                       </span>
                       <span className="flex-1 text-text-primary truncate">{s.title}</span>
                       {m > 0 && <span className="text-[12px] text-blue font-semibold text-right">{dur}</span>}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Meeting list */}
+          <div className="bg-white border border-line rounded-[10px] p-[10px_12px] flex flex-col gap-[7px]">
+            <div className="text-[11px] font-semibold text-text-sub tracking-[0.3px]">
+              {selectedDate || '날짜 미선택'} 회의
+            </div>
+            {!selectedDate ? (
+              <div className="text-[12px] text-text-sub text-center py-3.5">날짜를 선택하세요</div>
+            ) : selectedMeetings.length === 0 ? (
+              <div className="text-[12px] text-text-sub text-center py-3.5">{selectedDate} 회의 없음</div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {selectedMeetings.map(m => {
+                  const color = TYPE_COLOR[m.type] || '#6b7280'
+                  const myActions = (m.actionItems || []).filter(a => a.assignee === myName)
+                  return (
+                    <div key={m.id} className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-semibold text-white px-1.5 py-0.5 rounded shrink-0" style={{ background: color }}>{m.type}</span>
+                        <span className="text-[12px] font-medium text-text-primary flex-1 truncate">{m.title}</span>
+                        {myActions.length > 0 && (
+                          <span className="text-[10px] font-semibold bg-blue/10 text-blue px-1.5 py-0.5 rounded shrink-0">{myActions.length} 액션</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-muted">
+                        <div className="flex items-center gap-0.5">
+                          {(m.attendeeNames || []).slice(0, 3).map(name => (
+                            <span key={name} className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-semibold ${name === myName ? 'bg-blue/20 text-blue' : 'bg-[#e5e7eb] text-muted'}`}>
+                              {name.slice(0, 1)}
+                            </span>
+                          ))}
+                          {(m.attendeeNames || []).length > 3 && (
+                            <span className="text-[10px] text-muted ml-0.5">+{m.attendeeNames.length - 3}</span>
+                          )}
+                        </div>
+                        {m.duration && <span className="ml-auto">{m.duration}</span>}
+                      </div>
                     </div>
                   )
                 })}
