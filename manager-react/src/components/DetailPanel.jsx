@@ -291,7 +291,6 @@ export default function DetailPanel({ item, sessions = [], meetings = [], onClos
                       >
                         <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
                           {step.title}
-                          {stepDelayed && <span className="inline-flex items-center h-[14px] px-[4px] rounded bg-red-soft text-red text-[9px] font-semibold ml-1.5 align-middle">지연중</span>}
                         </span>
                         <div className="flex flex-wrap gap-1">
                           {assignees.length === 0 ? (
