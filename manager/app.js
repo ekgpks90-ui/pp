@@ -3344,22 +3344,6 @@ function requestDeleteWorkItem(id) {
 }
 
 function confirmDelete() {
-  if (_pendingDeleteProcCat) {
-    state.processes = state.processes.filter(c => c.id !== _pendingDeleteProcCat);
-    _pendingDeleteProcCat = null;
-    $('#deleteModal').classList.add('hidden');
-    renderProcessPage();
-    return;
-  }
-  if (_pendingDeleteProcStep) {
-    const { catId, stepId } = _pendingDeleteProcStep;
-    const cat = state.processes.find(c => c.id === catId);
-    if (cat) cat.steps = cat.steps.filter(s => s.id !== stepId);
-    _pendingDeleteProcStep = null;
-    $('#deleteModal').classList.add('hidden');
-    renderProcessPage();
-    return;
-  }
   if (state.pendingDeleteResourceId) {
     const wiId = state.pendingDeleteResourceWiId;
     if (state.workItemResources[wiId]) {
@@ -3733,8 +3717,7 @@ let _procOpenCats = new Set();
 let _procDragId   = null;
 let _procDragCatId = null;
 let _procEditCallback = null;
-let _pendingDeleteProcCat = null;
-let _pendingDeleteProcStep = null;
+let _procDeleteCallback = null;
 
 const PROC_AVATAR_BG = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16'];
 function procMemberAvatar(name) {
@@ -3757,6 +3740,17 @@ function openProcEditModal(title, value, onSave) {
 function closeProcEditModal() {
   document.getElementById('procEditModal')?.classList.add('hidden');
   _procEditCallback = null;
+}
+function openProcDeleteModal(desc, onConfirm) {
+  const modal = document.getElementById('procDeleteModal');
+  if (!modal) return;
+  document.getElementById('procDeleteModalDesc').textContent = desc;
+  _procDeleteCallback = onConfirm;
+  modal.classList.remove('hidden');
+}
+function closeProcDeleteModal() {
+  document.getElementById('procDeleteModal')?.classList.add('hidden');
+  _procDeleteCallback = null;
 }
 
 function renderProcessPage() {
@@ -4151,10 +4145,10 @@ function bindEvents() {
     if (deleteCatBtn) {
       const cat = state.processes.find(c => c.id === deleteCatBtn.dataset.deleteCat);
       if (!cat) return;
-      _pendingDeleteProcCat = deleteCatBtn.dataset.deleteCat;
-      _pendingDeleteProcStep = null;
-      $('#deleteModalDesc').textContent = `'${cat.category}' 카테고리를 삭제하면 복구할 수 없습니다.`;
-      $('#deleteModal').classList.remove('hidden');
+      openProcDeleteModal(`'${cat.category}' 카테고리를 삭제하면 복구할 수 없습니다.`, () => {
+        state.processes = state.processes.filter(c => c.id !== cat.id);
+        renderProcessPage();
+      });
       return;
     }
 
@@ -4179,10 +4173,10 @@ function bindEvents() {
       if (!cat) return;
       const step = cat.steps.find(s => s.id === deleteStepBtn.dataset.deleteStep);
       if (!step) return;
-      _pendingDeleteProcStep = { catId: deleteStepBtn.dataset.catId, stepId: deleteStepBtn.dataset.deleteStep };
-      _pendingDeleteProcCat = null;
-      $('#deleteModalDesc').textContent = `'${step.title}' 단계를 삭제하면 복구할 수 없습니다.`;
-      $('#deleteModal').classList.remove('hidden');
+      openProcDeleteModal(`'${step.title}' 단계를 삭제하면 복구할 수 없습니다.`, () => {
+        cat.steps = cat.steps.filter(s => s.id !== step.id);
+        renderProcessPage();
+      });
       return;
     }
 
@@ -4658,11 +4652,7 @@ function bindEvents() {
   $('#closeRequestModal').addEventListener('click', closeRequestModal);
   $('#closeRejectModal').addEventListener('click', closeRejectModal);
   $('#cancelReject').addEventListener('click', closeRejectModal);
-  $('#cancelDelete').addEventListener('click', () => {
-    _pendingDeleteProcCat = null;
-    _pendingDeleteProcStep = null;
-    $('#deleteModal').classList.add('hidden');
-  });
+  $('#cancelDelete').addEventListener('click', () => $('#deleteModal').classList.add('hidden'));
   $('#confirmDelete').addEventListener('click', confirmDelete);
 
   // Process edit modal
@@ -4681,6 +4671,16 @@ function bindEvents() {
   });
   document.getElementById('procEditModal')?.addEventListener('click', e => {
     if (e.target.id === 'procEditModal') closeProcEditModal();
+  });
+
+  // Process delete modal
+  document.getElementById('procDeleteCancel')?.addEventListener('click', closeProcDeleteModal);
+  document.getElementById('procDeleteConfirm')?.addEventListener('click', () => {
+    if (_procDeleteCallback) _procDeleteCallback();
+    closeProcDeleteModal();
+  });
+  document.getElementById('procDeleteModal')?.addEventListener('click', e => {
+    if (e.target.id === 'procDeleteModal') closeProcDeleteModal();
   });
 
   // Notifications

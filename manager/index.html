@@ -724,6 +724,18 @@
       <div class="meeting-detail-body" id="meetingDetailContent"></div>
     </div>
 
+    <!-- ── Process Delete Confirm Modal ── -->
+    <div class="modal hidden" id="procDeleteModal" role="dialog" aria-modal="true">
+      <div class="modal-card modal-sm">
+        <h2 style="margin-bottom:10px;font-size:15px;font-weight:600">삭제하시겠습니까?</h2>
+        <p class="muted-text" id="procDeleteModalDesc"></p>
+        <div class="btn-row" style="margin-top:18px">
+          <button class="secondary-btn" id="procDeleteCancel" type="button">취소</button>
+          <button class="danger-btn" id="procDeleteConfirm" type="button">삭제</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Process Edit Modal ── -->
     <div class="modal hidden" id="procEditModal" role="dialog" aria-modal="true">
       <div class="modal-card modal-sm">
