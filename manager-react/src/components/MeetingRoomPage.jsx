@@ -44,6 +44,7 @@ export default function MeetingRoomPage({
   const [saveDuration, setSaveDuration] = useState('00:00')
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [acceptingAction, setAcceptingAction] = useState(null) // { meetingId, actionItem }
+  const [editingMeeting, setEditingMeeting] = useState(null)
 
   // Recorder state
   const [recStatus, setRecStatus] = useState('idle') // 'idle' | 'recording'
@@ -104,6 +105,12 @@ export default function MeetingRoomPage({
   const handleSaveMeeting = (newMeeting) => {
     onAddMeeting(newMeeting)
     setShowSaveModal(false)
+  }
+
+  // 회의록 수정: 저장 모달과 동일한 폼으로 기존 회의를 갱신
+  const handleUpdateMeeting = (updated) => {
+    onUpdateMeeting(updated.id, updated)
+    setEditingMeeting(null)
   }
 
   const handleScheduleMeeting = ({ title, date, time, room, attendeeNames }) => {
@@ -203,6 +210,7 @@ export default function MeetingRoomPage({
                   key={m.id}
                   meeting={m}
                   onView={() => setDetailMeetingId(m.id)}
+                  onEdit={() => setEditingMeeting(m)}
                   onDelete={() => setDeleteConfirm(m)}
                 />
               ))}
@@ -260,6 +268,16 @@ export default function MeetingRoomPage({
         />
       )}
 
+      {/* 회의록 수정 — 저장 모달과 동일한 폼 */}
+      {editingMeeting && (
+        <MeetingSaveModal
+          meeting={editingMeeting}
+          teamMembers={teamMembers}
+          onClose={() => setEditingMeeting(null)}
+          onSave={handleUpdateMeeting}
+        />
+      )}
+
       {/* 액션아이템 추가 — 업무요청 수락과 동일한 폼 */}
       {acceptingAction && (
         <AcceptModal
@@ -274,25 +292,38 @@ export default function MeetingRoomPage({
 
 // ─── MeetingCard ────────────────────────────────────────────────────────────────
 
-function MeetingCard({ meeting: m, onView, onDelete }) {
+function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
   const tc = TEAM_TAG_COLORS[m.team] || { bg: '#f3f4f6', text: '#374151' }
   const date = (m.date || m.startDate || '').replace(/-/g, '.')
   const actionCount = (m.actionItems || []).length
 
   return (
     <div className="group relative bg-white border border-line rounded-xl p-4 hover:shadow-sm transition-shadow">
-      {/* Delete button */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onDelete() }}
-        className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-md text-muted hover:text-red hover:bg-red-soft opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-          <polyline points="3 6 5 6 21 6"/>
-          <path d="M19 6l-1 14H6L5 6"/>
-          <path d="M10 11v6M14 11v6"/>
-          <path d="M9 6V4h6v2"/>
-        </svg>
-      </button>
+      {/* Edit + Delete buttons */}
+      <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => { e.stopPropagation(); onEdit() }}
+          className="w-7 h-7 flex items-center justify-center rounded-md text-muted hover:text-blue hover:bg-blue-soft cursor-pointer"
+          title="회의록 수정"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete() }}
+          className="w-7 h-7 flex items-center justify-center rounded-md text-muted hover:text-red hover:bg-red-soft cursor-pointer"
+          title="회의록 삭제"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
+      </div>
 
       {/* Top row: tags + meta */}
       <div className="flex items-center justify-between mb-2">
@@ -311,7 +342,7 @@ function MeetingCard({ meeting: m, onView, onDelete }) {
       </div>
 
       {/* Title */}
-      <div className="text-[14px] font-semibold text-text-primary mb-1.5 pr-6">{m.title}</div>
+      <div className="text-[14px] font-semibold text-text-primary mb-1.5 pr-14">{m.title}</div>
 
       {/* Summary */}
       <div className="text-[12.5px] text-text-sub leading-[1.6] mb-3 line-clamp-2">{m.summary}</div>

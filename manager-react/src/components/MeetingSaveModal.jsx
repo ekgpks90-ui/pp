@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 
 function memberColor(name) {
@@ -8,17 +8,35 @@ function memberColor(name) {
   return palette[h % palette.length]
 }
 
-export default function MeetingSaveModal({ duration, teamMembers, onClose, onSave }) {
-  const [title, setTitle] = useState('')
-  const [team, setTeam] = useState('디자인팀')
-  const [type, setType] = useState('주간 회의')
-  const [date, setDate] = useState(TODAY_ISO)
-  const [content, setContent] = useState('')
-  const [attendees, setAttendees] = useState([])
+export default function MeetingSaveModal({ duration, teamMembers, meeting, onClose, onSave }) {
+  const isEdit = !!meeting
+  const [title, setTitle] = useState(meeting?.title || '')
+  const [team, setTeam] = useState(meeting?.team || '디자인팀')
+  const [type, setType] = useState(meeting?.type || '주간 회의')
+  const [date, setDate] = useState(meeting?.date || TODAY_ISO)
+  const [content, setContent] = useState(meeting?.summary || '')
+  const [attendees, setAttendees] = useState(() =>
+    (meeting?.attendeeNames || []).map(name =>
+      teamMembers.find(tm => tm.name === name) || { id: name, name }
+    )
+  )
   const [attendeeQuery, setAttendeeQuery] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
-  const [actionItems, setActionItems] = useState([])
+  const [actionItems, setActionItems] = useState(meeting?.actionItems || [])
   const searchRef = useRef(null)
+  const effectiveDuration = isEdit ? (meeting.duration || '') : duration
+
+  // 참석자 드롭다운: 바깥 영역을 클릭하면 닫는다.
+  useEffect(() => {
+    if (!showDropdown) return
+    const onDocClick = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [showDropdown])
 
   const filteredMembers = teamMembers.filter(m =>
     !attendees.find(a => a.id === m.id) &&
@@ -51,6 +69,31 @@ export default function MeetingSaveModal({ duration, teamMembers, onClose, onSav
     e.preventDefault()
     if (!title.trim()) return
     const attendeeNames = attendees.map(m => m.name)
+    // 기존 액션아이템은 id·done·addedToWeekly를 보존하고, 새로 추가한 항목만 새 id 부여
+    const builtActionItems = actionItems.filter(a => a.text.trim()).map((a, i) => ({
+      id: typeof a.id === 'string' && a.id.startsWith('new-act-') ? `act-${Date.now()}-${i}` : a.id,
+      text: a.text.trim(),
+      dueDate: a.dueDate,
+      assignee: a.assignee,
+      done: a.done ?? false,
+      addedToWeekly: a.addedToWeekly ?? false,
+    }))
+
+    if (isEdit) {
+      // 폼에 없는 기존 필드(discussions·script·author 등)는 그대로 보존
+      onSave({
+        ...meeting,
+        team, type, title: title.trim(),
+        summary: content || meeting.summary || `${type} 회의가 진행되었습니다.`,
+        aiPoints: content ? content.split('\n').filter(Boolean) : (meeting.aiPoints || []),
+        actionItems: builtActionItems,
+        date,
+        attendees: attendeeNames.length || 1,
+        attendeeNames,
+      })
+      return
+    }
+
     onSave({
       id: `mr-${Date.now()}`,
       team, type, title: title.trim(),
@@ -58,14 +101,7 @@ export default function MeetingSaveModal({ duration, teamMembers, onClose, onSav
       aiPoints: content ? content.split('\n').filter(Boolean) : [`${title.trim()} 회의 진행 완료`],
       discussions: [],
       script: [],
-      actionItems: actionItems.filter(a => a.text.trim()).map((a, i) => ({
-        id: `act-${Date.now()}-${i}`,
-        text: a.text.trim(),
-        dueDate: a.dueDate,
-        assignee: a.assignee,
-        done: false,
-        addedToWeekly: false,
-      })),
+      actionItems: builtActionItems,
       date, startTime: '', author: 'Jihye',
       duration, attendees: attendeeNames.length || 1, attendeeNames,
     })
@@ -76,7 +112,7 @@ export default function MeetingSaveModal({ duration, teamMembers, onClose, onSav
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <form onSubmit={handleSubmit} className="relative bg-white rounded-xl shadow-xl w-[520px] max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-          <h3 className="text-[15px] font-semibold">회의록 저장</h3>
+          <h3 className="text-[15px] font-semibold">{isEdit ? '회의록 수정' : '회의록 저장'}</h3>
           <button type="button" onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg">&times;</button>
         </div>
 
@@ -126,12 +162,12 @@ export default function MeetingSaveModal({ duration, teamMembers, onClose, onSav
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1">
               <span className="text-[12px] text-muted font-medium">날짜</span>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                className="h-9 px-3 text-[13px] border border-line rounded-lg outline-none focus:border-blue" />
+              <input type="date" value={date} onChange={e => setDate(e.target.value)} disabled={isEdit}
+                className={`h-9 px-3 text-[13px] border border-line rounded-lg outline-none focus:border-blue ${isEdit ? 'opacity-50 cursor-not-allowed' : ''}`} />
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-[12px] text-muted font-medium">녹음 시간</span>
-              <input type="text" value={duration} disabled
+              <input type="text" value={effectiveDuration} disabled
                 className="h-9 px-3 text-[13px] border border-line rounded-lg outline-none opacity-50 font-mono" />
             </label>
           </div>
@@ -147,9 +183,8 @@ export default function MeetingSaveModal({ duration, teamMembers, onClose, onSav
                 </span>
               ))}
             </div>
-            <div className="relative">
+            <div className="relative" ref={searchRef}>
               <input
-                ref={searchRef}
                 value={attendeeQuery}
                 onChange={e => { setAttendeeQuery(e.target.value); setShowDropdown(true) }}
                 onFocus={() => setShowDropdown(true)}
@@ -206,7 +241,7 @@ export default function MeetingSaveModal({ duration, teamMembers, onClose, onSav
           <button type="submit" disabled={!title.trim()}
             className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
               ${title.trim() ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}>
-            저장하기
+            {isEdit ? '수정 완료' : '저장하기'}
           </button>
         </div>
       </form>
