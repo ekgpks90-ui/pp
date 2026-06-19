@@ -209,6 +209,7 @@ export default function App() {
             onAddResource={addResource}
             onRemoveResource={removeResource}
             onUpdateWorkItem={updateWorkItem}
+            onAddNotification={addNotification}
           />
         )}
         {activePage === 'team-status' && (

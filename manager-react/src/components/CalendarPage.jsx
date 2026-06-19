@@ -46,12 +46,14 @@ function getMonthDays(year, month) {
   return days
 }
 
-export default function CalendarPage({ role, workItems, sessions, meetings = [], workItemResources = {}, onAddResource, onRemoveResource, onUpdateWorkItem }) {
+export default function CalendarPage({ role, workItems, sessions, meetings = [], workItemResources = {}, onAddResource, onRemoveResource, onUpdateWorkItem, onAddNotification }) {
   const [calYear, setCalYear] = useState(() => new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth())
   const [selectedProjectId, setSelectedProjectId] = useState(null)
   const [detailItem, setDetailItem] = useState(null)
-  const [editItem, setEditItem] = useState(null)
+  const [editItemId, setEditItemId] = useState(null)
+  // 수정 시 workItems가 갱신되면 패널도 즉시 반영되도록 id로 실시간 참조
+  const editItem = editItemId ? workItems.find(w => w.id === editItemId) : null
 
   // 프로젝트 목록 = 반복 아님 + 시작일 있음. 회의·연차는 캘린더에 표시하지 않는다.
   const projects = useMemo(() =>
@@ -148,7 +150,16 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
                   onClick={() => setSelectedProjectId(wi.id)}
                   className={`flex flex-col items-start px-3.5 py-2.5 border-b border-line gap-[5px] text-left w-full transition-colors cursor-pointer
                     ${isActive ? 'bg-[#eff6ff]' : 'hover:bg-bg'}`}>
-                  <span className="text-[12px] font-medium text-text-primary leading-[1.4]">{wi.title}</span>
+                  <span className="flex items-start gap-1.5 text-[12px] font-medium text-text-primary leading-[1.4]">
+                    {wi.type === '고정' ? (
+                      <svg className="w-[12px] h-[12px] text-[#6b7280] shrink-0 mt-[2px]" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/>
+                      </svg>
+                    ) : (
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-[3px] ${wi.type === '긴급' ? 'bg-red' : wi.type === '회의' ? 'bg-orange' : 'bg-soft'}`} />
+                    )}
+                    <span>{wi.title}</span>
+                  </span>
                   <span className="text-[10px] font-medium px-1.5 py-0.5 rounded"
                     style={{ background: sc.bg, color: sc.text }}>
                     {status}
@@ -165,7 +176,7 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           <div className="flex items-center justify-between px-5 py-3 border-b border-line shrink-0">
             {selectedProject ? (
               <button
-                onClick={() => setEditItem(selectedProject)}
+                onClick={() => setEditItemId(selectedProject.id)}
                 className="text-[13px] font-semibold text-text-primary hover:text-blue hover:underline cursor-pointer"
                 title="업무 상세 보기"
               >
@@ -324,8 +335,12 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           sessions={sessions}
           meetings={meetings}
           canEdit={canEditCalendar(role)}
+          canEditAssignees={canEditCalendar(role)}
+          lockRequestFields={false}
           onSave={(id, updates) => onUpdateWorkItem?.(id, updates)}
-          onClose={() => setEditItem(null)}
+          onUpdateAssignees={(id, stepAssignees) => onUpdateWorkItem?.(id, { stepAssignees })}
+          onNotify={(body) => onAddNotification?.('업무 변경 알림', body)}
+          onClose={() => setEditItemId(null)}
         />
       )}
     </div>
