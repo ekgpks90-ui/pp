@@ -20,6 +20,9 @@ export const ROLE_ORDER = [ROLES.MEMBER, ROLES.MANAGER, ROLES.OWNER]
 // 전체 페이지 id (Sidebar NAV_ITEMS와 동일한 id 사용)
 const ALL_PAGES = ['home', 'calendar', 'team-status', 'process', 'meeting-room', 'leave', 'my-page']
 
+// 대표(어드민) 전용 페이지 — Report Center는 owner에게만 노출.
+const OWNER_ONLY_PAGES = ['report-center']
+
 // 역할별로 사이드바에 노출되는 페이지 id 목록.
 // 근거: rules/role-permission.md — 프로세스 템플릿 조회는 Owner=O, Manager=O, Member=X.
 //       따라서 Process('process')는 Member에게만 숨긴다. (Owner/Manager는 노출)
@@ -27,7 +30,7 @@ const ALL_PAGES = ['home', 'calendar', 'team-status', 'process', 'meeting-room',
 export const ROLE_VISIBLE_PAGES = {
   [ROLES.MEMBER]: ALL_PAGES.filter(p => p !== 'process'),
   [ROLES.MANAGER]: ALL_PAGES,
-  [ROLES.OWNER]: ALL_PAGES,
+  [ROLES.OWNER]: [...ALL_PAGES, ...OWNER_ONLY_PAGES],
 }
 
 /**

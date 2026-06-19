@@ -84,7 +84,12 @@ export default function MeetingRoomPage({
   const filtered = scopedMeetings.filter(m => {
     if (teamFilter !== '전체' && m.team !== teamFilter) return false
     if (q) {
-      const haystack = `${m.title} ${m.type} ${m.summary || ''}`.toLowerCase()
+      // 검색 기준: 회의명·유형·요약 + 참석자 + AI 요약 포인트
+      const haystack = [
+        m.title, m.type, m.summary || '',
+        (m.attendeeNames || []).join(' '),
+        (m.aiPoints || []).join(' '),
+      ].join(' ').toLowerCase()
       if (!haystack.includes(q)) return false
     }
     return true
@@ -345,7 +350,18 @@ function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
       <div className="text-[14px] font-semibold text-text-primary mb-1.5 pr-14">{m.title}</div>
 
       {/* Summary */}
-      <div className="text-[12.5px] text-text-sub leading-[1.6] mb-3 line-clamp-2">{m.summary}</div>
+      <div className="text-[12.5px] text-text-sub leading-[1.6] mb-2 line-clamp-2">{m.summary}</div>
+
+      {/* AI 요약 미리보기 (첫 핵심 포인트) */}
+      {(m.aiPoints || []).length > 0 && (
+        <div className="flex items-start gap-1.5 mb-3 px-2.5 py-1.5 rounded-md bg-purple-soft/50">
+          <span className="text-[11px] shrink-0 leading-snug">✨</span>
+          <span className="text-[11.5px] text-purple leading-snug line-clamp-1">{m.aiPoints[0]}</span>
+          {(m.aiPoints || []).length > 1 && (
+            <span className="text-[10.5px] text-soft shrink-0 ml-auto">+{m.aiPoints.length - 1}</span>
+          )}
+        </div>
+      )}
 
       {/* Footer */}
       <div className="flex items-center justify-between">

@@ -46,12 +46,86 @@ function getMonthDays(year, month) {
   return days
 }
 
+// 월 그리드에서 start~end ISO 구간을 막대 위치(left%/width%)로 변환. 범위 밖이면 null.
+function barPosition(start, end, days) {
+  if (!start || !days.length) return null
+  const e = end || start
+  const first = days[0].date, last = days[days.length - 1].date
+  const sIdx = days.findIndex(d => d.date === start)
+  const eIdx = days.findIndex(d => d.date === e)
+  const cs = sIdx >= 0 ? sIdx : (start < first ? 0 : -1)
+  const ce = eIdx >= 0 ? eIdx : (e > last ? days.length - 1 : -1)
+  if (cs === -1 || ce === -1 || cs > ce) return null
+  const colW = 100 / days.length
+  return { left: cs * colW, width: (ce - cs + 1) * colW }
+}
+
+// 월 day 헤더 (전체 보기/프로젝트별 공용)
+function DayHeader({ days, leftLabel }) {
+  return (
+    <div className="flex items-stretch border-b-2 border-line sticky top-0 bg-white z-[2]">
+      <div className="w-[220px] min-w-[220px] shrink-0 px-4 py-2 text-[10.5px] font-semibold text-muted uppercase tracking-[0.05em] border-r border-line flex items-center">
+        {leftLabel}
+      </div>
+      <div className="flex-1 flex overflow-hidden">
+        {days.map(d => {
+          const cls = ['flex-1 text-center text-[10.5px] py-1.5 px-0.5 border-r border-line min-w-[24px]',
+            d.isToday && 'text-blue font-bold', d.isWeekend && 'text-[#9ca3af] bg-[#fafafa]',
+            !d.isToday && !d.isWeekend && 'text-muted'].filter(Boolean).join(' ')
+          return <div key={d.date} className={cls}>{d.day}</div>
+        })}
+      </div>
+    </div>
+  )
+}
+
+// 전체 보기 — 모든 프로젝트를 한 화면에 (프로젝트당 한 줄, start~end 막대)
+function AllProjectsTimeline({ projects, days, sessions, onBarClick, onNameClick }) {
+  return (
+    <div>
+      <DayHeader days={days} leftLabel="프로젝트" />
+      {projects.length === 0 ? (
+        <div className="px-4 py-6 text-[12px] text-muted">표시할 프로젝트가 없습니다</div>
+      ) : projects.map(p => {
+        const status = getWorkItemStatus(p, sessions)
+        const sc = STATUS_COLOR[status] || STATUS_COLOR['시작 전']
+        const pos = barPosition(p.start, p.end, days)
+        const tc = WORK_ITEM_TYPE_COLOR[p.type] || WORK_ITEM_TYPE_COLOR['일반']
+        return (
+          <div key={p.id} className="flex items-stretch h-[40px] border-t border-line-soft">
+            <div className="w-[220px] min-w-[220px] shrink-0 px-4 flex items-center gap-2 border-r border-line">
+              <button onClick={() => onNameClick(p.id)} className="text-[12px] text-text-sub truncate hover:text-blue hover:underline cursor-pointer">{p.title}</button>
+              <span className="text-[9.5px] font-medium px-1.5 py-0.5 rounded ml-auto shrink-0" style={{ background: sc.bg, color: sc.text }}>{status}</span>
+            </div>
+            <div className="flex-1 relative flex">
+              <div className="absolute inset-0 flex">
+                {days.map(d => (
+                  <div key={d.date} className={`flex-1 border-r border-[#f3f4f6] min-w-[24px] ${d.isWeekend ? 'bg-[#fafafa]' : ''} ${d.isToday ? 'bg-[#eff6ff55]' : ''}`} />
+                ))}
+              </div>
+              {pos && (
+                <div className="absolute h-5 top-1/2 -translate-y-1/2 rounded-[5px] min-w-[6px] cursor-pointer z-[1] flex items-center px-2 overflow-hidden"
+                  style={{ left: `calc(${pos.left}% + 2px)`, width: `calc(${pos.width}% - 4px)`, background: tc.text }}
+                  onClick={() => onBarClick(p)}
+                  title={`${p.title} (${p.start} ~ ${p.end || p.start})`}>
+                  <span className="text-white text-[10px] font-medium truncate">{p.title}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function CalendarPage({ role, workItems, sessions, meetings = [], workItemResources = {}, onAddResource, onRemoveResource, onUpdateWorkItem, onAddNotification }) {
   const [calYear, setCalYear] = useState(() => new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth())
   const [selectedProjectId, setSelectedProjectId] = useState(null)
   const [detailItem, setDetailItem] = useState(null)
   const [editItemId, setEditItemId] = useState(null)
+  const [viewMode, setViewMode] = useState('all') // 'all'(전체 보기) | 'project'(프로젝트별)
   // 수정 시 workItems가 갱신되면 패널도 즉시 반영되도록 id로 실시간 참조
   const editItem = editItemId ? workItems.find(w => w.id === editItemId) : null
 
@@ -147,7 +221,7 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
               const isActive = selectedProjectId === wi.id
               return (
                 <button key={wi.id}
-                  onClick={() => setSelectedProjectId(wi.id)}
+                  onClick={() => { setSelectedProjectId(wi.id); setViewMode('project') }}
                   className={`flex flex-col items-start px-3.5 py-2.5 border-b border-line gap-[5px] text-left w-full transition-colors cursor-pointer
                     ${isActive ? 'bg-[#eff6ff]' : 'hover:bg-bg'}`}>
                   <span className="flex items-start gap-1.5 text-[12px] font-medium text-text-primary leading-[1.4]">
@@ -174,17 +248,27 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
         <div className="flex-1 min-w-0 flex flex-col bg-white border border-line rounded-[10px] overflow-hidden">
           {/* Topbar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-line shrink-0">
-            {selectedProject ? (
-              <button
-                onClick={() => setEditItemId(selectedProject.id)}
-                className="text-[13px] font-semibold text-text-primary hover:text-blue hover:underline cursor-pointer"
-                title="업무 상세 보기"
-              >
-                {selectedProject.title}
-              </button>
-            ) : (
-              <span className="text-[13px] font-semibold text-muted">← 프로젝트 선택</span>
-            )}
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1 bg-surface-muted rounded-lg p-0.5">
+                <button onClick={() => setViewMode('all')}
+                  className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors cursor-pointer ${viewMode === 'all' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'}`}>
+                  전체 보기
+                </button>
+                <button onClick={() => selectedProject && setViewMode('project')} disabled={!selectedProject}
+                  className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors ${viewMode === 'project' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'} ${!selectedProject ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
+                  프로젝트별
+                </button>
+              </div>
+              {viewMode === 'project' && selectedProject && (
+                <button
+                  onClick={() => setEditItemId(selectedProject.id)}
+                  className="text-[13px] font-semibold text-text-primary hover:text-blue hover:underline cursor-pointer"
+                  title="업무 상세 보기"
+                >
+                  {selectedProject.title}
+                </button>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-surface-muted cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M15 18l-6-6 6-6"/></svg>
@@ -198,29 +282,22 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
 
           {/* Timeline body */}
           <div className="flex-1 min-h-0 overflow-auto">
-            {!selectedProject ? (
+            {viewMode === 'all' ? (
+              <AllProjectsTimeline
+                projects={projects}
+                days={days}
+                sessions={sessions}
+                onBarClick={(p) => setDetailItem(p)}
+                onNameClick={(id) => setEditItemId(id)}
+              />
+            ) : !selectedProject ? (
               <div className="px-6 py-[60px] text-center text-[13px] text-muted">
                 왼쪽에서 프로젝트를 선택하면 타임라인을 확인할 수 있습니다
               </div>
             ) : (
               <div>
                 {/* Timeline header */}
-                <div className="flex items-stretch border-b-2 border-line sticky top-0 bg-white z-[2]">
-                  <div className="w-[220px] min-w-[220px] shrink-0 px-4 py-2 text-[10.5px] font-semibold text-muted uppercase tracking-[0.05em] border-r border-line flex items-center">
-                    단계 · 담당자
-                  </div>
-                  <div className="flex-1 flex overflow-hidden">
-                    {days.map(d => {
-                      const cls = [
-                        'flex-1 text-center text-[10.5px] py-1.5 px-0.5 border-r border-line min-w-[24px]',
-                        d.isToday && 'text-blue font-bold',
-                        d.isWeekend && 'text-[#9ca3af] bg-[#fafafa]',
-                        !d.isToday && !d.isWeekend && 'text-muted',
-                      ].filter(Boolean).join(' ')
-                      return <div key={d.date} className={cls}>{d.day}</div>
-                    })}
-                  </div>
-                </div>
+                <DayHeader days={days} leftLabel="단계 · 담당자" />
 
                 {/* Timeline rows */}
                 <div>

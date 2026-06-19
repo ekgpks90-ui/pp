@@ -2,6 +2,10 @@ import { useState, useCallback } from 'react'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import HomePage from './components/HomePage'
+import CeoDashboard from './components/CeoDashboard'
+import CeoReportCenter from './components/CeoReportCenter'
+import CeoCompanyStatus from './components/CeoCompanyStatus'
+import CeoProcessPage from './components/CeoProcessPage'
 import MeetingRoomPage from './components/MeetingRoomPage'
 import CalendarPage from './components/CalendarPage'
 import TeamStatusPage from './components/TeamStatusPage'
@@ -161,7 +165,18 @@ export default function App() {
           onMarkNotifRead={markNotifRead}
           onMarkAllNotifsRead={markAllNotifsRead}
         />
-        {activePage ==='home' && (
+        {activePage ==='home' && role === ROLES.OWNER && (
+          <CeoDashboard
+            workItems={workItems}
+            sessions={sessions}
+            requests={requests}
+            leaves={leavesState}
+            teamMembers={teamMembers}
+            processes={processes}
+            onNavigate={setCurrentPage}
+          />
+        )}
+        {activePage ==='home' && role !== ROLES.OWNER && (
           <HomePage
             role={role}
             weekOffset={weekOffset}
@@ -212,7 +227,25 @@ export default function App() {
             onAddNotification={addNotification}
           />
         )}
-        {activePage === 'team-status' && (
+        {activePage === 'report-center' && (
+          <CeoReportCenter
+            workItems={workItems}
+            sessions={sessions}
+            leaves={leavesState}
+            teamMembers={teamMembers}
+            totalLeave={totalLeave}
+          />
+        )}
+        {activePage === 'team-status' && role === ROLES.OWNER && (
+          <CeoCompanyStatus
+            workItems={workItems}
+            sessions={sessions}
+            assignmentRequests={assignmentRequests}
+            teamMembers={teamMembers}
+            onNavigate={setCurrentPage}
+          />
+        )}
+        {activePage === 'team-status' && role !== ROLES.OWNER && (
           <TeamStatusPage
             role={role}
             assignmentRequests={assignmentRequests}
@@ -222,7 +255,15 @@ export default function App() {
             onUpdateAssignmentRequests={setAssignmentRequests}
           />
         )}
-        {activePage === 'process' && (
+        {activePage === 'process' && role === ROLES.OWNER && (
+          <CeoProcessPage
+            processes={processes}
+            workItems={workItems}
+            sessions={sessions}
+            onNavigate={setCurrentPage}
+          />
+        )}
+        {activePage === 'process' && role !== ROLES.OWNER && (
           <ProcessPage
             processes={processes}
             onUpdateProcesses={setProcesses}

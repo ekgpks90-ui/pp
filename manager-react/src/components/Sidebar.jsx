@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { id: 'process', label: 'Process Management', icon: null },
   { id: 'meeting-room', label: 'Meeting Room', icon: <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd"/> },
   { id: 'leave', label: 'Leave Management', icon: <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/> },
+  { id: 'report-center', label: 'Report Center', icon: <path d="M3 3a1 1 0 000 2v10a2 2 0 002 2h12a1 1 0 100-2H5V4a1 1 0 00-2-1zm5 9a1 1 0 102 0V9a1 1 0 10-2 0v3zm4 0a1 1 0 102 0V7a1 1 0 10-2 0v5zm-8 0a1 1 0 102 0v-1a1 1 0 10-2 0v1z"/> },
   { id: 'my-page', label: 'My Page', icon: <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/> },
 ]
 
