@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 
-const TEAMS = ['기획팀', '마케팅팀', 'HR팀', '경영팀', '개발팀']
 const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
 
 function memberColor(idx) { return AVATAR_COLORS[idx % AVATAR_COLORS.length] }
 
-export default function NewRequestModal({ processes, teamMembers, onSubmit, onClose }) {
+export default function NewRequestModal({ processes, teamMembers, currentUser, onSubmit, onClose }) {
   const [title, setTitle] = useState('')
-  const [team, setTeam] = useState(TEAMS[0])
   const [priority, setPriority] = useState('일반')
   const [deadline, setDeadline] = useState('')
   const [selectedProcessId, setSelectedProcessId] = useState(processes[0]?.id || '')
@@ -61,7 +59,7 @@ export default function NewRequestModal({ processes, teamMembers, onSubmit, onCl
     onSubmit({
       id: `ar-${Date.now()}`,
       title: title.trim(),
-      team,
+      team: currentUser?.team || '',
       hours: 0,
       deadline,
       priority,
@@ -110,9 +108,9 @@ export default function NewRequestModal({ processes, teamMembers, onSubmit, onCl
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>요청 팀</label>
-              <select value={team} onChange={e => setTeam(e.target.value)} className={inputCls + ' cursor-pointer'}>
-                {TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
+              <div className={inputCls + ' flex items-center bg-[#f9fafb] text-muted cursor-not-allowed select-none'}>
+                {currentUser?.team || '-'}
+              </div>
             </div>
             <div>
               <label className={labelCls}>우선순위</label>

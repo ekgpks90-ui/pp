@@ -217,6 +217,7 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
         <NewRequestModal
           processes={processes || []}
           teamMembers={teamMembers}
+          currentUser={currentUser}
           onSubmit={(newReq) => {
             onUpdateAssignmentRequests?.(prev => [...prev, newReq])
           }}
