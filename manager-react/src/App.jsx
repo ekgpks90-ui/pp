@@ -70,6 +70,11 @@ export default function App() {
     return newId
   }, [])
 
+  // 여러 작업세션 일괄 추가 (업무요청 수락 시 프로세스 단계 자동배치용)
+  const addSessions = useCallback((newSessions) => {
+    setSessions(prev => [...prev, ...newSessions])
+  }, [])
+
   const addSession = useCallback((workItemId, date, title = '') => {
     const newId = `ws-${Date.now()}`
     const newSession = {
@@ -148,11 +153,14 @@ export default function App() {
             workItems={workItems}
             sessions={sessions}
             requests={requests}
+            meetings={meetings}
+            processes={processes}
             onToggleSession={toggleSession}
             onUpdateSession={updateSession}
             onDeleteSession={deleteSession}
             onCloneSession={cloneSession}
             onAddSession={addSession}
+            onAddSessions={addSessions}
             onDeleteWorkItem={deleteWorkItem}
             onUpdateWorkItem={updateWorkItem}
             onAddWorkItem={addWorkItem}

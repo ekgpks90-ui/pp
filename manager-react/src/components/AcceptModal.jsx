@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 
-export default function AcceptModal({ request, onClose, onSubmit }) {
+export default function AcceptModal({ request, processes = [], onClose, onSubmit }) {
   const [todoDate, setTodoDate] = useState(TODAY_ISO)
 
   useEffect(() => {
@@ -14,6 +14,16 @@ export default function AcceptModal({ request, onClose, onSubmit }) {
   if (!request) return null
 
   const type = request.priority === '긴급' ? '긴급' : '일반'
+  const process = request.processId ? processes.find(p => p.id === request.processId) : null
+  const selectedSteps = request.selectedSteps || []
+  const stepAssignees = request.stepAssignees || {}
+
+  // 단계별 배정자에서 참여자 수집 (Jihye 우선)
+  const participants = (() => {
+    const set = new Set(['Jihye'])
+    Object.values(stepAssignees).forEach(names => names.forEach(n => set.add(n)))
+    return Array.from(set)
+  })()
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -27,8 +37,10 @@ export default function AcceptModal({ request, onClose, onSubmit }) {
         start,
         end,
         type,
-        participants: ['Jihye'],
+        participants,
         sourceRequestId: request.id,
+        processId: request.processId ?? null,
+        stepAssignees,
       },
       todoDate,
     })
@@ -53,6 +65,25 @@ export default function AcceptModal({ request, onClose, onSubmit }) {
               </span>
             </div>
             <span className="text-[12px] text-muted">{request.start} ~ {request.end}</span>
+          </div>
+
+          {/* Process & steps */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[12px] text-muted font-medium">
+              프로세스{process ? ` · ${process.category}` : ''}
+            </span>
+            {selectedSteps.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {selectedSteps.map(step => (
+                  <span key={step.stepId} className="inline-flex items-center text-[12px] text-blue bg-blue-soft px-2 py-1 rounded-md">
+                    {step.title}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-[12px] text-soft">—</span>
+            )}
+            <span className="text-[11px] text-soft">수락하면 위 단계가 작업 시작 날짜의 오늘 할 일에 자동 추가됩니다.</span>
           </div>
 
           {/* Todo date */}

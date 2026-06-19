@@ -13,8 +13,8 @@ import TaskDrawer from './TaskDrawer'
 
 export default function HomePage({
   weekOffset, searchQuery,
-  workItems, sessions, requests,
-  onToggleSession, onUpdateSession, onDeleteSession, onCloneSession, onAddSession,
+  workItems, sessions, requests, meetings, processes,
+  onToggleSession, onUpdateSession, onDeleteSession, onCloneSession, onAddSession, onAddSessions,
   onDeleteWorkItem, onUpdateWorkItem, onAddWorkItem,
   onUpdateRequest, onAddNotification, onNavigate,
 }) {
@@ -88,6 +88,23 @@ export default function HomePage({
   const handleSubmitAccept = ({ request, newItem, todoDate }) => {
     onAddWorkItem(newItem)
     onUpdateRequest(request.id, { status: '수락' })
+
+    // 선택된 프로세스 단계들을 오늘 할 일(작업세션)에 자동배치 (원본 submitAcceptForm 대응)
+    const newSessions = (request.selectedSteps || []).map((step, i) => ({
+      id: `ws-${Date.now()}-${i}`,
+      workItemId: newItem.id,
+      stepId: step.stepId,
+      authorId: 'u-1',
+      authorName: 'Jihye',
+      date: todoDate,
+      category: step.role,
+      title: step.title,
+      startTime: '',
+      endTime: '',
+      done: false,
+    }))
+    if (newSessions.length) onAddSessions(newSessions)
+
     onAddNotification('업무항목 추가', `"${request.title}" 업무항목이 이번 주 업무에 추가되었습니다.`, request.title)
     setAcceptingRequest(null)
   }
@@ -113,6 +130,7 @@ export default function HomePage({
             weekOffset={weekOffset}
             searchQuery={searchQuery}
             workItems={workItems}
+            sessions={sessions}
             onDateClick={setDailyViewDate}
             onAddSession={handleAddSessionTrigger}
             onDeleteWorkItem={handleDeleteWorkItem}
@@ -140,7 +158,7 @@ export default function HomePage({
 
         {/* Column 3: KPI + Requests */}
         <div className="flex flex-col gap-[14px] min-h-0 overflow-hidden">
-          <KpiCard workItems={workItems} sessions={sessions} />
+          <KpiCard workItems={workItems} sessions={sessions} viewDate={dailyViewDate ?? TODAY_ISO} />
           <WorkRequests
             requests={requests}
             onAccept={handleAcceptDirect}
@@ -172,6 +190,8 @@ export default function HomePage({
       {detailItem && (
         <DetailPanel
           item={detailItem}
+          sessions={sessions}
+          meetings={meetings}
           onClose={() => setDetailItem(null)}
           onSave={handleSaveDetail}
           onNavigate={onNavigate}
@@ -182,6 +202,7 @@ export default function HomePage({
       {requestDetail && (
         <RequestDetailModal
           request={requestDetail}
+          processes={processes}
           onClose={() => setRequestDetail(null)}
           onAccept={handleAcceptFromDetail}
           onReject={handleRejectFromDetail}
@@ -192,6 +213,7 @@ export default function HomePage({
       {acceptingRequest && (
         <AcceptModal
           request={acceptingRequest}
+          processes={processes}
           onClose={() => setAcceptingRequest(null)}
           onSubmit={handleSubmitAccept}
         />

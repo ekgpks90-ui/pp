@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export default function RequestDetailModal({ request, onClose, onAccept, onReject }) {
+export default function RequestDetailModal({ request, processes = [], onClose, onAccept, onReject }) {
   useEffect(() => {
     if (!request) return
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
@@ -11,6 +11,8 @@ export default function RequestDetailModal({ request, onClose, onAccept, onRejec
   if (!request) return null
 
   const isPending = request.status === '수락 대기'
+  const process = request?.processId ? processes.find(p => p.id === request.processId) : null
+  const selectedSteps = request?.selectedSteps || []
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
@@ -29,6 +31,23 @@ export default function RequestDetailModal({ request, onClose, onAccept, onRejec
           <span>상태: {request.status}</span>
           {request.priority && <span>우선순위: {request.priority}</span>}
         </div>
+
+        {(process || selectedSteps.length > 0) && (
+          <div className="flex flex-col gap-1.5 mb-4">
+            <span className="text-[12px] text-muted font-medium">
+              프로세스{process ? ` · ${process.category}` : ''}
+            </span>
+            {selectedSteps.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {selectedSteps.map(step => (
+                  <span key={step.stepId} className="inline-flex items-center text-[12px] text-blue bg-blue-soft px-2 py-1 rounded-md">
+                    {step.title}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {request.rejectReason && (
           <div className="bg-red-soft rounded-lg p-3 mb-4">
