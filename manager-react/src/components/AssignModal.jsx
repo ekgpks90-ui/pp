@@ -19,27 +19,39 @@ function Avatar({ name, idx, size = 6 }) {
 }
 
 export default function AssignModal({ request, teamMembers, processes, onClose, onSubmit }) {
-  const process = processes?.find(p => p.id === request?.processId)
-  const steps = process?.steps || []
+  const [selectedProcessId, setSelectedProcessId] = useState(request?.processId || processes?.[0]?.id || '')
 
-  const initStepAssignees = () => {
+  const selectedProcess = processes?.find(p => p.id === selectedProcessId)
+  const steps = selectedProcess?.steps || []
+
+  const initStepAssignees = (proc) => {
     const sa = {}
-    steps.forEach(s => { sa[s.id] = [...(request?.stepAssignees?.[s.id] || [])] })
+    const s = proc?.steps || []
+    s.forEach(step => { sa[step.id] = [...(request?.stepAssignees?.[step.id] || [])] })
     return sa
   }
 
-  const [stepAssignees, setStepAssignees] = useState(initStepAssignees)
+  const [stepAssignees, setStepAssignees] = useState(() => initStepAssignees(selectedProcess))
   const [openStepId, setOpenStepId] = useState(null)
   const panelRef = useRef(null)
 
   useEffect(() => {
     if (!request) return
-    setStepAssignees(initStepAssignees())
+    const proc = processes?.find(p => p.id === (request?.processId || processes?.[0]?.id))
+    setSelectedProcessId(proc?.id || '')
+    setStepAssignees(initStepAssignees(proc))
     setOpenStepId(null)
     const onKey = (e) => { if (e.key === 'Escape') { setOpenStepId(null); onClose() } }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [request])
+
+  const handleProcessChange = (newId) => {
+    setSelectedProcessId(newId)
+    const proc = processes?.find(p => p.id === newId)
+    setStepAssignees(initStepAssignees(proc))
+    setOpenStepId(null)
+  }
 
   useEffect(() => {
     if (!openStepId) return
@@ -79,6 +91,7 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
     if (!hasAny) return
     onSubmit({
       requestId: request.id,
+      processId: selectedProcessId,
       assignees: allAssignees,
       stepAssignees,
     })
@@ -113,13 +126,22 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
             </div>
           </div>
 
-          {/* Process category label */}
-          {process && (
-            <div className="flex items-center gap-2">
-              <span className="text-[12px] text-muted">프로세스</span>
-              <span className="text-[12px] font-semibold text-text-primary bg-blue/10 text-blue px-2 py-0.5 rounded">{process.category}</span>
-            </div>
-          )}
+          {/* Process selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] text-muted shrink-0">프로세스</span>
+            <select
+              value={selectedProcessId}
+              onChange={e => handleProcessChange(e.target.value)}
+              className="flex-1 text-[12px] font-medium text-text-primary border border-line rounded-[6px] px-2 py-1 bg-white outline-none focus:border-blue cursor-pointer"
+            >
+              {(processes || []).length === 0 && (
+                <option value="">등록된 프로세스 없음</option>
+              )}
+              {(processes || []).map(p => (
+                <option key={p.id} value={p.id}>{p.category}</option>
+              ))}
+            </select>
+          </div>
 
           {/* Steps */}
           {steps.length === 0 ? (

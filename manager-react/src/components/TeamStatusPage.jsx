@@ -204,9 +204,9 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
           teamMembers={teamMembers}
           processes={processes}
           onClose={() => setAssignTarget(null)}
-          onSubmit={({ requestId, assignees, stepAssignees }) => {
+          onSubmit={({ requestId, processId, assignees, stepAssignees }) => {
             onUpdateAssignmentRequests?.(prev =>
-              prev.map(r => r.id === requestId ? { ...r, assignees, stepAssignees, status: '수락대기중' } : r)
+              prev.map(r => r.id === requestId ? { ...r, processId, assignees, stepAssignees, status: '수락대기중' } : r)
             )
             setAssignTarget(null)
           }}
