@@ -120,8 +120,7 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
             <div className="text-[14px] font-bold text-text-primary">{request.title}</div>
             <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-[12px] text-muted">
               <span>요청팀 · <strong className="text-text-primary">{request.team}</strong></span>
-              <span>예상시간 · <strong className="text-text-primary">{request.hours}h</strong></span>
-              <span>마감일 · <strong className="text-text-primary">{request.deadline}</strong></span>
+<span>마감일 · <strong className="text-text-primary">{request.deadline}</strong></span>
               <span>우선순위 · <strong className={request.priority === '긴급' ? 'text-red' : 'text-muted'}>{request.priority}</strong></span>
             </div>
           </div>

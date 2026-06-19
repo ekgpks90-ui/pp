@@ -7,7 +7,6 @@ export default function NewRequestModal({ processes, teamMembers, onSubmit, onCl
   const [team, setTeam] = useState(TEAMS[0])
   const [priority, setPriority] = useState('일반')
   const [deadline, setDeadline] = useState('')
-  const [hours, setHours] = useState('')
   const [processId, setProcessId] = useState(processes[0]?.id || '')
   const [assignees, setAssignees] = useState([])
 
@@ -28,7 +27,6 @@ export default function NewRequestModal({ processes, teamMembers, onSubmit, onCl
       id: `ar-${Date.now()}`,
       title: title.trim(),
       team,
-      hours: Number(hours) || 0,
       deadline,
       priority,
       status: '신규요청',
@@ -89,16 +87,10 @@ export default function NewRequestModal({ processes, teamMembers, onSubmit, onCl
             </div>
           </div>
 
-          {/* 마감일 + 예상 시간 */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>마감일 *</label>
-              <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className={inputCls + ' cursor-pointer'} />
-            </div>
-            <div>
-              <label className={labelCls}>예상 소요 시간</label>
-              <input type="number" value={hours} onChange={e => setHours(e.target.value)} placeholder="시간" min="0" className={inputCls} />
-            </div>
+          {/* 마감일 */}
+          <div>
+            <label className={labelCls}>마감일 *</label>
+            <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} className={inputCls + ' cursor-pointer'} />
           </div>
 
           {/* 프로세스 */}
