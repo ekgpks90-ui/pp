@@ -85,19 +85,28 @@ export default function TaskDrawer({ open, weekOffset, sessions = [], workItems 
     }))
   }
 
+  const saveTask = (t) => {
+    onSave({
+      id: `wi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      title: t.title.trim(),
+      type: t.type,
+      start: t.start,
+      end: t.type === '고정' ? null : t.end,
+      participants: ['Jihye'],
+      ...(t.type === '고정' && { recurringDays: t.recurringDays }),
+    })
+  }
+
+  const registerTask = (tmpId) => {
+    const t = (tasks[activeDay] || []).find(t => t.id === tmpId)
+    if (!t || !t.title.trim()) return
+    saveTask(t)
+    removeTask(tmpId)
+  }
+
   const handleSave = () => {
     const allTasks = Object.values(tasks).flat().filter(t => t.title.trim())
-    allTasks.forEach(t => {
-      onSave({
-        id: `wi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        title: t.title.trim(),
-        type: t.type,
-        start: t.type === '고정' ? t.start : t.start,
-        end: t.type === '고정' ? null : t.end,
-        participants: ['Jihye'],
-        ...(t.type === '고정' && { recurringDays: t.recurringDays }),
-      })
-    })
+    allTasks.forEach(saveTask)
     handleClose()
   }
 
@@ -220,6 +229,14 @@ export default function TaskDrawer({ open, weekOffset, sessions = [], workItems 
                   ))}
                 </div>
               )}
+              <button
+                onClick={() => registerTask(t.id)}
+                disabled={!t.title.trim()}
+                className={`h-8 rounded-lg text-[12px] font-semibold transition-colors cursor-pointer
+                  ${t.title.trim() ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}
+              >
+                등록
+              </button>
             </div>
           ))}
 
