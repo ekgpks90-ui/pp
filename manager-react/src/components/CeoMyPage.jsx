@@ -145,21 +145,19 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
                 const ds = `${calYear}-${monthStr}-${String(d).padStart(2, '0')}`
                 const isToday = ds === TODAY_ISO
                 const isSel = ds === selectedDate
-                const isLeave = leaveSet.has(ds)
                 const hasSession = sessionDates.has(ds)
                 const hasMeeting = meetingDates.has(ds)
-                const hasDot = hasSession || hasMeeting || isLeave
+                const hasDot = hasSession || hasMeeting
                 return (
                   <button key={d} onClick={() => setSelectedDate(isSel ? null : ds)}
                     className={`relative w-full aspect-square flex items-center justify-center rounded-lg text-[12px] cursor-pointer transition-colors
-                      ${isSel ? 'bg-blue/10 border border-blue' : isLeave ? 'bg-[#ff9f43]/[0.08]' : 'hover:bg-surface-muted'}
+                      ${isSel ? 'bg-blue/10 border border-blue' : 'hover:bg-surface-muted'}
                       ${isToday ? 'text-blue font-bold' : 'text-text-primary'}`}>
                     {d}
                     {hasDot && (
                       <div className="absolute bottom-0.5 flex gap-[2px]">
                         {hasMeeting && <span className="w-1 h-1 rounded-full bg-[#8b5cf6]" />}
                         {hasSession && <span className="w-1 h-1 rounded-full bg-blue" />}
-                        {isLeave && <span className="w-1 h-1 rounded-full bg-[#f59e0b]" />}
                       </div>
                     )}
                   </button>
@@ -169,7 +167,6 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
             <div className="flex gap-3 text-[10px] text-text-sub mt-1">
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#8b5cf6] inline-block" />회의</span>
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-blue inline-block" />일정</span>
-              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#f59e0b] inline-block" />연차</span>
             </div>
           </div>
         </div>
