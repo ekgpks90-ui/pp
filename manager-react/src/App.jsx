@@ -4,7 +4,6 @@ import Topbar from './components/Topbar'
 import HomePage from './components/HomePage'
 import CeoDashboard from './components/CeoDashboard'
 import CeoReportCenter from './components/CeoReportCenter'
-import CeoCompanyStatus from './components/CeoCompanyStatus'
 import MeetingRoomPage from './components/MeetingRoomPage'
 import CalendarPage from './components/CalendarPage'
 import TeamStatusPage from './components/TeamStatusPage'
@@ -266,16 +265,8 @@ export default function App() {
             onRejectLeave={rejectLeave}
           />
         )}
-        {activePage === 'team-status' && role === ROLES.OWNER && (
-          <CeoCompanyStatus
-            workItems={workItems}
-            sessions={sessions}
-            assignmentRequests={assignmentRequests}
-            teamMembers={teamMembers}
-            onNavigate={setCurrentPage}
-          />
-        )}
-        {activePage === 'team-status' && role !== ROLES.OWNER && (
+        {/* 팀원 현황 — 대표 사이드바에서 제거(직원·팀장만 사용) */}
+        {activePage === 'team-status' && (
           <TeamStatusPage
             role={role}
             assignmentRequests={assignmentRequests}
