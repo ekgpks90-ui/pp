@@ -206,23 +206,6 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
             </div>
           </div>
 
-          {/* Category Chart */}
-          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col gap-2.5">
-            <div className="text-[13px] font-semibold text-text-primary">카테고리별 작업시간</div>
-            <div className="flex flex-col gap-[7px]">
-              {catData.map(({ cat, mins, pct, color }) => (
-                <div key={cat} className="grid items-center gap-2 text-[11px]" style={{ gridTemplateColumns: '48px 1fr 34px 52px' }}>
-                  <span className="text-text-sub">{cat}</span>
-                  <div className="h-1.5 bg-surface-muted rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-                  </div>
-                  <span className="text-right text-text-sub">{pct}%</span>
-                  <span className="text-right text-text-primary font-medium">{fmtDuration(mins)}</span>
-                </div>
-              ))}
-              {catData.length === 0 && <span className="text-[11px] text-text-sub">데이터 없음</span>}
-            </div>
-          </div>
         </div>
 
         {/* Center column: AI + Meetings */}
