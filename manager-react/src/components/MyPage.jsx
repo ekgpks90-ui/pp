@@ -1,14 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 
 const CAT_COLORS = { '기획': '#6C63FF', '개발': '#3BAFDA', '디자인': '#FF6B6B', '운영': '#FF9F43', '리서치': '#26de81' }
-const TYPE_COLOR = {
-  '회고': '#7c4dff', '기획': '#4a66ff', '디자인': '#f5a623', '전략': '#f04444',
-  '클라이언트 미팅': '#0ea874', '워크샵': '#06b6d4', '업무 보고': '#6b7280',
-  '주간 공유': '#ec4899', '주간 회의': '#ec4899', '기술 공유': '#8b5cf6',
-  '타팀 협업회의': '#2563eb', '스프린트 기획': '#4a66ff', '긴급 회의': '#ef4444',
-  '디자인 리뷰': '#f5a623',
-}
 
 function sessionMins(s) {
   if (!s.startTime || !s.endTime) return 0
@@ -22,7 +15,84 @@ function fmtDuration(m) {
   return h > 0 ? `${h}h ${mn}m` : `${mn}m`
 }
 
-export default function MyPage({ currentUser, sessions, workItems, meetings, leaves }) {
+function MeetingCard({ meeting: m, myName }) {
+  const [open, setOpen] = useState(false)
+  const aiPoints = m.aiPoints || []
+  const discussions = m.discussions || []
+
+  const toggle = useCallback(() => setOpen(v => !v), [])
+
+  return (
+    <div className="border border-line rounded-lg overflow-hidden">
+      <div
+        className="flex flex-col gap-1 p-2.5 cursor-pointer hover:bg-surface-muted transition-colors"
+        onClick={toggle}
+      >
+        <div className="flex items-center gap-[7px]">
+          <span className="text-[12px] font-medium text-text-primary flex-1 truncate">{m.title}</span>
+          <svg
+            width="14" height="14" viewBox="0 0 14 14" fill="none"
+            className={`shrink-0 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          >
+            <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] text-text-sub">
+          <span>{m.date}</span>
+          {m.duration && <span>· {m.duration}</span>}
+        </div>
+      </div>
+
+      {open && (
+        <div className="border-t border-line bg-surface-muted px-3 py-2.5 flex flex-col gap-4">
+          {(m.attendeeNames || []).length > 0 && (
+            <div>
+              <div className="text-[11px] font-semibold text-text-primary mb-1.5">참여자</div>
+              <div className="flex flex-wrap gap-1.5">
+                {(m.attendeeNames || []).map(name => (
+                  <span key={name} className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${name === myName ? 'bg-blue/10 text-blue' : 'bg-white border border-line text-text-sub'}`}>
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {aiPoints.length > 0 && (
+            <div>
+              <div className="text-[11px] font-semibold text-text-primary mb-1.5">주요 내용</div>
+              <ul className="flex flex-col gap-1.5">
+                {aiPoints.map((p, i) => (
+                  <li key={i} className="flex gap-2 text-[12px] text-text-sub leading-[1.6]">
+                    <span className="text-blue shrink-0 mt-0.5">•</span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {discussions.length > 0 && (
+            <div>
+              <div className="text-[11px] font-semibold text-text-primary mb-1.5">주요 논의</div>
+              <ul className="flex flex-col gap-1.5">
+                {discussions.map((d, i) => (
+                  <li key={i} className="flex gap-2 text-[12px] text-text-sub leading-[1.6]">
+                    <span className="text-orange shrink-0 mt-0.5">•</span>
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {!aiPoints.length && !discussions.length && (
+            <p className="text-[12px] text-muted">AI 요약 없음</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function MyPage({ currentUser, sessions, meetings, leaves }) {
   const [calYear, setCalYear] = useState(() => new Date().getFullYear())
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth())
   const [selectedDate, setSelectedDate] = useState(null)
@@ -158,7 +228,7 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
         {/* Center column: AI + Meetings */}
         <div className="flex flex-col gap-2.5">
           {/* AI Insights */}
-          <div className="bg-white border border-line rounded-[12px] p-[14px_18px] flex flex-col flex-1 min-h-0 overflow-y-auto">
+          <div className="bg-white border border-line rounded-[12px] p-[14px_18px] flex flex-col">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold bg-gradient-to-r from-blue to-purple text-white px-1.5 py-0.5 rounded">AI</span>
               <span className="text-[13px] font-semibold text-text-primary flex-1">{now.getFullYear()}년 {MONTHS[now.getMonth()]} 업무 패턴 요약</span>
@@ -175,47 +245,6 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
             </div>
           </div>
 
-          {/* Meetings */}
-          <div className="bg-white border border-line rounded-[10px] flex flex-col flex-1 min-h-0 overflow-hidden p-3.5">
-            <div className="flex items-center justify-between mb-2.5 shrink-0">
-              <span className="text-[13px] font-semibold text-text-primary">참여한 회의</span>
-              <span className="text-[11px] text-blue font-semibold">{myMeetings.length}건</span>
-            </div>
-            <div className="flex flex-col gap-1.5 flex-1 overflow-y-auto min-h-0">
-              {myMeetings.length > 0 ? myMeetings.map(m => {
-                const color = TYPE_COLOR[m.type] || '#6b7280'
-                const myActions = (m.actionItems || []).filter(a => a.assignee === myName)
-                return (
-                  <div key={m.id} className="border border-line rounded-lg p-2.5 flex flex-col gap-1.5 cursor-pointer hover:bg-surface-muted transition-colors">
-                    <div className="flex items-center gap-[7px] flex-wrap">
-                      <span className="text-[10px] font-semibold text-white px-1.5 py-0.5 rounded" style={{ background: color }}>{m.type}</span>
-                      <span className="text-[12px] font-medium text-text-primary flex-1 truncate">{m.title}</span>
-                      {myActions.length > 0 && (
-                        <span className="text-[10px] font-semibold bg-blue/10 text-blue px-1.5 py-0.5 rounded">{myActions.length} 액션</span>
-                      )}
-                    </div>
-                    <div className="text-[11px] text-text-sub line-clamp-2">{m.summary}</div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="flex items-center gap-0.5 flex-1">
-                        {(m.attendeeNames || []).slice(0, 4).map(name => (
-                          <span key={name} className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold ${name === myName ? 'bg-blue/20 text-blue' : 'bg-[#e5e7eb] text-muted'}`}>
-                            {name.slice(0, 1)}
-                          </span>
-                        ))}
-                        {(m.attendeeNames || []).length > 4 && (
-                          <span className="text-[10px] text-muted ml-0.5">+{m.attendeeNames.length - 4}</span>
-                        )}
-                      </div>
-                      <span className="text-[11px] text-text-sub">{m.date}</span>
-                      <span className="text-[11px] text-text-sub">{m.duration}</span>
-                    </div>
-                  </div>
-                )
-              }) : (
-                <div className="text-[12px] text-text-sub text-center py-3">참여한 회의가 없습니다.</div>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Right column: Calendar panel */}
@@ -303,29 +332,10 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
             ) : selectedMeetings.length === 0 ? (
               <div className="text-[12px] text-text-sub text-center py-3.5">{selectedDate} 회의 없음</div>
             ) : (
-              <div className="flex flex-col gap-2">
-                {selectedMeetings.map(m => {
-                  return (
-                    <div key={m.id} className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[12px] font-medium text-text-primary flex-1 truncate">{m.title}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-[11px] text-muted">
-                        <div className="flex items-center gap-0.5">
-                          {(m.attendeeNames || []).slice(0, 3).map(name => (
-                            <span key={name} className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-semibold ${name === myName ? 'bg-blue/20 text-blue' : 'bg-[#e5e7eb] text-muted'}`}>
-                              {name.slice(0, 1)}
-                            </span>
-                          ))}
-                          {(m.attendeeNames || []).length > 3 && (
-                            <span className="text-[10px] text-muted ml-0.5">+{m.attendeeNames.length - 3}</span>
-                          )}
-                        </div>
-                        {m.duration && <span className="ml-auto">{m.duration}</span>}
-                      </div>
-                    </div>
-                  )
-                })}
+              <div className="flex flex-col gap-1.5">
+                {selectedMeetings.map(m => (
+                  <MeetingCard key={m.id} meeting={m} myName={myName} />
+                ))}
               </div>
             )}
           </div>

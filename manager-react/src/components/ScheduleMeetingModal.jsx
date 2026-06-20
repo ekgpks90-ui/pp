@@ -18,9 +18,16 @@ export default function ScheduleMeetingModal({ teamMembers, onClose, onSave }) {
   const [showDropdown, setShowDropdown] = useState(false)
 
   const filteredMembers = teamMembers.filter(m =>
-    !attendees.find(a => a.id === m.id) &&
-    (!query || m.name.toLowerCase().includes(query.toLowerCase()))
+    !query || m.name.toLowerCase().includes(query.toLowerCase())
   )
+
+  const toggleAttendee = (member) => {
+    setAttendees(prev =>
+      prev.find(a => a.id === member.id)
+        ? prev.filter(a => a.id !== member.id)
+        : [...prev, member]
+    )
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -99,18 +106,21 @@ export default function ScheduleMeetingModal({ teamMembers, onClose, onSave }) {
                 className="w-full h-8 px-3 text-[12px] border border-line rounded-lg outline-none focus:border-blue" />
               {showDropdown && filteredMembers.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-line rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto">
-                  {filteredMembers.map(m => (
-                    <div key={m.id}
-                      onClick={() => { setAttendees(prev => [...prev, m]); setQuery(''); setShowDropdown(false) }}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-surface-muted cursor-pointer">
-                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-semibold"
-                        style={{ background: memberColor(m.name) }}>{m.name[0]}</span>
-                      <div>
-                        <div className="text-[12px] font-medium">{m.name}</div>
-                        <div className="text-[10px] text-soft">{m.role}</div>
+                  {filteredMembers.map(m => {
+                    const selected = !!attendees.find(a => a.id === m.id)
+                    return (
+                      <div key={m.id} onClick={() => toggleAttendee(m)}
+                        className={`flex items-center gap-2 px-3 py-2 cursor-pointer ${selected ? 'bg-blue-soft' : 'hover:bg-surface-muted'}`}>
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-semibold"
+                          style={{ background: memberColor(m.name) }}>{m.name[0]}</span>
+                        <div className="flex-1">
+                          <div className="text-[12px] font-medium">{m.name}</div>
+                          <div className="text-[10px] text-soft">{m.role}</div>
+                        </div>
+                        {selected && <span className="text-blue text-[12px] font-semibold">✓</span>}
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>

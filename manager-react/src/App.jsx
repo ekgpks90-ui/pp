@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import ModalShowcase from './components/ModalShowcase'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import HomePage from './components/HomePage'
@@ -14,6 +15,10 @@ import { workItems as initialWorkItems, sessions as initialSessions, requests as
 import { ROLES, canViewPage } from './data/roles'
 
 export default function App() {
+  if (new URLSearchParams(window.location.search).has('showcase')) {
+    return <ModalShowcase />
+  }
+
   const [role, setRole] = useState(ROLES.MANAGER)
   const [currentPage, setCurrentPage] = useState('home')
   const [weekOffset, setWeekOffset] = useState(0)
@@ -299,7 +304,6 @@ export default function App() {
           <MyPage
             currentUser={currentUser}
             sessions={sessions}
-            workItems={workItems}
             meetings={meetings}
             leaves={leavesState}
           />
