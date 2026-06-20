@@ -192,7 +192,7 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
         {/* Left column: Profile + Charts */}
         <div className="flex flex-col gap-2.5">
           {/* Profile */}
-          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col items-center gap-2.5">
+          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col items-center gap-2.5 h-full">
             <div className="w-14 h-14 rounded-full bg-blue flex items-center justify-center text-white text-[20px] font-bold">
               {currentUser?.name?.charAt(0)}
             </div>
