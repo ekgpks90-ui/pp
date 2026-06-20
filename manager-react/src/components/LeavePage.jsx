@@ -129,6 +129,7 @@ function LeaveRejectModal({ leave, onClose, onSubmit }) {
 const TYPE_CLS = { '종일 연차': 'bg-[#1f2937] text-white', '오전 반차': 'bg-[#6b7280] text-white', '오후 반차': 'bg-[#e5e7eb] text-[#374151]' }
 const STATUS_CLS = { '승인 대기': 'bg-[#f59e0b]/10 text-[#f59e0b]', '승인 완료': 'bg-green/10 text-green', '반려': 'bg-red/10 text-red' }
 const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
+const LEAVE_TYPES = ['종일 연차', '오전 반차', '오후 반차']
 
 function calcLeaveDays(lv) {
   if (!lv.startDate || !lv.endDate) return 0
@@ -137,9 +138,10 @@ function calcLeaveDays(lv) {
   return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)) + 1)
 }
 
-function LeaveRow({ lv, showActions, currentUser, onCancel }) {
+function LeaveRow({ lv, showActions, currentUser, onEdit, onDelete }) {
+  const canAct = showActions && lv.status === '승인 대기' && lv.applicantId === currentUser?.id && lv.startDate >= TODAY_ISO
   return (
-    <div className="bg-white border border-line rounded-[10px] p-[14px_16px] flex items-start gap-3">
+    <div className={`group bg-white border border-line rounded-[10px] p-[14px_16px] flex items-start gap-3 ${canAct ? 'hover:border-[#d0d0d8]' : ''}`}>
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[14px] font-semibold text-text-primary">{lv.applicantName}</span>
@@ -153,13 +155,137 @@ function LeaveRow({ lv, showActions, currentUser, onCancel }) {
         {lv.reason && <div className="text-[12px] text-text-sub mt-1">{lv.reason}</div>}
         {lv.rejectedReason && <div className="text-[12px] text-red mt-1">반려 사유: {lv.rejectedReason}</div>}
       </div>
-      {showActions && (
-        <div className="flex flex-col gap-1.5 shrink-0">
-          {lv.status === '승인 대기' && lv.applicantId === currentUser?.id && lv.startDate >= TODAY_ISO && (
-            <button onClick={() => onCancel?.(lv.id)} className="text-[12px] font-medium text-muted border border-line rounded-[6px] px-3 py-[5px] hover:text-text-sub cursor-pointer whitespace-nowrap">취소</button>
-          )}
+      {canAct && (
+        <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={() => onEdit?.(lv)} title="수정"
+            className="w-7 h-7 flex items-center justify-center rounded-[6px] text-muted hover:text-blue hover:bg-blue/5 transition-colors cursor-pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button onClick={() => onDelete?.(lv)} title="취소"
+            className="w-7 h-7 flex items-center justify-center rounded-[6px] text-muted hover:text-red hover:bg-red/5 transition-colors cursor-pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>
         </div>
       )}
+    </div>
+  )
+}
+
+function LeaveEditModal({ leave, onClose, onSubmit }) {
+  const [type, setType] = useState(leave?.type || '종일 연차')
+  const [startDate, setStartDate] = useState(leave?.startDate || '')
+  const [endDate, setEndDate] = useState(leave?.endDate || '')
+  const [reason, setReason] = useState(leave?.reason || '')
+
+  useEffect(() => {
+    if (!leave) return
+    setType(leave.type)
+    setStartDate(leave.startDate)
+    setEndDate(leave.endDate)
+    setReason(leave.reason || '')
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [leave, onClose])
+
+  if (!leave) return null
+
+  const isAllDay = type === '종일 연차'
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!startDate) return
+    onSubmit(leave.id, { type, startDate, endDate: isAllDay ? endDate || startDate : startDate, reason })
+  }
+
+  const inputCls = 'w-full h-9 px-3 text-[13px] border border-line rounded-[8px] bg-white outline-none focus:border-blue transition-colors'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[400px] p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-[15px] font-semibold">연차 수정</h3>
+          <button onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg leading-none">&times;</button>
+        </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="text-[12px] font-medium text-text-sub mb-1.5 block">연차 유형</label>
+            <select value={type} onChange={e => setType(e.target.value)} className={inputCls + ' cursor-pointer'}>
+              {LEAVE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div className={isAllDay ? 'grid grid-cols-2 gap-3' : ''}>
+            <div>
+              <label className="text-[12px] font-medium text-text-sub mb-1.5 block">{isAllDay ? '시작일' : '날짜'} *</label>
+              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className={inputCls + ' cursor-pointer'} />
+            </div>
+            {isAllDay && (
+              <div>
+                <label className="text-[12px] font-medium text-text-sub mb-1.5 block">종료일</label>
+                <input type="date" value={endDate} min={startDate} onChange={e => setEndDate(e.target.value)} className={inputCls + ' cursor-pointer'} />
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="text-[12px] font-medium text-text-sub mb-1.5 block">사유</label>
+            <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="연차 사유를 입력하세요" rows={3}
+              className="w-full px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none" />
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-1">
+            <button type="button" onClick={onClose}
+              className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">취소</button>
+            <button type="submit" disabled={!startDate}
+              className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">저장</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function LeaveCancelModal({ leave, onClose, onConfirm }) {
+  useEffect(() => {
+    if (!leave) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [leave, onClose])
+
+  if (!leave) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[400px] p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-[15px] font-semibold">연차 취소</h3>
+          <button onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg leading-none">&times;</button>
+        </div>
+        <div className="bg-[#f9fafb] rounded-lg p-3 mb-5">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className={`text-[11px] font-medium px-2 py-[2px] rounded-[20px] ${TYPE_CLS[leave.type] || ''}`}>{leave.type}</span>
+            <span className="text-[11px] font-semibold px-2 py-[2px] rounded bg-[#f59e0b]/10 text-[#f59e0b]">승인 대기</span>
+          </div>
+          <div className="text-[12px] text-muted mt-1">
+            {leave.startDate}{leave.endDate !== leave.startDate ? ` ~ ${leave.endDate}` : ''}
+          </div>
+          {leave.reason && <div className="text-[12px] text-text-sub mt-1">{leave.reason}</div>}
+        </div>
+        <p className="text-[14px] text-text-primary text-center mb-5">연차를 취소하시겠습니까?</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={onClose}
+            className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">닫기</button>
+          <button type="button" onClick={() => onConfirm(leave.id)}
+            className="h-9 text-[13px] font-medium text-white bg-red rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer">취소하기</button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -171,6 +297,8 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const TABS = canViewTeam ? ['내 연차', '팀 연차', '이력'] : ['내 연차', '이력']
   const [rejectingLeave, setRejectingLeave] = useState(null)
   const [approvingLeave, setApprovingLeave] = useState(null)
+  const [editingLeave, setEditingLeave] = useState(null)
+  const [cancelingLeave, setCancelingLeave] = useState(null)
 
   const myLeaves = useMemo(() => leaves.filter(l => l.applicantId === currentUser?.id), [leaves, currentUser])
   const usedDays = useMemo(() => myLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0), [myLeaves])
@@ -188,12 +316,19 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   }
   const handleCancel = (id) => {
     onUpdateLeaves?.(prev => prev.filter(l => l.id !== id))
+    setCancelingLeave(null)
+  }
+  const handleEdit = (id, updates) => {
+    onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l))
+    setEditingLeave(null)
   }
 
   return (
     <>
     <LeaveApproveModal leave={approvingLeave} onClose={() => setApprovingLeave(null)} onConfirm={handleApprove} />
     <LeaveRejectModal leave={rejectingLeave} onClose={() => setRejectingLeave(null)} onSubmit={handleReject} />
+    <LeaveEditModal leave={editingLeave} onClose={() => setEditingLeave(null)} onSubmit={handleEdit} />
+    <LeaveCancelModal leave={cancelingLeave} onClose={() => setCancelingLeave(null)} onConfirm={handleCancel} />
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <h2 className="text-[16px] font-bold text-text-primary">Leave Management</h2>
@@ -231,7 +366,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
               {tab === '내 연차' && (
                 myLeaves.filter(l => l.status === '승인 대기').length > 0
                   ? myLeaves.filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate)).map(lv => (
-                    <LeaveRow key={lv.id} lv={lv} showActions currentUser={currentUser} onCancel={handleCancel} />
+                    <LeaveRow key={lv.id} lv={lv} showActions currentUser={currentUser} onEdit={setEditingLeave} onDelete={setCancelingLeave} />
                   ))
                   : <div className="text-[14px] text-muted text-center py-10">승인 대기 중인 연차가 없습니다.</div>
               )}
