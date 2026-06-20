@@ -1,8 +1,18 @@
 import { useMemo, useState } from 'react'
-import { TODAY_ISO, MONDAY_ISO, addDays, calcMinutes, fmtDuration, toDate, fmtMoney } from '../data/helpers'
-import { StatCard, Panel } from './CeoUI'
+import {
+  TODAY_ISO, MONDAY_ISO, addDays, calcMinutes, fmtDuration, fmtMoney,
+  isDelayed, projectDays, elapsedDays, overdueDays, headcount, dailyRateSum,
+  projectProgress, clientOf,
+} from '../data/helpers'
+import { StatCard, Panel, ProgressBar } from './CeoUI'
 
-// 결재 안건 유형·상태 표기 + 대표 금액 산출 (홈 결재함과 동일 데이터, 여기선 전체 이력 조회)
+// 대표(어드민) Report Center — 6탭(수익성·프로젝트·결재·인력·연차·Export).
+// 성격: 대표가 경영을 깊이 들여다보는 분석 보고서(홈은 한눈에, 리포트는 자세히).
+// 기획서 context/ceo-experience.md 3-4. 결정 요지:
+//  - 실데이터(투입 원가·공수·진행률·가동률·과부하·거래처별 원가·결재 금액)와 예시(매출·수익률)를 명확히 구분.
+//  - "완료" 상태를 만들지 않으므로(CLAUDE.md) 완료율·재작업률은 만들지 않고 진행률·진행 중/지연으로 표현.
+//  - 야근 비율(근무시간 데이터 없음)은 과부하 인원(가동률 100% 초과)으로 대체.
+
 const AP_TYPE = {
   '계약 승인': { label: '계약', color: '#2563eb', bg: 'rgba(37,99,235,0.12)' },
   '예산 승인': { label: '예산', color: '#d97706', bg: 'rgba(217,119,6,0.12)' },
@@ -21,13 +31,15 @@ function apAmount(it) {
   return 0
 }
 
-// 대표(어드민) Report Center.
-// 결정사항(vibe_ceo_ia_conflict_decisions): 업무항목 "완료" 상태를 만들지 않으므로
-// 프로젝트 지표는 진행/지연·평균 진행기간으로 표현. 매출 등 데이터 없는 항목은 "예시"로 명시.
-// 연차 현황은 My Page가 아니라 회사 전체 리포트이므로 잔여/사용 표시 허용.
+const STATUS_BADGE = {
+  '진행 중': { color: '#2563eb', bg: 'var(--color-blue-soft)' },
+  '지연': { color: '#dc2626', bg: 'var(--color-red-soft)' },
+  '시작 전': { color: '#72728a', bg: 'var(--color-surface-muted)' },
+}
+function mmdd(d) { return d ? d.slice(5).replace('-', '/') : '—' }
 
 const TABS = [
-  { id: 'sales', label: '매출' },
+  { id: 'profit', label: '수익성' },
   { id: 'project', label: '프로젝트' },
   { id: 'approval', label: '결재' },
   { id: 'people', label: '인력' },
@@ -36,10 +48,10 @@ const TABS = [
 ]
 
 export default function CeoReportCenter({
-  workItems = [], sessions = [], leaves = [], teamMembers = [], totalLeave = 15, approvalItems = [],
+  workItems = [], sessions = [], leaves = [], teamMembers = [], totalLeave = 15, approvalItems = [], processes = [], gradeRates = {},
   onApproveLeave, onRejectLeave,
 }) {
-  const [tab, setTab] = useState('project')
+  const [tab, setTab] = useState('profit')
 
   const ap = useMemo(() => ({
     all: approvalItems,
@@ -52,15 +64,45 @@ export default function CeoReportCenter({
   const m = useMemo(() => {
     const weekEnd = addDays(MONDAY_ISO, 6)
 
-    // ── 프로젝트
-    const projects = workItems.filter(wi => !wi.recurringDays && wi.start && wi.type !== '회의')
-    const delayed = projects.filter(p => p.type !== '고정' && p.end && p.end < TODAY_ISO
-      && sessions.some(s => s.workItemId === p.id && !s.done))
-    const durations = projects
-      .filter(p => p.start && p.end)
-      .map(p => Math.round((toDate(p.end) - toDate(p.start)) / 86400000) + 1)
+    // ── 프로젝트 (홈 Project Status와 동일 계산식 — 투입 원가=직급별 단가×일수)
+    const projects = workItems
+      .filter(wi => !wi.recurringDays && wi.start && wi.type !== '회의')
+      .map(wi => {
+        const status = wi.start > TODAY_ISO ? '시작 전' : (isDelayed(wi, TODAY_ISO, sessions) ? '지연' : '진행 중')
+        const total = projectDays(wi)
+        const elapsed = elapsedDays(wi)
+        const od = overdueDays(wi)
+        const hc = headcount(wi)
+        const rate = dailyRateSum(wi, teamMembers, gradeRates)
+        return {
+          id: wi.id, title: wi.title, end: wi.end, status, hc,
+          client: clientOf(wi),
+          progress: projectProgress(wi, sessions, processes),
+          mdTotal: hc * total, mdElapsed: hc * elapsed,
+          costTotal: total * rate, costElapsed: elapsed * rate,
+          addCost: od * rate,
+        }
+      })
+      .sort((a, b) => b.costTotal - a.costTotal)
+
+    const inProgress = projects.filter(p => p.status === '진행 중')
+    const delayed = projects.filter(p => p.status === '지연')
+    const durations = projects.map(p => projectDays(workItems.find(w => w.id === p.id)))
     const avgDuration = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0
     const delayRate = projects.length ? Math.round((delayed.length / projects.length) * 100) : 0
+    const totalCostTotal = projects.reduce((s, p) => s + p.costTotal, 0)
+    const totalCostElapsed = projects.reduce((s, p) => s + p.costElapsed, 0)
+    const totalMdTotal = projects.reduce((s, p) => s + p.mdTotal, 0)
+
+    // ── 거래처별 투입 원가 비중 (실데이터)
+    const clientMap = {}
+    projects.forEach(p => {
+      if (!clientMap[p.client]) clientMap[p.client] = { client: p.client, count: 0, cost: 0 }
+      clientMap[p.client].count += 1
+      clientMap[p.client].cost += p.costTotal
+    })
+    const clients = Object.values(clientMap).sort((a, b) => b.cost - a.cost)
+    const clientMax = clients.length ? clients[0].cost : 0
 
     // ── 인력 (이번 주 기준)
     const weekSessions = sessions.filter(s => s.date >= MONDAY_ISO && s.date <= weekEnd && s.done)
@@ -70,6 +112,7 @@ export default function CeoReportCenter({
     const CAPACITY = 4
     const utils = teamMembers.map(t => Math.round(((t.weekWorkItems || []).length / CAPACITY) * 100))
     const avgUtil = utils.length ? Math.round(utils.reduce((a, b) => a + b, 0) / utils.length) : 0
+    const overloaded = utils.filter(u => u > 100).length
 
     // 팀별 리소스
     const teamMap = {}
@@ -90,11 +133,12 @@ export default function CeoReportCenter({
     const pendingLeaves = leaves.filter(l => l.status === '승인 대기')
 
     return {
-      projects, delayed, avgDuration, delayRate, inProgress: projects.length - delayed.length,
-      avgWorkMin, avgUtil, teams,
-      onLeaveToday, leaveThisWeek, pendingLeaves, approvedCount: approved.length,
+      projects, inProgress, delayed, avgDuration, delayRate,
+      totalCostTotal, totalCostElapsed, totalMdTotal, clients, clientMax,
+      avgWorkMin, avgUtil, overloaded, teams,
+      onLeaveToday, leaveThisWeek, pendingLeaves,
     }
-  }, [workItems, sessions, leaves, teamMembers])
+  }, [workItems, sessions, leaves, teamMembers, processes, gradeRates])
 
   return (
     <div className="flex-1 overflow-auto px-7 pt-[18px] pb-7">
@@ -109,42 +153,101 @@ export default function CeoReportCenter({
         ))}
       </div>
 
-      {/* 매출 */}
-      {tab === 'sales' && (
-        <div className="flex flex-col gap-3">
-          <p className="text-[12px] text-soft">매출 데이터는 아직 연동 전이라 전부 예시 값입니다.</p>
+      {/* 수익성 — 투입 원가(실데이터) 메인 + 거래처별 원가 + 매출(예시) */}
+      {tab === 'profit' && (
+        <div className="flex flex-col gap-4">
           <Panel>
-            <StatCard val="2.1억" note="예시" label="이번 달 매출" color="#2563eb" bar="bg-blue" />
-            <StatCard val="2.6억" note="예시" label="예상 매출" color="#7c4dff" bar="bg-purple" />
-            <StatCard val="34%" note="예시" label="프로젝트 평균 수익률" color="#0ea874" bar="bg-green" />
-            <StatCard val="3건" note="예시" label="이번 달 신규 계약" color="#d97706" bar="bg-orange" />
+            <StatCard val={fmtMoney(m.totalCostElapsed)} label="누적 투입 원가" color="#2563eb" bar="bg-blue" />
+            <StatCard val={fmtMoney(m.totalCostTotal)} label="예상 총 투입 원가" color="#7c4dff" bar="bg-purple" />
+            <StatCard val="2.1억" note="예시" label="이번 달 매출" color="#0ea874" bar="bg-green" />
+            <StatCard val="34%" note="예시" label="평균 수익률" color="#d97706" bar="bg-orange" />
           </Panel>
+          <p className="text-[12px] text-soft -mt-1">
+            투입 원가는 직급별 단가 × 투입 일수로 계산한 <b className="text-text-sub">실데이터</b>입니다.
+            매출·수익률은 데이터 연동 전이라 예시이며, 연동되면 <b className="text-text-sub">매출 − 원가 = 수익</b>까지 완성됩니다.
+          </p>
+          <div className="bg-surface border border-line rounded-[14px] shadow-sm">
+            <div className="px-5 py-[13px] border-b border-line-soft flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold text-text-primary">거래처별 투입 원가</h2>
+              <span className="text-[11px] text-soft">전체 ≈{fmtMoney(m.totalCostTotal)}</span>
+            </div>
+            <div className="p-3 flex flex-col gap-2.5">
+              {m.clients.length === 0
+                ? <div className="text-[12px] text-soft text-center py-6">집계할 프로젝트가 없습니다</div>
+                : m.clients.map(c => (
+                  <div key={c.client} className="flex items-center gap-3">
+                    <span className="text-[12px] text-text-sub w-24 shrink-0 truncate">{c.client}</span>
+                    <div className="flex-1 h-2 bg-line-soft rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-blue" style={{ width: `${m.clientMax ? Math.round((c.cost / m.clientMax) * 100) : 0}%` }} />
+                    </div>
+                    <span className="text-[11px] text-soft w-10 text-right shrink-0">{c.count}건</span>
+                    <span className="text-[11px] font-mono w-16 text-right shrink-0 text-muted">≈{fmtMoney(c.cost)}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* 프로젝트 */}
+      {/* 프로젝트 — 지표 + 전체 프로젝트 투자 상세표 */}
       {tab === 'project' && (
         <div className="flex flex-col gap-4">
           <Panel>
-            <StatCard val={m.inProgress} label="진행 중 프로젝트" color="#2563eb" bar="bg-blue" />
+            <StatCard val={m.inProgress.length} label="진행 중 프로젝트" color="#2563eb" bar="bg-blue" />
             <StatCard val={m.delayed.length} label="지연 프로젝트" color="#dc2626" bar="bg-red" />
             <StatCard val={`${m.delayRate}%`} label="지연률" color="#d97706" bar="bg-orange" />
             <StatCard val={`${m.avgDuration}일`} label="평균 진행 기간" color="#7c4dff" bar="bg-purple" />
           </Panel>
-          <div className="bg-surface border border-line rounded-[14px] shadow-sm">
-            <div className="px-5 py-[13px] border-b border-line-soft">
-              <h2 className="text-[13px] font-semibold text-text-primary">지연 프로젝트 목록</h2>
+          <div className="bg-surface border border-line rounded-[14px] shadow-sm overflow-hidden">
+            <div className="px-5 py-[13px] border-b border-line-soft flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold text-text-primary">전체 프로젝트 투자 상세</h2>
+              <span className="text-[11px] text-soft">{m.projects.length}건 · 예상 총 ≈{fmtMoney(m.totalCostTotal)}</span>
             </div>
-            <div className="p-2.5 flex flex-col gap-1">
-              {m.delayed.length === 0
-                ? <div className="text-[12px] text-soft text-center py-6">지연 중인 프로젝트가 없습니다</div>
-                : m.delayed.map(p => (
-                  <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-surface-hover">
-                    <span className="text-[12.5px] text-text-sub truncate">{p.title}</span>
-                    <span className="text-[11px] font-mono text-red shrink-0">납기 {p.end?.slice(5).replace('-', '/')}</span>
-                  </div>
-                ))}
-            </div>
+            <table className="w-full text-[12px]">
+              <thead>
+                <tr className="text-soft text-[11px] border-b border-line-soft">
+                  <th className="text-left font-medium px-5 py-2">프로젝트</th>
+                  <th className="text-center font-medium px-2 py-2 w-20">상태</th>
+                  <th className="text-left font-medium px-3 py-2 w-28">진행률</th>
+                  <th className="text-right font-medium px-2 py-2 w-14">인원</th>
+                  <th className="text-right font-medium px-2 py-2 w-20">공수</th>
+                  <th className="text-right font-medium px-3 py-2 w-24">투입 원가</th>
+                  <th className="text-right font-medium px-5 py-2 w-16">납기</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.projects.map(p => {
+                  const sb = STATUS_BADGE[p.status] || STATUS_BADGE['시작 전']
+                  return (
+                    <tr key={p.id} className="border-b border-line-soft last:border-0 hover:bg-surface-hover">
+                      <td className="px-5 py-2.5 text-text-sub truncate max-w-0">{p.title}</td>
+                      <td className="px-2 py-2.5 text-center">
+                        <span className="text-[10px] font-semibold px-1.5 py-[2px] rounded-full whitespace-nowrap"
+                          style={{ color: sb.color, background: sb.bg }}>{p.status}</span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <ProgressBar value={p.progress} color={sb.color} height="h-1.5" />
+                          <span className="font-mono text-soft w-8 text-right shrink-0">{p.progress}%</span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-2.5 text-right text-muted">{p.hc}명</td>
+                      <td className="px-2 py-2.5 text-right text-muted font-mono">{p.mdTotal}</td>
+                      <td className="px-3 py-2.5 text-right font-mono text-text-sub">≈{fmtMoney(p.costTotal)}</td>
+                      <td className="px-5 py-2.5 text-right font-mono" style={{ color: p.status === '지연' ? '#dc2626' : '#72728a' }}>{mmdd(p.end)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="border-t border-line font-semibold text-text-primary">
+                  <td className="px-5 py-2.5" colSpan={4}>합계</td>
+                  <td className="px-2 py-2.5 text-right font-mono">{m.totalMdTotal}</td>
+                  <td className="px-3 py-2.5 text-right font-mono">≈{fmtMoney(m.totalCostTotal)}</td>
+                  <td className="px-5 py-2.5" />
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
       )}
@@ -197,8 +300,8 @@ export default function CeoReportCenter({
           <Panel>
             <StatCard val={fmtDuration(m.avgWorkMin)} label="1인 평균 작업시간(주)" color="#2563eb" bar="bg-blue" />
             <StatCard val={`${m.avgUtil}%`} label="평균 가동률" color="#0ea874" bar="bg-green" />
+            <StatCard val={m.overloaded} label="과부하 인원" color="#dc2626" bar="bg-red" />
             <StatCard val={teamMembers.length} label="전체 인원" color="#7c4dff" bar="bg-purple" />
-            <StatCard val="12%" note="예시" label="야근 비율" color="#d97706" bar="bg-orange" />
           </Panel>
           <div className="bg-surface border border-line rounded-[14px] shadow-sm">
             <div className="px-5 py-[13px] border-b border-line-soft">

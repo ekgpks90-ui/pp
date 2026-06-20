@@ -204,3 +204,24 @@ export function fmtMoney(won) {
   if (won >= 1e4) return `${Math.round(won / 1e4).toLocaleString()}만`;
   return `${won.toLocaleString()}원`;
 }
+
+// 작업세션 기반 진행률(%) — 프로세스가 있으면 세션이 찍힌 단계 수 / 전체 단계 수,
+// 없으면 완료 세션 수 / 전체 세션 수. (홈 Project Status·리포트 프로젝트 탭 공통)
+export function projectProgress(wi, sessions = [], processes = []) {
+  const wiSessions = sessions.filter(s => s.workItemId === wi.id);
+  const proc = wi.processId ? processes.find(p => p.id === wi.processId) : null;
+  if (proc && proc.steps.length) {
+    const stepsWithSession = new Set(wiSessions.map(s => s.stepId).filter(Boolean));
+    return Math.round((stepsWithSession.size / proc.steps.length) * 100);
+  }
+  if (!wiSessions.length) return 0;
+  return Math.round((wiSessions.filter(s => s.done).length / wiSessions.length) * 100);
+}
+
+// 프로젝트(업무항목) 제목에서 거래처명 도출. 사내(외부 의뢰 아님) 프로젝트는 '사내'로 묶는다.
+// 외부 의뢰는 sourceRequestId가 있고, 제목 첫 단어가 거래처명((주) 접두 제거).
+export function clientOf(wi) {
+  if (!wi.sourceRequestId) return '사내';
+  const first = (wi.title || '').trim().split(/\s+/)[0] || '사내';
+  return first.replace(/^\(주\)/, '').replace(/\(주\)$/, '') || '사내';
+}

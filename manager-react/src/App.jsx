@@ -261,6 +261,8 @@ export default function App() {
             teamMembers={teamMembers}
             totalLeave={totalLeave}
             approvalItems={approvalItems}
+            processes={processes}
+            gradeRates={gradeRates}
             onApproveLeave={approveLeave}
             onRejectLeave={rejectLeave}
           />
