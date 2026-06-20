@@ -1,26 +1,27 @@
 import { useMemo, useState } from 'react'
 import {
-  TODAY_ISO, MONDAY_ISO, addDays, toDate, isDelayed,
+  TODAY_ISO, MONDAY_ISO, addDays, isDelayed,
   projectDays, elapsedDays, overdueDays, headcount,
   dailyRateSum, fmtMoney, projectProgress,
 } from '../data/helpers'
-import { StatCard, SectionCard, ProgressBar } from './CeoUI'
+import { SectionCard, ProgressBar } from './CeoUI'
 import CeoSlideOver from './CeoSlideOver'
 import CeoProjectDetail from './CeoProjectDetail'
 import CeoApprovalDetail from './CeoApprovalDetail'
 import ConfirmModal from './ConfirmModal'
 
-// 대표(어드민) 경영 대시보드 — 홈.
-// 기획서(context/ceo-experience.md 3-1) 확정 설계 반영:
-//  - 목표 1) 직원들이 일 제대로 하나(가동률·농땡이)  목표 2) 프로젝트=사람×기간=얼마 투자됐나
-//  - 3칸(화면 꽉 채움): ① Project Status(탭, 행 클릭 시 우측 상세 슬라이드)
-//                       ② KPI(사람) + AI Brief  ③ Approval = 대표 결재함('보기' → 슬라이드 → 승인/반려 → 확인 모달)
-//  - 투자=직급별 단가×투입 일수. 공수 메인 + ₩금액 보조(토글). "완료" 토글 안 만듦.
+// 대표(어드민) 경영 대시보드 — 홈. (기획서 context/ceo-experience.md 3-1 / 2026-06-20 디벨롭 반영)
+// 와이어프레임 ceo-home-wireframe-v4 구조를 프로젝트 디자인 시스템(CeoUI·index.css 토큰)으로 변환:
+//  - 상단 KPI 스트립(5지표) + 기간 전환(주간/월간/분기)
+//  - 3열(좌1.6 프로젝트 투자현황 / 중1.1 추이+결재함 / 우1.0 AI 추천 액션)
+//  - 투자=직급별 단가×투입 일수(실데이터). "완료" 토글 안 만듦.
+//  - 데이터 미보유 항목(가동률 추이 과거치)은 "예시" 표기. 프로젝트 예상 견적이 없어
+//    예상→실제는 정상 기간 기준 투입(예상) → 지연 초과분 가산(실제)으로 산출(정시=0%).
 
 const STATUS = {
-  '진행 중': { color: '#2563eb' },
-  '지연': { color: '#dc2626' },
-  '시작 전': { color: '#72728a' },
+  '진행 중': { color: 'var(--color-blue)' },
+  '지연': { color: 'var(--color-red)' },
+  '시작 전': { color: 'var(--color-soft)' },
 }
 const STATUS_BADGE = {
   '진행 중': { color: '#2563eb', bg: 'var(--color-blue-soft)' },
@@ -35,18 +36,15 @@ const TYPE_BADGE = {
 }
 
 const TABS = ['전체', '진행 중', '지연', '이번 주 납기']
+const PERIODS = ['주간', '월간', '분기']
+const PERIOD_LABEL = { '주간': '이번 주', '월간': '이번 달', '분기': '이번 분기' }
 
 function mmdd(d) { return d ? d.slice(5).replace('-', '/') : '—' }
-function ddayLabel(end) {
-  if (!end) return '—'
-  const n = Math.round((toDate(end) - toDate(TODAY_ISO)) / 86400000)
-  return n >= 0 ? `D-${n}` : `D+${-n}`
-}
 
 function StatusBadge({ status }) {
   const c = STATUS_BADGE[status] || STATUS_BADGE['시작 전']
   return (
-    <span className="text-[11px] font-semibold px-2 py-[3px] rounded-full whitespace-nowrap shrink-0"
+    <span className="text-[10px] font-semibold px-2 py-[3px] rounded-md whitespace-nowrap shrink-0"
       style={{ color: c.color, background: c.bg }}>{status}</span>
   )
 }
@@ -61,11 +59,45 @@ function approvalDetail(item) {
   }
 }
 
+// 결재 안건에 실데이터로 도출 가능한 판단 근거만 노출(없으면 박스 생략 — 과거거래·수익률 등 미보유 값은 만들지 않음).
+function approvalContext(item) {
+  const rows = []
+  if (item.type === '프로젝트 착수 승인' && item.expectedRevenue && item.plannedBudget) {
+    rows.push({ k: '예상 수익', v: `≈${fmtMoney(item.expectedRevenue - item.plannedBudget)}`, tone: 'good' })
+    rows.push({ k: '예상 매출', v: `${fmtMoney(item.expectedRevenue)} (예시)` })
+  }
+  return rows
+}
+
+// 기간별 업무 집중도 추이. 과거 가동률은 추적 데이터가 없어 예시값이며, 마지막(현재) 막대만 실측 avgUtil.
+function buildTrend(period, avgUtil) {
+  if (period === '주간') return { labels: ['월', '화', '수', '목', '금'], values: [62, 74, 68, 71, avgUtil], foot: `이번 주 가동률 ${avgUtil}%` }
+  if (period === '분기') return { labels: ['3Q전', '2Q전', '전분기', '이번 분기'], values: [58, 64, 70, avgUtil], foot: `이번 분기 가동률 ${avgUtil}%` }
+  return { labels: ['2월', '3월', '4월', '5월', '6월'], values: [55, 62, 70, 65, avgUtil], foot: `이번 달 가동률 ${avgUtil}% — 최근 5개월 중 최고` }
+}
+
+function KpiChip({ label, value, unit, sub, valueColor, highlight }) {
+  return (
+    <div className={`flex-1 min-w-0 rounded-[10px] px-3.5 py-2.5 flex items-center justify-between border ${highlight ? 'border-transparent' : 'border-line bg-surface'}`}
+      style={highlight ? { background: 'linear-gradient(135deg,#161620,#2c2c3a)' } : undefined}>
+      <div className="min-w-0">
+        <div className="text-[10px] text-soft mb-[3px] whitespace-nowrap">{label}</div>
+        <div className="text-[19px] font-bold font-mono leading-none"
+          style={{ color: highlight ? '#fff' : (valueColor || 'var(--color-text-primary)') }}>
+          {value}{unit && <span className="text-[11px] font-normal text-soft ml-0.5">{unit}</span>}
+        </div>
+      </div>
+      {sub && <div className="text-[9px] text-soft text-right shrink-0 ml-2 whitespace-nowrap">{sub}</div>}
+    </div>
+  )
+}
+
 export default function CeoDashboard({
   workItems = [], sessions = [], teamMembers = [], processes = [],
   approvalItems = [], gradeRates = {},
   onApproveItem, onRejectItem,
 }) {
+  const [period, setPeriod] = useState('월간')
   const [tab, setTab] = useState('전체')
   const [showMoney, setShowMoney] = useState(true)
   const [selectedProject, setSelectedProject] = useState(null)
@@ -84,14 +116,17 @@ export default function CeoDashboard({
         const od = overdueDays(wi)
         const hc = headcount(wi)
         const rate = dailyRateSum(wi, teamMembers, gradeRates)
+        const baseCost = total * rate     // 예상: 정상 기간 기준 계획 투입
+        const addCost = od * rate          // 지연 초과분
         return {
           id: wi.id, title: wi.title, start: wi.start, end: wi.end, status,
           description: wi.description, participants: wi.participants || [], processId: wi.processId,
           progress: projectProgress(wi, sessions, processes),
-          hc, od,
+          hc, od, days: total,
           mdTotal: hc * total, mdElapsed: hc * elapsed,
-          costTotal: total * rate, costElapsed: elapsed * rate,
-          baseCost: total * rate, addCost: od * rate,
+          costTotal: baseCost, costElapsed: elapsed * rate,
+          baseCost, addCost, actualCost: baseCost + addCost,
+          diffPct: baseCost ? Math.round((addCost / baseCost) * 100) : 0,
           owner: (wi.participants && wi.participants[0]) || '미배정',
         }
       })
@@ -111,11 +146,15 @@ export default function CeoDashboard({
 
     const totalMdElapsed = projects.reduce((s, p) => s + p.mdElapsed, 0)
     const totalCostElapsed = projects.reduce((s, p) => s + p.costElapsed, 0)
+    const totalBaseCost = projects.reduce((s, p) => s + p.baseCost, 0)
+    const totalAddCost = projects.reduce((s, p) => s + p.addCost, 0)
     const delayAddCost = delayed.reduce((s, p) => s + p.addCost, 0)
+    const costDiffPct = totalBaseCost ? Math.round((totalAddCost / totalBaseCost) * 100) : 0
 
     return {
       projects, inProgress, delayed, dueThisWeek,
-      avgUtil, overloaded, light, totalMdElapsed, totalCostElapsed, delayAddCost,
+      avgUtil, overloaded, light,
+      totalMdElapsed, totalCostElapsed, delayAddCost, costDiffPct,
     }
   }, [workItems, sessions, teamMembers, processes, gradeRates])
 
@@ -130,134 +169,222 @@ export default function CeoDashboard({
       : tab === '이번 주 납기' ? d.dueThisWeek
         : d.projects
 
-  const briefs = []
-  d.light.forEach(m => briefs.push({ tone: '#dc2626', text: `${m.name}님 가동률 ${m.util}% — 업무 적음 (점검 필요)` }))
-  d.overloaded.forEach(m => briefs.push({ tone: '#d97706', text: `${m.name}님 과부하 ${m.util}% — 분산 필요` }))
-  if (d.delayed.length) briefs.push({ tone: '#d97706', text: `지연 ${d.delayed.length}건 · 추가비용 ≈${fmtMoney(d.delayAddCost)} 발생 중` })
-  if (d.dueThisWeek.length) briefs.push({ tone: '#2563eb', text: `이번 주 납기 ${d.dueThisWeek.length}건 예정` })
-  if (d.overloaded.length && d.light.length) briefs.push({ tone: '#0ea874', text: `${d.light[0].name}님 여유 → ${d.overloaded[0].name}님 업무 분산 추천` })
-  if (!briefs.length) briefs.push({ tone: '#0ea874', text: '특이 리스크 없음 — 전 팀 정상 진행 중' })
-
+  const trend = buildTrend(period, d.avgUtil)
   const pending = approvalItems.filter(a => a.status === '대기')
 
-  function metaMain(p) {
-    if (tab === '진행 중') return `${ddayLabel(p.end)} · 👤${p.hc}명 · 누적 ${p.mdElapsed}/예상 ${p.mdTotal} 사람·일`
-    if (tab === '지연') return `+${p.od}일 초과 · 담당 ${p.owner} · 👤${p.hc}명`
-    if (tab === '이번 주 납기') return `${ddayLabel(p.end)} 마감 · 담당 ${p.owner} · 👤${p.hc}명`
-    return `담당 ${p.owner} · 납기 ${mmdd(p.end)} · 👤${p.hc}명 · ${p.mdTotal} 사람·일`
-  }
-  function metaMoney(p) {
-    if (tab === '진행 중') return { text: `≈${fmtMoney(p.costElapsed)} / ${fmtMoney(p.costTotal)}`, color: '#72728a' }
-    if (tab === '지연') return { text: `투입 ${fmtMoney(p.baseCost)} + 추가 ${fmtMoney(p.addCost)} = ${fmtMoney(p.baseCost + p.addCost)}`, color: '#dc2626' }
-    return { text: `≈${fmtMoney(p.costTotal)}`, color: '#72728a' }
-  }
+  // 우측 AI 추천 액션 — 실데이터 신호 기반. 실행 버튼 동작 연계는 2차(기획서 5장).
+  const aiActions = []
+  if (d.delayed.length) aiActions.push({
+    dot: 'var(--color-red)',
+    text: <>지연 <strong>{d.delayed.length}건</strong> 발생 — 추가비용 ≈{fmtMoney(d.delayAddCost)} 누적 중</>,
+    rec: '여유 인력 투입·일정 조정을 검토하세요.', btn: '인력 배정하기',
+  })
+  d.overloaded.slice(0, 1).forEach(m => aiActions.push({
+    dot: 'var(--color-orange)',
+    text: <>{m.name}님 <strong>과부하 {m.util}%</strong> — 업무 편중</>,
+    rec: '여유 인원에게 업무를 분산하세요.', btn: '재배분하기',
+  }))
+  if (d.light.length && d.delayed.length) aiActions.push({
+    dot: 'var(--color-blue)',
+    text: <><strong>여유 인력 {d.light.length}명</strong> 확보 — 활용 가능</>,
+    rec: '지연 프로젝트에 재배분하면 마감 회복이 가능해요.', btn: '재배분하기',
+  })
+  if (d.dueThisWeek.length) aiActions.push({
+    dot: 'var(--color-orange)',
+    text: <>이번 주 <strong>납기 {d.dueThisWeek.length}건</strong> 집중 — 일정 충돌 주의</>,
+    rec: '납기 임박순으로 우선순위를 점검하세요.', btn: '일정 확인하기',
+  })
+  if (!aiActions.length) aiActions.push({
+    dot: 'var(--color-green)',
+    text: <>특이 리스크 없음 — 전 팀 정상 진행 중</>,
+    rec: '현재 재배분이 필요한 항목이 없습니다.', btn: null,
+  })
 
   return (
-    <div className="flex-1 min-h-0 overflow-hidden px-4 py-4">
-      <div className="grid grid-cols-3 gap-4 h-full min-h-0">
+    <div className="flex-1 min-h-0 overflow-hidden px-4 py-3 flex flex-col gap-3">
 
-        {/* ① Project Status */}
-        <SectionCard title="프로젝트 현황" className="h-full"
-          action={
-            <button onClick={() => setShowMoney(s => !s)}
-              className="text-[11px] font-medium px-2 py-[3px] rounded-full border border-line text-muted hover:text-blue cursor-pointer">
-              금액 {showMoney ? '표시' : '숨김'}
-            </button>
-          }>
-          <div className="flex gap-1 px-3 pt-2.5 pb-1 flex-wrap shrink-0">
-            {TABS.map(t => (
-              <button key={t} onClick={() => setTab(t)}
-                className={`text-[11.5px] font-medium px-2.5 py-1 rounded-full cursor-pointer transition-colors
-                  ${tab === t ? 'bg-blue text-white' : 'bg-surface-muted text-muted hover:text-text-sub'}`}>
-                {t} {counts[t]}
+      {/* 기간 전환 (주간/월간/분기) */}
+      <div className="flex items-center gap-1 shrink-0">
+        {PERIODS.map(p => (
+          <button key={p} onClick={() => setPeriod(p)}
+            className={`text-[11px] px-3 py-1.5 rounded-md cursor-pointer transition-colors
+              ${period === p ? 'bg-blue-soft text-blue font-semibold' : 'text-muted hover:text-text-sub'}`}>
+            {p}
+          </button>
+        ))}
+      </div>
+
+      {/* KPI 스트립 (5지표) */}
+      <div className="flex gap-2.5 shrink-0">
+        <KpiChip label="평균 가동률" value={d.avgUtil} unit="%" sub="목표 85%" />
+        <KpiChip label="과부하 / 여유" value={d.overloaded.length} unit={`/ ${d.light.length}명`}
+          valueColor={d.overloaded.length ? 'var(--color-red)' : undefined}
+          sub={d.overloaded.length && d.light.length ? '재배분 가능' : '—'} />
+        <KpiChip label="진행 / 지연" value={d.inProgress.length} unit={`/ ${d.delayed.length}건`}
+          sub={d.delayed.length ? `지연 ${d.delayed.length}` : '안정'} />
+        <KpiChip label="예상 대비 실제" value={`${d.costDiffPct >= 0 ? '+' : ''}${d.costDiffPct}`} unit="%"
+          valueColor={d.costDiffPct > 10 ? 'var(--color-red)' : undefined} sub="목표 ±10%" />
+        <KpiChip highlight label={`${PERIOD_LABEL[period]} 총 투입`} value={fmtMoney(d.totalCostElapsed)}
+          sub={`${d.totalMdElapsed} 사람·일`} />
+      </div>
+
+      {/* 3열 */}
+      <div className="flex gap-4 flex-1 min-h-0">
+
+        {/* 좌: 프로젝트 투자 현황 */}
+        <div className="min-w-0 min-h-0 flex" style={{ flex: 1.6 }}>
+          <SectionCard title="프로젝트 투자 현황" className="h-full w-full"
+            action={
+              <button onClick={() => setShowMoney(s => !s)}
+                className="text-[11px] font-medium px-2 py-[3px] rounded-full border border-line text-muted hover:text-blue cursor-pointer">
+                {showMoney ? '금액' : '공수만'}
               </button>
-            ))}
-          </div>
-          <div className="px-4 pt-1 pb-1 text-[11px] text-soft shrink-0">
-            {tab === '지연'
-              ? <>지연 {d.delayed.length}건{showMoney && ` · 추가비용 ≈${fmtMoney(d.delayAddCost)}`}</>
-              : <>총 {list.length}건{showMoney && ` · 누적 투입 ≈${fmtMoney(d.totalCostElapsed)}`}</>}
-          </div>
-          <div className="flex-1 min-h-0 overflow-auto px-2.5 pb-2.5 flex flex-col">
-            {list.length === 0 && (
-              <div className="text-[12px] text-soft text-center py-10">해당 프로젝트가 없습니다</div>
-            )}
-            {list.map(p => {
-              const money = metaMoney(p)
-              return (
-                <div key={p.id} className="px-3 py-3 rounded-lg hover:bg-surface-hover transition-colors cursor-pointer"
-                  onClick={() => setSelectedProject(p)}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[14px] font-medium text-text-primary truncate">{p.title}</span>
-                    <StatusBadge status={p.status} />
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <ProgressBar value={p.progress} color={STATUS[p.status].color} height="h-1.5" />
-                    <span className="text-[12px] font-mono text-muted w-9 text-right">{p.progress}%</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-2 mt-1.5">
-                    <span className="text-[11px] text-soft truncate">{metaMain(p)}</span>
-                    {showMoney && (
-                      <span className="text-[11px] font-medium whitespace-nowrap shrink-0" style={{ color: money.color }}>{money.text}</span>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </SectionCard>
-
-        {/* ② KPI + AI Brief */}
-        <div className="flex flex-col gap-4 h-full min-h-0">
-          <SectionCard title="핵심 지표" className="shrink-0">
-            <div className="grid grid-cols-2 gap-2 p-[12px_14px_14px]">
-              <StatCard val={`${d.avgUtil}%`} label="평균 가동률" color="#0ea874" bar="bg-green" />
-              <StatCard val={d.overloaded.length} label="과부하 인원" color="#dc2626" bar="bg-red" />
-              <StatCard val={d.light.length} label="여유 인원" color="#7c4dff" bar="bg-purple" />
-              <StatCard val={`${d.totalMdElapsed}`} note={showMoney ? `≈${fmtMoney(d.totalCostElapsed)}` : '사람·일'} label="이번 달 총투입" color="#2563eb" bar="bg-blue" />
+            }>
+            <div className="flex gap-1.5 px-4 py-2.5 flex-wrap shrink-0 border-b border-line-soft">
+              {TABS.map(t => (
+                <button key={t} onClick={() => setTab(t)}
+                  className={`text-[11.5px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-colors
+                    ${tab === t ? 'bg-text-primary text-white' : 'bg-surface-muted text-muted hover:text-text-sub'}`}>
+                  {t} <span className="opacity-70">{counts[t]}</span>
+                </button>
+              ))}
             </div>
-          </SectionCard>
-
-          <SectionCard title="AI 브리핑" className="flex-1 min-h-0">
-            <div className="flex-1 min-h-0 overflow-auto p-[12px_16px_16px] flex flex-col gap-2">
-              {briefs.map((b, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full mt-[6px] shrink-0" style={{ background: b.tone }} />
-                  <span className="text-[12.5px] text-text-sub leading-snug">{b.text}</span>
+            <div className="flex-1 min-h-0 overflow-auto">
+              <div className="px-4 pt-2.5 pb-1 text-[11px] text-soft">
+                {tab === '지연'
+                  ? <>지연 {d.delayed.length}건{showMoney && ` · 추가비용 ≈${fmtMoney(d.delayAddCost)}`}</>
+                  : <>총 {list.length}건{showMoney && ` · 누적 투입 ≈${fmtMoney(d.totalCostElapsed)}`}</>}
+              </div>
+              <div className="grid grid-cols-[1.8fr_1.1fr_0.8fr_1fr] gap-2.5 px-4 py-1.5 text-[10px] font-semibold text-soft">
+                <div>프로젝트 / 진행률</div>
+                <div>{showMoney ? '예상 / 실제' : '공수'}</div>
+                <div className="text-center">인원</div>
+                <div className="text-right">상태</div>
+              </div>
+              {list.length === 0 && (
+                <div className="text-[12px] text-soft text-center py-10">해당 프로젝트가 없습니다</div>
+              )}
+              {list.map(p => (
+                <div key={p.id} onClick={() => setSelectedProject(p)}
+                  className="grid grid-cols-[1.8fr_1.1fr_0.8fr_1fr] gap-2.5 items-center px-4 py-3 border-t border-line-soft border-l-[3px] cursor-pointer hover:bg-surface-hover transition-colors"
+                  style={{ borderLeftColor: p.status === '지연' ? 'var(--color-red)' : 'transparent' }}>
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-medium text-text-primary truncate mb-1.5">{p.title}</div>
+                    <div className="flex items-center gap-1.5">
+                      <ProgressBar value={p.progress} color={STATUS[p.status].color} height="h-[5px]" />
+                      <span className="text-[10px] font-mono text-soft w-7 text-right">{p.progress}%</span>
+                    </div>
+                  </div>
+                  {showMoney ? (
+                    <div className="text-[11px] leading-tight">
+                      <div className="text-soft whitespace-nowrap">예상 ≈{fmtMoney(p.baseCost)}</div>
+                      <div className="whitespace-nowrap mt-0.5">
+                        <span className="text-soft">→ </span>
+                        <span className="font-bold text-text-primary">{fmtMoney(p.actualCost)}</span>
+                        <span className="text-[10px] font-semibold ml-1" style={{ color: p.addCost > 0 ? 'var(--color-red)' : 'var(--color-soft)' }}>
+                          {p.addCost > 0 ? `+${p.diffPct}%` : '0%'}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-muted">{p.mdTotal} 사람·일</div>
+                  )}
+                  <div className="text-[11px] text-muted text-center leading-tight">
+                    <span className="text-[13px] font-bold text-text-primary">{p.hc}</span>명
+                    <div className="text-[10px] text-soft">{p.days}일</div>
+                  </div>
+                  <div className="text-right">
+                    <StatusBadge status={p.status} />
+                    <div className="text-[10px] text-soft mt-1">{p.status === '지연' ? `+${p.od}일` : mmdd(p.end)}</div>
+                  </div>
                 </div>
               ))}
             </div>
           </SectionCard>
         </div>
 
-        {/* ③ Approval = 대표 결재함 */}
-        <SectionCard title="결재함" className="h-full"
-          action={<span className="text-[11px] font-semibold text-purple">{pending.length}건 대기</span>}>
-          <div className="flex-1 min-h-0 overflow-auto p-2.5 flex flex-col gap-1.5">
-            <div className="text-[11px] text-soft px-1.5 pt-0.5 pb-1">대표 결재 안건 (계약·예산·착수·종료)</div>
-            {pending.length === 0 && (
-              <div className="text-[12px] text-soft text-center py-10">결재할 안건이 없습니다</div>
-            )}
-            {pending.map(item => {
-              const badge = TYPE_BADGE[item.type] || TYPE_BADGE['계약 승인']
-              return (
-                <div key={item.id} className="px-3 py-2.5 rounded-lg border border-line-soft">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold px-1.5 py-[2px] rounded whitespace-nowrap shrink-0"
+        {/* 중: 추이 + 결재함 */}
+        <div className="min-w-0 min-h-0 flex flex-col gap-4" style={{ flex: 1.1 }}>
+          <SectionCard title="업무 집중도 추이" className="w-full shrink-0"
+            action={<span className="text-[10px] font-semibold text-soft border border-line rounded px-1.5 py-[1px]">예시</span>}>
+            <div className="px-4 py-3.5">
+              <div className="flex items-end gap-2 h-[70px] mb-2">
+                {trend.values.map((v, i) => {
+                  const current = i === trend.values.length - 1
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                      <div className="w-full rounded-t-md" style={{ height: `${v}%`, background: current ? 'var(--color-purple)' : 'var(--color-purple-soft)' }} />
+                      <div className="text-[9px] text-soft">{trend.labels[i]}</div>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="text-[10px] text-soft text-center">{trend.foot}</div>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="결재함" className="h-full w-full flex-1 min-h-0"
+            action={<span className="text-[11px] font-semibold text-purple bg-purple-soft rounded-full px-2.5 py-0.5">{pending.length}건 대기</span>}>
+            <div className="flex-1 min-h-0 overflow-auto p-3 flex flex-col gap-2.5">
+              {pending.length === 0 && (
+                <div className="text-[12px] text-soft text-center py-10">결재할 안건이 없습니다</div>
+              )}
+              {pending.map(item => {
+                const badge = TYPE_BADGE[item.type] || TYPE_BADGE['계약 승인']
+                const ctx = approvalContext(item)
+                return (
+                  <div key={item.id} className="rounded-[10px] border border-line-soft p-3">
+                    <span className="inline-block text-[10px] font-semibold px-2 py-[3px] rounded-md mb-1.5"
                       style={{ color: badge.color, background: badge.bg }}>{badge.label}</span>
-                    <span className="text-[13px] font-medium text-text-sub truncate">{item.title}</span>
+                    <div className="text-[12.5px] font-semibold text-text-sub mb-1">{item.title}</div>
+                    <div className="text-[11px] text-soft mb-1.5">{approvalDetail(item)}</div>
+                    {ctx.length > 0 && (
+                      <div className="bg-surface-muted rounded-lg px-2.5 py-2 mb-2 flex flex-col gap-1">
+                        {ctx.map((r, i) => (
+                          <div key={i} className="flex items-center justify-between text-[10px] text-muted">
+                            <span>{r.k}</span>
+                            <span className={r.tone === 'good' ? 'text-green font-semibold' : r.tone === 'warn' ? 'text-orange font-semibold' : ''}>{r.v}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="text-[10px] text-soft mb-2.5">요청 {item.requester} · {mmdd(item.requestedAt)}</div>
+                    <div className="grid grid-cols-[1fr_1fr_auto] gap-1.5">
+                      <button onClick={() => setConfirm({ kind: 'approve', item })}
+                        className="bg-text-primary text-white text-[11px] font-semibold py-[7px] rounded-md hover:opacity-90 cursor-pointer transition-opacity">승인</button>
+                      <button onClick={() => setConfirm({ kind: 'reject', item })}
+                        className="bg-surface text-muted text-[11px] py-[7px] rounded-md border border-line hover:text-red hover:border-red cursor-pointer transition-colors">반려</button>
+                      <button onClick={() => setSelectedApproval(item)}
+                        className="bg-surface text-soft text-[11px] px-2.5 py-[7px] rounded-md border border-line hover:text-blue cursor-pointer transition-colors">상세</button>
+                    </div>
                   </div>
-                  <div className="text-[11px] text-soft mt-1 truncate">{approvalDetail(item)}</div>
-                  <div className="text-[10.5px] text-soft mt-0.5">요청 {item.requester} · {mmdd(item.requestedAt)}</div>
-                  <button onClick={() => setSelectedApproval(item)}
-                    className="mt-2 w-full text-[12px] font-medium py-1.5 rounded-lg border border-line text-muted hover:text-blue hover:border-blue cursor-pointer transition-colors">
-                    보기
-                  </button>
+                )
+              })}
+            </div>
+          </SectionCard>
+        </div>
+
+        {/* 우: AI 추천 액션 */}
+        <div className="min-w-0 min-h-0 flex" style={{ flex: 1 }}>
+          <SectionCard title="추천 액션" className="h-full w-full"
+            action={<span className="text-[10px] font-bold text-white rounded px-1.5 py-[2px]" style={{ background: 'linear-gradient(135deg,#7c4dff,#a78bff)' }}>AI</span>}>
+            <div className="flex-1 min-h-0 overflow-auto p-3 flex flex-col gap-2.5">
+              {aiActions.map((a, i) => (
+                <div key={i} className="rounded-[10px] border border-line-soft p-3">
+                  <div className="flex items-start gap-2.5 mb-2.5">
+                    <span className="w-[7px] h-[7px] rounded-full mt-[5px] shrink-0" style={{ background: a.dot }} />
+                    <span className="text-[12px] text-text-sub leading-snug">{a.text}</span>
+                  </div>
+                  <div className="text-[11px] text-purple bg-purple-soft rounded-md px-2.5 py-2 leading-snug mb-2">💡 {a.rec}</div>
+                  {a.btn && (
+                    <button className="w-full text-[11px] font-semibold bg-text-primary text-white py-[7px] rounded-md hover:opacity-90 cursor-pointer transition-opacity"
+                      title="실행 연계는 준비 중입니다">{a.btn}</button>
+                  )}
                 </div>
-              )
-            })}
-          </div>
-        </SectionCard>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
 
       </div>
 
