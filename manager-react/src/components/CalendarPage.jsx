@@ -111,10 +111,14 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
   )
 
   // 선택 팀으로 필터한 전체보기용 프로젝트.
-  const teamFilteredProjects = useMemo(
-    () => (selectedTeam === '전체' ? projects : projects.filter(p => getProjectTeam(p) === selectedTeam)),
-    [projects, selectedTeam]
-  )
+  const teamFilteredProjects = useMemo(() => {
+    const filtered = selectedTeam === '전체' ? projects : projects.filter(p => getProjectTeam(p) === selectedTeam)
+    return [...filtered].sort((a, b) => {
+      const ai = TEAM_ORDER.indexOf(getProjectTeam(a))
+      const bi = TEAM_ORDER.indexOf(getProjectTeam(b))
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
+    })
+  }, [projects, selectedTeam])
 
   const days = useMemo(() => getMonthDays(calYear, calMonth), [calYear, calMonth])
 
