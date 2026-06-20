@@ -16,7 +16,7 @@ const REQ_GROUPS = [
   { statuses: ['배정완료'], label: '배정 완료', borderColor: '#10b981', badgeCls: 'bg-green/10 text-green', showBtn: false },
 ]
 
-export default function TeamStatusPage({ role, assignmentRequests, teamMembers, currentUser, processes, onUpdateAssignmentRequests }) {
+export default function TeamStatusPage({ role, assignmentRequests, teamMembers, currentUser, processes, onUpdateAssignmentRequests, onAddApprovalItem }) {
   const canEditOthers = canEditOthersData(role)
   const [showNewReqModal, setShowNewReqModal] = useState(false)
   const [assignTarget, setAssignTarget] = useState(null)
@@ -220,6 +220,9 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
           currentUser={currentUser}
           onSubmit={(newReq) => {
             onUpdateAssignmentRequests?.(prev => [...prev, newReq])
+          }}
+          onSubmitApproval={(item) => {
+            onAddApprovalItem?.(item)
           }}
           onClose={() => setShowNewReqModal(false)}
         />

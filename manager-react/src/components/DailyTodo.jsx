@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
-import { TODAY_ISO } from '../data/helpers'
+import { TODAY_ISO, fmtDeadline } from '../data/helpers'
 import { currentUser } from '../data/state'
 import ConfirmModal from './ConfirmModal'
 
@@ -316,6 +316,10 @@ export default function DailyTodo({
           daySessions.map(s => {
             const isDone = s.done
             const wi = workItems.find(w => w.id === s.workItemId)
+            // 데드라인은 단일 기준으로 파생: 단계 데드라인 → 세션 데드라인 → 업무 마감일(고정 업무는 없음)
+            const effectiveDeadline = wi?.stepDeadlines?.[s.stepId]
+              ?? s.deadline
+              ?? (wi && wi.type !== '고정' ? (wi.end || null) : null)
             const isEditingTitle = editingTitleId === s.id
             const isEditingStart = editingTimeId === s.id && editingTimeField === 'startTime'
             const isEditingEnd = editingTimeId === s.id && editingTimeField === 'endTime'
@@ -355,11 +359,18 @@ export default function DailyTodo({
                       className="text-[13px] font-medium text-text-primary w-full outline-none border-b border-blue bg-transparent py-0.5 tracking-[-0.01em]"
                     />
                   ) : (
-                    <span
-                      onDoubleClick={() => startEditTitle(s)}
-                      className={`text-[13px] font-medium block leading-[1.35] tracking-[-0.01em] cursor-text ${isDone ? 'line-through text-soft' : 'text-text-primary'}`}
-                    >
-                      {s.title}
+                    <span className="flex items-baseline gap-1.5 flex-wrap">
+                      <span
+                        onDoubleClick={() => startEditTitle(s)}
+                        className={`text-[13px] font-medium leading-[1.35] tracking-[-0.01em] cursor-text ${isDone ? 'line-through text-soft' : 'text-text-primary'}`}
+                      >
+                        {s.title}
+                      </span>
+                      {effectiveDeadline ? (
+                        <span className="text-[11px] font-semibold text-muted shrink-0" title="데드라인">{fmtDeadline(effectiveDeadline)}</span>
+                      ) : (
+                        <span className="text-[11px] text-soft shrink-0" title="마감일 없음">마감 없음</span>
+                      )}
                     </span>
                   )}
                   {/* Time inputs */}

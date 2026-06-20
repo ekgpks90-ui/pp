@@ -45,6 +45,14 @@ export function sortByType(a, b) {
   return (order[a.type] - order[b.type]) || a.title.localeCompare(b.title, 'ko');
 }
 
+// 단계 데드라인 표기 — 'YYYY-MM-DD' → '~M/D' (작업세션·수락 화면에서 마감일 노출용)
+export function fmtDeadline(iso) {
+  if (!iso) return '';
+  const [, m, d] = iso.split('-');
+  if (!m || !d) return '';
+  return `~${Number(m)}/${Number(d)}`;
+}
+
 // 원본 app.js의 isDelayed와 동일: 고정 아님 && 마감일 지남 && 미완료 세션이 하나라도 있음
 export function isDelayed(item, today, sessions = []) {
   if (item.type === '고정') return false;

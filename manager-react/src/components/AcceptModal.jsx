@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { TODAY_ISO } from '../data/helpers'
+import { TODAY_ISO, fmtDeadline } from '../data/helpers'
 
 export default function AcceptModal({ request, processes = [], onClose, onSubmit }) {
   const [todoDate, setTodoDate] = useState(TODAY_ISO)
@@ -25,6 +25,10 @@ export default function AcceptModal({ request, processes = [], onClose, onSubmit
     return Array.from(set)
   })()
 
+  // 단계별 데드라인 — 선택 단계에서 stepId→deadline 맵으로 모아 업무항목에 보관(상세 패널 표시용)
+  const stepDeadlines = {}
+  selectedSteps.forEach(s => { if (s.deadline) stepDeadlines[s.stepId] = s.deadline })
+
   const handleSubmit = (e) => {
     e.preventDefault()
     const start = todoDate < request.start ? todoDate : request.start
@@ -41,6 +45,7 @@ export default function AcceptModal({ request, processes = [], onClose, onSubmit
         sourceRequestId: request.id,
         processId: request.processId ?? null,
         stepAssignees,
+        stepDeadlines,
       },
       todoDate,
     })
@@ -75,8 +80,11 @@ export default function AcceptModal({ request, processes = [], onClose, onSubmit
             {selectedSteps.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
                 {selectedSteps.map(step => (
-                  <span key={step.stepId} className="inline-flex items-center text-[12px] text-blue bg-blue-soft px-2 py-1 rounded-md">
+                  <span key={step.stepId} className="inline-flex items-center gap-1 text-[12px] text-blue bg-blue-soft px-2 py-1 rounded-md">
                     {step.title}
+                    {step.deadline && (
+                      <span className="text-[11px] font-semibold text-muted">{fmtDeadline(step.deadline)}</span>
+                    )}
                   </span>
                 ))}
               </div>

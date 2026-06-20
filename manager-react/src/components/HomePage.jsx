@@ -99,6 +99,7 @@ export default function HomePage({
       date: todoDate,
       category: step.role,
       title: step.title,
+      deadline: step.deadline ?? null,
       startTime: '',
       endTime: '',
       done: false,

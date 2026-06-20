@@ -154,6 +154,12 @@ export default function App() {
   }, [])
 
   // --- 대표 결재함(Approval Item) handlers ---
+  // 팀장이 Team Status에서 '대표님' 대상으로 결재 요청 → 결재함 맨 위에 '대기'로 추가
+  const addApprovalItem = useCallback((item) => {
+    setApprovalItems(prev => [item, ...prev])
+    addNotification('결재 요청', `${item.title} 결재가 요청되었습니다.`)
+  }, [addNotification])
+
   const approveItem = useCallback((id) => {
     setApprovalItems(prev => prev.map(a => {
       if (a.id !== id) return a
@@ -284,6 +290,7 @@ export default function App() {
             currentUser={currentUser}
             processes={processes}
             onUpdateAssignmentRequests={setAssignmentRequests}
+            onAddApprovalItem={addApprovalItem}
           />
         )}
         {/* 프로세스 관리 — 대표도 팀장과 동일한 ProcessPage(템플릿 관리)를 사용 */}

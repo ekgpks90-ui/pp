@@ -12,7 +12,7 @@ function buildDetail(item) {
   switch (item.type) {
     case '계약 승인':
       return {
-        highlight: { label: '계약 금액', value: fmtMoney(item.amount), sub: item.contractType },
+        highlight: item.amount > 0 ? { label: '계약 금액', value: fmtMoney(item.amount), sub: item.contractType } : null,
         rows: [
           ['거래처', item.client],
           ['계약 기간', item.period],
@@ -22,7 +22,7 @@ function buildDetail(item) {
       }
     case '예산 승인':
       return {
-        highlight: { label: '신청 금액', value: fmtMoney(item.amount), sub: item.timing },
+        highlight: item.amount > 0 ? { label: '신청 금액', value: fmtMoney(item.amount), sub: item.timing } : null,
         rows: [
           ['용도', item.purpose],
           ['관련 프로젝트', item.projectName || item.projectId],
@@ -31,19 +31,22 @@ function buildDetail(item) {
         ],
       }
     case '프로젝트 착수 승인': {
+      const hasMoney = item.expectedRevenue > 0 || item.plannedBudget > 0
       const profit = (item.expectedRevenue || 0) - (item.plannedBudget || 0)
       return {
-        highlight: {
+        highlight: hasMoney ? {
           label: '예상 이익',
           value: fmtMoney(profit),
           sub: `예상 매출 ${fmtMoney(item.expectedRevenue)} − 투입 원가 ${fmtMoney(item.plannedBudget)}`,
-        },
+        } : null,
         rows: [
           ['클라이언트', item.client],
           ['예상 기간', item.plannedPeriod],
-          ['예상 인원', `${item.plannedHeadcount}명${item.plannedMembers ? ` · ${item.plannedMembers.join(', ')}` : ''}`],
-          ['투입 원가(예상)', fmtMoney(item.plannedBudget)],
-          ['예상 매출', fmtMoney(item.expectedRevenue)],
+          ['예상 인원', item.plannedHeadcount
+            ? `${item.plannedHeadcount}명${item.plannedMembers ? ` · ${item.plannedMembers.join(', ')}` : ''}`
+            : null],
+          ['투입 원가(예상)', item.plannedBudget > 0 ? fmtMoney(item.plannedBudget) : null],
+          ['예상 매출', item.expectedRevenue > 0 ? fmtMoney(item.expectedRevenue) : null],
         ],
       }
     }
@@ -98,6 +101,23 @@ export default function CeoApprovalDetail({ item }) {
           </div>
         ))}
       </div>
+
+      {item.attachments?.length > 0 && (
+        <div className="flex flex-col gap-2 pt-1">
+          <span className="text-[12px] text-muted">첨부파일</span>
+          {item.attachments.map((f, i) => (
+            <div key={`${f.name}-${i}`} className="flex items-center gap-2 px-3 py-2 bg-surface-muted rounded-lg">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span className="flex-1 text-[13px] text-text-primary truncate">{f.name}</span>
+              {typeof f.size === 'number' && (
+                <span className="text-[11px] text-muted shrink-0">{(f.size / 1024).toFixed(0)} KB</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </>
   )
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { processes, currentUser, teamMembers } from '../data/state'
-import { isDelayed, TODAY_ISO } from '../data/helpers'
+import { isDelayed, TODAY_ISO, fmtDeadline } from '../data/helpers'
 
 const DAY_LABELS = ['월', '화', '수', '목', '금']
 
@@ -162,6 +162,7 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
   // 업무요청 기반 업무의 프로세스 단계별 참여자 (원본 detail panel '참여자' 섹션)
   const proc = isFromRequest && item.processId ? processes.find(p => p.id === item.processId) : null
   const stepAssignees = item.stepAssignees || {}
+  const stepDeadlines = item.stepDeadlines || {}
   const myName = currentUser.name
   const mySteps = proc ? proc.steps.filter(s => (stepAssignees[s.id] || []).includes(myName)) : []
   // 담당자 배치 수정 가능하면 전체 단계를 보여준다(어느 단계든 배정 가능해야 하므로)
@@ -320,9 +321,14 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
                         key={step.id}
                         className={`flex flex-col gap-1 px-2.5 py-2 rounded-lg border ${stepDelayed ? 'border-red/40 bg-red-soft/30' : 'border-line-soft bg-surface-muted'}`}
                       >
-                        <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
-                          {step.title}
-                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
+                            {step.title}
+                          </span>
+                          {stepDeadlines[step.id] && (
+                            <span className="text-[11px] font-semibold text-muted shrink-0" title="단계 데드라인">{fmtDeadline(stepDeadlines[step.id])}</span>
+                          )}
+                        </div>
                         <div className="flex flex-wrap items-center gap-1">
                           {assignees.length === 0 && !canEditAssignees && (
                             <span className="text-[11px] text-soft">미배정</span>

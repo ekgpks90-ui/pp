@@ -46,11 +46,16 @@ function StatusBadge({ status }) {
 }
 
 function approvalDetail(item) {
+  // 결재 요청 시 항목이 선택 입력이라 비어 있을 수 있다 → 값이 있는 조각만 ' · '로 잇는다.
+  const money = (v) => (typeof v === 'number' && v > 0 ? fmtMoney(v) : null)
+  const join = (parts) => parts.filter(Boolean).join(' · ')
   switch (item.type) {
-    case '계약 승인': return `${item.client} · ${fmtMoney(item.amount)} · ${item.period}`
-    case '예산 승인': return `${fmtMoney(item.amount)} · ${item.purpose}`
-    case '프로젝트 착수 승인': return `👤${item.plannedHeadcount}명 · ${item.plannedPeriod} · ${fmtMoney(item.plannedBudget)}`
-    case '프로젝트 종료 승인': return item.resultSummary
+    case '계약 승인': return join([item.client, money(item.amount), item.period])
+    case '예산 승인': return join([money(item.amount), item.purpose])
+    case '프로젝트 착수 승인': return join([
+      item.plannedHeadcount ? `👤${item.plannedHeadcount}명` : null, item.plannedPeriod, money(item.plannedBudget),
+    ])
+    case '프로젝트 종료 승인': return item.resultSummary || ''
     default: return ''
   }
 }
