@@ -172,7 +172,7 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
                           return (
                             <div key={name} className="relative group" style={{ marginLeft: ai > 0 ? -6 : 0 }}>
                               <Avatar name={name} idx={mIdx} size={6} />
-                              {request.status !== '배정완료' && (
+                              {request.status !== '배정완료' && request.status !== '재배정' && (
                                 <button
                                   type="button"
                                   onClick={e => { e.stopPropagation(); removeMember(step.id, name) }}
