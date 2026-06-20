@@ -206,48 +206,9 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
             </div>
           </div>
 
-          {/* Category Chart */}
-          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col gap-2.5">
-            <div className="text-[13px] font-semibold text-text-primary">카테고리별 작업시간</div>
-            <div className="flex flex-col gap-[7px]">
-              {catData.map(({ cat, mins, pct, color }) => (
-                <div key={cat} className="grid items-center gap-2 text-[11px]" style={{ gridTemplateColumns: '48px 1fr 34px 52px' }}>
-                  <span className="text-text-sub">{cat}</span>
-                  <div className="h-1.5 bg-surface-muted rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-                  </div>
-                  <span className="text-right text-text-sub">{pct}%</span>
-                  <span className="text-right text-text-primary font-medium">{fmtDuration(mins)}</span>
-                </div>
-              ))}
-              {catData.length === 0 && <span className="text-[11px] text-text-sub">데이터 없음</span>}
-            </div>
-          </div>
         </div>
 
-        {/* Center column: AI + Meetings */}
-        <div className="flex flex-col gap-2.5">
-          {/* AI Insights */}
-          <div className="bg-white border border-line rounded-[12px] p-[14px_18px] flex flex-col">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] font-bold bg-gradient-to-r from-blue to-purple text-white px-1.5 py-0.5 rounded">AI</span>
-              <span className="text-[13px] font-semibold text-text-primary flex-1">{now.getFullYear()}년 {MONTHS[now.getMonth()]} 업무 패턴 요약</span>
-              <span className="text-[11px] text-text-sub">{insights.count}건 · {fmtDuration(insights.totalMins)}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {insights.items.map((item, i) => (
-                <div key={i} className="flex flex-col gap-[3px] bg-surface-muted rounded-lg p-[8px_10px]">
-                  <span className="text-[14px]">{item.icon}</span>
-                  <span className="text-[11px] text-text-sub">{item.label}</span>
-                  <span className="text-[12px] text-text-primary font-semibold">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-
-        {/* Right column: Calendar panel */}
+        {/* Center column: Calendar */}
         <div className="flex flex-col gap-2.5">
           {/* Mini Calendar */}
           <div className="bg-white border border-line rounded-[10px] p-3 flex flex-col gap-2">
@@ -293,7 +254,10 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#f59e0b] inline-block" />연차</span>
             </div>
           </div>
+        </div>
 
+        {/* Right column: Session + Meeting list */}
+        <div className="flex flex-col gap-2.5 self-start">
           {/* Session list */}
           <div className="bg-white border border-line rounded-[10px] p-[10px_12px] flex flex-col gap-[7px]">
             <div className="text-[11px] font-semibold text-text-sub tracking-[0.3px]">

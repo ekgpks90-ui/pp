@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 import { canApproveLeave, canViewTeamLeaves } from '../data/roles'
 
-const LEAVE_REJECT_REASONS = ['업무 일정 충돌', '인력 공백 우려', '잔여 연차 부족', '사전 협의 필요', '기타']
+const LEAVE_REJECT_REASONS = ['업무 일정 충돌', '인력 공백 우려', '사전 협의 필요', '기타']
 
 function LeaveApproveModal({ leave, onClose, onConfirm }) {
   useEffect(() => {
