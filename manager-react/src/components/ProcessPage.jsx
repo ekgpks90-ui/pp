@@ -16,7 +16,7 @@ function EditableText({ value, onCommit, onCancel, className }) {
       ref={ref}
       contentEditable
       suppressContentEditableWarning
-      className={className}
+      className={`${className} cursor-text`}
       onClick={e => e.stopPropagation()}
       onBlur={e => onCommit(e.currentTarget.innerText.trim())}
       onKeyDown={e => {
