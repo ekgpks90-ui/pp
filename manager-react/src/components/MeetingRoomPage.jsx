@@ -71,7 +71,8 @@ export default function MeetingRoomPage({
     setShowSaveModal(true)
   }, [recSeconds])
 
-  // 검색 확장·AI 요약 카드 노출은 대표(owner) 전용. 직원·팀장은 기존 화면 그대로.
+  // 검색 확장(참석자·AI 요약 포인트까지)은 대표(owner) 전용. 직원·팀장은 기존 화면 그대로.
+  // (회의 목록 카드의 AI 요약 미리보기는 제거됨 — 회의록 상세에서만 확인)
   const isOwner = role === ROLES.OWNER
 
   // 역할별 노출 범위: 대표(Owner)는 전체 회의, 팀장·직원은 소속 팀 회의만.
@@ -216,7 +217,6 @@ export default function MeetingRoomPage({
                 <MeetingCard
                   key={m.id}
                   meeting={m}
-                  showAi={isOwner}
                   onView={() => setDetailMeetingId(m.id)}
                   onEdit={() => setEditingMeeting(m)}
                   onDelete={() => setDeleteConfirm(m)}
@@ -300,7 +300,7 @@ export default function MeetingRoomPage({
 
 // ─── MeetingCard ────────────────────────────────────────────────────────────────
 
-function MeetingCard({ meeting: m, onView, onEdit, onDelete, showAi = false }) {
+function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
   const tc = TEAM_TAG_COLORS[m.team] || { bg: '#f3f4f6', text: '#374151' }
   const date = (m.date || m.startDate || '').replace(/-/g, '.')
   const actionCount = (m.actionItems || []).length
@@ -353,18 +353,7 @@ function MeetingCard({ meeting: m, onView, onEdit, onDelete, showAi = false }) {
       <div className="text-[14px] font-semibold text-text-primary mb-1.5 pr-14">{m.title}</div>
 
       {/* Summary */}
-      <div className={`text-[12.5px] text-text-sub leading-[1.6] line-clamp-2 ${showAi && (m.aiPoints || []).length > 0 ? 'mb-2' : 'mb-3'}`}>{m.summary}</div>
-
-      {/* AI 요약 미리보기 (첫 핵심 포인트) — 대표 전용 */}
-      {showAi && (m.aiPoints || []).length > 0 && (
-        <div className="flex items-start gap-1.5 mb-3 px-2.5 py-1.5 rounded-md bg-purple-soft/50">
-          <span className="text-[11px] shrink-0 leading-snug">✨</span>
-          <span className="text-[11.5px] text-purple leading-snug line-clamp-1">{m.aiPoints[0]}</span>
-          {(m.aiPoints || []).length > 1 && (
-            <span className="text-[10.5px] text-soft shrink-0 ml-auto">+{m.aiPoints.length - 1}</span>
-          )}
-        </div>
-      )}
+      <div className="text-[12.5px] text-text-sub leading-[1.6] line-clamp-2 mb-3">{m.summary}</div>
 
       {/* Footer */}
       <div className="flex items-center justify-between">
