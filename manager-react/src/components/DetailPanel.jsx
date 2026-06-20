@@ -228,7 +228,7 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
           {/* Type */}
           <div className="flex flex-col gap-1">
             <span className="text-[12px] text-muted font-medium">업무유형</span>
-            <div className="h-9 px-3 flex items-center text-[14px] border border-line rounded-lg bg-[#f9fafb] text-text-primary">
+            <div className="h-9 px-3 flex items-center text-[14px] border border-line rounded-lg bg-white text-text-primary opacity-50">
               {draft.type || '일반'}
             </div>
           </div>
