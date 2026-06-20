@@ -208,28 +208,6 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
 
         </div>
 
-        {/* Center column: AI + Meetings */}
-        <div className="flex flex-col gap-2.5">
-          {/* AI Insights */}
-          <div className="bg-white border border-line rounded-[12px] p-[14px_18px] flex flex-col">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] font-bold bg-gradient-to-r from-blue to-purple text-white px-1.5 py-0.5 rounded">AI</span>
-              <span className="text-[13px] font-semibold text-text-primary flex-1">{now.getFullYear()}년 {MONTHS[now.getMonth()]} 업무 패턴 요약</span>
-              <span className="text-[11px] text-text-sub">{insights.count}건 · {fmtDuration(insights.totalMins)}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {insights.items.map((item, i) => (
-                <div key={i} className="flex flex-col gap-[3px] bg-surface-muted rounded-lg p-[8px_10px]">
-                  <span className="text-[14px]">{item.icon}</span>
-                  <span className="text-[11px] text-text-sub">{item.label}</span>
-                  <span className="text-[12px] text-text-primary font-semibold">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-
         {/* Right column: Calendar panel */}
         <div className="flex flex-col gap-2.5">
           {/* Mini Calendar */}
