@@ -172,25 +172,29 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
                           return (
                             <div key={name} className="relative group" style={{ marginLeft: ai > 0 ? -6 : 0 }}>
                               <Avatar name={name} idx={mIdx} size={6} />
-                              <button
-                                type="button"
-                                onClick={e => { e.stopPropagation(); removeMember(step.id, name) }}
-                                className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#6b7280] text-white text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
-                              >✕</button>
+                              {request.status !== '배정완료' && (
+                                <button
+                                  type="button"
+                                  onClick={e => { e.stopPropagation(); removeMember(step.id, name) }}
+                                  className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#6b7280] text-white text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
+                                >✕</button>
+                              )}
                             </div>
                           )
                         })}
                       </div>
                       {/* Add button */}
-                      <button
-                        type="button"
-                        onClick={() => setOpenStepId(isOpen ? null : step.id)}
-                        className="w-6 h-6 rounded-full border border-line bg-white flex items-center justify-center text-muted hover:border-blue hover:text-blue transition-colors cursor-pointer shrink-0"
-                      >
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                      </button>
+                      {request.status !== '배정완료' && (
+                        <button
+                          type="button"
+                          onClick={() => setOpenStepId(isOpen ? null : step.id)}
+                          className="w-6 h-6 rounded-full border border-line bg-white flex items-center justify-center text-muted hover:border-blue hover:text-blue transition-colors cursor-pointer shrink-0"
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                          </svg>
+                        </button>
+                      )}
                     </div>
 
                     {/* Member picker dropdown */}
