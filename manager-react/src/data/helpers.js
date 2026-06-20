@@ -218,6 +218,30 @@ export function projectProgress(wi, sessions = [], processes = []) {
   return Math.round((wiSessions.filter(s => s.done).length / wiSessions.length) * 100);
 }
 
+// 업무항목(wi)을 대표 화면용 프로젝트 객체로 보강 — 상태·진행률·공수·투입 원가(직급별 단가)·지연 초과 등.
+// 홈(CeoDashboard)·캘린더(CalendarPage CeoProjectDetail)가 같은 계산을 공유하도록 한 곳에 둔다.
+export function enrichProject(wi, sessions = [], teamMembers = [], gradeRates = {}, procs = []) {
+  const status = wi.start > TODAY_ISO ? '시작 전' : (isDelayed(wi, TODAY_ISO, sessions) ? '지연' : '진행 중')
+  const total = projectDays(wi)
+  const elapsed = elapsedDays(wi)
+  const od = overdueDays(wi)
+  const hc = headcount(wi)
+  const rate = dailyRateSum(wi, teamMembers, gradeRates)
+  const baseCost = total * rate
+  const addCost = od * rate
+  return {
+    id: wi.id, title: wi.title, start: wi.start, end: wi.end, status,
+    description: wi.description, participants: wi.participants || [], processId: wi.processId,
+    progress: projectProgress(wi, sessions, procs),
+    hc, od, days: total,
+    mdTotal: hc * total, mdElapsed: hc * elapsed,
+    costTotal: baseCost, costElapsed: elapsed * rate,
+    baseCost, addCost, actualCost: baseCost + addCost,
+    diffPct: baseCost ? Math.round((addCost / baseCost) * 100) : 0,
+    owner: (wi.participants && wi.participants[0]) || '미배정',
+  }
+}
+
 // 프로젝트(업무항목) 제목에서 거래처명 도출. 사내(외부 의뢰 아님) 프로젝트는 '사내'로 묶는다.
 // 외부 의뢰는 sourceRequestId가 있고, 제목 첫 단어가 거래처명((주) 접두 제거).
 export function clientOf(wi) {
