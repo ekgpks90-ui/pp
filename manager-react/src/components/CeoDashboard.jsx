@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import {
   TODAY_ISO, MONDAY_ISO, addDays, toDate, isDelayed,
   projectDays, elapsedDays, overdueDays, headcount,
-  dailyRateSum, fmtMoney,
+  dailyRateSum, fmtMoney, projectProgress,
 } from '../data/helpers'
 import { StatCard, SectionCard, ProgressBar } from './CeoUI'
 import CeoSlideOver from './CeoSlideOver'
@@ -41,18 +41,6 @@ function ddayLabel(end) {
   if (!end) return '—'
   const n = Math.round((toDate(end) - toDate(TODAY_ISO)) / 86400000)
   return n >= 0 ? `D-${n}` : `D+${-n}`
-}
-
-// 작업세션 기반 진행률 — 프로세스 있으면 세션 찍힌 단계 수/전체 단계 수, 없으면 완료 세션/전체 세션.
-function projectProgress(wi, sessions, processes) {
-  const wiSessions = sessions.filter(s => s.workItemId === wi.id)
-  const proc = wi.processId ? processes.find(p => p.id === wi.processId) : null
-  if (proc && proc.steps.length) {
-    const stepsWithSession = new Set(wiSessions.map(s => s.stepId).filter(Boolean))
-    return Math.round((stepsWithSession.size / proc.steps.length) * 100)
-  }
-  if (!wiSessions.length) return 0
-  return Math.round((wiSessions.filter(s => s.done).length / wiSessions.length) * 100)
 }
 
 function StatusBadge({ status }) {
