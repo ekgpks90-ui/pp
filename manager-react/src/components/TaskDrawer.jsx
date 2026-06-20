@@ -130,13 +130,14 @@ export default function TaskDrawer({ open, weekOffset, sessions = [], workItems 
         {/* 당일 기존 업무 */}
         {(() => {
           const weekday = (new Date(activeDay).getDay() + 6) % 7 + 1
+          const typeOrder = { '고정': 0, '긴급': 1 }
           const dayItems = workItems.filter(item => {
             if (item.type === '고정') {
               const rd = item.recurringDays || [1,2,3,4,5]
               return rd.includes(weekday) && item.start <= activeDay && (item.end === null || item.end >= activeDay)
             }
             return item.start <= activeDay && item.end >= activeDay
-          })
+          }).sort((a, b) => (typeOrder[a.type] ?? 2) - (typeOrder[b.type] ?? 2))
           if (!dayItems.length) return null
           return (
             <div className="px-6 pb-2">
