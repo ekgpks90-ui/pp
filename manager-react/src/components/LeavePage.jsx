@@ -177,7 +177,7 @@ function LeaveRow({ lv, showActions, currentUser, onEdit, onDelete }) {
   )
 }
 
-function LeaveEditModal({ leave, onClose, onSubmit }) {
+function LeaveEditModal({ leave, totalLeave, usedDays, remaining, onClose, onSubmit }) {
   const [type, setType] = useState(leave?.type || '종일 연차')
   const [startDate, setStartDate] = useState(leave?.startDate || '')
   const [endDate, setEndDate] = useState(leave?.endDate || '')
@@ -197,6 +197,8 @@ function LeaveEditModal({ leave, onClose, onSubmit }) {
   if (!leave) return null
 
   const isAllDay = type === '종일 연차'
+  const deduct = startDate ? calcRequestDays(type, startDate, isAllDay ? endDate : startDate) : 0
+  const afterRemaining = remaining - deduct
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -209,10 +211,25 @@ function LeaveEditModal({ leave, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30" />
-      <div className="relative bg-white rounded-[14px] shadow-lg w-[400px] p-6" onClick={e => e.stopPropagation()}>
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[420px] p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-[15px] font-semibold">연차 수정</h3>
           <button onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg leading-none">&times;</button>
+        </div>
+        {/* 연차 현황 */}
+        <div className="grid grid-cols-3 gap-2 mb-5">
+          <div className="bg-[#f9fafb] rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5">
+            <span className="text-[11px] text-muted">총 연차</span>
+            <span className="text-[18px] font-bold text-text-primary leading-none">{totalLeave}<span className="text-[11px] font-medium text-muted ml-0.5">일</span></span>
+          </div>
+          <div className="bg-[#f9fafb] rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5">
+            <span className="text-[11px] text-muted">사용 연차</span>
+            <span className="text-[18px] font-bold text-text-primary leading-none">{usedDays}<span className="text-[11px] font-medium text-muted ml-0.5">일</span></span>
+          </div>
+          <div className="bg-[#f9fafb] rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5">
+            <span className="text-[11px] text-muted">잔여 연차</span>
+            <span className="text-[18px] font-bold text-text-primary leading-none">{remaining}<span className="text-[11px] font-medium text-muted ml-0.5">일</span></span>
+          </div>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
@@ -233,6 +250,16 @@ function LeaveEditModal({ leave, onClose, onSubmit }) {
               </div>
             )}
           </div>
+          {deduct > 0 && (
+            <div className={`rounded-[8px] px-4 py-3 flex items-center justify-between text-[13px] ${afterRemaining < 0 ? 'bg-red/5 border border-red/20' : 'bg-blue/5 border border-blue/10'}`}>
+              <span className="text-muted">차감 예정 <span className="font-semibold text-text-primary">-{deduct}일</span></span>
+              <span className="flex items-center gap-1.5 text-muted">
+                신청 후 잔여
+                <span className={`font-semibold ${afterRemaining < 0 ? 'text-red' : 'text-text-primary'}`}>{afterRemaining}일</span>
+                {afterRemaining < 0 && <span className="text-red font-medium">(잔여 연차 초과)</span>}
+              </span>
+            </div>
+          )}
           <div>
             <label className="text-[12px] font-medium text-text-sub mb-1.5 block">사유</label>
             <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="연차 사유를 입력하세요" rows={3}
@@ -448,7 +475,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
     {showApplyModal && <LeaveApplyModal currentUser={currentUser} totalLeave={totalLeave} usedDays={usedDays} remaining={remaining} onClose={() => setShowApplyModal(false)} onSubmit={handleApply} />}
     <LeaveApproveModal leave={approvingLeave} onClose={() => setApprovingLeave(null)} onConfirm={handleApprove} />
     <LeaveRejectModal leave={rejectingLeave} onClose={() => setRejectingLeave(null)} onSubmit={handleReject} />
-    <LeaveEditModal leave={editingLeave} onClose={() => setEditingLeave(null)} onSubmit={handleEdit} />
+    <LeaveEditModal leave={editingLeave} totalLeave={totalLeave} usedDays={usedDays} remaining={remaining} onClose={() => setEditingLeave(null)} onSubmit={handleEdit} />
     <LeaveCancelModal leave={cancelingLeave} onClose={() => setCancelingLeave(null)} onConfirm={handleCancel} />
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <div className="flex items-center gap-3 mb-4 shrink-0">
