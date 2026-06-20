@@ -310,9 +310,7 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
                   const dur = m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? m % 60 + 'm' : ''}` : `${m}m`
                   return (
                     <div key={s.id} className="flex items-center gap-2 text-[12px]">
-                      <span className="text-[10px] font-semibold px-1 py-[1px] rounded-[3px]" style={{ background: (CAT_COLORS[s.category] || '#A29BFE') + '1a', color: CAT_COLORS[s.category] || '#A29BFE' }}>
-                        {s.category}
-                      </span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue shrink-0" />
                       <span className="flex-1 text-text-primary truncate">{s.title}</span>
                       {m > 0 && <span className="text-[12px] text-blue font-semibold text-right">{dur}</span>}
                     </div>
