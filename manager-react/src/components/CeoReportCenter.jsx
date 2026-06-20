@@ -351,15 +351,23 @@ export default function CeoReportCenter({
               </div>
               <div className="px-5 py-4">
                 <div className="flex items-end gap-2.5 h-[120px] mb-2.5">
-                  {[{ m: '2월', c: 45, g: 30 }, { m: '3월', c: 50, g: 35 }, { m: '4월', c: 55, g: 40 }, { m: '5월', c: 60, g: 38 }, { m: '6월', c: 62, g: 48 }].map(b => (
-                    <div key={b.m} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                      <div className="w-full flex flex-col justify-end" style={{ height: '100%' }}>
-                        <div className="w-full rounded-t-[3px]" style={{ height: `${b.c}px`, background: 'var(--color-blue)' }} />
-                        <div className="w-full rounded-b-[3px]" style={{ height: `${b.g}px`, background: '#a5d8c0' }} />
-                      </div>
-                      <span className="text-[9px] text-soft">{b.m}</span>
-                    </div>
-                  ))}
+                  {(() => {
+                    const bars = [{ m: '2월', c: 45, g: 30 }, { m: '3월', c: 50, g: 35 }, { m: '4월', c: 55, g: 40 }, { m: '5월', c: 60, g: 38 }, { m: '6월', c: 62, g: 48 }]
+                    const maxTotal = Math.max(...bars.map(b => b.c + b.g))
+                    return bars.map(b => {
+                      const cH = Math.round((b.c / maxTotal) * 100)
+                      const gH = Math.round((b.g / maxTotal) * 100)
+                      return (
+                        <div key={b.m} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                          <div className="w-full flex flex-col justify-end" style={{ height: '100%' }}>
+                            <div className="w-full rounded-t-[3px]" style={{ height: `${cH}%`, background: 'var(--color-blue)' }} />
+                            <div className="w-full rounded-b-[3px]" style={{ height: `${gH}%`, background: '#a5d8c0' }} />
+                          </div>
+                          <span className="text-[9px] text-soft">{b.m}</span>
+                        </div>
+                      )
+                    })
+                  })()}
                 </div>
                 <div className="flex gap-3.5 justify-center text-[10px] text-soft">
                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-blue inline-block" />투입 원가</span>
