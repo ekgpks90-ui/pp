@@ -350,18 +350,19 @@ export default function CeoReportCenter({
                 <span className="text-[10px] font-semibold text-soft border border-line rounded px-1.5 py-[1px]">예시</span>
               </div>
               <div className="px-5 py-4">
-                <div className="flex items-end gap-2.5 h-[200px] mb-2.5">
+                <div className="flex items-end gap-2.5 mb-2.5">
                   {(() => {
                     const bars = [{ m: '2월', c: 45, g: 30 }, { m: '3월', c: 50, g: 35 }, { m: '4월', c: 55, g: 40 }, { m: '5월', c: 60, g: 38 }, { m: '6월', c: 62, g: 48 }]
                     const maxTotal = Math.max(...bars.map(b => b.c + b.g))
+                    const MAX_H = 180
                     return bars.map(b => {
-                      const cH = Math.round((b.c / maxTotal) * 100)
-                      const gH = Math.round((b.g / maxTotal) * 100)
+                      const cH = Math.round((b.c / maxTotal) * MAX_H)
+                      const gH = Math.round((b.g / maxTotal) * MAX_H)
                       return (
-                        <div key={b.m} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                          <div className="w-full flex flex-col justify-end" style={{ height: '100%' }}>
-                            <div className="w-full rounded-t-[3px]" style={{ height: `${cH}%`, background: 'var(--color-blue)' }} />
-                            <div className="w-full rounded-b-[3px]" style={{ height: `${gH}%`, background: '#a5d8c0' }} />
+                        <div key={b.m} className="flex-1 flex flex-col items-center gap-1.5">
+                          <div className="w-full flex flex-col">
+                            <div className="w-full rounded-t-[3px]" style={{ height: `${cH}px`, background: 'var(--color-blue)' }} />
+                            <div className="w-full rounded-b-[3px]" style={{ height: `${gH}px`, background: '#a5d8c0' }} />
                           </div>
                           <span className="text-[9px] text-soft">{b.m}</span>
                         </div>
