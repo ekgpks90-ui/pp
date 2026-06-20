@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { TODAY_ISO, isDelayed, getProjectTeam, TEAM_ORDER } from '../data/helpers'
+import { TODAY_ISO, isDelayed, getProjectTeam, getTeamColor, TEAM_ORDER } from '../data/helpers'
 import { processes } from '../data/state'
 import { canEditCalendar, ROLES } from '../data/roles'
 import CalendarDetailPanel from './CalendarDetailPanel'
@@ -233,6 +233,43 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
             )
           )}
         </nav>
+
+        {/* Middle: 대표 전용 — 선택 팀의 프로젝트 리스트 (클릭 시 우측 상세 패널) */}
+        {isOwner && (
+          <nav className="w-[230px] min-w-[190px] shrink-0 bg-white border border-line rounded-[10px] flex flex-col overflow-y-auto">
+            <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2.5 border-b border-line shrink-0">
+              <span className="text-[10.5px] font-semibold text-muted uppercase tracking-[0.06em]">
+                {selectedTeam === '전체' ? '전체 프로젝트' : selectedTeam}
+              </span>
+              <span className="text-[10px] font-medium text-muted px-1.5 py-0.5 rounded bg-surface-muted">{teamFilteredProjects.length}</span>
+            </div>
+            {teamFilteredProjects.length === 0 ? (
+              <div className="px-3.5 py-5 text-[12px] text-muted">프로젝트 없음</div>
+            ) : (
+              teamFilteredProjects.map(wi => {
+                const status = getWorkItemStatus(wi, sessions)
+                const sc = STATUS_COLOR[status] || STATUS_COLOR['시작 전']
+                const isActive = editItemId === wi.id
+                const dot = getTeamColor(getProjectTeam(wi)).text
+                return (
+                  <button key={wi.id}
+                    onClick={() => setEditItemId(wi.id)}
+                    className={`flex flex-col items-start px-3.5 py-2.5 border-b border-line gap-[5px] text-left w-full transition-colors cursor-pointer
+                      ${isActive ? 'bg-[#eff6ff]' : 'hover:bg-bg'}`}>
+                    <span className="flex items-start gap-1.5 text-[12px] font-medium text-text-primary leading-[1.4]">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-[3px]" style={{ background: dot }} />
+                      <span>{wi.title}</span>
+                    </span>
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                      style={{ background: sc.bg, color: sc.text }}>
+                      {status}
+                    </span>
+                  </button>
+                )
+              })
+            )}
+          </nav>
+        )}
 
         {/* Right: Timeline area */}
         <div className="flex-1 min-w-0 flex flex-col bg-white border border-line rounded-[10px] overflow-hidden">
