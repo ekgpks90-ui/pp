@@ -1,6 +1,25 @@
 import { useMemo, useState } from 'react'
-import { TODAY_ISO, MONDAY_ISO, addDays, calcMinutes, fmtDuration, toDate } from '../data/helpers'
+import { TODAY_ISO, MONDAY_ISO, addDays, calcMinutes, fmtDuration, toDate, fmtMoney } from '../data/helpers'
 import { StatCard, Panel } from './CeoUI'
+
+// 결재 안건 유형·상태 표기 + 대표 금액 산출 (홈 결재함과 동일 데이터, 여기선 전체 이력 조회)
+const AP_TYPE = {
+  '계약 승인': { label: '계약', color: '#2563eb', bg: 'rgba(37,99,235,0.12)' },
+  '예산 승인': { label: '예산', color: '#d97706', bg: 'rgba(217,119,6,0.12)' },
+  '프로젝트 착수 승인': { label: '착수', color: '#0ea874', bg: 'rgba(14,168,116,0.12)' },
+  '프로젝트 종료 승인': { label: '종료', color: '#7c4dff', bg: 'rgba(124,77,255,0.12)' },
+}
+const AP_STATUS = {
+  '대기': { color: '#d97706', bg: 'var(--color-orange-soft)' },
+  '승인': { color: '#0ea874', bg: 'var(--color-green-soft)' },
+  '반려': { color: '#dc2626', bg: 'var(--color-red-soft)' },
+}
+function apAmount(it) {
+  if (it.amount) return it.amount
+  if (it.plannedBudget) return it.plannedBudget
+  if (it.actualInput) return it.actualInput.cost
+  return 0
+}
 
 // 대표(어드민) Report Center.
 // 결정사항(vibe_ceo_ia_conflict_decisions): 업무항목 "완료" 상태를 만들지 않으므로
@@ -10,15 +29,25 @@ import { StatCard, Panel } from './CeoUI'
 const TABS = [
   { id: 'sales', label: '매출' },
   { id: 'project', label: '프로젝트' },
+  { id: 'approval', label: '결재' },
   { id: 'people', label: '인력' },
   { id: 'leave', label: '연차' },
   { id: 'export', label: 'Export' },
 ]
 
 export default function CeoReportCenter({
-  workItems = [], sessions = [], leaves = [], teamMembers = [], totalLeave = 15,
+  workItems = [], sessions = [], leaves = [], teamMembers = [], totalLeave = 15, approvalItems = [],
+  onApproveLeave, onRejectLeave,
 }) {
   const [tab, setTab] = useState('project')
+
+  const ap = useMemo(() => ({
+    all: approvalItems,
+    pending: approvalItems.filter(a => a.status === '대기').length,
+    approved: approvalItems.filter(a => a.status === '승인').length,
+    rejected: approvalItems.filter(a => a.status === '반려').length,
+    approvedAmount: approvalItems.filter(a => a.status === '승인').reduce((s, a) => s + apAmount(a), 0),
+  }), [approvalItems])
 
   const m = useMemo(() => {
     const weekEnd = addDays(MONDAY_ISO, 6)
@@ -120,6 +149,48 @@ export default function CeoReportCenter({
         </div>
       )}
 
+      {/* 결재 — 홈 결재함과 같은 데이터를 전체 이력으로 조회 (대기·승인·반려) */}
+      {tab === 'approval' && (
+        <div className="flex flex-col gap-4">
+          <Panel>
+            <StatCard val={ap.pending} label="결재 대기" color="#d97706" bar="bg-orange" />
+            <StatCard val={ap.approved} label="승인 완료" color="#0ea874" bar="bg-green" />
+            <StatCard val={ap.rejected} label="반려" color="#dc2626" bar="bg-red" />
+            <StatCard val={fmtMoney(ap.approvedAmount)} label="승인 금액 합계" color="#2563eb" bar="bg-blue" />
+          </Panel>
+          <div className="bg-surface border border-line rounded-[14px] shadow-sm">
+            <div className="px-5 py-[13px] border-b border-line-soft">
+              <h2 className="text-[13px] font-semibold text-text-primary">결재 안건 전체</h2>
+            </div>
+            <div className="p-2.5 flex flex-col gap-1">
+              {ap.all.length === 0
+                ? <div className="text-[12px] text-soft text-center py-6">결재 안건이 없습니다</div>
+                : ap.all.map(it => {
+                  const tb = AP_TYPE[it.type] || AP_TYPE['계약 승인']
+                  const sb = AP_STATUS[it.status] || AP_STATUS['대기']
+                  return (
+                    <div key={it.id} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-surface-hover">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[10px] font-semibold px-1.5 py-[2px] rounded whitespace-nowrap shrink-0"
+                          style={{ color: tb.color, background: tb.bg }}>{tb.label}</span>
+                        <div className="min-w-0">
+                          <div className="text-[12.5px] font-medium text-text-sub truncate">{it.title}</div>
+                          <div className="text-[10.5px] text-soft mt-0.5">요청 {it.requester} · {it.requestedAt}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-[11px] font-mono text-muted">{fmtMoney(apAmount(it))}</span>
+                        <span className="text-[10px] font-semibold px-2 py-[3px] rounded-full whitespace-nowrap"
+                          style={{ color: sb.color, background: sb.bg }}>{it.status}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 인력 */}
       {tab === 'people' && (
         <div className="flex flex-col gap-4">
@@ -152,12 +223,46 @@ export default function CeoReportCenter({
 
       {/* 연차 */}
       {tab === 'leave' && (
-        <Panel>
-          <StatCard val={m.onLeaveToday.length} label="오늘 연차" color="#2563eb" bar="bg-blue" />
-          <StatCard val={m.leaveThisWeek.length} label="이번 주 연차" color="#7c4dff" bar="bg-purple" />
-          <StatCard val={m.pendingLeaves.length} label="승인 대기" color="#d97706" bar="bg-orange" />
-          <StatCard val={`${totalLeave}일`} label="1인 연차 한도" color="#0ea874" bar="bg-green" />
-        </Panel>
+        <div className="flex flex-col gap-4">
+          <Panel>
+            <StatCard val={m.onLeaveToday.length} label="오늘 연차" color="#2563eb" bar="bg-blue" />
+            <StatCard val={m.leaveThisWeek.length} label="이번 주 연차" color="#7c4dff" bar="bg-purple" />
+            <StatCard val={m.pendingLeaves.length} label="승인 대기" color="#d97706" bar="bg-orange" />
+            <StatCard val={`${totalLeave}일`} label="1인 연차 한도" color="#0ea874" bar="bg-green" />
+          </Panel>
+          {/* 연차 승인 대기 — 대표가 여기서 승인/반려 (홈 연차 메뉴 제거에 따른 일원화) */}
+          <div className="bg-surface border border-line rounded-[14px] shadow-sm">
+            <div className="px-5 py-[13px] border-b border-line-soft flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold text-text-primary">연차 승인 대기</h2>
+              <span className="text-[11px] font-semibold text-orange">{m.pendingLeaves.length}건</span>
+            </div>
+            <div className="p-2.5 flex flex-col gap-1.5">
+              {m.pendingLeaves.length === 0
+                ? <div className="text-[12px] text-soft text-center py-6">승인 대기 중인 연차가 없습니다</div>
+                : m.pendingLeaves.map(l => (
+                  <div key={l.id} className="px-3 py-2.5 rounded-lg border border-line-soft">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[13px] font-medium text-text-sub">
+                        {l.applicantName}
+                        <span className="text-[11px] text-muted ml-1.5">{l.applicantRole === 'Manager' ? '팀장' : '직원'}</span>
+                      </span>
+                      <span className="text-[10px] font-semibold text-blue bg-blue-soft rounded px-1.5 py-[1px] shrink-0">{l.type}</span>
+                    </div>
+                    <div className="text-[11px] text-soft mt-1">
+                      {l.startDate.slice(5).replace('-', '/')}{l.endDate !== l.startDate ? `~${l.endDate.slice(5).replace('-', '/')}` : ''}
+                      {l.reason ? ` · ${l.reason}` : ''}
+                    </div>
+                    <div className="flex gap-1.5 mt-2">
+                      <button onClick={() => { if (window.confirm(`${l.applicantName}님의 연차를 승인하시겠습니까?`)) onApproveLeave?.(l.id) }}
+                        className="flex-1 text-[12px] font-medium py-1.5 rounded-lg bg-blue text-white hover:opacity-90 cursor-pointer">승인</button>
+                      <button onClick={() => { const r = window.prompt('반려 사유를 입력하세요', ''); if (r !== null) onRejectLeave?.(l.id, r) }}
+                        className="flex-1 text-[12px] font-medium py-1.5 rounded-lg border border-line text-muted hover:text-red cursor-pointer">반려</button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Export */}

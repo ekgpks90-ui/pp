@@ -6,50 +6,50 @@ export const currentUser = {
 };
 
 export const teamMembers = [
-  { id: 'u-1', name: 'Jihye', role: 'UI/UX Designer', team: '디자인팀', onLeave: false, leaveType: null,
+  { id: 'u-1', name: 'Jihye', role: 'UI/UX Designer', grade: '과장', team: '디자인팀', onLeave: false, leaveType: null,
     weekWorkItems: [
       { title: '앱 온보딩 화면 긴급 수정', type: '긴급', done: true },
       { title: '이벤트 배너 긴급 제작', type: '긴급', done: true },
       { title: '메인 홈 리디자인', type: '일반', done: false },
       { title: '디자인 리뷰 미팅', type: '고정', done: true },
     ]},
-  { id: 'u-2', name: '이나경', role: 'Brand Designer', team: '디자인팀', onLeave: false, leaveType: null,
+  { id: 'u-2', name: '이나경', role: 'Brand Designer', grade: '대리', team: '디자인팀', onLeave: false, leaveType: null,
     weekWorkItems: [
       { title: '브랜드 가이드라인 갱신', type: '일반', done: true },
       { title: '로고 변형안 시안 제작', type: '일반', done: true },
       { title: '컬러 팔레트 정리', type: '고정', done: false },
     ]},
-  { id: 'u-3', name: '박서연', role: 'Motion Designer', team: '디자인팀', onLeave: false, leaveType: null,
+  { id: 'u-3', name: '박서연', role: 'Motion Designer', grade: '대리', team: '디자인팀', onLeave: false, leaveType: null,
     weekWorkItems: [
       { title: '앱 전환 애니메이션 제작', type: '긴급', done: false },
       { title: '로딩 인터랙션 개선', type: '일반', done: false },
     ]},
-  { id: 'u-4', name: '김도현', role: 'UX Researcher', team: '디자인팀', onLeave: true, leaveType: '오전 반차',
+  { id: 'u-4', name: '김도현', role: 'UX Researcher', grade: '대리', team: '디자인팀', onLeave: true, leaveType: '오전 반차',
     weekWorkItems: [
       { title: '사용자 인터뷰 분석', type: '고정', done: true },
       { title: '경쟁사 UX 리서치', type: '일반', done: false },
     ]},
-  { id: 'u-5', name: '최유진', role: 'Product Designer', team: '디자인팀', onLeave: false, leaveType: null,
+  { id: 'u-5', name: '최유진', role: 'Product Designer', grade: '과장', team: '디자인팀', onLeave: false, leaveType: null,
     weekWorkItems: [
       { title: '신규 서비스 와이어프레임', type: '일반', done: true },
       { title: '프로토타입 사용성 검토', type: '일반', done: true },
       { title: '플로우 차트 정리', type: '일반', done: true },
       { title: '화면 설계서 업데이트', type: '긴급', done: false },
     ]},
-  { id: 'u-6', name: '정하은', role: 'Visual Designer', team: '디자인팀', onLeave: false, leaveType: null,
+  { id: 'u-6', name: '정하은', role: 'Visual Designer', grade: '사원', team: '디자인팀', onLeave: false, leaveType: null,
     weekWorkItems: [
       { title: 'SNS 카드뉴스 시리즈 제작', type: '일반', done: true },
       { title: '이벤트 페이지 비주얼', type: '일반', done: true },
       { title: '일러스트 에셋 정리', type: '고정', done: true },
       { title: '브로셔 최종 인쇄본 확인', type: '일반', done: true },
     ]},
-  { id: 'u-7', name: '장준혁', role: 'Design Lead', team: '디자인팀', onLeave: false, leaveType: null,
+  { id: 'u-7', name: '장준혁', role: 'Design Lead', grade: '팀장', team: '디자인팀', onLeave: false, leaveType: null,
     weekWorkItems: [
       { title: '주간 디자인 방향 조율', type: '고정', done: true },
       { title: '디자인 QA 점검', type: '일반', done: false },
       { title: '클라이언트 미팅 준비', type: '긴급', done: false },
     ]},
-  { id: 'u-8', name: '윤소이', role: 'UI Designer', team: '디자인팀', onLeave: true, leaveType: '연차',
+  { id: 'u-8', name: '윤소이', role: 'UI Designer', grade: '사원', team: '디자인팀', onLeave: true, leaveType: '연차',
     weekWorkItems: [
       { title: '컴포넌트 라이브러리 업데이트', type: '고정', done: false },
       { title: '다크모드 시안 작업', type: '일반', done: false },
@@ -405,4 +405,54 @@ export const notifications = [
   { id: 'n-1', title: '업무 요청', requestTitle: '신제품 론칭 SNS 배너', body: '김지수님이 디자인팀에 업무를 요청했습니다.', unread: true },
   { id: 'n-2', title: '업무 요청', requestTitle: '채용 공고 포스터 디자인', body: '박소현님이 디자인팀에 업무를 요청했습니다.', unread: true },
   { id: 'n-3', title: '업무 요청', requestTitle: '신규 서비스 인트로 모션', body: '이준호님이 디자인팀에 업무를 요청했습니다.', unread: false },
+];
+
+// 직급별 1일 단가(원) — 대표 홈 프로젝트 투자 계산용.
+// 개인 월급 대신 직급 평균 단가만 사용(민감정보 미보관). 대표가 설정에서 조정하는 값(현재는 기본값).
+export const gradeRates = {
+  '사원': 180000,
+  '대리': 250000,
+  '과장': 320000,
+  '팀장': 400000,
+};
+
+// 대표 결재함(Approval Item) — 대표 승인이 필요한 의사결정 건.
+// 유형 4종: 계약 승인 / 예산 승인 / 프로젝트 착수 승인 / 프로젝트 종료 승인.
+// 흐름: 팀장이 등록 → 대표 결재함에 '대기' 표시 → 대표가 승인/반려(+사유).
+export const approvalItems = [
+  {
+    id: 'ap-1', type: '계약 승인', title: '그린푸드 하반기 디자인 납품 계약',
+    requester: '장준혁', requestedAt: '2026-06-18', status: '대기',
+    background: '상반기 단발성 프로모션 거래를 하반기 월 정기 계약으로 전환하는 건입니다. 정기 매출이 확보되고 디자인 일정 예측이 가능해집니다.',
+    client: '(주)그린푸드', contractType: '신규 (연간)', amount: 30000000,
+    period: '2026-07-01 ~ 2026-12-31', paymentTerms: '착수금 30% · 중도금 40% · 잔금 30%',
+    scope: '월 2회 SNS 콘텐츠 + 시즌 프로모션 배너·상세페이지',
+  },
+  {
+    id: 'ap-2', type: '프로젝트 착수 승인', title: '블루밍헬스 브랜드 앱 리뉴얼',
+    requester: '장준혁', requestedAt: '2026-06-18', status: '대기',
+    background: '6월 리브랜딩 완료 후 후속 제안 건입니다. 신규 BI를 앱 UI 전반에 적용하는 전면 개편으로, 7월 착수를 검토 중입니다.',
+    projectName: '블루밍헬스 앱 리뉴얼', client: '블루밍헬스',
+    plannedHeadcount: 5, plannedMembers: ['장준혁', '최유진', '박서연', '정하은', '윤소이'],
+    plannedPeriod: '2026-07-01 ~ 2026-09-30 (3개월)',
+    plannedBudget: 60000000, expectedRevenue: 95000000,
+  },
+  {
+    id: 'ap-3', type: '예산 승인', title: '하이브뷰티 카탈로그 일러스트 외주',
+    requester: '이나경', requestedAt: '2026-06-19', status: '대기',
+    background: '카탈로그 납기(6/20)가 임박했으나 내부 일러스트 리소스가 부족합니다. 납기 준수를 위해 외주 집행이 필요합니다.',
+    amount: 5000000, purpose: '제품 카탈로그용 일러스트 20컷 외주 제작',
+    projectName: '하이브뷰티 제품 카탈로그', projectId: 'wi-17',
+    breakdown: '일러스트 20컷 × 25만원 = 500만원', vendor: '프리랜서 일러스트레이터 2명', timing: '6월 4주차 집행',
+  },
+  {
+    id: 'ap-4', type: '프로젝트 종료 승인', title: '모아커머스 QA 지원 종료',
+    requester: '최유진', requestedAt: '2026-06-19', status: '대기',
+    background: '출시 전 QA 지원 기간이 종료되어 프로젝트 마감 승인을 요청합니다.',
+    projectName: '(주)모아커머스 QA 지원', projectId: 'wi-15', period: '2026-06-09 ~ 2026-06-20',
+    resultSummary: '디자인 QA 이슈 42건 전건 처리 완료, 앱 출시 준비 완료',
+    outputs: '디자인 QA 리포트, 수정 반영 42건, 개발 핸드오프 문서',
+    clientFeedback: '출시 일정 준수 — 클라이언트 만족도 높음',
+    actualInput: { manDays: 36, cost: 11520000 },
+  },
 ];

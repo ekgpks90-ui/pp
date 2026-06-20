@@ -4,15 +4,13 @@ import Topbar from './components/Topbar'
 import HomePage from './components/HomePage'
 import CeoDashboard from './components/CeoDashboard'
 import CeoReportCenter from './components/CeoReportCenter'
-import CeoCompanyStatus from './components/CeoCompanyStatus'
-import CeoProcessPage from './components/CeoProcessPage'
 import MeetingRoomPage from './components/MeetingRoomPage'
 import CalendarPage from './components/CalendarPage'
 import TeamStatusPage from './components/TeamStatusPage'
 import ProcessPage from './components/ProcessPage'
 import LeavePage from './components/LeavePage'
 import MyPage from './components/MyPage'
-import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, assignmentRequests as initialAssignmentRequests, processes as initialProcesses, leaves as initialLeaves, totalLeave, teamMembers, currentUser } from './data/state'
+import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, assignmentRequests as initialAssignmentRequests, processes as initialProcesses, leaves as initialLeaves, totalLeave, teamMembers, currentUser, approvalItems as initialApprovalItems, gradeRates } from './data/state'
 import { ROLES, canViewPage } from './data/roles'
 
 export default function App() {
@@ -33,6 +31,7 @@ export default function App() {
   const [assignmentRequests, setAssignmentRequests] = useState(initialAssignmentRequests)
   const [processes, setProcesses] = useState(initialProcesses)
   const [leavesState, setLeaves] = useState(initialLeaves)
+  const [approvalItems, setApprovalItems] = useState(initialApprovalItems)
   const [workItemResources, setWorkItemResources] = useState({})
 
   // --- Meeting handlers ---
@@ -148,6 +147,32 @@ export default function App() {
     ])
   }, [])
 
+  // --- 대표 결재함(Approval Item) handlers ---
+  const approveItem = useCallback((id) => {
+    setApprovalItems(prev => prev.map(a => {
+      if (a.id !== id) return a
+      addNotification('결재 승인', `${a.title} 안건이 승인되었습니다.`)
+      return { ...a, status: '승인' }
+    }))
+  }, [addNotification])
+
+  const rejectItem = useCallback((id, reason) => {
+    setApprovalItems(prev => prev.map(a => {
+      if (a.id !== id) return a
+      addNotification('결재 반려', `${a.title} 안건이 반려되었습니다.`)
+      return { ...a, status: '반려', rejectReason: reason || null }
+    }))
+  }, [addNotification])
+
+  // --- 연차 승인/반려 (대표는 리포트 연차 탭에서 처리) ---
+  const approveLeave = useCallback((id) => {
+    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: '승인 완료', approverId: 'u-0', approverName: '대표' } : l))
+  }, [])
+
+  const rejectLeave = useCallback((id, reason) => {
+    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: '반려', approverId: 'u-0', approverName: '대표', rejectedReason: reason || null } : l))
+  }, [])
+
   return (
     <div className="h-screen grid grid-cols-[224px_minmax(0,1fr)] overflow-hidden font-sans">
       <Sidebar role={role} currentPage={activePage} onNavigate={setCurrentPage} />
@@ -169,11 +194,12 @@ export default function App() {
           <CeoDashboard
             workItems={workItems}
             sessions={sessions}
-            requests={requests}
-            leaves={leavesState}
             teamMembers={teamMembers}
             processes={processes}
-            onNavigate={setCurrentPage}
+            approvalItems={approvalItems}
+            gradeRates={gradeRates}
+            onApproveItem={approveItem}
+            onRejectItem={rejectItem}
           />
         )}
         {activePage ==='home' && role !== ROLES.OWNER && (
@@ -234,18 +260,13 @@ export default function App() {
             leaves={leavesState}
             teamMembers={teamMembers}
             totalLeave={totalLeave}
+            approvalItems={approvalItems}
+            onApproveLeave={approveLeave}
+            onRejectLeave={rejectLeave}
           />
         )}
-        {activePage === 'team-status' && role === ROLES.OWNER && (
-          <CeoCompanyStatus
-            workItems={workItems}
-            sessions={sessions}
-            assignmentRequests={assignmentRequests}
-            teamMembers={teamMembers}
-            onNavigate={setCurrentPage}
-          />
-        )}
-        {activePage === 'team-status' && role !== ROLES.OWNER && (
+        {/* 팀원 현황 — 대표 사이드바에서 제거(직원·팀장만 사용) */}
+        {activePage === 'team-status' && (
           <TeamStatusPage
             role={role}
             assignmentRequests={assignmentRequests}
@@ -255,15 +276,8 @@ export default function App() {
             onUpdateAssignmentRequests={setAssignmentRequests}
           />
         )}
-        {activePage === 'process' && role === ROLES.OWNER && (
-          <CeoProcessPage
-            processes={processes}
-            workItems={workItems}
-            sessions={sessions}
-            onNavigate={setCurrentPage}
-          />
-        )}
-        {activePage === 'process' && role !== ROLES.OWNER && (
+        {/* 프로세스 관리 — 대표도 팀장과 동일한 ProcessPage(템플릿 관리)를 사용 */}
+        {activePage === 'process' && (
           <ProcessPage
             processes={processes}
             onUpdateProcesses={setProcesses}
