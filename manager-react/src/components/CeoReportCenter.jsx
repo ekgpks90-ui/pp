@@ -37,6 +37,7 @@ const TABS = [
 
 export default function CeoReportCenter({
   workItems = [], sessions = [], leaves = [], teamMembers = [], totalLeave = 15, approvalItems = [],
+  onApproveLeave, onRejectLeave,
 }) {
   const [tab, setTab] = useState('project')
 
@@ -222,12 +223,46 @@ export default function CeoReportCenter({
 
       {/* 연차 */}
       {tab === 'leave' && (
-        <Panel>
-          <StatCard val={m.onLeaveToday.length} label="오늘 연차" color="#2563eb" bar="bg-blue" />
-          <StatCard val={m.leaveThisWeek.length} label="이번 주 연차" color="#7c4dff" bar="bg-purple" />
-          <StatCard val={m.pendingLeaves.length} label="승인 대기" color="#d97706" bar="bg-orange" />
-          <StatCard val={`${totalLeave}일`} label="1인 연차 한도" color="#0ea874" bar="bg-green" />
-        </Panel>
+        <div className="flex flex-col gap-4">
+          <Panel>
+            <StatCard val={m.onLeaveToday.length} label="오늘 연차" color="#2563eb" bar="bg-blue" />
+            <StatCard val={m.leaveThisWeek.length} label="이번 주 연차" color="#7c4dff" bar="bg-purple" />
+            <StatCard val={m.pendingLeaves.length} label="승인 대기" color="#d97706" bar="bg-orange" />
+            <StatCard val={`${totalLeave}일`} label="1인 연차 한도" color="#0ea874" bar="bg-green" />
+          </Panel>
+          {/* 연차 승인 대기 — 대표가 여기서 승인/반려 (홈 연차 메뉴 제거에 따른 일원화) */}
+          <div className="bg-surface border border-line rounded-[14px] shadow-sm">
+            <div className="px-5 py-[13px] border-b border-line-soft flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold text-text-primary">연차 승인 대기</h2>
+              <span className="text-[11px] font-semibold text-orange">{m.pendingLeaves.length}건</span>
+            </div>
+            <div className="p-2.5 flex flex-col gap-1.5">
+              {m.pendingLeaves.length === 0
+                ? <div className="text-[12px] text-soft text-center py-6">승인 대기 중인 연차가 없습니다</div>
+                : m.pendingLeaves.map(l => (
+                  <div key={l.id} className="px-3 py-2.5 rounded-lg border border-line-soft">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[13px] font-medium text-text-sub">
+                        {l.applicantName}
+                        <span className="text-[11px] text-muted ml-1.5">{l.applicantRole === 'Manager' ? '팀장' : '직원'}</span>
+                      </span>
+                      <span className="text-[10px] font-semibold text-blue bg-blue-soft rounded px-1.5 py-[1px] shrink-0">{l.type}</span>
+                    </div>
+                    <div className="text-[11px] text-soft mt-1">
+                      {l.startDate.slice(5).replace('-', '/')}{l.endDate !== l.startDate ? `~${l.endDate.slice(5).replace('-', '/')}` : ''}
+                      {l.reason ? ` · ${l.reason}` : ''}
+                    </div>
+                    <div className="flex gap-1.5 mt-2">
+                      <button onClick={() => { if (window.confirm(`${l.applicantName}님의 연차를 승인하시겠습니까?`)) onApproveLeave?.(l.id) }}
+                        className="flex-1 text-[12px] font-medium py-1.5 rounded-lg bg-blue text-white hover:opacity-90 cursor-pointer">승인</button>
+                      <button onClick={() => { const r = window.prompt('반려 사유를 입력하세요', ''); if (r !== null) onRejectLeave?.(l.id, r) }}
+                        className="flex-1 text-[12px] font-medium py-1.5 rounded-lg border border-line text-muted hover:text-red cursor-pointer">반려</button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Export */}
