@@ -123,8 +123,16 @@ export default function MeetingRoomPage({
 
   const handleScheduleMeeting = ({ title, date, time, room, attendeeNames }) => {
     const attendeeCount = attendeeNames.length || 1
+    const ts = Date.now()
+    onAddMeeting({
+      id: `mr-${ts}`,
+      title, type: '주간 회의', team: currentUser?.team || '디자인팀',
+      agenda: '', discussions: [], aiPoints: [], actionItems: [],
+      date, startTime: time, author: currentUser?.name || 'Jihye',
+      duration: '', attendees: attendeeCount, attendeeNames,
+    })
     onAddWorkItem({
-      id: `wi-mtg-${Date.now()}`,
+      id: `wi-mtg-${ts}`,
       title, start: date, end: date, type: '회의',
       meetingTime: time, room, scheduled: true,
       participants: attendeeNames.length ? attendeeNames : ['Jihye'],
