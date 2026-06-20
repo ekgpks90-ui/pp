@@ -361,8 +361,8 @@ export default function CeoReportCenter({
                       return (
                         <div key={b.m} className="flex-1 flex flex-col items-center gap-1">
                           <div className="text-[9px] font-semibold text-text-primary text-center leading-tight">
-                            <div style={{ color: 'var(--color-blue)' }}>{b.c}</div>
-                            <div style={{ color: '#0ea874' }}>{b.g}</div>
+                            <div style={{ color: 'var(--color-blue)' }}>{b.c}%</div>
+                            <div style={{ color: '#0ea874' }}>{b.g}%</div>
                           </div>
                           <div className="w-full flex flex-col">
                             <div className="w-full rounded-t-[3px]" style={{ height: `${cH}px`, background: 'var(--color-blue)' }} />
