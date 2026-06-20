@@ -188,7 +188,7 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <h2 className="text-[16px] font-bold text-text-primary mb-4 shrink-0">My Page</h2>
 
-      <div className="flex-1 min-h-0 grid grid-cols-3 gap-2.5 overflow-y-auto pb-4">
+      <div className="flex-1 min-h-0 grid grid-cols-[1fr_1fr_1fr] gap-2.5 overflow-y-auto pb-4" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         {/* Left column: Profile + Charts */}
         <div className="flex flex-col gap-2.5">
           {/* Profile */}
@@ -208,7 +208,7 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
 
         </div>
 
-        {/* Right column: Calendar panel */}
+        {/* Center column: Calendar */}
         <div className="flex flex-col gap-2.5">
           {/* Mini Calendar */}
           <div className="bg-white border border-line rounded-[10px] p-3 flex flex-col gap-2">
@@ -254,7 +254,10 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#f59e0b] inline-block" />연차</span>
             </div>
           </div>
+        </div>
 
+        {/* Right column: Session + Meeting list */}
+        <div className="flex flex-col gap-2.5">
           {/* Session list */}
           <div className="bg-white border border-line rounded-[10px] p-[10px_12px] flex flex-col gap-[7px]">
             <div className="text-[11px] font-semibold text-text-sub tracking-[0.3px]">
