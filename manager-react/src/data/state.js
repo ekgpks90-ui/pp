@@ -308,6 +308,12 @@ export const meetings = [
       { id: 'act-mr12-2', text: '핏라이프 탭바 아이콘 컬러 수정', dueDate: '2026-06-19', assignee: 'Jihye', done: false, addedToWeekly: false },
     ],
     date: '2026-06-18', startTime: '14:30', author: 'Jihye', duration: '28:15', attendees: 5, attendeeNames: ['Jihye', '최유진', '박서연', '이나경', '장준혁'] },
+  { id: 'mr-13', title: '주간 디자인 팀 스탠드업', type: '주간 회의', team: '디자인팀',
+    agenda: '이번 주 업무 현황 공유 및 이슈 점검', discussions: [], aiPoints: [], actionItems: [],
+    date: TODAY_ISO, startTime: '10:00', author: 'Jihye', duration: '', attendees: 5, attendeeNames: ['Jihye', '이나경', '박서연', '정하은', '장준혁'] },
+  { id: 'mr-14', title: '하이브뷰티 카탈로그 최종 검토', type: '타팀 협업회의', team: '디자인팀',
+    agenda: '카탈로그 최종본 클라이언트 피드백 반영 확인', discussions: [], aiPoints: [], actionItems: [],
+    date: TODAY_ISO, startTime: '15:00', author: 'Jihye', duration: '', attendees: 3, attendeeNames: ['Jihye', '이나경', '정하은'] },
 ];
 
 export const requests = [

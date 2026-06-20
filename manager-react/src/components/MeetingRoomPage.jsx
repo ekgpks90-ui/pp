@@ -205,14 +205,42 @@ export default function MeetingRoomPage({
 
       {/* Main content: meeting list + recorder */}
       <div className="flex-1 overflow-hidden flex gap-5 px-7 py-5">
-        {/* Recorder widget */}
-        <div className="w-[260px] shrink-0">
+        {/* Recorder widget + 오늘 회의 */}
+        <div className="w-[260px] shrink-0 flex flex-col gap-3">
           <RecorderWidget
             status={recStatus}
             seconds={recSeconds}
             onStart={startRecording}
             onStop={stopRecording}
           />
+          {/* 오늘 회의 카드 */}
+          <div className="bg-white border border-line rounded-xl p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] font-semibold text-text-primary">오늘 회의</span>
+              {(() => {
+                const todayMeetings = scopedMeetings.filter(m => m.date === TODAY_ISO)
+                return todayMeetings.length > 0
+                  ? <span className="text-[11px] font-bold bg-blue/10 text-blue px-1.5 py-0.5 rounded-full">{todayMeetings.length}</span>
+                  : null
+              })()}
+            </div>
+            {(() => {
+              const todayMeetings = scopedMeetings.filter(m => m.date === TODAY_ISO)
+              if (todayMeetings.length === 0) return (
+                <p className="text-[12px] text-muted text-center py-3">오늘 예정된 회의가 없습니다</p>
+              )
+              return todayMeetings.map(m => (
+                <div key={m.id} className="flex flex-col gap-1 border-l-2 border-blue pl-2.5">
+                  <span className="text-[12px] font-medium text-text-primary leading-snug">{m.title}</span>
+                  <div className="flex items-center gap-2 text-[11px] text-muted">
+                    {m.startTime && <span>{m.startTime}</span>}
+                    {m.duration && <span>· {m.duration}</span>}
+                    {m.attendees && <span>· {m.attendees}명</span>}
+                  </div>
+                </div>
+              ))
+            })()}
+          </div>
         </div>
 
         {/* Meeting list */}
