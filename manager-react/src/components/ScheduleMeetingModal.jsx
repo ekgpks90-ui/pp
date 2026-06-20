@@ -102,6 +102,7 @@ export default function ScheduleMeetingModal({ teamMembers, onClose, onSave }) {
               <input value={query}
                 onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
                 onFocus={() => setShowDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
                 placeholder="참석자 검색..."
                 className="w-full h-8 px-3 text-[12px] border border-line rounded-lg outline-none focus:border-blue" />
               {showDropdown && filteredMembers.length > 0 && (
