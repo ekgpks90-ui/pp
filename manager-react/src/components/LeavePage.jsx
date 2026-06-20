@@ -437,7 +437,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const canApprove = canApproveLeave(role)
   const canViewTeam = canViewTeamLeaves(role)
   const [tab, setTab] = useState('내 연차')
-  const TABS = canViewTeam ? ['내 연차', '팀 연차', '이력'] : ['내 연차', '이력']
+  const TABS = canViewTeam ? ['내 연차', '팀 연차'] : ['내 연차']
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [rejectingLeave, setRejectingLeave] = useState(null)
   const [approvingLeave, setApprovingLeave] = useState(null)
@@ -576,22 +576,6 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                   )
                 })
               )}
-              {tab === '이력' && (() => {
-                const histLeaves = myLeaves.filter(l => l.status === '승인 완료' || l.status === '반려').sort((a, b) => b.startDate.localeCompare(a.startDate))
-                if (histLeaves.length === 0) return <div className="text-[14px] text-muted text-center py-10">연차 이력이 없습니다.</div>
-                const grouped = []
-                let lastMonth = null
-                histLeaves.forEach(lv => {
-                  const m = lv.startDate.slice(0, 7)
-                  if (m !== lastMonth) { grouped.push({ type: 'header', month: m }); lastMonth = m }
-                  grouped.push({ type: 'row', lv })
-                })
-                return grouped.map((item, i) =>
-                  item.type === 'header'
-                    ? <div key={item.month} className={`text-[11px] font-semibold text-muted px-1 ${i > 0 ? 'mt-3' : ''}`}>{item.month.slice(0,4)}년 {String(Number(item.month.slice(5,7)))}월</div>
-                    : <LeaveRow key={item.lv.id} lv={item.lv} showActions={false} currentUser={currentUser} />
-                )
-              })()}
             </div>
           </div>
 
