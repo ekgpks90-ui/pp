@@ -50,3 +50,24 @@ export function isDelayed(item, today, sessions = []) {
   if (item.type === '고정') return false;
   return item.end < today && sessions.some(s => s.workItemId === item.id && !s.done);
 }
+
+// ─── 프로세스 카테고리(processId) → 팀 매핑 ──────────────────────────────────
+// 대표 Calendar 전체보기에서 팀별 그룹/필터에 사용. workItem에 team 필드를 두지 않고
+// processId로 도출한다(데이터 이중화·동기화 버그 방지). 1 프로젝트 = 1 프로세스 전제.
+export const PROCESS_TEAM = {
+  'pc-1': 'UI/UX 디자인팀',
+  'pc-2': '브랜드 디자인팀',
+  'pc-3': '콘텐츠 디자인팀',
+  'pc-4': '영상·모션팀',
+};
+
+// processId가 없는 프로젝트(예: 내부 디자인 시스템 정리)를 묶는 팀.
+export const ETC_TEAM = '기타';
+
+// 사이드바 팀 노출 순서(맨 위 '전체'는 컴포넌트에서 별도 추가).
+export const TEAM_ORDER = ['UI/UX 디자인팀', '브랜드 디자인팀', '콘텐츠 디자인팀', '영상·모션팀', ETC_TEAM];
+
+// 프로젝트(업무항목)가 속한 팀명. processId가 없거나 매핑에 없으면 '기타'.
+export function getProjectTeam(workItem) {
+  return PROCESS_TEAM[workItem?.processId] ?? ETC_TEAM;
+}
