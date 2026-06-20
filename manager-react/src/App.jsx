@@ -253,6 +253,7 @@ export default function App() {
             leaves={leavesState}
             teamMembers={teamMembers}
             totalLeave={totalLeave}
+            approvalItems={approvalItems}
           />
         )}
         {activePage === 'team-status' && role === ROLES.OWNER && (
