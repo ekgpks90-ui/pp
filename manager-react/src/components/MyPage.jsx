@@ -188,11 +188,11 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <h2 className="text-[16px] font-bold text-text-primary mb-4 shrink-0">My Page</h2>
 
-      <div className="flex-1 min-h-0 grid grid-cols-[1fr_1fr_1fr] gap-2.5 overflow-y-auto pb-4" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+      <div className="flex-1 min-h-0 grid grid-cols-3 gap-2.5 overflow-y-auto pb-4">
         {/* Left column: Profile + Charts */}
         <div className="flex flex-col gap-2.5">
           {/* Profile */}
-          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col items-center gap-2.5 h-full">
+          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col items-center gap-2.5">
             <div className="w-14 h-14 rounded-full bg-blue flex items-center justify-center text-white text-[20px] font-bold">
               {currentUser?.name?.charAt(0)}
             </div>
