@@ -465,4 +465,35 @@ export const approvalItems = [
     clientFeedback: '출시 일정 준수 — 클라이언트 만족도 높음',
     actualInput: { manDays: 36, cost: 11520000 },
   },
+  // ── 진행 중 프로젝트의 거래처별 체결 계약 (리포트 수익성 탭 마진 계산용, 승인 완료) ──
+  {
+    id: 'ap-c1', type: '계약 승인', title: '모아커머스 앱 리뉴얼 디자인 계약',
+    requester: '장준혁', requestedAt: '2026-05-20', status: '승인',
+    client: '(주)모아커머스', contractType: '신규', amount: 32000000,
+    period: '2026-05-20 ~ 2026-07-15', scope: '커머스 앱 리뉴얼 UI/UX 전면 디자인',
+  },
+  {
+    id: 'ap-c2', type: '계약 승인', title: '블루밍헬스 리브랜딩 계약',
+    requester: '장준혁', requestedAt: '2026-05-25', status: '승인',
+    client: '블루밍헬스', contractType: '신규', amount: 36000000,
+    period: '2026-06-01 ~ 2026-08-15', scope: '브랜드 리뉴얼 BI·가이드라인',
+  },
+  {
+    id: 'ap-c3', type: '계약 승인', title: '테크스타트 서비스 UI/UX 계약',
+    requester: '최유진', requestedAt: '2026-05-28', status: '승인',
+    client: '테크스타트', contractType: '신규', amount: 28000000,
+    period: '2026-06-01 ~ 2026-07-31', scope: '서비스 메인 화면 UI/UX 디자인',
+  },
+  {
+    id: 'ap-c4', type: '계약 승인', title: '하이브뷰티 제품 카탈로그 계약',
+    requester: '이나경', requestedAt: '2026-06-01', status: '승인',
+    client: '하이브뷰티', contractType: '신규', amount: 15000000,
+    period: '2026-06-05 ~ 2026-07-10', scope: '제품 카탈로그 디자인·일러스트',
+  },
+  {
+    id: 'ap-c5', type: '계약 승인', title: '그린푸드 프로모션 배너 계약',
+    requester: '이나경', requestedAt: '2026-06-05', status: '승인',
+    client: '(주)그린푸드', contractType: '단발', amount: 8000000,
+    period: '2026-06-12 ~ 2026-06-17', scope: '프로모션 배너·상세페이지',
+  },
 ];

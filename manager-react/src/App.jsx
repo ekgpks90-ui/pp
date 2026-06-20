@@ -271,6 +271,8 @@ export default function App() {
             gradeRates={gradeRates}
             onApproveLeave={approveLeave}
             onRejectLeave={rejectLeave}
+            onApproveItem={approveItem}
+            onRejectItem={rejectItem}
           />
         )}
         {/* 팀원 현황 — 대표 사이드바에서 제거(직원·팀장만 사용) */}
