@@ -11,6 +11,7 @@ import TeamStatusPage from './components/TeamStatusPage'
 import ProcessPage from './components/ProcessPage'
 import LeavePage from './components/LeavePage'
 import MyPage from './components/MyPage'
+import CeoMyPage from './components/CeoMyPage'
 import { workItems as initialWorkItems, sessions as initialSessions, requests as initialRequests, notifications as initialNotifications, meetings as initialMeetings, assignmentRequests as initialAssignmentRequests, processes as initialProcesses, leaves as initialLeaves, totalLeave, teamMembers, currentUser, approvalItems as initialApprovalItems, gradeRates } from './data/state'
 import { ROLES, canViewPage } from './data/roles'
 
@@ -300,7 +301,16 @@ export default function App() {
             onUpdateLeaves={setLeaves}
           />
         )}
-        {activePage === 'my-page' && (
+        {activePage === 'my-page' && role === ROLES.OWNER && (
+          <CeoMyPage
+            currentUser={currentUser}
+            sessions={sessions}
+            meetings={meetings}
+            leaves={leavesState}
+            requests={requests}
+          />
+        )}
+        {activePage === 'my-page' && role !== ROLES.OWNER && (
           <MyPage
             currentUser={currentUser}
             sessions={sessions}
