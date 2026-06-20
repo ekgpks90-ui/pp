@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { getCalendarWeeks, layoutWeekEvents, getProjectTeam, getTeamColor } from '../data/helpers'
 
 const DOW = ['일', '월', '화', '수', '목', '금', '토']
@@ -5,6 +6,7 @@ const LANE_H = 22 // 이벤트 막대 한 층 높이(px)
 const DATE_ROW_H = 24 // 날짜 숫자 줄 높이(px)
 
 export default function MonthCalendar({ projects, year, month, onEventClick }) {
+  const [hoveredId, setHoveredId] = useState(null)
   const weeks = getCalendarWeeks(year, month)
 
   return (
@@ -44,12 +46,15 @@ export default function MonthCalendar({ projects, year, month, onEventClick }) {
               const width = ((ev.endCol - ev.startCol + 1) / 7) * 100
               const top = DATE_ROW_H + ev.lane * LANE_H
               const radius = `${ev.continuesLeft ? '0' : '5px'} ${ev.continuesRight ? '0' : '5px'} ${ev.continuesRight ? '0' : '5px'} ${ev.continuesLeft ? '0' : '5px'}`
+              const isHovered = hoveredId === ev.project.id
               return (
                 <button
                   key={ev.project.id}
                   onClick={() => onEventClick(ev.project)}
+                  onMouseEnter={() => setHoveredId(ev.project.id)}
+                  onMouseLeave={() => setHoveredId(null)}
                   title={`${ev.project.title} (${ev.project.start} ~ ${ev.project.end || ev.project.start})`}
-                  className="absolute h-[18px] flex items-center px-1.5 overflow-hidden cursor-pointer hover:brightness-95"
+                  className="absolute h-[18px] flex items-center px-1.5 overflow-hidden cursor-pointer transition-[filter]"
                   style={{
                     left: `calc(${left}% + 3px)`,
                     width: `calc(${width}% - 6px)`,
@@ -57,6 +62,7 @@ export default function MonthCalendar({ projects, year, month, onEventClick }) {
                     background: c.bg,
                     borderLeft: `3px solid ${c.text}`,
                     borderRadius: radius,
+                    filter: isHovered ? 'brightness(0.92)' : undefined,
                   }}
                 >
                   <span className="text-[10.5px] font-medium truncate" style={{ color: c.text }}>{ev.project.title}</span>
