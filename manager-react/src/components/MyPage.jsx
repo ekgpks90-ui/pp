@@ -257,7 +257,7 @@ export default function MyPage({ currentUser, sessions, meetings, leaves }) {
         </div>
 
         {/* Right column: Session + Meeting list */}
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2.5 self-start">
           {/* Session list */}
           <div className="bg-white border border-line rounded-[10px] p-[10px_12px] flex flex-col gap-[7px]">
             <div className="text-[11px] font-semibold text-text-sub tracking-[0.3px]">
