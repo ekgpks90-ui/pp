@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { TODAY_ISO, isDelayed } from '../data/helpers'
+import { TODAY_ISO, isDelayed, getProjectTeam, TEAM_ORDER } from '../data/helpers'
 import { processes } from '../data/state'
 import { canEditCalendar, ROLES } from '../data/roles'
 import CalendarDetailPanel from './CalendarDetailPanel'
@@ -126,6 +126,7 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
   const [detailItem, setDetailItem] = useState(null)
   const [editItemId, setEditItemId] = useState(null)
   const [viewMode, setViewMode] = useState('all') // 'all'(전체 보기) | 'project'(프로젝트별)
+  const [selectedTeam, setSelectedTeam] = useState('전체') // 대표 전체보기 팀 필터
   // 전체 보기는 대표(owner) 전용. 직원·팀장은 기존처럼 프로젝트별만 사용.
   const isOwner = role === ROLES.OWNER
   const showAll = isOwner && viewMode === 'all'
@@ -141,6 +142,28 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
   [workItems])
 
   const selectedProject = projects.find(p => p.id === selectedProjectId)
+
+  // 팀별 프로젝트 수(전체보기 사이드바 뱃지). 회의·연차·반복 제외된 projects 기준.
+  const teamCounts = useMemo(() => {
+    const counts = {}
+    for (const p of projects) {
+      const t = getProjectTeam(p)
+      counts[t] = (counts[t] || 0) + 1
+    }
+    return counts
+  }, [projects])
+
+  // 사이드바에 노출할 팀(프로젝트가 1개 이상인 팀만, 정해진 순서).
+  const visibleTeams = useMemo(
+    () => TEAM_ORDER.filter(t => (teamCounts[t] || 0) > 0),
+    [teamCounts]
+  )
+
+  // 선택 팀으로 필터한 전체보기용 프로젝트.
+  const teamFilteredProjects = useMemo(
+    () => (selectedTeam === '전체' ? projects : projects.filter(p => getProjectTeam(p) === selectedTeam)),
+    [projects, selectedTeam]
+  )
 
   const days = useMemo(() => getMonthDays(calYear, calMonth), [calYear, calMonth])
 
@@ -210,40 +233,57 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <div className="flex flex-1 min-h-0 gap-4">
-        {/* Left: Project sidebar */}
+        {/* Left: Sidebar — 대표는 팀 목록(필터), 그 외는 기존 프로젝트 목록 */}
         <nav className="w-[200px] min-w-[160px] shrink-0 bg-white border border-line rounded-[10px] flex flex-col overflow-y-auto">
           <div className="text-[10.5px] font-semibold text-muted uppercase tracking-[0.06em] px-3.5 pt-3.5 pb-2.5 border-b border-line shrink-0">
-            프로젝트
+            {isOwner ? '팀' : '프로젝트'}
           </div>
-          {projects.length === 0 ? (
-            <div className="px-3.5 py-5 text-[12px] text-muted">프로젝트 없음</div>
-          ) : (
-            projects.map(wi => {
-              const status = getWorkItemStatus(wi, sessions)
-              const sc = STATUS_COLOR[status] || STATUS_COLOR['시작 전']
-              const isActive = selectedProjectId === wi.id
+
+          {isOwner ? (
+            // 팀 목록: 전체 + 프로젝트 있는 팀만
+            [{ name: '전체', count: projects.length }, ...visibleTeams.map(t => ({ name: t, count: teamCounts[t] || 0 }))].map(team => {
+              const isActive = selectedTeam === team.name
               return (
-                <button key={wi.id}
-                  onClick={() => { setSelectedProjectId(wi.id); setViewMode('project') }}
-                  className={`flex flex-col items-start px-3.5 py-2.5 border-b border-line gap-[5px] text-left w-full transition-colors cursor-pointer
+                <button key={team.name}
+                  onClick={() => { setSelectedTeam(team.name); setViewMode('all') }}
+                  className={`flex items-center justify-between px-3.5 py-2.5 border-b border-line text-left w-full transition-colors cursor-pointer
                     ${isActive ? 'bg-[#eff6ff]' : 'hover:bg-bg'}`}>
-                  <span className="flex items-start gap-1.5 text-[12px] font-medium text-text-primary leading-[1.4]">
-                    {wi.type === '고정' ? (
-                      <svg className="w-[12px] h-[12px] text-[#6b7280] shrink-0 mt-[2px]" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/>
-                      </svg>
-                    ) : (
-                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-[3px] ${wi.type === '긴급' ? 'bg-red' : wi.type === '회의' ? 'bg-orange' : 'bg-soft'}`} />
-                    )}
-                    <span>{wi.title}</span>
-                  </span>
-                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded"
-                    style={{ background: sc.bg, color: sc.text }}>
-                    {status}
-                  </span>
+                  <span className={`text-[12px] font-medium ${isActive ? 'text-blue' : 'text-text-primary'}`}>{team.name}</span>
+                  <span className="text-[10px] font-medium text-muted px-1.5 py-0.5 rounded bg-surface-muted">{team.count}</span>
                 </button>
               )
             })
+          ) : (
+            projects.length === 0 ? (
+              <div className="px-3.5 py-5 text-[12px] text-muted">프로젝트 없음</div>
+            ) : (
+              projects.map(wi => {
+                const status = getWorkItemStatus(wi, sessions)
+                const sc = STATUS_COLOR[status] || STATUS_COLOR['시작 전']
+                const isActive = selectedProjectId === wi.id
+                return (
+                  <button key={wi.id}
+                    onClick={() => { setSelectedProjectId(wi.id); setViewMode('project') }}
+                    className={`flex flex-col items-start px-3.5 py-2.5 border-b border-line gap-[5px] text-left w-full transition-colors cursor-pointer
+                      ${isActive ? 'bg-[#eff6ff]' : 'hover:bg-bg'}`}>
+                    <span className="flex items-start gap-1.5 text-[12px] font-medium text-text-primary leading-[1.4]">
+                      {wi.type === '고정' ? (
+                        <svg className="w-[12px] h-[12px] text-[#6b7280] shrink-0 mt-[2px]" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/>
+                        </svg>
+                      ) : (
+                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-[3px] ${wi.type === '긴급' ? 'bg-red' : wi.type === '회의' ? 'bg-orange' : 'bg-soft'}`} />
+                      )}
+                      <span>{wi.title}</span>
+                    </span>
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                      style={{ background: sc.bg, color: sc.text }}>
+                      {status}
+                    </span>
+                  </button>
+                )
+              })
+            )
           )}
         </nav>
 
@@ -293,11 +333,11 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           <div className="flex-1 min-h-0 overflow-auto">
             {showAll ? (
               <AllProjectsTimeline
-                projects={projects}
+                projects={teamFilteredProjects}
                 days={days}
                 sessions={sessions}
                 onBarClick={(p) => setDetailItem(p)}
-                onNameClick={(id) => setEditItemId(id)}
+                onNameClick={(id) => { setSelectedProjectId(id); setViewMode('project') }}
               />
             ) : !selectedProject ? (
               <div className="px-6 py-[60px] text-center text-[13px] text-muted">
