@@ -5,7 +5,6 @@ import HomePage from './components/HomePage'
 import CeoDashboard from './components/CeoDashboard'
 import CeoReportCenter from './components/CeoReportCenter'
 import CeoCompanyStatus from './components/CeoCompanyStatus'
-import CeoProcessPage from './components/CeoProcessPage'
 import MeetingRoomPage from './components/MeetingRoomPage'
 import CalendarPage from './components/CalendarPage'
 import TeamStatusPage from './components/TeamStatusPage'
@@ -286,15 +285,8 @@ export default function App() {
             onUpdateAssignmentRequests={setAssignmentRequests}
           />
         )}
-        {activePage === 'process' && role === ROLES.OWNER && (
-          <CeoProcessPage
-            processes={processes}
-            workItems={workItems}
-            sessions={sessions}
-            onNavigate={setCurrentPage}
-          />
-        )}
-        {activePage === 'process' && role !== ROLES.OWNER && (
+        {/* 프로세스 관리 — 대표도 팀장과 동일한 ProcessPage(템플릿 관리)를 사용 */}
+        {activePage === 'process' && (
           <ProcessPage
             processes={processes}
             onUpdateProcesses={setProcesses}
