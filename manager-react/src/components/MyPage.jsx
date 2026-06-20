@@ -305,16 +305,10 @@ export default function MyPage({ currentUser, sessions, workItems, meetings, lea
             ) : (
               <div className="flex flex-col gap-2">
                 {selectedMeetings.map(m => {
-                  const color = TYPE_COLOR[m.type] || '#6b7280'
-                  const myActions = (m.actionItems || []).filter(a => a.assignee === myName)
                   return (
                     <div key={m.id} className="flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] font-semibold text-white px-1.5 py-0.5 rounded shrink-0" style={{ background: color }}>{m.type}</span>
+                      <div className="flex items-center gap-1.5">
                         <span className="text-[12px] font-medium text-text-primary flex-1 truncate">{m.title}</span>
-                        {myActions.length > 0 && (
-                          <span className="text-[10px] font-semibold bg-blue/10 text-blue px-1.5 py-0.5 rounded shrink-0">{myActions.length} 액션</span>
-                        )}
                       </div>
                       <div className="flex items-center gap-2 text-[11px] text-muted">
                         <div className="flex items-center gap-0.5">
