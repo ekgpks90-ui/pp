@@ -4,6 +4,7 @@ import { processes } from '../data/state'
 import { canEditCalendar, ROLES } from '../data/roles'
 import CalendarDetailPanel from './CalendarDetailPanel'
 import DetailPanel from './DetailPanel'
+import MonthCalendar from './MonthCalendar'
 
 // 캘린더에서 제외할 연차 유형 (회의 type '회의'는 별도로 제외)
 const LEAVE_TYPES = ['종일 연차', '오전 반차', '오후 반차']
@@ -46,20 +47,6 @@ function getMonthDays(year, month) {
   return days
 }
 
-// 월 그리드에서 start~end ISO 구간을 막대 위치(left%/width%)로 변환. 범위 밖이면 null.
-function barPosition(start, end, days) {
-  if (!start || !days.length) return null
-  const e = end || start
-  const first = days[0].date, last = days[days.length - 1].date
-  const sIdx = days.findIndex(d => d.date === start)
-  const eIdx = days.findIndex(d => d.date === e)
-  const cs = sIdx >= 0 ? sIdx : (start < first ? 0 : -1)
-  const ce = eIdx >= 0 ? eIdx : (e > last ? days.length - 1 : -1)
-  if (cs === -1 || ce === -1 || cs > ce) return null
-  const colW = 100 / days.length
-  return { left: cs * colW, width: (ce - cs + 1) * colW }
-}
-
 // 월 day 헤더 (전체 보기/프로젝트별 공용)
 function DayHeader({ days, leftLabel }) {
   return (
@@ -75,46 +62,6 @@ function DayHeader({ days, leftLabel }) {
           return <div key={d.date} className={cls}>{d.day}</div>
         })}
       </div>
-    </div>
-  )
-}
-
-// 전체 보기 — 모든 프로젝트를 한 화면에 (프로젝트당 한 줄, start~end 막대)
-function AllProjectsTimeline({ projects, days, sessions, onBarClick, onNameClick }) {
-  return (
-    <div>
-      <DayHeader days={days} leftLabel="프로젝트" />
-      {projects.length === 0 ? (
-        <div className="px-4 py-6 text-[12px] text-muted">표시할 프로젝트가 없습니다</div>
-      ) : projects.map(p => {
-        const status = getWorkItemStatus(p, sessions)
-        const sc = STATUS_COLOR[status] || STATUS_COLOR['시작 전']
-        const pos = barPosition(p.start, p.end, days)
-        const tc = WORK_ITEM_TYPE_COLOR[p.type] || WORK_ITEM_TYPE_COLOR['일반']
-        return (
-          <div key={p.id} className="flex items-stretch h-[40px] border-t border-line-soft">
-            <div className="w-[220px] min-w-[220px] shrink-0 px-4 flex items-center gap-2 border-r border-line">
-              <button onClick={() => onNameClick(p.id)} className="text-[12px] text-text-sub truncate hover:text-blue hover:underline cursor-pointer">{p.title}</button>
-              <span className="text-[9.5px] font-medium px-1.5 py-0.5 rounded ml-auto shrink-0" style={{ background: sc.bg, color: sc.text }}>{status}</span>
-            </div>
-            <div className="flex-1 relative flex">
-              <div className="absolute inset-0 flex">
-                {days.map(d => (
-                  <div key={d.date} className={`flex-1 border-r border-[#f3f4f6] min-w-[24px] ${d.isWeekend ? 'bg-[#fafafa]' : ''} ${d.isToday ? 'bg-[#eff6ff55]' : ''}`} />
-                ))}
-              </div>
-              {pos && (
-                <div className="absolute h-5 top-1/2 -translate-y-1/2 rounded-[5px] min-w-[6px] cursor-pointer z-[1] flex items-center px-2 overflow-hidden"
-                  style={{ left: `calc(${pos.left}% + 2px)`, width: `calc(${pos.width}% - 4px)`, background: tc.text }}
-                  onClick={() => onBarClick(p)}
-                  title={`${p.title} (${p.start} ~ ${p.end || p.start})`}>
-                  <span className="text-white text-[10px] font-medium truncate">{p.title}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      })}
     </div>
   )
 }
@@ -292,18 +239,6 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           {/* Topbar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-line shrink-0">
             <div className="flex items-center gap-3">
-              {isOwner && (
-                <div className="flex gap-1 bg-surface-muted rounded-lg p-0.5">
-                  <button onClick={() => setViewMode('all')}
-                    className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors cursor-pointer ${viewMode === 'all' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'}`}>
-                    전체 보기
-                  </button>
-                  <button onClick={() => selectedProject && setViewMode('project')} disabled={!selectedProject}
-                    className={`px-3 py-1 text-[12px] font-medium rounded-md transition-colors ${viewMode === 'project' ? 'bg-white text-blue shadow-sm' : 'text-muted hover:text-text-sub'} ${!selectedProject ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
-                    프로젝트별
-                  </button>
-                </div>
-              )}
               {!showAll && (
                 selectedProject ? (
                   <button
@@ -332,13 +267,14 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           {/* Timeline body */}
           <div className="flex-1 min-h-0 overflow-auto">
             {showAll ? (
-              <AllProjectsTimeline
-                projects={teamFilteredProjects}
-                days={days}
-                sessions={sessions}
-                onBarClick={(p) => setDetailItem(p)}
-                onNameClick={(id) => { setSelectedProjectId(id); setViewMode('project') }}
-              />
+              <div className="px-2 py-2">
+                <MonthCalendar
+                  projects={teamFilteredProjects}
+                  year={calYear}
+                  month={calMonth}
+                  onEventClick={(p) => setEditItemId(p.id)}
+                />
+              </div>
             ) : !selectedProject ? (
               <div className="px-6 py-[60px] text-center text-[13px] text-muted">
                 왼쪽에서 프로젝트를 선택하면 타임라인을 확인할 수 있습니다
