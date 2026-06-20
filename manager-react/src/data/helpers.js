@@ -124,7 +124,13 @@ export function layoutWeekEvents(projects, week) {
   const items = projects
     .map(p => ({ p, start: p.start, end: p.end || p.start }))
     .filter(it => it.start <= weekEnd && it.end >= weekStart)
-    .sort((a, b) => a.start.localeCompare(b.start) || b.end.localeCompare(a.end));
+    .sort((a, b) => {
+      const ai = TEAM_ORDER.indexOf(getProjectTeam(a.p))
+      const bi = TEAM_ORDER.indexOf(getProjectTeam(b.p))
+      const teamDiff = (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
+      if (teamDiff !== 0) return teamDiff
+      return a.start.localeCompare(b.start) || b.end.localeCompare(a.end)
+    });
 
   const laneEnds = []; // laneEnds[i] = 그 레인에 마지막 배치된 endCol
   const result = [];
