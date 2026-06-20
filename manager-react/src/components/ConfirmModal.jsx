@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export default function ConfirmModal({ title, message, onConfirm, onCancel }) {
+export default function ConfirmModal({ title, message, confirmLabel = '삭제', confirmTone = 'red', onConfirm, onCancel }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onCancel() }
     document.addEventListener('keydown', onKey)
@@ -25,9 +25,9 @@ export default function ConfirmModal({ title, message, onConfirm, onCancel }) {
           </button>
           <button
             onClick={onConfirm}
-            className="h-9 text-[13px] font-medium text-white bg-red rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer"
+            className={`h-9 text-[13px] font-medium text-white rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer ${confirmTone === 'blue' ? 'bg-blue' : 'bg-red'}`}
           >
-            삭제
+            {confirmLabel}
           </button>
         </div>
       </div>

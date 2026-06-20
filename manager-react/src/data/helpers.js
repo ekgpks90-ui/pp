@@ -50,3 +50,60 @@ export function isDelayed(item, today, sessions = []) {
   if (item.type === '고정') return false;
   return item.end < today && sessions.some(s => s.workItemId === item.id && !s.done);
 }
+
+// ── 대표 홈: 프로젝트 투자(공수·비용) 계산 ─────────────────────────────────
+// "프로젝트=사람×기간=투자". 개인 월급 대신 직급별 단가(gradeRates)를 사용한다.
+
+// 프로젝트 전체 기간(일): 시작~마감 캘린더 일수. 마감 없으면 1.
+export function projectDays(wi) {
+  if (!wi.start || !wi.end) return 1;
+  return Math.max(1, Math.round((toDate(wi.end) - toDate(wi.start)) / 86400000) + 1);
+}
+
+// 경과 일수(시작~오늘, 마감 넘으면 마감까지로 캡): 누적 투입 산출용.
+export function elapsedDays(wi, today = TODAY_ISO) {
+  if (!wi.start) return 0;
+  const endCap = wi.end && wi.end < today ? wi.end : today;
+  if (endCap < wi.start) return 0;
+  return Math.max(0, Math.round((toDate(endCap) - toDate(wi.start)) / 86400000) + 1);
+}
+
+// 마감 초과 일수(지연 프로젝트): 마감 다음날부터 오늘까지.
+export function overdueDays(wi, today = TODAY_ISO) {
+  if (!wi.end || wi.end >= today) return 0;
+  return Math.round((toDate(today) - toDate(wi.end)) / 86400000);
+}
+
+// 투입 인원 수
+export function headcount(wi) {
+  return (wi.participants || []).length;
+}
+
+// 공수(사람·일) = 인원 × 일수
+export function manDays(wi, days) {
+  return headcount(wi) * days;
+}
+
+// 투입 인원의 직급별 1일 단가 합계(원/일)
+export function dailyRateSum(wi, teamMembers = [], gradeRates = {}) {
+  return (wi.participants || []).reduce((sum, name) => {
+    const m = teamMembers.find(t => t.name === name);
+    return sum + (m ? (gradeRates[m.grade] || 0) : 0);
+  }, 0);
+}
+
+// 프로젝트 투자 비용(원) = 일수 × 직급단가합
+export function projectCost(wi, days, teamMembers, gradeRates) {
+  return days * dailyRateSum(wi, teamMembers, gradeRates);
+}
+
+// 원화 요약 표기: 1.2억 / 488만 / 5,000원
+export function fmtMoney(won) {
+  if (!won) return '0원';
+  if (won >= 1e8) {
+    const v = Math.round((won / 1e8) * 10) / 10;
+    return `${v}억`;
+  }
+  if (won >= 1e4) return `${Math.round(won / 1e4).toLocaleString()}만`;
+  return `${won.toLocaleString()}원`;
+}
