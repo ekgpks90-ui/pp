@@ -391,12 +391,12 @@ export const processes = [
 ]
 
 export const leaves = [
-  { id: 'lv-1', applicantId: 'u-2', applicantName: '김민준', applicantRole: 'Member', type: '종일 연차', startDate: '2026-06-16', endDate: '2026-06-16', reason: '개인 사정으로 휴가 신청드립니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-10' },
-  { id: 'lv-2', applicantId: 'u-3', applicantName: '이수진', applicantRole: 'Member', type: '오전 반차', startDate: '2026-06-13', endDate: '2026-06-13', reason: '병원 예약이 있어 오전 반차 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-11' },
-  { id: 'lv-3', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '종일 연차', startDate: '2026-06-20', endDate: '2026-06-22', reason: '연차 소진 목적으로 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-09' },
-  { id: 'lv-4', applicantId: 'u-4', applicantName: '박민준', applicantRole: 'Member', type: '오후 반차', startDate: '2026-06-10', endDate: '2026-06-10', reason: '개인 일정이 있습니다.', status: '승인 완료', approverId: 'u-1', approverName: 'Jihye', rejectedReason: null, requestedAt: '2026-06-07' },
+  { id: 'lv-1', applicantId: 'u-2', applicantName: '이나경', applicantRole: 'Member', type: '종일 연차', startDate: '2026-06-23', endDate: '2026-06-23', reason: '개인 사정으로 휴가 신청드립니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-10' },
+  { id: 'lv-2', applicantId: 'u-3', applicantName: '박서연', applicantRole: 'Member', type: '오전 반차', startDate: '2026-06-25', endDate: '2026-06-25', reason: '병원 예약이 있어 오전 반차 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-11' },
+  { id: 'lv-3', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '종일 연차', startDate: '2026-06-26', endDate: '2026-06-28', reason: '연차 소진 목적으로 신청합니다.', status: '승인 대기', approverId: null, approverName: null, rejectedReason: null, requestedAt: '2026-06-09' },
+  { id: 'lv-4', applicantId: 'u-4', applicantName: '김도현', applicantRole: 'Member', type: '오후 반차', startDate: '2026-06-10', endDate: '2026-06-10', reason: '개인 일정이 있습니다.', status: '승인 완료', approverId: 'u-1', approverName: 'Jihye', rejectedReason: null, requestedAt: '2026-06-07' },
   { id: 'lv-5', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '오전 반차', startDate: '2026-05-30', endDate: '2026-05-30', reason: '개인 사정.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-05-28' },
-  { id: 'lv-6', applicantId: 'u-2', applicantName: '김민준', applicantRole: 'Member', type: '종일 연차', startDate: '2026-05-22', endDate: '2026-05-24', reason: '여행 계획이 있습니다.', status: '반려', approverId: 'u-1', approverName: 'Jihye', rejectedReason: '해당 날짜 주요 납품 일정이 있어 반려합니다.', requestedAt: '2026-05-19' },
+  { id: 'lv-6', applicantId: 'u-2', applicantName: '이나경', applicantRole: 'Member', type: '종일 연차', startDate: '2026-05-22', endDate: '2026-05-24', reason: '여행 계획이 있습니다.', status: '반려', approverId: 'u-1', approverName: 'Jihye', rejectedReason: '해당 날짜 주요 납품 일정이 있어 반려합니다.', requestedAt: '2026-05-19' },
 ]
 
 export const totalLeave = 15
