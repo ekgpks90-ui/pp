@@ -141,9 +141,6 @@ export default function TaskDrawer({ open, weekOffset, sessions = [], workItems 
                     <div key={s.id} className="flex items-center gap-2 text-[12px]">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue shrink-0" />
                       <span className="text-text-primary truncate">{s.title || wi?.title || '(제목 없음)'}</span>
-                      {s.startTime && s.endTime && (
-                        <span className="text-muted shrink-0 ml-auto">{s.startTime}–{s.endTime}</span>
-                      )}
                     </div>
                   )
                 })}
