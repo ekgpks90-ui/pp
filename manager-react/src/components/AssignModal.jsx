@@ -149,6 +149,7 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
             <div className="flex flex-col gap-1">
               {steps.map((step, si) => {
                 const assigned = stepAssignees[step.id] || []
+                const rejectedNames = request.status === '재배정' ? (request.rejectedStepAssignees?.[step.id] || []) : []
                 const isOpen = openStepId === step.id
                 return (
                   <div key={step.id} className="relative">
@@ -157,8 +158,13 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
                       <span className="w-5 h-5 rounded-full bg-line text-[10px] font-bold text-muted flex items-center justify-center shrink-0">
                         {si + 1}
                       </span>
-                      {/* Step title */}
-                      <span className="flex-1 text-[13px] text-text-primary">{step.title}</span>
+                      {/* Step title + rejected names */}
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[13px] text-text-primary">{step.title}</span>
+                        {rejectedNames.length > 0 && (
+                          <div className="text-[11px] text-red mt-0.5">거절: {rejectedNames.join(', ')}</div>
+                        )}
+                      </div>
                       {/* Assigned avatars */}
                       <div className="flex items-center">
                         {assigned.map((name, ai) => {

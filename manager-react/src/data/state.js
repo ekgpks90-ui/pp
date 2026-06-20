@@ -337,7 +337,7 @@ export const assignmentRequests = [
   { id: 'ar-1', title: '신제품 론칭 SNS 배너 제작', team: '마케팅팀', hours: 12, deadline: '2026-06-23', priority: '긴급', status: '수락대기중', assignees: ['Jihye', '최유진'], processId: 'pc-3', stepAssignees: { 'ps-3-02': ['Jihye'], 'ps-3-04': ['Jihye', '최유진'], 'ps-3-07': ['최유진'] } },
   { id: 'ar-2', title: '채용 공고 포스터 디자인', team: 'HR팀', hours: 6, deadline: '2026-06-24', priority: '일반', status: '수락대기중', assignees: ['Jihye'], processId: 'pc-2', stepAssignees: { 'ps-2-04': ['Jihye'], 'ps-2-10': ['Jihye'], 'ps-2-12': ['정하은'] } },
   { id: 'ar-3', title: '신규 서비스 인트로 모션', team: '기획팀', hours: 16, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['Jihye', '박서연'], processId: 'pc-4', stepAssignees: { 'ps-4-02': ['Jihye'], 'ps-4-05': ['박서연'], 'ps-4-06': ['박서연'] } },
-  { id: 'ar-4', title: '서비스 소개 브로셔 리디자인', team: '기획팀', hours: 8, deadline: '2026-06-25', priority: '일반', status: '재배정', assignees: [], processId: 'pc-2', stepAssignees: {} },
+  { id: 'ar-4', title: '서비스 소개 브로셔 리디자인', team: '기획팀', hours: 8, deadline: '2026-06-25', priority: '일반', status: '재배정', assignees: [], processId: 'pc-2', stepAssignees: {}, rejectedStepAssignees: { 'ps-2-04': ['Jihye'], 'ps-2-10': ['이나경', '정하은'] } },
   { id: 'ar-5', title: '앱 스토어 스크린샷 업데이트', team: '기획팀', hours: 4, deadline: '2026-06-20', priority: '일반', status: '신규요청', assignees: [], processId: 'pc-3', stepAssignees: {} },
   { id: 'ar-6', title: '브랜드 소개 영상 30초', team: '마케팅팀', hours: 20, deadline: '2026-06-30', priority: '일반', status: '신규요청', assignees: [], processId: 'pc-4', stepAssignees: {} },
   { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼', team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
