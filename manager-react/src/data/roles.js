@@ -26,11 +26,13 @@ const OWNER_ONLY_PAGES = ['report-center']
 // 역할별로 사이드바에 노출되는 페이지 id 목록.
 // 근거: rules/role-permission.md — 프로세스 템플릿 조회는 Owner=O, Manager=O, Member=X.
 //       따라서 Process('process')는 Member에게만 숨긴다. (Owner/Manager는 노출)
+// 대표(Owner)는 연차를 리포트 연차 탭에서 관리하므로 'leave' 메뉴를 숨긴다.
+//   (직원·팀장에게는 그대로 노출. 결정: context/ceo-experience.md / 메모리 vibe_ceo_leave_in_report)
 // 다른 역할별 차이가 추가로 확인되면 여기서 페이지 단위로 조정한다.
 export const ROLE_VISIBLE_PAGES = {
   [ROLES.MEMBER]: ALL_PAGES.filter(p => p !== 'process'),
   [ROLES.MANAGER]: ALL_PAGES,
-  [ROLES.OWNER]: [...ALL_PAGES, ...OWNER_ONLY_PAGES],
+  [ROLES.OWNER]: [...ALL_PAGES.filter(p => p !== 'leave'), ...OWNER_ONLY_PAGES],
 }
 
 /**

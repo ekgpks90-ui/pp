@@ -166,6 +166,15 @@ export default function App() {
     }))
   }, [addNotification])
 
+  // --- 연차 승인/반려 (대표는 리포트 연차 탭에서 처리) ---
+  const approveLeave = useCallback((id) => {
+    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: '승인 완료', approverId: 'u-0', approverName: '대표' } : l))
+  }, [])
+
+  const rejectLeave = useCallback((id, reason) => {
+    setLeaves(prev => prev.map(l => l.id === id ? { ...l, status: '반려', approverId: 'u-0', approverName: '대표', rejectedReason: reason || null } : l))
+  }, [])
+
   return (
     <div className="h-screen grid grid-cols-[224px_minmax(0,1fr)] overflow-hidden font-sans">
       <Sidebar role={role} currentPage={activePage} onNavigate={setCurrentPage} />
@@ -254,6 +263,8 @@ export default function App() {
             teamMembers={teamMembers}
             totalLeave={totalLeave}
             approvalItems={approvalItems}
+            onApproveLeave={approveLeave}
+            onRejectLeave={rejectLeave}
           />
         )}
         {activePage === 'team-status' && role === ROLES.OWNER && (
