@@ -27,12 +27,14 @@ const OWNER_ONLY_PAGES = ['report-center']
 // 근거: rules/role-permission.md — 프로세스 템플릿 조회는 Owner=O, Manager=O, Member=X.
 //       따라서 Process('process')는 Member에게만 숨긴다. (Owner/Manager는 노출)
 // 대표(Owner)는 연차를 리포트 연차 탭에서 관리하므로 'leave' 메뉴를 숨긴다.
-//   (직원·팀장에게는 그대로 노출. 결정: context/ceo-experience.md / 메모리 vibe_ceo_leave_in_report)
+// 대표(Owner)는 'team-status'(팀원 현황) 메뉴도 제외한다. (인력 현황은 홈 KPI·리포트 인력 탭에서 봄)
+//   (직원·팀장에게는 그대로 노출. 결정: context/ceo-experience.md / 메모리 vibe_ceo_*)
 // 다른 역할별 차이가 추가로 확인되면 여기서 페이지 단위로 조정한다.
+const OWNER_HIDDEN_PAGES = ['leave', 'team-status']
 export const ROLE_VISIBLE_PAGES = {
   [ROLES.MEMBER]: ALL_PAGES.filter(p => p !== 'process'),
   [ROLES.MANAGER]: ALL_PAGES,
-  [ROLES.OWNER]: [...ALL_PAGES.filter(p => p !== 'leave'), ...OWNER_ONLY_PAGES],
+  [ROLES.OWNER]: [...ALL_PAGES.filter(p => !OWNER_HIDDEN_PAGES.includes(p)), ...OWNER_ONLY_PAGES],
 }
 
 /**
