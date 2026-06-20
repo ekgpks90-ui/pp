@@ -129,27 +129,31 @@ export default function TaskDrawer({ open, weekOffset, sessions = [], workItems 
 
         {/* 당일 기존 업무 */}
         {(() => {
-          const daySessions = sessions.filter(s => s.date === activeDay)
-          if (!daySessions.length) return null
+          const weekday = (new Date(activeDay).getDay() + 6) % 7 + 1
+          const dayItems = workItems.filter(item => {
+            if (item.type === '고정') {
+              const rd = item.recurringDays || [1,2,3,4,5]
+              return rd.includes(weekday) && item.start <= activeDay && (item.end === null || item.end >= activeDay)
+            }
+            return item.start <= activeDay && item.end >= activeDay
+          })
+          if (!dayItems.length) return null
           return (
             <div className="px-6 pb-2">
               <div className="bg-surface-muted rounded-[10px] p-3 flex flex-col gap-1.5">
-                <span className="text-[11px] font-semibold text-muted mb-0.5">이날 배정된 업무</span>
-                {daySessions.map(s => {
-                  const wi = workItems.find(w => w.id === s.workItemId)
-                  return (
-                    <div key={s.id} className="flex items-center gap-2 text-[12px]">
-                      {wi?.type === '고정' ? (
-                        <svg className="w-[13px] h-[13px] text-[#6b7280] shrink-0" viewBox="0 0 16 16" fill="currentColor">
-                          <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/>
-                        </svg>
-                      ) : (
-                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${wi?.type === '긴급' ? 'bg-red' : wi?.type === '회의' ? 'bg-orange' : 'bg-soft'}`} />
-                      )}
-                      <span className="text-text-primary truncate">{s.title || wi?.title || '(제목 없음)'}</span>
-                    </div>
-                  )
-                })}
+                <span className="text-[11px] font-semibold text-muted mb-0.5">이날 배정된 업무 ({dayItems.length}건)</span>
+                {dayItems.map(item => (
+                  <div key={item.id} className="flex items-center gap-2 text-[12px]">
+                    {item.type === '고정' ? (
+                      <svg className="w-[13px] h-[13px] text-[#6b7280] shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/>
+                      </svg>
+                    ) : (
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${item.type === '긴급' ? 'bg-red' : item.type === '회의' ? 'bg-orange' : 'bg-soft'}`} />
+                    )}
+                    <span className="text-text-primary truncate">{item.title}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )
