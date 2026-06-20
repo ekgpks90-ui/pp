@@ -343,8 +343,8 @@ function LeaveApplyModal({ currentUser, totalLeave, usedDays, remaining, onClose
               <span className="text-muted">차감 예정 <span className="font-semibold text-text-primary">-{deduct}일</span></span>
               <span className="flex items-center gap-1.5 text-muted">
                 신청 후 잔여
-                <span className={`text-[15px] font-bold ${afterRemaining < 0 ? 'text-red' : 'text-text-primary'}`}>{afterRemaining}일</span>
-                {afterRemaining < 0 && <span className="text-[11px] text-red font-medium">(잔여 연차 초과)</span>}
+                <span className={`font-semibold ${afterRemaining < 0 ? 'text-red' : 'text-text-primary'}`}>{afterRemaining}일</span>
+                {afterRemaining < 0 && <span className="text-red font-medium">(잔여 연차 초과)</span>}
               </span>
             </div>
           )}
