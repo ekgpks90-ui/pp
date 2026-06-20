@@ -421,7 +421,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const usedDays = useMemo(() => myLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0), [myLeaves])
   const remaining = totalLeave - usedDays
 
-  const pendingAll = useMemo(() => leaves.filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate)), [leaves])
+  const pendingAll = useMemo(() => leaves.filter(l => l.status === '승인 대기' && l.applicantId !== currentUser?.id).sort((a, b) => a.startDate.localeCompare(b.startDate)), [leaves, currentUser])
 
   const handleApprove = (id) => {
     onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, status: '승인 완료', approverId: currentUser.id, approverName: currentUser.name } : l))
