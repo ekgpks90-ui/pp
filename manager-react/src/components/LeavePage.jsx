@@ -250,6 +250,82 @@ function LeaveEditModal({ leave, onClose, onSubmit }) {
   )
 }
 
+function LeaveApplyModal({ currentUser, onClose, onSubmit }) {
+  const [type, setType] = useState('종일 연차')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [reason, setReason] = useState('')
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const isAllDay = type === '종일 연차'
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!startDate) return
+    onSubmit({
+      id: `lv-${Date.now()}`,
+      applicantId: currentUser.id,
+      applicantName: currentUser.name,
+      type,
+      startDate,
+      endDate: isAllDay ? (endDate || startDate) : startDate,
+      reason,
+      status: '승인 대기',
+    })
+    onClose()
+  }
+
+  const inputCls = 'w-full h-9 px-3 text-[13px] border border-line rounded-[8px] bg-white outline-none focus:border-blue transition-colors'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[400px] p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-[15px] font-semibold">연차 신청</h3>
+          <button onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg leading-none">&times;</button>
+        </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="text-[12px] font-medium text-text-sub mb-1.5 block">연차 유형</label>
+            <select value={type} onChange={e => setType(e.target.value)} className={inputCls + ' cursor-pointer'}>
+              {LEAVE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div className={isAllDay ? 'grid grid-cols-2 gap-3' : ''}>
+            <div>
+              <label className="text-[12px] font-medium text-text-sub mb-1.5 block">{isAllDay ? '시작일' : '날짜'} *</label>
+              <input type="date" value={startDate} min={TODAY_ISO} onChange={e => setStartDate(e.target.value)} className={inputCls + ' cursor-pointer'} />
+            </div>
+            {isAllDay && (
+              <div>
+                <label className="text-[12px] font-medium text-text-sub mb-1.5 block">종료일</label>
+                <input type="date" value={endDate} min={startDate || TODAY_ISO} onChange={e => setEndDate(e.target.value)} className={inputCls + ' cursor-pointer'} />
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="text-[12px] font-medium text-text-sub mb-1.5 block">사유</label>
+            <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="연차 사유를 입력하세요" rows={3}
+              className="w-full px-3 py-2 text-[13px] border border-line rounded-lg outline-none focus:border-blue resize-none" />
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-1">
+            <button type="button" onClick={onClose}
+              className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">취소</button>
+            <button type="submit" disabled={!startDate}
+              className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">신청</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 function LeaveCancelModal({ leave, onClose, onConfirm }) {
   useEffect(() => {
     if (!leave) return
@@ -295,6 +371,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const canViewTeam = canViewTeamLeaves(role)
   const [tab, setTab] = useState('내 연차')
   const TABS = canViewTeam ? ['내 연차', '팀 연차', '이력'] : ['내 연차', '이력']
+  const [showApplyModal, setShowApplyModal] = useState(false)
   const [rejectingLeave, setRejectingLeave] = useState(null)
   const [approvingLeave, setApprovingLeave] = useState(null)
   const [editingLeave, setEditingLeave] = useState(null)
@@ -322,9 +399,13 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
     onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l))
     setEditingLeave(null)
   }
+  const handleApply = (newLeave) => {
+    onUpdateLeaves?.(prev => [...prev, newLeave])
+  }
 
   return (
     <>
+    {showApplyModal && <LeaveApplyModal currentUser={currentUser} onClose={() => setShowApplyModal(false)} onSubmit={handleApply} />}
     <LeaveApproveModal leave={approvingLeave} onClose={() => setApprovingLeave(null)} onConfirm={handleApprove} />
     <LeaveRejectModal leave={rejectingLeave} onClose={() => setRejectingLeave(null)} onSubmit={handleReject} />
     <LeaveEditModal leave={editingLeave} onClose={() => setEditingLeave(null)} onSubmit={handleEdit} />
@@ -332,6 +413,14 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <div className="flex items-center gap-3 mb-4 shrink-0">
         <h2 className="text-[16px] font-bold text-text-primary">Leave Management</h2>
+        <span className="flex-1" />
+        <button onClick={() => setShowApplyModal(true)}
+          className="h-8 px-3.5 rounded-[7px] bg-text-primary text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          연차 신청
+        </button>
       </div>
 
       <div className="flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto pb-4">
