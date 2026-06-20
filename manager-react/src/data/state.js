@@ -397,6 +397,10 @@ export const leaves = [
   { id: 'lv-4', applicantId: 'u-4', applicantName: '김도현', applicantRole: 'Member', type: '오후 반차', startDate: '2026-06-10', endDate: '2026-06-10', reason: '개인 일정이 있습니다.', status: '승인 완료', approverId: 'u-1', approverName: 'Jihye', rejectedReason: null, requestedAt: '2026-06-07' },
   { id: 'lv-5', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '오전 반차', startDate: '2026-05-30', endDate: '2026-05-30', reason: '개인 사정.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-05-28' },
   { id: 'lv-6', applicantId: 'u-2', applicantName: '이나경', applicantRole: 'Member', type: '종일 연차', startDate: '2026-05-22', endDate: '2026-05-24', reason: '여행 계획이 있습니다.', status: '반려', approverId: 'u-1', approverName: 'Jihye', rejectedReason: '해당 날짜 주요 납품 일정이 있어 반려합니다.', requestedAt: '2026-05-19' },
+  { id: 'lv-7', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '종일 연차', startDate: '2026-04-21', endDate: '2026-04-22', reason: '봄 휴가로 연차 사용합니다.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-04-14' },
+  { id: 'lv-8', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '오후 반차', startDate: '2026-04-07', endDate: '2026-04-07', reason: '개인 병원 방문.', status: '반려', approverId: 'u-0', approverName: '대표', rejectedReason: '해당 날짜 클라이언트 미팅 일정이 있어 반려합니다.', requestedAt: '2026-04-04' },
+  { id: 'lv-9', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '종일 연차', startDate: '2026-03-17', endDate: '2026-03-19', reason: '가족 행사로 연차를 사용합니다.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-03-10' },
+  { id: 'lv-10', applicantId: 'u-1', applicantName: 'Jihye', applicantRole: 'Manager', type: '오전 반차', startDate: '2026-03-05', endDate: '2026-03-05', reason: '건강검진 일정.', status: '승인 완료', approverId: 'u-0', approverName: '대표', rejectedReason: null, requestedAt: '2026-03-03' },
 ]
 
 export const totalLeave = 15

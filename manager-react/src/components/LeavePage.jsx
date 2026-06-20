@@ -437,7 +437,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const canApprove = canApproveLeave(role)
   const canViewTeam = canViewTeamLeaves(role)
   const [tab, setTab] = useState('내 연차')
-  const TABS = canViewTeam ? ['내 연차', '팀 연차', '이력'] : ['내 연차', '이력']
+  const TABS = canViewTeam ? ['내 연차', '팀 연차'] : ['내 연차']
   const [showApplyModal, setShowApplyModal] = useState(false)
   const [rejectingLeave, setRejectingLeave] = useState(null)
   const [approvingLeave, setApprovingLeave] = useState(null)
@@ -510,22 +510,33 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
         <div className="flex gap-4 flex-1 min-h-0">
           {/* Left: tabbed section */}
           <div className="flex-1 bg-white border border-line rounded-[10px] flex flex-col overflow-hidden">
-            <div className="flex border-b border-line shrink-0">
-              {TABS.map(t => (
-                <button key={t} onClick={() => setTab(t)}
-                  className={`px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors border-b-2 -mb-px ${tab === t ? 'text-text-primary font-bold border-text-primary' : 'text-muted border-transparent hover:text-text-sub'}`}>
-                  {t}
-                </button>
-              ))}
-            </div>
+            {TABS.length > 1 && (
+              <div className="flex border-b border-line shrink-0">
+                {TABS.map(t => (
+                  <button key={t} onClick={() => setTab(t)}
+                    className={`px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors border-b-2 -mb-px ${tab === t ? 'text-text-primary font-bold border-text-primary' : 'text-muted border-transparent hover:text-text-sub'}`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2.5">
-              {tab === '내 연차' && (
-                myLeaves.filter(l => l.status === '승인 대기').length > 0
-                  ? myLeaves.filter(l => l.status === '승인 대기').sort((a, b) => a.startDate.localeCompare(b.startDate)).map(lv => (
-                    <LeaveRow key={lv.id} lv={lv} showActions currentUser={currentUser} onEdit={setEditingLeave} onDelete={setCancelingLeave} />
-                  ))
-                  : <div className="text-[14px] text-muted text-center py-10">승인 대기 중인 연차가 없습니다.</div>
-              )}
+              {tab === '내 연차' && (() => {
+                const sorted = [...myLeaves].sort((a, b) => b.startDate.localeCompare(a.startDate))
+                if (sorted.length === 0) return <div className="text-[14px] text-muted text-center py-10">연차 내역이 없습니다.</div>
+                const grouped = []
+                let lastMonth = null
+                sorted.forEach(lv => {
+                  const m = lv.startDate.slice(0, 7)
+                  if (m !== lastMonth) { grouped.push({ type: 'header', month: m }); lastMonth = m }
+                  grouped.push({ type: 'row', lv })
+                })
+                return grouped.map((item, i) =>
+                  item.type === 'header'
+                    ? <div key={item.month} className={`text-[11px] font-semibold text-muted px-1 ${i > 0 ? 'mt-3' : ''}`}>{item.month.slice(0,4)}년 {String(Number(item.month.slice(5,7)))}월</div>
+                    : <LeaveRow key={item.lv.id} lv={item.lv} showActions currentUser={currentUser} onEdit={setEditingLeave} onDelete={setCancelingLeave} />
+                )
+              })()}
               {tab === '팀 연차' && (
                 teamMembers.filter(m => m.id !== currentUser?.id).map((member, idx) => {
                   const memberLeaves = leaves.filter(l => l.applicantId === member.id)
@@ -566,13 +577,6 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                     </div>
                   )
                 })
-              )}
-              {tab === '이력' && (
-                myLeaves.filter(l => l.status === '승인 완료' || l.status === '반려').length > 0
-                  ? myLeaves.filter(l => l.status === '승인 완료' || l.status === '반려').sort((a, b) => b.startDate.localeCompare(a.startDate)).map(lv => (
-                    <LeaveRow key={lv.id} lv={lv} showActions={false} currentUser={currentUser} />
-                  ))
-                  : <div className="text-[14px] text-muted text-center py-10">연차 이력이 없습니다.</div>
               )}
             </div>
           </div>
