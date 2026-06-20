@@ -129,58 +129,7 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
           </div>
         </div>
 
-        {/* ── 중: AI 브리핑 + 최근 일정 ── */}
-        <div className="flex flex-col gap-2.5">
-          <div className="bg-white border border-line rounded-[12px] p-[14px_18px] flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold bg-gradient-to-r from-blue to-purple text-white px-1.5 py-0.5 rounded">AI</span>
-              <span className="text-[13px] font-semibold text-text-primary">오늘의 브리핑</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { n: todaySessions.length, label: '오늘 일정' },
-                { n: todayMeetings.length, label: '회의' },
-                { n: pendingReq.length, label: '승인 요청' },
-              ].map(s => (
-                <div key={s.label} className="bg-surface-muted rounded-lg p-[10px_8px] text-center">
-                  <div className="text-[20px] font-bold font-mono text-text-primary leading-none">{s.n}</div>
-                  <div className="text-[11px] text-text-sub mt-1.5">{s.label}</div>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-semibold text-text-primary">AI 추천사항</span>
-              {tips.map((t, i) => (
-                <div key={i} className="flex items-start gap-2 text-[12px] text-purple bg-purple-soft rounded-md px-2.5 py-2 leading-snug">
-                  <span className="shrink-0">💡</span><span>{t}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col gap-2.5 flex-1 min-h-0">
-            <div className="text-[13px] font-semibold text-text-primary">{recentTitle}</div>
-            {recent.length === 0 ? (
-              <div className="text-[12px] text-text-sub text-center py-6">예정된 일정이 없습니다</div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {recent.map((it, i) => {
-                  const k = KIND[it.kind] || KIND['일정']
-                  return (
-                    <div key={i} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-surface-muted">
-                      <span className="text-[11px] font-mono text-blue w-9 shrink-0">{it.time || '—'}</span>
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: k.dot }} />
-                      <span className="text-[12px] text-text-primary flex-1 truncate">{it.title}</span>
-                      <span className="text-[10px] text-soft shrink-0">{it.date && it.date !== TODAY_ISO ? mmdd(it.date) : k.label}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── 우: 미니 캘린더 ── */}
+        {/* ── 중: 미니 캘린더 ── */}
         <div className="flex flex-col gap-2.5">
           <div className="bg-white border border-line rounded-[10px] p-3 flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -193,7 +142,7 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
               {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const d = i + 1
-                const ds = `${calYear}-${monthStr}-${String(d).padStart(2, '0')}`
+                const ds = `${calYear}-${monthStr}-${String(d).padStart(2, ‘0’)}`
                 const isToday = ds === TODAY_ISO
                 const isSel = ds === selectedDate
                 const isLeave = leaveSet.has(ds)
@@ -203,8 +152,8 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
                 return (
                   <button key={d} onClick={() => setSelectedDate(isSel ? null : ds)}
                     className={`relative w-full aspect-square flex items-center justify-center rounded-lg text-[12px] cursor-pointer transition-colors
-                      ${isSel ? 'bg-blue/10 border border-blue' : isLeave ? 'bg-[#ff9f43]/[0.08]' : 'hover:bg-surface-muted'}
-                      ${isToday ? 'text-blue font-bold' : 'text-text-primary'}`}>
+                      ${isSel ? ‘bg-blue/10 border border-blue’ : isLeave ? ‘bg-[#ff9f43]/[0.08]’ : ‘hover:bg-surface-muted’}
+                      ${isToday ? ‘text-blue font-bold’ : ‘text-text-primary’}`}>
                     {d}
                     {hasDot && (
                       <div className="absolute bottom-0.5 flex gap-[2px]">
@@ -222,7 +171,30 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-blue inline-block" />일정</span>
               <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#f59e0b] inline-block" />연차</span>
             </div>
-            <p className="text-[10.5px] text-soft leading-snug">날짜를 누르면 가운데 ‘일정’에 그 날 일정이 표시됩니다.</p>
+          </div>
+        </div>
+
+        {/* ── 우: 오늘 일정 ── */}
+        <div className="flex flex-col gap-2.5">
+          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col gap-2.5">
+            <div className="text-[13px] font-semibold text-text-primary">{recentTitle}</div>
+            {recent.length === 0 ? (
+              <div className="text-[12px] text-text-sub text-center py-6">예정된 일정이 없습니다</div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {recent.map((it, i) => {
+                  const k = KIND[it.kind] || KIND[‘일정’]
+                  return (
+                    <div key={i} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-surface-muted">
+                      <span className="text-[11px] font-mono text-blue w-9 shrink-0">{it.time || ‘—‘}</span>
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: k.dot }} />
+                      <span className="text-[12px] text-text-primary flex-1 truncate">{it.title}</span>
+                      <span className="text-[10px] text-soft shrink-0">{it.date && it.date !== TODAY_ISO ? mmdd(it.date) : k.label}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         </div>
 
