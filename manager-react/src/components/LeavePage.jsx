@@ -250,7 +250,15 @@ function LeaveEditModal({ leave, onClose, onSubmit }) {
   )
 }
 
-function LeaveApplyModal({ currentUser, onClose, onSubmit }) {
+function calcRequestDays(type, startDate, endDate) {
+  if (!startDate) return 0
+  if (type !== '종일 연차') return 0.5
+  const s = new Date(startDate + 'T00:00:00')
+  const e = new Date((endDate || startDate) + 'T00:00:00')
+  return Math.max(1, Math.round((e - s) / (1000 * 60 * 60 * 24)) + 1)
+}
+
+function LeaveApplyModal({ currentUser, totalLeave, usedDays, remaining, onClose, onSubmit }) {
   const [type, setType] = useState('종일 연차')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -263,6 +271,8 @@ function LeaveApplyModal({ currentUser, onClose, onSubmit }) {
   }, [onClose])
 
   const isAllDay = type === '종일 연차'
+  const deduct = (startDate) ? calcRequestDays(type, startDate, isAllDay ? endDate : startDate) : 0
+  const afterRemaining = remaining - deduct
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -285,22 +295,39 @@ function LeaveApplyModal({ currentUser, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/30" />
-      <div className="relative bg-white rounded-[14px] shadow-lg w-[400px] p-6" onClick={e => e.stopPropagation()}>
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[420px] p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-[15px] font-semibold">연차 신청</h3>
           <button onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg leading-none">&times;</button>
         </div>
+
+        {/* 연차 현황 */}
+        <div className="grid grid-cols-3 gap-2 mb-5">
+          <div className="bg-[#f9fafb] rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5">
+            <span className="text-[11px] text-muted">총 연차</span>
+            <span className="text-[18px] font-bold text-text-primary leading-none">{totalLeave}<span className="text-[11px] font-medium text-muted ml-0.5">일</span></span>
+          </div>
+          <div className="bg-[#f9fafb] rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5">
+            <span className="text-[11px] text-muted">사용 연차</span>
+            <span className="text-[18px] font-bold text-text-primary leading-none">{usedDays}<span className="text-[11px] font-medium text-muted ml-0.5">일</span></span>
+          </div>
+          <div className="bg-[#f9fafb] rounded-[8px] px-3 py-2.5 flex flex-col gap-0.5">
+            <span className="text-[11px] text-muted">잔여 연차</span>
+            <span className="text-[18px] font-bold text-text-primary leading-none">{remaining}<span className="text-[11px] font-medium text-muted ml-0.5">일</span></span>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="text-[12px] font-medium text-text-sub mb-1.5 block">연차 유형</label>
-            <select value={type} onChange={e => setType(e.target.value)} className={inputCls + ' cursor-pointer'}>
+            <select value={type} onChange={e => { setType(e.target.value); setStartDate(''); setEndDate('') }} className={inputCls + ' cursor-pointer'}>
               {LEAVE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
           <div className={isAllDay ? 'grid grid-cols-2 gap-3' : ''}>
             <div>
               <label className="text-[12px] font-medium text-text-sub mb-1.5 block">{isAllDay ? '시작일' : '날짜'} *</label>
-              <input type="date" value={startDate} min={TODAY_ISO} onChange={e => setStartDate(e.target.value)} className={inputCls + ' cursor-pointer'} />
+              <input type="date" value={startDate} min={TODAY_ISO} onChange={e => { setStartDate(e.target.value); if (!isAllDay) setEndDate('') }} className={inputCls + ' cursor-pointer'} />
             </div>
             {isAllDay && (
               <div>
@@ -309,6 +336,19 @@ function LeaveApplyModal({ currentUser, onClose, onSubmit }) {
               </div>
             )}
           </div>
+
+          {/* 차감 미리보기 */}
+          {deduct > 0 && (
+            <div className={`rounded-[8px] px-4 py-3 flex items-center justify-between text-[13px] ${afterRemaining < 0 ? 'bg-red/5 border border-red/20' : 'bg-blue/5 border border-blue/10'}`}>
+              <span className="text-muted">차감 예정 <span className="font-semibold text-text-primary">-{deduct}일</span></span>
+              <span className="flex items-center gap-1.5 text-muted">
+                신청 후 잔여
+                <span className={`text-[15px] font-bold ${afterRemaining < 0 ? 'text-red' : 'text-text-primary'}`}>{afterRemaining}일</span>
+                {afterRemaining < 0 && <span className="text-[11px] text-red font-medium">(잔여 연차 초과)</span>}
+              </span>
+            </div>
+          )}
+
           <div>
             <label className="text-[12px] font-medium text-text-sub mb-1.5 block">사유</label>
             <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="연차 사유를 입력하세요" rows={3}
@@ -405,7 +445,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
 
   return (
     <>
-    {showApplyModal && <LeaveApplyModal currentUser={currentUser} onClose={() => setShowApplyModal(false)} onSubmit={handleApply} />}
+    {showApplyModal && <LeaveApplyModal currentUser={currentUser} totalLeave={totalLeave} usedDays={usedDays} remaining={remaining} onClose={() => setShowApplyModal(false)} onSubmit={handleApply} />}
     <LeaveApproveModal leave={approvingLeave} onClose={() => setApprovingLeave(null)} onConfirm={handleApprove} />
     <LeaveRejectModal leave={rejectingLeave} onClose={() => setRejectingLeave(null)} onSubmit={handleReject} />
     <LeaveEditModal leave={editingLeave} onClose={() => setEditingLeave(null)} onSubmit={handleEdit} />
