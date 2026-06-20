@@ -4,6 +4,50 @@ import { canApproveLeave, canViewTeamLeaves } from '../data/roles'
 
 const LEAVE_REJECT_REASONS = ['업무 일정 충돌', '인력 공백 우려', '잔여 연차 부족', '사전 협의 필요', '기타']
 
+function LeaveApproveModal({ leave, onClose, onConfirm }) {
+  useEffect(() => {
+    if (!leave) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [leave, onClose])
+
+  if (!leave) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/30" />
+      <div className="relative bg-white rounded-[14px] shadow-lg w-[400px] p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-[15px] font-semibold">연차 승인</h3>
+          <button onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg leading-none">&times;</button>
+        </div>
+        <div className="bg-[#f9fafb] rounded-lg p-3 mb-5">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="text-[13px] font-semibold text-text-primary">{leave.applicantName}</span>
+            <span className={`text-[11px] font-medium px-2 py-[2px] rounded-[20px] ${TYPE_CLS[leave.type] || ''}`}>{leave.type}</span>
+          </div>
+          <div className="text-[12px] text-muted">
+            {leave.startDate}{leave.endDate !== leave.startDate ? ` ~ ${leave.endDate}` : ''}
+          </div>
+          {leave.reason && <div className="text-[12px] text-text-sub mt-1">{leave.reason}</div>}
+        </div>
+        <p className="text-[14px] text-text-primary text-center mb-5">연차 승인처리를 하시겠습니까?</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={onClose}
+            className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">
+            취소
+          </button>
+          <button type="button" onClick={() => onConfirm(leave.id)}
+            className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function LeaveRejectModal({ leave, onClose, onSubmit }) {
   const [reason, setReason] = useState(LEAVE_REJECT_REASONS[0])
   const [detail, setDetail] = useState('')
@@ -126,6 +170,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
   const [tab, setTab] = useState('내 연차')
   const TABS = canViewTeam ? ['내 연차', '팀 연차', '이력'] : ['내 연차', '이력']
   const [rejectingLeave, setRejectingLeave] = useState(null)
+  const [approvingLeave, setApprovingLeave] = useState(null)
 
   const myLeaves = useMemo(() => leaves.filter(l => l.applicantId === currentUser?.id), [leaves, currentUser])
   const usedDays = useMemo(() => myLeaves.filter(l => l.status === '승인 완료').reduce((sum, l) => sum + calcLeaveDays(l), 0), [myLeaves])
@@ -135,6 +180,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
 
   const handleApprove = (id) => {
     onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, status: '승인 완료', approverId: currentUser.id, approverName: currentUser.name } : l))
+    setApprovingLeave(null)
   }
   const handleReject = (id, reason) => {
     onUpdateLeaves?.(prev => prev.map(l => l.id === id ? { ...l, status: '반려', approverId: currentUser.id, approverName: currentUser.name, rejectedReason: reason } : l))
@@ -146,6 +192,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
 
   return (
     <>
+    <LeaveApproveModal leave={approvingLeave} onClose={() => setApprovingLeave(null)} onConfirm={handleApprove} />
     <LeaveRejectModal leave={rejectingLeave} onClose={() => setRejectingLeave(null)} onSubmit={handleReject} />
     <div className="flex-1 flex flex-col overflow-hidden min-w-0 bg-bg px-7 py-[18px]">
       <div className="flex items-center gap-3 mb-4 shrink-0">
@@ -263,7 +310,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                       {lv.reason && <div className="text-[12px] text-text-sub">{lv.reason}</div>}
                     </div>
                     <div className="flex flex-col gap-1.5 shrink-0">
-                      <button onClick={() => handleApprove(lv.id)}
+                      <button onClick={() => setApprovingLeave(lv)}
                         className="px-3 py-[5px] rounded-[6px] bg-text-primary text-white text-[12px] font-medium cursor-pointer hover:opacity-90 whitespace-nowrap border border-text-primary">
                         승인
                       </button>
