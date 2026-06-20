@@ -226,19 +226,12 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
           </label>
 
           {/* Type */}
-          <label className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1">
             <span className="text-[12px] text-muted font-medium">업무유형</span>
-            <select
-              value={draft.type}
-              onChange={e => setDraft(prev => ({ ...prev, type: e.target.value }))}
-              disabled={requestLocked || !canEdit}
-              className={`h-9 px-3 text-[14px] border border-line rounded-lg outline-none focus:border-blue bg-white ${(requestLocked || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
-            >
-              <option value="일반">일반</option>
-              <option value="긴급">긴급</option>
-              <option value="고정">고정</option>
-            </select>
-          </label>
+            <div className="h-9 px-3 flex items-center text-[14px] border border-line rounded-lg bg-[#f9fafb] text-text-primary">
+              {draft.type || '일반'}
+            </div>
+          </div>
 
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">
