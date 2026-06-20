@@ -220,8 +220,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
             <input
               value={draft.title}
               onChange={e => setDraft(prev => ({ ...prev, title: e.target.value }))}
-              disabled={requestLocked || !canEdit}
-              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${(requestLocked || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
+              disabled={requestLocked || !canEdit || isFixed}
+              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${(requestLocked || !canEdit || isFixed) ? 'opacity-50 cursor-default' : ''}`}
             />
           </label>
 
