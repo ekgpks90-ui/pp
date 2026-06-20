@@ -1,12 +1,10 @@
-import { useState } from 'react'
 import { getCalendarWeeks, layoutWeekEvents, getProjectTeam, getTeamColor } from '../data/helpers'
 
 const DOW = ['일', '월', '화', '수', '목', '금', '토']
 const LANE_H = 22 // 이벤트 막대 한 층 높이(px)
 const DATE_ROW_H = 24 // 날짜 숫자 줄 높이(px)
 
-export default function MonthCalendar({ projects, year, month, onEventClick }) {
-  const [hoveredId, setHoveredId] = useState(null)
+export default function MonthCalendar({ projects, year, month, onEventClick, hoveredId, onHover }) {
   const weeks = getCalendarWeeks(year, month)
 
   return (
@@ -51,8 +49,8 @@ export default function MonthCalendar({ projects, year, month, onEventClick }) {
                 <button
                   key={ev.project.id}
                   onClick={() => onEventClick(ev.project)}
-                  onMouseEnter={() => setHoveredId(ev.project.id)}
-                  onMouseLeave={() => setHoveredId(null)}
+                  onMouseEnter={() => onHover?.(ev.project.id)}
+                  onMouseLeave={() => onHover?.(null)}
                   title={`${ev.project.title} (${ev.project.start} ~ ${ev.project.end || ev.project.start})`}
                   className="absolute h-[18px] flex items-center px-1.5 overflow-hidden cursor-pointer transition-[filter]"
                   style={{

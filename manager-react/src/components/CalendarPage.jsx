@@ -77,6 +77,7 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
   const [ceoDetailId, setCeoDetailId] = useState(null) // 대표 프로젝트 클릭 → 홈식 상세(CeoProjectDetail)
   const [viewMode, setViewMode] = useState('all') // 'all'(전체 보기) | 'project'(프로젝트별)
   const [selectedTeam, setSelectedTeam] = useState('전체') // 대표 전체보기 팀 필터
+  const [hoveredId, setHoveredId] = useState(null)
   // 전체 보기는 대표(owner) 전용. 직원·팀장은 기존처럼 프로젝트별만 사용.
   const isOwner = role === ROLES.OWNER
   const showAll = isOwner && viewMode === 'all'
@@ -253,12 +254,15 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
                 const status = getWorkItemStatus(wi, sessions)
                 const sc = STATUS_COLOR[status] || STATUS_COLOR['시작 전']
                 const isActive = ceoDetailId === wi.id
+                const isHovered = hoveredId === wi.id
                 const dot = getTeamColor(getProjectTeam(wi)).text
                 return (
                   <button key={wi.id}
                     onClick={() => setCeoDetailId(wi.id)}
+                    onMouseEnter={() => setHoveredId(wi.id)}
+                    onMouseLeave={() => setHoveredId(null)}
                     className={`flex flex-col items-start px-3.5 py-2.5 border-b border-line gap-[5px] text-left w-full transition-colors cursor-pointer
-                      ${isActive ? 'bg-[#eff6ff]' : 'hover:bg-bg'}`}>
+                      ${isActive ? 'bg-[#eff6ff]' : isHovered ? 'bg-[#f0f4ff]' : 'hover:bg-bg'}`}>
                     <span className="flex items-start gap-1.5 text-[12px] font-medium text-text-primary leading-[1.4]">
                       <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-[3px]" style={{ background: dot }} />
                       <span>{wi.title}</span>
@@ -313,6 +317,8 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
                   year={calYear}
                   month={calMonth}
                   onEventClick={(p) => setCeoDetailId(p.id)}
+                  hoveredId={hoveredId}
+                  onHover={setHoveredId}
                 />
               </div>
             ) : !selectedProject ? (
