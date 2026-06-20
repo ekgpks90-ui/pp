@@ -205,6 +205,16 @@ export default function MeetingRoomPage({
 
       {/* Main content: meeting list + recorder */}
       <div className="flex-1 overflow-hidden flex gap-5 px-7 py-5">
+        {/* Recorder widget */}
+        <div className="w-[260px] shrink-0">
+          <RecorderWidget
+            status={recStatus}
+            seconds={recSeconds}
+            onStart={startRecording}
+            onStop={stopRecording}
+          />
+        </div>
+
         {/* Meeting list */}
         <div className="flex-1 overflow-y-auto pr-1">
           {!filtered.length ? (
@@ -224,16 +234,6 @@ export default function MeetingRoomPage({
               ))}
             </div>
           )}
-        </div>
-
-        {/* Recorder widget */}
-        <div className="w-[260px] shrink-0">
-          <RecorderWidget
-            status={recStatus}
-            seconds={recSeconds}
-            onStart={startRecording}
-            onStop={stopRecording}
-          />
         </div>
       </div>
 
