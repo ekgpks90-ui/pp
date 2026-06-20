@@ -153,7 +153,7 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
                 const isOpen = openStepId === step.id
                 return (
                   <div key={step.id} className="relative">
-                    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-[8px] border transition-colors ${isOpen ? 'border-blue/40 bg-blue/5' : 'border-transparent hover:bg-surface-muted'}`}>
+                    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-[8px] border transition-colors ${rejectedNames.length > 0 ? 'border-red/20 bg-red/5' : isOpen ? 'border-blue/40 bg-blue/5' : 'border-transparent hover:bg-surface-muted'}`}>
                       {/* Step number */}
                       <span className="w-5 h-5 rounded-full bg-line text-[10px] font-bold text-muted flex items-center justify-center shrink-0">
                         {si + 1}
