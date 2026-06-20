@@ -172,6 +172,8 @@ export default function HomePage({
       <TaskDrawer
         open={showTaskDrawer}
         weekOffset={weekOffset}
+        sessions={sessions}
+        workItems={workItems}
         onClose={() => setShowTaskDrawer(false)}
         onSave={onAddWorkItem}
       />

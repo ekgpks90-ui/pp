@@ -14,7 +14,7 @@ function emptyTask(date) {
   return { id: `tmp-${Date.now()}-${Math.random()}`, title: '', type: '일반', start: date, end: date, recurringDays: [1,2,3,4,5] }
 }
 
-export default function TaskDrawer({ open, weekOffset, onClose, onSave }) {
+export default function TaskDrawer({ open, weekOffset, sessions = [], workItems = [], onClose, onSave }) {
   const weekStart = addDays(MONDAY_ISO, weekOffset * 7)
   const days = [0,1,2,3,4,5,6].map(i => ({
     date: addDays(weekStart, i),
@@ -126,6 +126,31 @@ export default function TaskDrawer({ open, weekOffset, onClose, onSave }) {
             </button>
           ))}
         </div>
+
+        {/* 당일 기존 업무 */}
+        {(() => {
+          const daySessions = sessions.filter(s => s.date === activeDay)
+          if (!daySessions.length) return null
+          return (
+            <div className="px-6 pb-2">
+              <div className="bg-surface-muted rounded-[10px] p-3 flex flex-col gap-1.5">
+                <span className="text-[11px] font-semibold text-muted mb-0.5">이날 배정된 업무</span>
+                {daySessions.map(s => {
+                  const wi = workItems.find(w => w.id === s.workItemId)
+                  return (
+                    <div key={s.id} className="flex items-center gap-2 text-[12px]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue shrink-0" />
+                      <span className="text-text-primary truncate">{s.title || wi?.title || '(제목 없음)'}</span>
+                      {s.startTime && s.endTime && (
+                        <span className="text-muted shrink-0 ml-auto">{s.startTime}–{s.endTime}</span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Task list */}
         <div className="flex-1 overflow-y-auto px-6 py-3 flex flex-col gap-3">
