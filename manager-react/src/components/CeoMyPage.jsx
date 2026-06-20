@@ -142,7 +142,7 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
               {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const d = i + 1
-                const ds = `${calYear}-${monthStr}-${String(d).padStart(2, ‘0’)}`
+                const ds = `${calYear}-${monthStr}-${String(d).padStart(2, '0')}`
                 const isToday = ds === TODAY_ISO
                 const isSel = ds === selectedDate
                 const isLeave = leaveSet.has(ds)
@@ -152,8 +152,8 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
                 return (
                   <button key={d} onClick={() => setSelectedDate(isSel ? null : ds)}
                     className={`relative w-full aspect-square flex items-center justify-center rounded-lg text-[12px] cursor-pointer transition-colors
-                      ${isSel ? ‘bg-blue/10 border border-blue’ : isLeave ? ‘bg-[#ff9f43]/[0.08]’ : ‘hover:bg-surface-muted’}
-                      ${isToday ? ‘text-blue font-bold’ : ‘text-text-primary’}`}>
+                      ${isSel ? 'bg-blue/10 border border-blue' : isLeave ? 'bg-[#ff9f43]/[0.08]' : 'hover:bg-surface-muted'}
+                      ${isToday ? 'text-blue font-bold' : 'text-text-primary'}`}>
                     {d}
                     {hasDot && (
                       <div className="absolute bottom-0.5 flex gap-[2px]">
@@ -183,10 +183,10 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
             ) : (
               <div className="flex flex-col gap-1.5">
                 {recent.map((it, i) => {
-                  const k = KIND[it.kind] || KIND[‘일정’]
+                  const k = KIND[it.kind] || KIND['일정']
                   return (
                     <div key={i} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-surface-muted">
-                      <span className="text-[11px] font-mono text-blue w-9 shrink-0">{it.time || ‘—‘}</span>
+                      <span className="text-[11px] font-mono text-blue w-9 shrink-0">{it.time || '—'}</span>
                       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: k.dot }} />
                       <span className="text-[12px] text-text-primary flex-1 truncate">{it.title}</span>
                       <span className="text-[10px] text-soft shrink-0">{it.date && it.date !== TODAY_ISO ? mmdd(it.date) : k.label}</span>
