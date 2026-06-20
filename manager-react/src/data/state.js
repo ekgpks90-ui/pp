@@ -342,7 +342,7 @@ export const assignmentRequests = [
   { id: 'ar-6', title: '브랜드 소개 영상 30초', team: '마케팅팀', hours: 20, deadline: '2026-06-30', priority: '일반', status: '신규요청', assignees: [], processId: 'pc-4', stepAssignees: {} },
   { id: 'ar-7', title: '파트너사 공동 이벤트 키비주얼', team: '마케팅팀', hours: 20, deadline: '2026-06-27', priority: '일반', status: '수락대기중', assignees: ['이나경'], processId: 'pc-3', stepAssignees: {} },
   { id: 'ar-8', title: '분기 성과 인포그래픽 제작', team: '경영팀', hours: 10, deadline: '2026-06-28', priority: '일반', status: '수락대기중', assignees: ['박서연', '최유진'], processId: 'pc-3', stepAssignees: {} },
-  { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼', team: '기획팀', hours: 14, deadline: '2026-06-30', priority: '일반', status: '배정완료', assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: {} },
+  { id: 'ar-9', title: '모바일 앱 아이콘 세트 리뉴얼', team: '기획팀', hours: 14, deadline: '2026-06-30', priority: '일반', status: '배정완료', assignees: ['정하은', 'Jihye'], processId: 'pc-1', stepAssignees: { 'ps-1-01': ['Jihye'], 'ps-1-02': ['정하은'], 'ps-1-03': ['정하은', 'Jihye'], 'ps-1-04': ['정하은'], 'ps-1-05': ['Jihye', '정하은'], 'ps-1-06': ['정하은'], 'ps-1-07': ['정하은'], 'ps-1-08': ['정하은', 'Jihye'], 'ps-1-09': ['정하은'], 'ps-1-10': ['정하은'], 'ps-1-11': ['Jihye', '정하은'], 'ps-1-12': ['Jihye', '정하은'], 'ps-1-13': ['정하은'], 'ps-1-14': ['Jihye', '정하은'] } },
 ]
 
 export const processes = [
