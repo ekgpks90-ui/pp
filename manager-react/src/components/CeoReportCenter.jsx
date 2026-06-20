@@ -349,8 +349,8 @@ export default function CeoReportCenter({
                 <h2 className="text-[13px] font-semibold text-text-primary">원가·마진 추이<span className="text-[11px] text-soft font-normal ml-1.5">월별</span></h2>
                 <span className="text-[10px] font-semibold text-soft border border-line rounded px-1.5 py-[1px]">예시</span>
               </div>
-              <div className="px-5 py-4">
-                <div className="flex items-end gap-2.5 mb-2.5">
+              <div className="px-5 pt-4 pb-3">
+                <div className="flex items-end gap-2.5 mb-2">
                   {(() => {
                     const bars = [{ m: '2월', c: 45, g: 30 }, { m: '3월', c: 50, g: 35 }, { m: '4월', c: 55, g: 40 }, { m: '5월', c: 60, g: 38 }, { m: '6월', c: 62, g: 48 }]
                     const maxTotal = Math.max(...bars.map(b => b.c + b.g))
