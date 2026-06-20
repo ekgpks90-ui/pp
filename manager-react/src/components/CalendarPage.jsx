@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react'
-import { TODAY_ISO, isDelayed, getProjectTeam, TEAM_ORDER } from '../data/helpers'
-import { processes } from '../data/state'
+import { TODAY_ISO, isDelayed, getProjectTeam, getTeamColor, TEAM_ORDER, enrichProject } from '../data/helpers'
+import { processes, teamMembers, gradeRates } from '../data/state'
 import { canEditCalendar, ROLES } from '../data/roles'
 import CalendarDetailPanel from './CalendarDetailPanel'
 import DetailPanel from './DetailPanel'
 import MonthCalendar from './MonthCalendar'
+import CeoSlideOver from './CeoSlideOver'
+import CeoProjectDetail from './CeoProjectDetail'
 
 // 캘린더에서 제외할 연차 유형 (회의 type '회의'는 별도로 제외)
 const LEAVE_TYPES = ['종일 연차', '오전 반차', '오후 반차']
@@ -72,6 +74,7 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
   const [selectedProjectId, setSelectedProjectId] = useState(null)
   const [detailItem, setDetailItem] = useState(null)
   const [editItemId, setEditItemId] = useState(null)
+  const [ceoDetailId, setCeoDetailId] = useState(null) // 대표 프로젝트 클릭 → 홈식 상세(CeoProjectDetail)
   const [viewMode, setViewMode] = useState('all') // 'all'(전체 보기) | 'project'(프로젝트별)
   const [selectedTeam, setSelectedTeam] = useState('전체') // 대표 전체보기 팀 필터
   // 전체 보기는 대표(owner) 전용. 직원·팀장은 기존처럼 프로젝트별만 사용.
@@ -234,6 +237,43 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           )}
         </nav>
 
+        {/* Middle: 대표 전용 — 선택 팀의 프로젝트 리스트 (클릭 시 우측 상세 패널) */}
+        {isOwner && (
+          <nav className="w-[230px] min-w-[190px] shrink-0 bg-white border border-line rounded-[10px] flex flex-col overflow-y-auto">
+            <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2.5 border-b border-line shrink-0">
+              <span className="text-[10.5px] font-semibold text-muted uppercase tracking-[0.06em]">
+                {selectedTeam === '전체' ? '전체 프로젝트' : selectedTeam}
+              </span>
+              <span className="text-[10px] font-medium text-muted px-1.5 py-0.5 rounded bg-surface-muted">{teamFilteredProjects.length}</span>
+            </div>
+            {teamFilteredProjects.length === 0 ? (
+              <div className="px-3.5 py-5 text-[12px] text-muted">프로젝트 없음</div>
+            ) : (
+              teamFilteredProjects.map(wi => {
+                const status = getWorkItemStatus(wi, sessions)
+                const sc = STATUS_COLOR[status] || STATUS_COLOR['시작 전']
+                const isActive = ceoDetailId === wi.id
+                const dot = getTeamColor(getProjectTeam(wi)).text
+                return (
+                  <button key={wi.id}
+                    onClick={() => setCeoDetailId(wi.id)}
+                    className={`flex flex-col items-start px-3.5 py-2.5 border-b border-line gap-[5px] text-left w-full transition-colors cursor-pointer
+                      ${isActive ? 'bg-[#eff6ff]' : 'hover:bg-bg'}`}>
+                    <span className="flex items-start gap-1.5 text-[12px] font-medium text-text-primary leading-[1.4]">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-[3px]" style={{ background: dot }} />
+                      <span>{wi.title}</span>
+                    </span>
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                      style={{ background: sc.bg, color: sc.text }}>
+                      {status}
+                    </span>
+                  </button>
+                )
+              })
+            )}
+          </nav>
+        )}
+
         {/* Right: Timeline area */}
         <div className="flex-1 min-w-0 flex flex-col bg-white border border-line rounded-[10px] overflow-hidden">
           {/* Topbar */}
@@ -272,7 +312,7 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
                   projects={teamFilteredProjects}
                   year={calYear}
                   month={calMonth}
-                  onEventClick={(p) => setEditItemId(p.id)}
+                  onEventClick={(p) => setCeoDetailId(p.id)}
                 />
               </div>
             ) : !selectedProject ? (
@@ -377,6 +417,26 @@ export default function CalendarPage({ role, workItems, sessions, meetings = [],
           </div>
         </div>
       </div>
+
+      {/* 대표: 프로젝트 클릭 → 홈식 상세(CeoProjectDetail). 하단 '업무 수정'으로 편집 폼 전환 */}
+      {ceoDetailId && (() => {
+        const wi = workItems.find(w => w.id === ceoDetailId)
+        if (!wi) return null
+        const p = enrichProject(wi, sessions, teamMembers, gradeRates, processes)
+        return (
+          <CeoSlideOver title="프로젝트 상세" onClose={() => setCeoDetailId(null)}
+            footer={canEditCalendar(role) && (
+              <button
+                onClick={() => { setEditItemId(ceoDetailId); setCeoDetailId(null) }}
+                className="w-full h-10 text-[13px] font-semibold rounded-lg border border-line text-muted hover:text-blue hover:border-blue transition-colors cursor-pointer">
+                업무 수정
+              </button>
+            )}>
+            <CeoProjectDetail project={p} sessions={sessions} processes={processes}
+              teamMembers={teamMembers} gradeRates={gradeRates} showMoney />
+          </CeoSlideOver>
+        )
+      })()}
 
       {/* Detail panel */}
       {detailItem && (

@@ -1,9 +1,5 @@
 import { useMemo, useState } from 'react'
-import {
-  TODAY_ISO, MONDAY_ISO, addDays, isDelayed,
-  projectDays, elapsedDays, overdueDays, headcount,
-  dailyRateSum, fmtMoney, projectProgress,
-} from '../data/helpers'
+import { MONDAY_ISO, addDays, fmtMoney, enrichProject } from '../data/helpers'
 import { SectionCard, ProgressBar } from './CeoUI'
 import CeoSlideOver from './CeoSlideOver'
 import CeoProjectDetail from './CeoProjectDetail'
@@ -109,27 +105,7 @@ export default function CeoDashboard({
 
     const projects = workItems
       .filter(wi => !wi.recurringDays && wi.start && wi.type !== '회의')
-      .map(wi => {
-        const status = wi.start > TODAY_ISO ? '시작 전' : (isDelayed(wi, TODAY_ISO, sessions) ? '지연' : '진행 중')
-        const total = projectDays(wi)
-        const elapsed = elapsedDays(wi)
-        const od = overdueDays(wi)
-        const hc = headcount(wi)
-        const rate = dailyRateSum(wi, teamMembers, gradeRates)
-        const baseCost = total * rate     // 예상: 정상 기간 기준 계획 투입
-        const addCost = od * rate          // 지연 초과분
-        return {
-          id: wi.id, title: wi.title, start: wi.start, end: wi.end, status,
-          description: wi.description, participants: wi.participants || [], processId: wi.processId,
-          progress: projectProgress(wi, sessions, processes),
-          hc, od, days: total,
-          mdTotal: hc * total, mdElapsed: hc * elapsed,
-          costTotal: baseCost, costElapsed: elapsed * rate,
-          baseCost, addCost, actualCost: baseCost + addCost,
-          diffPct: baseCost ? Math.round((addCost / baseCost) * 100) : 0,
-          owner: (wi.participants && wi.participants[0]) || '미배정',
-        }
-      })
+      .map(wi => enrichProject(wi, sessions, teamMembers, gradeRates, processes))
       .sort((a, b) => (a.end || '').localeCompare(b.end || ''))
 
     const inProgress = projects.filter(p => p.status === '진행 중')
