@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 
 function memberColor(name) {
@@ -16,6 +16,16 @@ export default function ScheduleMeetingModal({ teamMembers, onClose, onSave }) {
   const [attendees, setAttendees] = useState([])
   const [query, setQuery] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    if (!showDropdown) return
+    const handleOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowDropdown(false)
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [showDropdown])
 
   const filteredMembers = teamMembers.filter(m =>
     !query || m.name.toLowerCase().includes(query.toLowerCase())
@@ -98,7 +108,7 @@ export default function ScheduleMeetingModal({ teamMembers, onClose, onSave }) {
                 </span>
               ))}
             </div>
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <input value={query}
                 onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
                 onFocus={() => setShowDropdown(true)}

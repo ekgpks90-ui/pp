@@ -220,15 +220,15 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
             <input
               value={draft.title}
               onChange={e => setDraft(prev => ({ ...prev, title: e.target.value }))}
-              disabled={requestLocked || !canEdit}
-              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${(requestLocked || !canEdit) ? 'opacity-50 cursor-default' : ''}`}
+              disabled={requestLocked || !canEdit || isFixed}
+              className={`h-9 px-3 text-[14px] font-semibold border border-line rounded-lg outline-none focus:border-blue ${(requestLocked || !canEdit || isFixed) ? 'opacity-50 cursor-default' : ''}`}
             />
           </label>
 
           {/* Type */}
           <div className="flex flex-col gap-1">
             <span className="text-[12px] text-muted font-medium">업무유형</span>
-            <div className="h-9 px-3 flex items-center text-[14px] border border-line rounded-lg bg-[#f9fafb] text-text-primary">
+            <div className="h-9 px-3 flex items-center text-[14px] border border-line rounded-lg bg-white text-text-primary opacity-50">
               {draft.type || '일반'}
             </div>
           </div>
