@@ -205,7 +205,7 @@ export default function MeetingRoomPage({
         </div>
         <button
           onClick={() => setShowScheduleModal(true)}
-          className="h-8 px-3.5 bg-blue text-white text-[12.5px] font-semibold rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+          className="h-8 px-3.5 bg-text-primary text-white text-[12.5px] font-semibold rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
         >
           + 회의 등록
         </button>

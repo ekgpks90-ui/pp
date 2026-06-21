@@ -344,22 +344,35 @@ export default function CeoReportCenter({
             </div>
 
             {/* 원가·마진 추이 (과거치 미추적 → 예시) */}
-            <div className="bg-surface border border-line rounded-[14px] shadow-sm overflow-hidden">
+            <div className="bg-surface border border-line rounded-[14px] shadow-sm overflow-hidden flex flex-col">
               <div className="px-5 py-[13px] border-b border-line-soft flex items-center justify-between">
                 <h2 className="text-[13px] font-semibold text-text-primary">원가·마진 추이<span className="text-[11px] text-soft font-normal ml-1.5">월별</span></h2>
                 <span className="text-[10px] font-semibold text-soft border border-line rounded px-1.5 py-[1px]">예시</span>
               </div>
-              <div className="px-5 py-4">
-                <div className="flex items-end gap-2.5 h-[120px] mb-2.5">
-                  {[{ m: '2월', c: 45, g: 30 }, { m: '3월', c: 50, g: 35 }, { m: '4월', c: 55, g: 40 }, { m: '5월', c: 60, g: 38 }, { m: '6월', c: 62, g: 48 }].map(b => (
-                    <div key={b.m} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                      <div className="w-full flex flex-col justify-end" style={{ height: '100%' }}>
-                        <div className="w-full rounded-t-[3px]" style={{ height: `${b.c}px`, background: 'var(--color-blue)' }} />
-                        <div className="w-full rounded-b-[3px]" style={{ height: `${b.g}px`, background: '#a5d8c0' }} />
-                      </div>
-                      <span className="text-[9px] text-soft">{b.m}</span>
-                    </div>
-                  ))}
+              <div className="px-5 pt-3 pb-2 flex-1 flex flex-col justify-end">
+                <div className="flex items-end gap-2.5 mb-2">
+                  {(() => {
+                    const bars = [{ m: '2월', c: 45, g: 30 }, { m: '3월', c: 50, g: 35 }, { m: '4월', c: 55, g: 40 }, { m: '5월', c: 60, g: 38 }, { m: '6월', c: 62, g: 48 }]
+                    const maxTotal = Math.max(...bars.map(b => b.c + b.g))
+                    const MAX_H = 180
+                    return bars.map(b => {
+                      const cH = Math.round((b.c / maxTotal) * MAX_H)
+                      const gH = Math.round((b.g / maxTotal) * MAX_H)
+                      return (
+                        <div key={b.m} className="flex-1 flex flex-col items-center gap-1">
+                          <div className="text-[9px] font-semibold text-text-primary text-center leading-tight">
+                            <div style={{ color: 'var(--color-blue)' }}>{b.c}%</div>
+                            <div style={{ color: '#0ea874' }}>{b.g}%</div>
+                          </div>
+                          <div className="w-full flex flex-col">
+                            <div className="w-full rounded-t-[3px]" style={{ height: `${cH}px`, background: 'var(--color-blue)' }} />
+                            <div className="w-full rounded-b-[3px]" style={{ height: `${gH}px`, background: '#a5d8c0' }} />
+                          </div>
+                          <span className="text-[9px] text-soft">{b.m}</span>
+                        </div>
+                      )
+                    })
+                  })()}
                 </div>
                 <div className="flex gap-3.5 justify-center text-[10px] text-soft">
                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-blue inline-block" />투입 원가</span>

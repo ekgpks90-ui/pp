@@ -129,36 +129,51 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
           </div>
         </div>
 
-        {/* ── 중: AI 브리핑 + 최근 일정 ── */}
+        {/* ── 중: 미니 캘린더 ── */}
         <div className="flex flex-col gap-2.5">
-          <div className="bg-white border border-line rounded-[12px] p-[14px_18px] flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold bg-gradient-to-r from-blue to-purple text-white px-1.5 py-0.5 rounded">AI</span>
-              <span className="text-[13px] font-semibold text-text-primary">오늘의 브리핑</span>
+          <div className="bg-white border border-line rounded-[10px] p-3 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-muted cursor-pointer text-muted">‹</button>
+              <span className="text-[13px] font-semibold text-text-primary">{calYear}년 {MONTHS[calMonth]}</span>
+              <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-muted cursor-pointer text-muted">›</button>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { n: todaySessions.length, label: '오늘 일정' },
-                { n: todayMeetings.length, label: '회의' },
-                { n: pendingReq.length, label: '승인 요청' },
-              ].map(s => (
-                <div key={s.label} className="bg-surface-muted rounded-lg p-[10px_8px] text-center">
-                  <div className="text-[20px] font-bold font-mono text-text-primary leading-none">{s.n}</div>
-                  <div className="text-[11px] text-text-sub mt-1.5">{s.label}</div>
-                </div>
-              ))}
+            <div className="grid grid-cols-7 gap-[3px] text-center">
+              {WEEK.map(d => <div key={d} className="text-[11px] font-semibold text-text-sub py-1">{d}</div>)}
+              {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
+              {Array.from({ length: daysInMonth }).map((_, i) => {
+                const d = i + 1
+                const ds = `${calYear}-${monthStr}-${String(d).padStart(2, '0')}`
+                const isToday = ds === TODAY_ISO
+                const isSel = ds === selectedDate
+                const hasSession = sessionDates.has(ds)
+                const hasMeeting = meetingDates.has(ds)
+                const hasDot = hasSession || hasMeeting
+                return (
+                  <button key={d} onClick={() => setSelectedDate(isSel ? null : ds)}
+                    className={`relative w-full aspect-square flex items-center justify-center rounded-lg text-[12px] cursor-pointer transition-colors
+                      ${isSel ? 'bg-blue/10 border border-blue' : 'hover:bg-surface-muted'}
+                      ${isToday ? 'text-blue font-bold' : 'text-text-primary'}`}>
+                    {d}
+                    {hasDot && (
+                      <div className="absolute bottom-0.5 flex gap-[2px]">
+                        {hasMeeting && <span className="w-1 h-1 rounded-full bg-[#8b5cf6]" />}
+                        {hasSession && <span className="w-1 h-1 rounded-full bg-blue" />}
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
             </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-semibold text-text-primary">AI 추천사항</span>
-              {tips.map((t, i) => (
-                <div key={i} className="flex items-start gap-2 text-[12px] text-purple bg-purple-soft rounded-md px-2.5 py-2 leading-snug">
-                  <span className="shrink-0">💡</span><span>{t}</span>
-                </div>
-              ))}
+            <div className="flex gap-3 text-[10px] text-text-sub mt-1">
+              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#8b5cf6] inline-block" />회의</span>
+              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-blue inline-block" />일정</span>
             </div>
           </div>
+        </div>
 
-          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col gap-2.5 flex-1 min-h-0">
+        {/* ── 우: 오늘 일정 ── */}
+        <div className="flex flex-col gap-2.5">
+          <div className="bg-white border border-line rounded-[10px] p-4 flex flex-col gap-2.5">
             <div className="text-[13px] font-semibold text-text-primary">{recentTitle}</div>
             {recent.length === 0 ? (
               <div className="text-[12px] text-text-sub text-center py-6">예정된 일정이 없습니다</div>
@@ -177,52 +192,6 @@ export default function CeoMyPage({ currentUser, sessions = [], meetings = [], l
                 })}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* ── 우: 미니 캘린더 ── */}
-        <div className="flex flex-col gap-2.5">
-          <div className="bg-white border border-line rounded-[10px] p-3 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-muted cursor-pointer text-muted">‹</button>
-              <span className="text-[13px] font-semibold text-text-primary">{calYear}년 {MONTHS[calMonth]}</span>
-              <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-muted cursor-pointer text-muted">›</button>
-            </div>
-            <div className="grid grid-cols-7 gap-[3px] text-center">
-              {WEEK.map(d => <div key={d} className="text-[11px] font-semibold text-text-sub py-1">{d}</div>)}
-              {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                const d = i + 1
-                const ds = `${calYear}-${monthStr}-${String(d).padStart(2, '0')}`
-                const isToday = ds === TODAY_ISO
-                const isSel = ds === selectedDate
-                const isLeave = leaveSet.has(ds)
-                const hasSession = sessionDates.has(ds)
-                const hasMeeting = meetingDates.has(ds)
-                const hasDot = hasSession || hasMeeting || isLeave
-                return (
-                  <button key={d} onClick={() => setSelectedDate(isSel ? null : ds)}
-                    className={`relative w-full aspect-square flex items-center justify-center rounded-lg text-[12px] cursor-pointer transition-colors
-                      ${isSel ? 'bg-blue/10 border border-blue' : isLeave ? 'bg-[#ff9f43]/[0.08]' : 'hover:bg-surface-muted'}
-                      ${isToday ? 'text-blue font-bold' : 'text-text-primary'}`}>
-                    {d}
-                    {hasDot && (
-                      <div className="absolute bottom-0.5 flex gap-[2px]">
-                        {hasMeeting && <span className="w-1 h-1 rounded-full bg-[#8b5cf6]" />}
-                        {hasSession && <span className="w-1 h-1 rounded-full bg-blue" />}
-                        {isLeave && <span className="w-1 h-1 rounded-full bg-[#f59e0b]" />}
-                      </div>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-            <div className="flex gap-3 text-[10px] text-text-sub mt-1">
-              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#8b5cf6] inline-block" />회의</span>
-              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-blue inline-block" />일정</span>
-              <span className="flex items-center gap-[3px]"><span className="w-1 h-1 rounded-full bg-[#f59e0b] inline-block" />연차</span>
-            </div>
-            <p className="text-[10.5px] text-soft leading-snug">날짜를 누르면 가운데 ‘일정’에 그 날 일정이 표시됩니다.</p>
           </div>
         </div>
 
