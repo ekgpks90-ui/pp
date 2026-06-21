@@ -9,7 +9,7 @@ import ConfirmModal from './ConfirmModal'
 // 대표(어드민) 경영 대시보드 — 홈. (기획서 context/ceo-experience.md 3-1 / 2026-06-20 디벨롭 반영)
 // 와이어프레임 ceo-home-wireframe-v4 구조를 프로젝트 디자인 시스템(CeoUI·index.css 토큰)으로 변환:
 //  - 상단 KPI 스트립(5지표) + 기간 전환(주간/월간/분기)
-//  - 3열(좌1.6 프로젝트 투자현황 / 중1.1 추이+결재함 / 우1.0 AI 추천 액션)
+//  - 2열(좌2.2 프로젝트 투자현황 / 우1.0 결재함)
 //  - 투자=직급별 단가×투입 일수(실데이터). "완료" 토글 안 만듦.
 //  - 데이터 미보유 항목(가동률 추이 과거치)은 "예시" 표기. 프로젝트 예상 견적이 없어
 //    예상→실제는 정상 기간 기준 투입(예상) → 지연 초과분 가산(실제)으로 산출(정시=0%).
@@ -68,13 +68,6 @@ function approvalContext(item) {
     rows.push({ k: '예상 매출', v: `${fmtMoney(item.expectedRevenue)} (예시)` })
   }
   return rows
-}
-
-// 기간별 업무 집중도 추이. 과거 가동률은 추적 데이터가 없어 예시값이며, 마지막(현재) 막대만 실측 avgUtil.
-function buildTrend(period, avgUtil) {
-  if (period === '주간') return { labels: ['월', '화', '수', '목', '금'], values: [62, 74, 68, 71, avgUtil], foot: `이번 주 가동률 ${avgUtil}%` }
-  if (period === '분기') return { labels: ['3Q전', '2Q전', '전분기', '이번 분기'], values: [58, 64, 70, avgUtil], foot: `이번 분기 가동률 ${avgUtil}%` }
-  return { labels: ['2월', '3월', '4월', '5월', '6월'], values: [55, 62, 70, 65, avgUtil], foot: `이번 달 가동률 ${avgUtil}% — 최근 5개월 중 최고` }
 }
 
 function KpiChip({ label, value, unit, sub, valueColor, highlight }) {
@@ -150,36 +143,7 @@ export default function CeoDashboard({
       : tab === '이번 주 납기' ? d.dueThisWeek
         : d.projects
 
-  const trend = buildTrend(period, d.avgUtil)
   const pending = approvalItems.filter(a => a.status === '대기')
-
-  // 우측 AI 추천 액션 — 실데이터 신호 기반. 실행 버튼 동작 연계는 2차(기획서 5장).
-  const aiActions = []
-  if (d.delayed.length) aiActions.push({
-    dot: 'var(--color-red)',
-    text: <>지연 <strong>{d.delayed.length}건</strong> 발생 — 추가비용 ≈{fmtMoney(d.delayAddCost)} 누적 중</>,
-    rec: '여유 인력 투입·일정 조정을 검토하세요.', btn: '인력 배정하기',
-  })
-  d.overloaded.slice(0, 1).forEach(m => aiActions.push({
-    dot: 'var(--color-orange)',
-    text: <>{m.name}님 <strong>과부하 {m.util}%</strong> — 업무 편중</>,
-    rec: '여유 인원에게 업무를 분산하세요.', btn: '재배분하기',
-  }))
-  if (d.light.length && d.delayed.length) aiActions.push({
-    dot: 'var(--color-blue)',
-    text: <><strong>여유 인력 {d.light.length}명</strong> 확보 — 활용 가능</>,
-    rec: '지연 프로젝트에 재배분하면 마감 회복이 가능해요.', btn: '재배분하기',
-  })
-  if (d.dueThisWeek.length) aiActions.push({
-    dot: 'var(--color-orange)',
-    text: <>이번 주 <strong>납기 {d.dueThisWeek.length}건</strong> 집중 — 일정 충돌 주의</>,
-    rec: '납기 임박순으로 우선순위를 점검하세요.', btn: '일정 확인하기',
-  })
-  if (!aiActions.length) aiActions.push({
-    dot: 'var(--color-green)',
-    text: <>특이 리스크 없음 — 전 팀 정상 진행 중</>,
-    rec: '현재 재배분이 필요한 항목이 없습니다.', btn: null,
-  })
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden px-4 py-3 flex flex-col gap-3">
@@ -209,11 +173,11 @@ export default function CeoDashboard({
           sub={`${d.totalMdElapsed} 사람·일`} />
       </div>
 
-      {/* 3열 */}
+      {/* 2열 */}
       <div className="flex gap-4 flex-1 min-h-0">
 
         {/* 좌: 프로젝트 투자 현황 */}
-        <div className="min-w-0 min-h-0 flex" style={{ flex: 1.6 }}>
+        <div className="min-w-0 min-h-0 flex" style={{ flex: 2.2 }}>
           <SectionCard title="프로젝트 투자 현황" className="h-full w-full"
             action={
               <button onClick={() => setShowMoney(s => !s)}
@@ -284,27 +248,9 @@ export default function CeoDashboard({
           </SectionCard>
         </div>
 
-        {/* 중: 추이 + 결재함 */}
-        <div className="min-w-0 min-h-0 flex flex-col gap-4" style={{ flex: 1.1 }}>
-          <SectionCard title="업무 집중도 추이" className="w-full shrink-0"
-            action={<span className="text-[10px] font-semibold text-soft border border-line rounded px-1.5 py-[1px]">예시</span>}>
-            <div className="px-4 py-3.5">
-              <div className="flex items-end gap-2 h-[70px] mb-2">
-                {trend.values.map((v, i) => {
-                  const current = i === trend.values.length - 1
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-                      <div className="w-full rounded-t-md" style={{ height: `${v}%`, background: current ? 'var(--color-purple)' : 'var(--color-purple-soft)' }} />
-                      <div className="text-[9px] text-soft">{trend.labels[i]}</div>
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="text-[10px] text-soft text-center">{trend.foot}</div>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="결재함" className="h-full w-full flex-1 min-h-0"
+        {/* 우: 결재함 */}
+        <div className="min-w-0 min-h-0 flex" style={{ flex: 1 }}>
+          <SectionCard title="결재함" className="h-full w-full"
             action={<span className="text-[11px] font-semibold text-purple bg-purple-soft rounded-full px-2.5 py-0.5">{pending.length}건 대기</span>}>
             <div className="flex-1 min-h-0 overflow-auto p-3 flex flex-col gap-2.5">
               {pending.length === 0 && (
@@ -341,28 +287,6 @@ export default function CeoDashboard({
                   </div>
                 )
               })}
-            </div>
-          </SectionCard>
-        </div>
-
-        {/* 우: AI 추천 액션 */}
-        <div className="min-w-0 min-h-0 flex" style={{ flex: 1 }}>
-          <SectionCard title="추천 액션" className="h-full w-full"
-            action={<span className="text-[10px] font-bold text-white rounded px-1.5 py-[2px]" style={{ background: 'linear-gradient(135deg,#7c4dff,#a78bff)' }}>AI</span>}>
-            <div className="flex-1 min-h-0 overflow-auto p-3 flex flex-col gap-2.5">
-              {aiActions.map((a, i) => (
-                <div key={i} className="rounded-[10px] border border-line-soft p-3">
-                  <div className="flex items-start gap-2.5 mb-2.5">
-                    <span className="w-[7px] h-[7px] rounded-full mt-[5px] shrink-0" style={{ background: a.dot }} />
-                    <span className="text-[12px] text-text-sub leading-snug">{a.text}</span>
-                  </div>
-                  <div className="text-[11px] text-purple bg-purple-soft rounded-md px-2.5 py-2 leading-snug mb-2">💡 {a.rec}</div>
-                  {a.btn && (
-                    <button className="w-full text-[11px] font-semibold bg-text-primary text-white py-[7px] rounded-md hover:opacity-90 cursor-pointer transition-opacity"
-                      title="실행 연계는 준비 중입니다">{a.btn}</button>
-                  )}
-                </div>
-              ))}
             </div>
           </SectionCard>
         </div>
