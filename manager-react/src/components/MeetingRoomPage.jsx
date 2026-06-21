@@ -15,7 +15,7 @@ const TEAM_TAG_COLORS = {
 }
 
 function memberColor(name) {
-  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  const palette = ['#53BDCF', '#66B5F8', '#7DDFC3', '#A5AFFB', '#DBA5F5', '#FF647C', '#FFA26B']
   let h = 0
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
   return palette[h % palette.length]

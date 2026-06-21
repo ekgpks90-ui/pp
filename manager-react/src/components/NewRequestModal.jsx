@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { TEAM_ORDER, ETC_TEAM, TODAY_ISO } from '../data/helpers'
 
-const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
+const AVATAR_COLORS = ['#53BDCF','#66B5F8','#7DDFC3','#A5AFFB','#DBA5F5','#FF647C','#FFA26B','#A5AFFB']
 
 function memberColor(idx) { return AVATAR_COLORS[idx % AVATAR_COLORS.length] }
 

@@ -128,7 +128,7 @@ function LeaveRejectModal({ leave, onClose, onSubmit }) {
 
 const TYPE_CLS = { '종일 연차': 'bg-[#1f2937] text-white', '오전 반차': 'bg-[#6b7280] text-white', '오후 반차': 'bg-[#e5e7eb] text-[#374151]' }
 const STATUS_CLS = { '승인 대기': 'bg-[#f59e0b]/10 text-[#f59e0b]', '승인 완료': 'bg-green/10 text-green', '반려': 'bg-red/10 text-red' }
-const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
+const AVATAR_COLORS = ['#53BDCF','#66B5F8','#7DDFC3','#A5AFFB','#DBA5F5','#FF647C','#FFA26B','#A5AFFB']
 const LEAVE_TYPES = ['종일 연차', '오전 반차', '오후 반차']
 
 function calcLeaveDays(lv) {
