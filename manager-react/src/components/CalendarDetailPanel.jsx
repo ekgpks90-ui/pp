@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { TODAY_ISO, isDelayed } from '../data/helpers'
+import { TODAY_ISO, isDelayed, fmtDeadline } from '../data/helpers'
 import { processes, currentUser, teamMembers } from '../data/state'
 
 const WORK_ITEM_TYPE_COLOR = {
@@ -53,6 +53,9 @@ export default function CalendarDetailPanel({ item, sessions, resources = [], on
   // 프로세스 단계별 참여자 (홈 업무 상세의 '참여자' 섹션과 동일)
   const proc = item.processId ? processes.find(p => p.id === item.processId) : null
   const stepAssignees = item.stepAssignees || {}
+  const stepDeadlines = item.stepDeadlines || {}
+  // 단계 데드라인: 명시값 없으면 업무 마감일(end)로 파생. 고정 업무는 마감 없음.
+  const stepDeadline = (stepId) => stepDeadlines[stepId] ?? (item.type !== '고정' ? (item.end || null) : null)
   const myName = currentUser.name
   const mySteps = proc ? proc.steps.filter(s => (stepAssignees[s.id] || []).includes(myName)) : []
   const stepsToRender = proc ? (showAllSteps ? proc.steps : mySteps) : []
@@ -161,9 +164,14 @@ export default function CalendarDetailPanel({ item, sessions, resources = [], on
                         key={step.id}
                         className={`flex flex-col gap-1 px-2.5 py-2 rounded-lg border ${stepDelayed ? 'border-red/40 bg-red-soft/30' : 'border-line-soft bg-surface-muted'}`}
                       >
-                        <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
-                          {step.title}
-                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
+                            {step.title}
+                          </span>
+                          {stepDeadline(step.id) && (
+                            <span className="text-[11px] font-semibold text-muted shrink-0" title="단계 데드라인">{fmtDeadline(stepDeadline(step.id))}</span>
+                          )}
+                        </div>
                         <div className="flex flex-wrap gap-1">
                           {assignees.length === 0 ? (
                             <span className="text-[11px] text-soft">미배정</span>

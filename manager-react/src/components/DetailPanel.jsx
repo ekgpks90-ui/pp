@@ -163,6 +163,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
   const proc = isFromRequest && item.processId ? processes.find(p => p.id === item.processId) : null
   const stepAssignees = item.stepAssignees || {}
   const stepDeadlines = item.stepDeadlines || {}
+  // 단계 데드라인: 명시값 없으면 업무 마감일(end)로 파생. 고정 업무는 마감 없음.
+  const stepDeadline = (stepId) => stepDeadlines[stepId] ?? (item.type !== '고정' ? (item.end || null) : null)
   const myName = currentUser.name
   const mySteps = proc ? proc.steps.filter(s => (stepAssignees[s.id] || []).includes(myName)) : []
   // 담당자 배치 수정 가능하면 전체 단계를 보여준다(어느 단계든 배정 가능해야 하므로)
@@ -325,8 +327,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
                           <span className={`text-[12px] ${isMyStep ? 'font-semibold text-blue' : 'text-text-sub'}`}>
                             {step.title}
                           </span>
-                          {stepDeadlines[step.id] && (
-                            <span className="text-[11px] font-semibold text-muted shrink-0" title="단계 데드라인">{fmtDeadline(stepDeadlines[step.id])}</span>
+                          {stepDeadline(step.id) && (
+                            <span className="text-[11px] font-semibold text-muted shrink-0" title="단계 데드라인">{fmtDeadline(stepDeadline(step.id))}</span>
                           )}
                         </div>
                         <div className="flex flex-wrap items-center gap-1">
