@@ -107,7 +107,7 @@ export default function ModalShowcase() {
   }, [])
 
   return (
-    <div style={{ background: '#f4f4f6', minHeight: '100vh', padding: '40px 48px', fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ background: '#f4f4f6', minHeight: '100vh', padding: '40px 48px', fontFamily: 'var(--font-sans)' }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0d0d14', marginBottom: 8 }}>Modal Showcase</h1>
       <p style={{ fontSize: 13, color: '#72728a', marginBottom: 40 }}>
         WorkFlow Hub — 모든 모달 & 드로어 · html.to.design 캡처용

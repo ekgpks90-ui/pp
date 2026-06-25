@@ -22,9 +22,12 @@
   --color-soft: #a8a8be;
 
   --color-blue: #4a66ff;
+  --color-blue-hover: #3a56ef;
   --color-blue-soft: #eef1ff;
+  --color-blue-tint: #f5f7ff;
   --color-blue-mid: #c7d0ff;
   --color-red: #f04444;
+  --color-red-hover: #e03333;
   --color-red-soft: #fff0f0;
   --color-green: #0ea874;
   --color-green-soft: #e8faf3;
@@ -43,7 +46,7 @@
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
 
   /* Font */
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Pretendard Variable', 'Pretendard', ui-sans-serif, system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
