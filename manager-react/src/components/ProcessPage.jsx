@@ -202,7 +202,7 @@ function AddProcessModal({ onSave, onClose }) {
             type="button"
             onClick={handleSave}
             disabled={!canSave}
-            className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-9 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >등록</button>
         </div>
       </div>
@@ -372,7 +372,7 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
         <h2 className="text-[16px] font-bold text-text-primary">프로세스 관리</h2>
         <button
           onClick={() => setModal({ type: 'addCat' })}
-          className="h-8 px-3.5 rounded-[7px] bg-text-primary text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5"
+          className="h-8 px-3.5 rounded-[7px] bg-blue text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -453,7 +453,7 @@ export default function ProcessPage({ processes, onUpdateProcesses }) {
                                     value={step.title}
                                     onCommit={v => commitInlineEdit(v, 'step', cat.id, step.id)}
                                     onCancel={() => setEditingInline(null)}
-                                    className="text-[14px] text-text-primary flex-1 outline-none border-b border-text-primary"
+                                    className="text-[14px] text-text-primary flex-1 outline-none border-b border-blue"
                                   />
                                 ) : (
                                   <span className="text-[14px] text-text-primary flex-1">{step.title}</span>

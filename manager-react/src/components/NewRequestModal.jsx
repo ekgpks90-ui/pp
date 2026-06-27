@@ -500,7 +500,7 @@ export default function NewRequestModal({ processes, teamMembers, currentUser, o
             <button
               type="submit"
               disabled={!canSubmit}
-              className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-9 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >{isCeoMode ? '결재 요청' : '등록'}</button>
           </div>
         </form>

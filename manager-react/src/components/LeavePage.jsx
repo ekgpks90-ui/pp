@@ -39,7 +39,7 @@ function LeaveApproveModal({ leave, onClose, onConfirm }) {
             취소
           </button>
           <button type="button" onClick={() => onConfirm(leave.id)}
-            className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer">
+            className="h-9 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer">
             확인
           </button>
         </div>
@@ -126,7 +126,7 @@ function LeaveRejectModal({ leave, onClose, onSubmit }) {
   )
 }
 
-const TYPE_CLS = { '종일 연차': 'bg-[#1f2937] text-white', '오전 반차': 'bg-[#6b7280] text-white', '오후 반차': 'bg-[#e5e7eb] text-[#374151]' }
+const TYPE_CLS = { '종일 연차': 'bg-blue text-white', '오전 반차': 'bg-[#6b7280] text-white', '오후 반차': 'bg-[#e5e7eb] text-[#374151]' }
 const STATUS_CLS = { '승인 대기': 'bg-[#f59e0b]/10 text-[#f59e0b]', '승인 완료': 'bg-green/10 text-green', '반려': 'bg-red/10 text-red' }
 const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
 const LEAVE_TYPES = ['종일 연차', '오전 반차', '오후 반차']
@@ -269,7 +269,7 @@ function LeaveEditModal({ leave, totalLeave, usedDays, remaining, onClose, onSub
             <button type="button" onClick={onClose}
               className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">취소</button>
             <button type="submit" disabled={!startDate}
-              className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">저장</button>
+              className="h-9 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">저장</button>
           </div>
         </form>
       </div>
@@ -385,7 +385,7 @@ function LeaveApplyModal({ currentUser, totalLeave, usedDays, remaining, onClose
             <button type="button" onClick={onClose}
               className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] transition-colors cursor-pointer">취소</button>
             <button type="submit" disabled={!startDate}
-              className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">신청</button>
+              className="h-9 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40">신청</button>
           </div>
         </form>
       </div>
@@ -482,7 +482,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
         <h2 className="text-[16px] font-bold text-text-primary">Leave Management</h2>
         <span className="flex-1" />
         <button onClick={() => setShowApplyModal(true)}
-          className="h-8 px-3.5 rounded-[7px] bg-text-primary text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5">
+          className="h-8 px-3.5 rounded-[7px] bg-blue text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -514,7 +514,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
               <div className="flex border-b border-line shrink-0">
                 {TABS.map(t => (
                   <button key={t} onClick={() => setTab(t)}
-                    className={`px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors border-b-2 -mb-px ${tab === t ? 'text-text-primary font-bold border-text-primary' : 'text-muted border-transparent hover:text-text-sub'}`}>
+                    className={`px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors border-b-2 -mb-px ${tab === t ? 'text-text-primary font-bold border-blue' : 'text-muted border-transparent hover:text-text-sub'}`}>
                     {t}
                   </button>
                 ))}
@@ -604,7 +604,7 @@ export default function LeavePage({ role, currentUser, leaves, totalLeave, teamM
                     </div>
                     <div className="flex flex-col gap-1.5 shrink-0">
                       <button onClick={() => setApprovingLeave(lv)}
-                        className="px-3 py-[5px] rounded-[6px] bg-text-primary text-white text-[12px] font-medium cursor-pointer hover:opacity-90 whitespace-nowrap border border-text-primary">
+                        className="px-3 py-[5px] rounded-[6px] bg-blue text-white text-[12px] font-medium cursor-pointer hover:opacity-90 whitespace-nowrap border border-blue">
                         승인
                       </button>
                       <button onClick={() => setRejectingLeave(lv)}
