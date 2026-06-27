@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import ModalShowcase from './components/ModalShowcase'
+import MobileApp from './mobile/MobileApp'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import HomePage from './components/HomePage'
@@ -18,6 +19,11 @@ import { ROLES, canViewPage } from './data/roles'
 export default function App() {
   if (new URLSearchParams(window.location.search).has('showcase')) {
     return <ModalShowcase />
+  }
+
+  // 팀장 모바일 앱 — ?mobile 진입점 (데스크탑과 데이터 공유, 별도 레이아웃)
+  if (new URLSearchParams(window.location.search).has('mobile')) {
+    return <MobileApp />
   }
 
   const [role, setRole] = useState(ROLES.MANAGER)
