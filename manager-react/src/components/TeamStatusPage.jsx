@@ -56,7 +56,7 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
           <h2 className="text-[16px] font-bold text-text-primary">팀원 업무 현황</h2>
           <span className="flex-1" />
           {canEditOthers && (
-            <button onClick={() => setShowNewReqModal(true)} className="h-8 px-3.5 rounded-[7px] bg-text-primary text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5">
+            <button onClick={() => setShowNewReqModal(true)} className="h-8 px-3.5 rounded-[7px] bg-blue text-white text-[12px] font-semibold cursor-pointer hover:opacity-90 flex items-center gap-1.5">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>

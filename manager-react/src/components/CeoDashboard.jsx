@@ -73,7 +73,7 @@ function approvalContext(item) {
 function KpiChip({ label, value, unit, sub, valueColor, highlight }) {
   return (
     <div className={`flex-1 min-w-0 rounded-[10px] px-3.5 py-2.5 flex items-center justify-between border ${highlight ? 'border-transparent' : 'border-line bg-surface'}`}
-      style={highlight ? { background: 'linear-gradient(135deg,#161620,#2c2c3a)' } : undefined}>
+      style={highlight ? { background: 'linear-gradient(135deg,#5d87ff,#4570ea)' } : undefined}>
       <div className="min-w-0">
         <div className="text-[10px] text-soft mb-[3px] whitespace-nowrap">{label}</div>
         <div className="text-[19px] font-bold font-mono leading-none"
@@ -189,7 +189,7 @@ export default function CeoDashboard({
               {TABS.map(t => (
                 <button key={t} onClick={() => setTab(t)}
                   className={`text-[11.5px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-colors
-                    ${tab === t ? 'bg-text-primary text-white' : 'bg-surface-muted text-muted hover:text-text-sub'}`}>
+                    ${tab === t ? 'bg-blue text-white' : 'bg-surface-muted text-muted hover:text-text-sub'}`}>
                   {t} <span className="opacity-70">{counts[t]}</span>
                 </button>
               ))}
@@ -278,7 +278,7 @@ export default function CeoDashboard({
                     <div className="text-[10px] text-soft mb-2.5">요청 {item.requester} · {mmdd(item.requestedAt)}</div>
                     <div className="grid grid-cols-[1fr_1fr_auto] gap-1.5">
                       <button onClick={() => setConfirm({ kind: 'approve', item })}
-                        className="bg-text-primary text-white text-[11px] font-semibold py-[7px] rounded-md hover:opacity-90 cursor-pointer transition-opacity">승인</button>
+                        className="bg-blue text-white text-[11px] font-semibold py-[7px] rounded-md hover:opacity-90 cursor-pointer transition-opacity">승인</button>
                       <button onClick={() => setConfirm({ kind: 'reject', item })}
                         className="bg-surface text-muted text-[11px] py-[7px] rounded-md border border-line hover:text-red hover:border-red cursor-pointer transition-colors">반려</button>
                       <button onClick={() => setSelectedApproval(item)}

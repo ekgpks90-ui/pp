@@ -54,7 +54,7 @@ export default function Topbar({
             placeholder="업무명 검색..."
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            className="h-8 pl-8 pr-7 text-[13px] bg-surface-muted border border-line rounded-lg outline-none focus:border-blue focus:bg-white focus:w-[250px] focus:shadow-[0_0_0_3px_rgba(74,102,255,0.08)] transition-all w-[190px]"
+            className="h-8 pl-8 pr-7 text-[13px] bg-surface-muted border border-line rounded-lg outline-none focus:border-blue focus:bg-white focus:w-[250px] focus:shadow-[0_0_0_3px_rgba(93,135,255,0.08)] transition-all w-[190px]"
           />
           {searchQuery && (
             <button

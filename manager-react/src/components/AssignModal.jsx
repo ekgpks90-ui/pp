@@ -268,7 +268,7 @@ export default function AssignModal({ request, teamMembers, processes, onClose, 
             type="button"
             onClick={handleSubmit}
             disabled={!hasAny}
-            className="h-9 text-[13px] font-medium text-white bg-text-primary rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-9 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >배정 완료</button>
         </div>
       </div>

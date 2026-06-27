@@ -1,52 +1,55 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors */
-  --color-sidebar-bg: #0e0e16;
-  --color-sidebar-border: rgba(255, 255, 255, 0.06);
-  --color-sidebar-text: rgba(255, 255, 255, 0.48);
-  --color-sidebar-active-bg: rgba(74, 102, 255, 0.18);
+  /* Colors — Modernize (light admin) sidebar */
+  --color-sidebar-bg: #ffffff;
+  --color-sidebar-border: #e5eaef;
+  --color-sidebar-text: #5a6a85;
+  --color-sidebar-active-bg: #5d87ff;
   --color-sidebar-active-text: #ffffff;
-  --color-sidebar-active-accent: #4a66ff;
+  --color-sidebar-active-accent: #5d87ff;
 
-  --color-bg: #f4f4f6;
+  /* Surfaces */
+  --color-bg: #f2f6fa;
   --color-surface: #ffffff;
-  --color-surface-muted: #f9f9fb;
-  --color-surface-hover: #f2f2f5;
-  --color-line: #e8e8ed;
-  --color-line-soft: #f0f0f4;
+  --color-surface-muted: #f6f9fc;
+  --color-surface-hover: #ecf2ff;
+  --color-line: #e5eaef;
+  --color-line-soft: #eaeff4;
 
-  --color-text-primary: #0d0d14;
-  --color-text-sub: #2c2c3a;
-  --color-muted: #72728a;
-  --color-soft: #a8a8be;
+  /* Text — Modernize grey scale */
+  --color-text-primary: #2a3547;
+  --color-text-sub: #5a6a85;
+  --color-muted: #7c8fac;
+  --color-soft: #a1aec5;
 
-  --color-blue: #4a66ff;
-  --color-blue-hover: #3a56ef;
-  --color-blue-soft: #eef1ff;
-  --color-blue-tint: #f5f7ff;
-  --color-blue-mid: #c7d0ff;
-  --color-red: #f04444;
-  --color-red-hover: #e03333;
-  --color-red-soft: #fff0f0;
-  --color-green: #0ea874;
-  --color-green-soft: #e8faf3;
-  --color-orange: #f5a623;
-  --color-orange-soft: #fff8ec;
+  /* Brand / semantic — Modernize palette */
+  --color-blue: #5d87ff;
+  --color-blue-hover: #4570ea;
+  --color-blue-soft: #ecf2ff;
+  --color-blue-tint: #f5f8ff;
+  --color-blue-mid: #b6c7ff;
+  --color-red: #fa896b;
+  --color-red-hover: #f3704d;
+  --color-red-soft: #fdede8;
+  --color-green: #13deb9;
+  --color-green-soft: #e6fffa;
+  --color-orange: #ffae1f;
+  --color-orange-soft: #fef5e5;
   --color-purple: #7c4dff;
-  --color-purple-soft: #f3eeff;
+  --color-purple-soft: #ece9ff;
 
-  /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 14px;
+  /* Radius — Modernize (flatter) */
+  --radius-sm: 7px;
+  --radius-md: 9px;
 
-  /* Shadows */
-  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  /* Shadows — Modernize soft */
+  --shadow-xs: rgba(145, 158, 171, 0.12) 0px 1px 2px 0px;
+  --shadow-sm: rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 4px 12px -2px;
+  --shadow-md: rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
 
-  /* Font */
-  --font-sans: 'Pretendard Variable', 'Pretendard', ui-sans-serif, system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  /* Font — Plus Jakarta Sans (Latin) + Pretendard (Korean fallback) */
+  --font-sans: 'Plus Jakarta Sans', 'Pretendard Variable', 'Pretendard', ui-sans-serif, system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
 }
 

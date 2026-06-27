@@ -19,10 +19,10 @@ export default function Sidebar({ role, currentPage, onNavigate }) {
     <aside className="bg-sidebar-bg border-r border-sidebar-border py-[22px] px-[14px] flex flex-col gap-8 overflow-auto">
       {/* Brand */}
       <div className="flex items-center gap-2.5 px-1.5">
-        <div className="w-8 h-8 rounded-[9px] bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white text-sm font-extrabold shadow-[0_2px_8px_rgba(74,102,255,0.4)]">
+        <div className="w-8 h-8 rounded-[9px] bg-gradient-to-br from-blue to-purple flex items-center justify-center text-white text-sm font-extrabold shadow-[0_2px_8px_rgba(93,135,255,0.4)]">
           W
         </div>
-        <span className="text-white text-[15px] font-semibold tracking-[-0.02em]">WorkFlow</span>
+        <span className="text-text-primary text-[15px] font-semibold tracking-[-0.02em]">WorkFlow</span>
       </div>
 
       {/* Navigation */}
@@ -35,8 +35,8 @@ export default function Sidebar({ role, currentPage, onNavigate }) {
               onClick={() => onNavigate(item.id)}
               className={`flex items-center gap-2.5 px-3 py-[9px] rounded-[9px] text-[13px] font-medium tracking-[-0.01em] transition-colors cursor-pointer
                 ${isActive
-                  ? 'bg-sidebar-active-bg text-sidebar-active-text shadow-[inset_2px_0_0_var(--color-sidebar-active-accent)]'
-                  : 'text-sidebar-text hover:bg-white/[0.06] hover:text-white/85'
+                  ? 'bg-sidebar-active-bg text-sidebar-active-text shadow-[0_2px_6px_rgba(93,135,255,0.35)]'
+                  : 'text-sidebar-text hover:bg-surface-hover hover:text-blue'
                 }`}
             >
               {item.icon && (

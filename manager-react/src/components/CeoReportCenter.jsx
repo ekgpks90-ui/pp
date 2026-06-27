@@ -269,8 +269,8 @@ export default function CeoReportCenter({
           {/* 상단 요약 5카드 */}
           <div className="grid grid-cols-5 gap-3">
             {[
-              { label: '누적 투입 원가', tag: 'real', value: fmtMoney(m.totalCostElapsed), sub: `이번 달 ${m.projects.length}개 프로젝트`, bar: '#4a66ff' },
-              { label: '계약금 합계', tag: 'real', value: fmtMoney(m.contractTotal), sub: '승인된 계약 기준', bar: '#4a66ff' },
+              { label: '누적 투입 원가', tag: 'real', value: fmtMoney(m.totalCostElapsed), sub: `이번 달 ${m.projects.length}개 프로젝트`, bar: '#5d87ff' },
+              { label: '계약금 합계', tag: 'real', value: fmtMoney(m.contractTotal), sub: '승인된 계약 기준', bar: '#5d87ff' },
               { label: '완료 시 예상 마진', tag: 'calc', value: `≈${fmtSigned(m.projMarginTotal)}`, sub: '남은 작업 원가까지 추정', bar: '#0ea874', valColor: m.projMarginTotal < 0 ? '#dc2626' : '#0ea874' },
               { label: '평균 마진율', tag: 'calc', value: `${m.avgMarginPct}%`, sub: `거래처 ${m.marginRows.length}곳 평균`, bar: '#0ea874', valColor: '#0ea874' },
               { label: '실수금 매출', tag: 'coming', value: '2.1억', sub: '매출 데이터 연동 시', bar: '#d4d4d8', valColor: '#a8a8be' },
@@ -406,7 +406,7 @@ export default function CeoReportCenter({
               {['전체', '진행 중', '지연', '예산초과'].map(f => (
                 <button key={f} onClick={() => setProjFilter(f)}
                   className={`px-3 py-1.5 text-[12px] rounded-lg border transition-colors cursor-pointer
-                    ${projFilter === f ? 'bg-text-primary text-white border-text-primary font-semibold' : 'bg-surface text-muted border-line hover:text-text-sub'}`}>
+                    ${projFilter === f ? 'bg-blue text-white border-blue font-semibold' : 'bg-surface text-muted border-line hover:text-text-sub'}`}>
                   {f} {projCounts[f]}
                 </button>
               ))}
@@ -496,7 +496,7 @@ export default function CeoReportCenter({
               {['전체', '대기', '승인', '반려'].map(s => (
                 <button key={s} onClick={() => setApStatus(s)}
                   className={`px-3 py-1.5 text-[12px] rounded-lg border transition-colors cursor-pointer
-                    ${apStatus === s ? 'bg-text-primary text-white border-text-primary font-semibold' : 'bg-surface text-muted border-line hover:text-text-sub'}`}>
+                    ${apStatus === s ? 'bg-blue text-white border-blue font-semibold' : 'bg-surface text-muted border-line hover:text-text-sub'}`}>
                   {s} {apCounts[s]}
                 </button>
               ))}
@@ -571,7 +571,7 @@ export default function CeoReportCenter({
                         <b className="text-red">{ov.name}</b>(과부하 {ov.util}%) → <b className="text-orange">{lt.name}</b>(여유 {lt.util}%)에게 업무 일부 이관 시 양쪽 가동률이 균형에 가까워져요.
                       </div>
                       <button title="실행 연계는 준비 중입니다"
-                        className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-text-primary text-white hover:opacity-90 cursor-pointer shrink-0">재배분</button>
+                        className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-blue text-white hover:opacity-90 cursor-pointer shrink-0">재배분</button>
                     </div>
                   )
                 })}
@@ -654,7 +654,7 @@ export default function CeoReportCenter({
                         <div className="text-[10.5px] mb-2.5 leading-snug" style={{ color: ctx.warn ? '#dc2626' : '#0ea874' }}>{ctx.text}</div>
                         <div className="flex gap-1.5">
                           <button onClick={() => { if (window.confirm(`${l.applicantName}님의 연차를 승인하시겠습니까?`)) onApproveLeave?.(l.id) }}
-                            className="text-[12px] font-semibold px-4 py-1.5 rounded-lg bg-text-primary text-white hover:opacity-90 cursor-pointer">승인</button>
+                            className="text-[12px] font-semibold px-4 py-1.5 rounded-lg bg-blue text-white hover:opacity-90 cursor-pointer">승인</button>
                           <button onClick={() => { const r = window.prompt('반려 사유를 입력하세요', ''); if (r !== null) onRejectLeave?.(l.id, r) }}
                             className="text-[12px] font-medium px-4 py-1.5 rounded-lg border border-line text-muted hover:text-red hover:border-red cursor-pointer">반려</button>
                         </div>
@@ -789,7 +789,7 @@ export default function CeoReportCenter({
                 <div className="flex justify-between py-1.5 text-[12px]"><span className="text-muted">예상 파일명</span><span className="font-semibold font-mono text-[11px]">WorkFlow_경영리포트_2026-06.{ext}</span></div>
               </div>
               <div className="flex gap-2.5">
-                <button disabled title="준비 중인 기능입니다" className="flex-1 bg-text-primary text-white rounded-[9px] py-3 text-[13px] font-bold opacity-50 cursor-not-allowed">⬇ 다운로드</button>
+                <button disabled title="준비 중인 기능입니다" className="flex-1 bg-blue text-white rounded-[9px] py-3 text-[13px] font-bold opacity-50 cursor-not-allowed">⬇ 다운로드</button>
                 <button disabled title="준비 중인 기능입니다" className="bg-surface text-purple border-[1.5px] border-purple/40 rounded-[9px] px-5 py-3 text-[13px] font-semibold opacity-60 cursor-not-allowed">📧 이메일로 받기</button>
               </div>
             </div>
