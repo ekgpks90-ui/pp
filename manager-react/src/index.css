@@ -15,7 +15,7 @@
   --color-surface-muted: #f6f9fc;
   --color-surface-hover: #ecf2ff;
   --color-line: #e5eaef;
-  --color-line-soft: #eaeff4;
+  --color-line-soft: #eef2f6;
 
   /* Text — Modernize grey scale */
   --color-text-primary: #2a3547;
@@ -29,14 +29,15 @@
   --color-blue-soft: #ecf2ff;
   --color-blue-tint: #f5f8ff;
   --color-blue-mid: #b6c7ff;
-  --color-red: #fa896b;
-  --color-red-hover: #f3704d;
-  --color-red-soft: #fdede8;
-  --color-green: #13deb9;
-  --color-green-soft: #e6fffa;
+  --color-red: #f36163;
+  --color-red-hover: #f1494c;
+  --color-red-soft: #ffefef;
+  --color-green: #02a14c;
+  --color-green-soft: #eefdf5;
   --color-orange: #ffae1f;
-  --color-orange-soft: #fef5e5;
-  --color-purple: #7c4dff;
+  --color-orange-soft: #fdf8ec;
+  --color-brown: #ffae1f;
+  --color-purple: #9975fd;
   --color-purple-soft: #ece9ff;
 
   /* Radius — Modernize (flatter) */

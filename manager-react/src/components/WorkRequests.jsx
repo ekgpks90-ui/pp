@@ -28,8 +28,8 @@ export default function WorkRequests({ requests, onAccept, onReject, onOpenDetai
               <div key={r.id} onClick={() => onOpenDetail?.(r)} className={`bg-white rounded-lg border border-line p-3 hover:border-[#d0d0d8] hover:shadow-xs transition-all cursor-pointer ${isRejected ? 'opacity-55' : ''}`}>
                 <div className="flex items-start justify-between gap-2 mb-[5px]">
                   <span className={`text-[13px] font-semibold text-text-primary leading-[1.3] tracking-[-0.01em] ${isRejected ? 'line-through' : ''}`}>{r.title}</span>
-                  {isRejected && <span className="text-[11px] font-semibold text-red bg-red-soft px-[7px] h-5 inline-flex items-center rounded shrink-0">거절됨</span>}
-                  {isAccepted && <span className="text-[11px] font-semibold text-green bg-green-soft px-[7px] h-5 inline-flex items-center rounded shrink-0">수락됨</span>}
+                  {isRejected && <span className="text-[11px] font-semibold text-red-hover bg-red-soft px-[7px] h-5 inline-flex items-center rounded shrink-0">거절됨</span>}
+                  {isAccepted && <span className="text-[11px] font-semibold text-[#0ab87e] bg-green-soft px-[7px] h-5 inline-flex items-center rounded shrink-0">수락됨</span>}
                 </div>
                 <div className="text-xs text-muted leading-[1.5] mb-1.5">{r.detail}</div>
                 <div className="text-[11px] text-soft mb-2.5 tabular-nums">

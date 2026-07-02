@@ -12,10 +12,11 @@ const TEAM_TAG_COLORS = {
   '개발팀':   { bg: '#d1fae5', text: '#065f46' },
   '기획팀':   { bg: '#fef3c7', text: '#92400e' },
   '마케팅팀': { bg: '#fce7f3', text: '#9d174d' },
+  '인사팀':   { bg: '#ede9fe', text: '#7c3aed' },
 }
 
 function memberColor(name) {
-  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  const palette = ['#6979F8', '#00C48C', '#FFA26B', '#BE52F2', '#FF647C', '#0084F4', '#FFCF5C']
   let h = 0
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
   return palette[h % palette.length]
@@ -339,10 +340,8 @@ export default function MeetingRoomPage({
 function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
   const tc = TEAM_TAG_COLORS[m.team] || { bg: '#f3f4f6', text: '#374151' }
   const date = (m.date || m.startDate || '').replace(/-/g, '.')
-  const actionCount = (m.actionItems || []).length
-
   return (
-    <div className="group relative bg-white border border-line rounded-xl p-4 hover:shadow-sm transition-shadow">
+    <div className="group relative bg-white border border-line rounded-[14px] min-w-[280px] p-4 hover:shadow-sm transition-shadow">
       {/* Edit + Delete buttons */}
       <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
@@ -369,7 +368,7 @@ function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
         </button>
       </div>
 
-      {/* Top row: tags + meta */}
+      {/* Top row: tags + avatars */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
           <span className="px-2 py-0.5 rounded text-[11px] font-semibold" style={{ background: tc.bg, color: tc.text }}>
@@ -379,9 +378,22 @@ function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
             {m.type}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-soft">
-          <span>{date}</span>
-          <span>{m.author}</span>
+        <div className="flex items-center gap-0.5">
+          {(m.attendeeNames || []).slice(0, 4).map((name, i) => (
+            <span
+              key={i}
+              className="w-[22px] h-[22px] rounded-full flex items-center justify-center text-white text-[9px] font-semibold -ml-1 first:ml-0 border border-white"
+              style={{ background: memberColor(name), zIndex: 4 - i }}
+              title={name}
+            >
+              {name[0]}
+            </span>
+          ))}
+          {(m.attendeeNames || []).length > 4 && (
+            <span className="w-[22px] h-[22px] rounded-full flex items-center justify-center bg-surface-muted text-muted text-[9px] font-semibold -ml-1 border border-white">
+              +{m.attendeeNames.length - 4}
+            </span>
+          )}
         </div>
       </div>
 
@@ -393,26 +405,9 @@ function MeetingCard({ meeting: m, onView, onEdit, onDelete }) {
 
       {/* Footer */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 text-[11.5px] text-muted">
-          <span>⏱ {m.duration || '--:--'}</span>
-          <div className="flex items-center gap-0.5">
-            {(m.attendeeNames || []).slice(0, 4).map((name, i) => (
-              <span
-                key={i}
-                className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-semibold -ml-1 first:ml-0 border border-white"
-                style={{ background: memberColor(name), zIndex: 4 - i }}
-                title={name}
-              >
-                {name[0]}
-              </span>
-            ))}
-            {(m.attendeeNames || []).length > 4 && (
-              <span className="w-5 h-5 rounded-full flex items-center justify-center bg-surface-muted text-muted text-[9px] font-semibold -ml-1 border border-white">
-                +{m.attendeeNames.length - 4}
-              </span>
-            )}
-          </div>
-          {actionCount > 0 && <span>✅ 액션 {actionCount}건</span>}
+        <div className="flex items-center gap-2.5 text-[11.5px] text-muted">
+          <span>🗓 {date}</span>
+          <span>⏱ {m.duration || '--'}</span>
         </div>
         <button
           onClick={onView}

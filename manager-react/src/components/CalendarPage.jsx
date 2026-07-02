@@ -21,11 +21,11 @@ const WORK_ITEM_TYPE_COLOR = {
 const STATUS_COLOR = {
   '진행 중': { bg: '#dbeafe', text: '#2563eb' },
   '시작 전': { bg: '#f3f4f6', text: '#9ca3af' },
-  '지연': { bg: '#fee2e2', text: '#dc2626' },
+  '지연': { bg: '#fdede8', text: '#dc2626' },
 }
 
 function memberColor(name) {
-  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  const palette = ['#6979F8', '#00C48C', '#FFA26B', '#BE52F2', '#FF647C', '#0084F4', '#FFCF5C']
   let h = 0
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
   return palette[h % palette.length]

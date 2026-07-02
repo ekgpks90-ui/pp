@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 
 function memberColor(name) {
-  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  const palette = ['#6979F8', '#00C48C', '#FFA26B', '#BE52F2', '#FF647C', '#0084F4', '#FFCF5C']
   let h = 0
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
   return palette[h % palette.length]
@@ -54,7 +54,7 @@ export default function ScheduleMeetingModal({ teamMembers, onClose, onSave }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <form onSubmit={handleSubmit} className="relative bg-white rounded-xl shadow-xl w-[440px] flex flex-col">
+      <form onSubmit={handleSubmit} className="relative bg-white rounded-[14px] shadow-lg w-[440px] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
           <h3 className="text-[15px] font-semibold">회의 등록</h3>
           <button type="button" onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg">&times;</button>
@@ -139,8 +139,8 @@ export default function ScheduleMeetingModal({ teamMembers, onClose, onSave }) {
 
         <div className="px-6 py-4 border-t border-line">
           <button type="submit" disabled={!title.trim() || !date}
-            className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
-              ${title.trim() && date ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}>
+            className={`w-full h-11 text-[14px] font-semibold rounded-[9px] transition-all cursor-pointer
+              ${title.trim() && date ? 'bg-blue text-white hover:bg-blue-hover' : 'bg-line text-soft cursor-not-allowed'}`}>
             등록하기
           </button>
         </div>

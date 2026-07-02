@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { TODAY_ISO } from '../data/helpers'
 
 function memberColor(name) {
-  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  const palette = ['#6979F8', '#00C48C', '#FFA26B', '#BE52F2', '#FF647C', '#0084F4', '#FFCF5C']
   let h = 0
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
   return palette[h % palette.length]
@@ -111,7 +111,7 @@ export default function MeetingSaveModal({ duration, teamMembers, meeting, onClo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <form onSubmit={handleSubmit} className="relative bg-white rounded-xl shadow-xl w-[520px] max-h-[85vh] flex flex-col">
+      <form onSubmit={handleSubmit} className="relative bg-white rounded-[14px] shadow-lg w-[520px] max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
           <h3 className="text-[15px] font-semibold">{isEdit ? '회의록 수정' : '회의록 저장'}</h3>
           <button type="button" onClick={onClose} className="text-muted hover:text-text-primary cursor-pointer text-lg">&times;</button>
@@ -244,8 +244,8 @@ export default function MeetingSaveModal({ duration, teamMembers, meeting, onClo
 
         <div className="px-6 py-4 border-t border-line">
           <button type="submit" disabled={!title.trim()}
-            className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
-              ${title.trim() ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}>
+            className={`w-full h-11 text-[14px] font-semibold rounded-[9px] transition-all cursor-pointer
+              ${title.trim() ? 'bg-blue text-white hover:bg-blue-hover' : 'bg-line text-soft cursor-not-allowed'}`}>
             {isEdit ? '수정 완료' : '저장하기'}
           </button>
         </div>

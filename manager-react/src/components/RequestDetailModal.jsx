@@ -61,13 +61,13 @@ export default function RequestDetailModal({ request, processes = [], onClose, o
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => onReject(request.id)}
-              className="h-9 text-[13px] font-medium text-muted border border-line rounded-[8px] hover:border-[#d0d0d8] hover:text-text-sub transition-colors cursor-pointer"
+              className="h-10 text-[13px] font-medium text-muted border border-line rounded-[9px] hover:border-[#d0d0d8] hover:text-text-sub transition-colors cursor-pointer"
             >
               거절
             </button>
             <button
               onClick={() => onAccept(request.id)}
-              className="h-9 text-[13px] font-medium text-white bg-blue rounded-[8px] hover:opacity-90 transition-opacity cursor-pointer"
+              className="h-10 text-[13px] font-medium text-white bg-blue rounded-[9px] hover:bg-blue-hover transition-colors cursor-pointer"
             >
               수락
             </button>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 function memberColor(name) {
-  const palette = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+  const palette = ['#6979F8', '#00C48C', '#FFA26B', '#BE52F2', '#FF647C', '#0084F4', '#FFCF5C']
   let h = 0
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff
   return palette[h % palette.length]
@@ -162,7 +162,6 @@ function ScriptTab({ meeting: m }) {
       {lines.map((s, i) => (
         <div key={i} className="flex gap-3 py-2 border-b border-line-soft last:border-0">
           <span className="text-[11px] text-soft font-mono tabular-nums shrink-0 mt-0.5 w-10">{s.time}</span>
-          <span className="text-[12px] font-semibold text-blue shrink-0 w-14 truncate">{s.speaker}</span>
           <span className="text-[13px] text-text-sub leading-[1.6]">{s.text}</span>
         </div>
       ))}

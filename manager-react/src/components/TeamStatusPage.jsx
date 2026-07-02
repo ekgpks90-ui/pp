@@ -3,17 +3,17 @@ import { canEditOthersData } from '../data/roles'
 import NewRequestModal from './NewRequestModal'
 import AssignModal from './AssignModal'
 
-const AVATAR_COLORS = ['#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#ec4899','#06b6d4','#84cc16']
+const AVATAR_COLORS = ['#6979F8','#00C48C','#FFA26B','#BE52F2','#FF647C','#0084F4','#FFCF5C']
 
 function memberColor(idx) {
   return AVATAR_COLORS[idx % AVATAR_COLORS.length]
 }
 
 const REQ_GROUPS = [
-  { statuses: ['신규요청'], label: '신규 요청', borderColor: '#2563eb', badgeCls: 'bg-blue/10 text-blue', showBtn: true, btnCls: 'border-blue bg-blue/5 text-blue' },
-  { statuses: ['재배정'], label: '재배정', borderColor: '#ef4444', badgeCls: 'bg-red/10 text-red', showBtn: true, btnCls: 'border-[#fca5a5] bg-red/5 text-red' },
-  { statuses: ['수락대기중'], label: '수락 대기 중', borderColor: '#f59e0b', badgeCls: 'bg-[#f59e0b]/10 text-[#f59e0b]', showBtn: false },
-  { statuses: ['배정완료'], label: '배정 완료', borderColor: '#10b981', badgeCls: 'bg-green/10 text-green', showBtn: false },
+  { statuses: ['신규요청'], label: '신규 요청', borderColor: '#4570ea', badgeCls: 'bg-blue-mid/10 text-blue-hover', showBtn: true, btnCls: 'border-blue bg-blue/5 text-blue' },
+  { statuses: ['재배정'], label: '재배정', borderColor: '#f1494c', badgeCls: 'bg-red-soft/10 text-red-hover', showBtn: true, btnCls: 'border-red-soft bg-red/5 text-red-hover' },
+  { statuses: ['수락대기중'], label: '수락 대기 중', borderColor: '#ffae1f', badgeCls: 'bg-orange/10 text-orange', showBtn: false },
+  { statuses: ['배정완료'], label: '배정 완료', borderColor: '#0ab87e', badgeCls: 'bg-green/10 text-[#0ab87e]', showBtn: false },
 ]
 
 export default function TeamStatusPage({ role, assignmentRequests, teamMembers, currentUser, processes, onUpdateAssignmentRequests, onAddApprovalItem }) {
@@ -30,10 +30,10 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
   const kpiDone = reqs.filter(r => r.status === '배정완료').length
 
   const kpis = [
-    { label: '신규 요청', value: kpiNew, color: '#2563eb' },
-    { label: '재배정 필요', value: kpiReassign, color: '#ef4444' },
-    { label: '수락 대기', value: kpiPending, color: '#f59e0b' },
-    { label: '배정 완료', value: kpiDone, color: '#10b981' },
+    { label: '신규 요청', value: kpiNew, color: '#4570ea' },
+    { label: '재배정 필요', value: kpiReassign, color: '#f1494c' },
+    { label: '수락 대기', value: kpiPending, color: '#ffae1f' },
+    { label: '배정 완료', value: kpiDone, color: '#0ab87e' },
   ]
 
   const memberCards = useMemo(() => {
@@ -163,7 +163,7 @@ export default function TeamStatusPage({ role, assignmentRequests, teamMembers, 
                 </div>
               </div>
               {member.isLeave ? (
-                <span className="text-[11px] px-2 py-0.5 rounded bg-[#fef3c7] text-[#92400e] font-medium self-start">
+                <span className="text-[11px] px-2 py-0.5 rounded bg-[#fef5e5] text-[#92400e] font-medium self-start">
                   {member.leaveType}
                 </span>
               ) : (

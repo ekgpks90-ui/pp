@@ -148,7 +148,7 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
             {hasNotes && (
               <button
                 onClick={() => { handleClose(); onNavigate?.('meeting-room') }}
-                className="mt-2 w-full h-9 text-[13px] font-medium text-blue border border-blue rounded-lg hover:bg-blue-soft transition-colors cursor-pointer"
+                className="mt-2 w-full h-10 text-[13px] font-medium text-blue border border-blue rounded-[9px] hover:bg-blue-soft transition-colors cursor-pointer"
               >
                 회의록 보기 →
               </button>
@@ -391,8 +391,8 @@ export default function DetailPanel({ item, sessions = [], meetings = [], canEdi
             <button
               onClick={handleSave}
               disabled={!isDirty}
-              className={`w-full h-10 text-[13px] font-semibold rounded-lg transition-all cursor-pointer
-                ${isDirty ? 'bg-blue text-white hover:opacity-90' : 'bg-line text-soft cursor-not-allowed'}`}
+              className={`w-full h-11 text-[14px] font-semibold rounded-[9px] transition-all cursor-pointer
+                ${isDirty ? 'bg-blue text-white hover:bg-blue-hover' : 'bg-line text-soft cursor-not-allowed'}`}
             >
               저장하기
             </button>
